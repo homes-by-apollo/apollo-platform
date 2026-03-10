@@ -192,10 +192,11 @@ export default function ApolloSite() {
         input,textarea,select,button{font-family:inherit}
 
         .photo-clip-text {
-          font-size: clamp(72px, 13.5vw, 220px);
+          font-size: 12vw;
           font-weight: 800;
           letter-spacing: -0.04em;
-          line-height: 0.88;
+          line-height: 1;
+          white-space: nowrap;
           background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1400&q=85');
           background-size: cover;
           background-position: center 40%;
@@ -203,7 +204,10 @@ export default function ApolloSite() {
           background-clip: text;
           -webkit-text-fill-color: transparent;
           color: transparent;
-          display: inline-block;
+          display: block;
+          width: 100%;
+          text-align: center;
+          overflow: hidden;
         }
 
         /* ── Mobile overrides ─────────────────────────────── */
