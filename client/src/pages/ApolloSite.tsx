@@ -84,19 +84,33 @@ function HomeCard({ h }: { h: typeof homes[0] }) {
   const [hov, setHov] = useState(false);
   return (
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer",
-        boxShadow:hov?"0 16px 48px rgba(0,0,0,0.14)":"0 2px 16px rgba(0,0,0,0.06)",
-        transform:hov?"translateY(-4px)":"translateY(0)", transition:"all 0.28s ease" }}>
-      <div style={{ position:"relative", height:200, overflow:"hidden" }}>
-        <img src={h.img} alt={h.title} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.05)":"scale(1)", transition:"transform 0.5s ease" }} />
-        <span style={{ position:"absolute", top:12, left:12, background:"white", color:TXT, fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6, boxShadow:"0 2px 8px rgba(0,0,0,0.12)" }}>{h.tag}</span>
+      style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
+      {/* Image */}
+      <div style={{ position:"relative", height:260, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
+        <img src={h.img} alt={h.title} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.04)":"scale(1)", transition:"transform 0.5s ease" }} />
+        <span style={{ position:"absolute", top:14, left:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{h.tag}</span>
       </div>
-      <div style={{ padding:"18px 20px 22px" }}>
-        <div style={{ fontSize:20, fontWeight:800, color:TXT, letterSpacing:"-0.02em", marginBottom:3 }}>{h.price}</div>
-        <div style={{ fontSize:14, fontWeight:600, color:TXT, marginBottom:3 }}>{h.title}</div>
-        <div style={{ fontSize:12, color:MUT, marginBottom:14 }}>📍 {h.addr}, {h.city}</div>
-        <div style={{ display:"flex", gap:14, fontSize:12, color:MUT, borderTop:`1px solid ${BOR}`, paddingTop:12 }}>
-          <span>⬜ {h.sqft} sqft</span><span>🛏 {h.bed}</span><span>🚿 {h.bath}</span>
+      {/* Info below image — no card box */}
+      <div style={{ paddingBottom:8 }}>
+        <div style={{ fontSize:22, fontWeight:800, color:TXT, letterSpacing:"-0.03em", marginBottom:4 }}>{h.price}</div>
+        <div style={{ fontSize:15, fontWeight:700, color:TXT, marginBottom:5 }}>{h.title}</div>
+        <div style={{ fontSize:13, color:MUT, marginBottom:12, display:"flex", alignItems:"center", gap:4 }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {h.addr}, {h.city}
+        </div>
+        <div style={{ display:"flex", gap:18, fontSize:13, color:MUT }}>
+          <span style={{ display:"flex", alignItems:"center", gap:5 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            {h.bed}
+          </span>
+          <span style={{ display:"flex", alignItems:"center", gap:5 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12h16M4 12a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></svg>
+            {h.bath}
+          </span>
+          <span style={{ display:"flex", alignItems:"center", gap:5 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            {h.sqft} sqft
+          </span>
         </div>
       </div>
     </div>
@@ -107,19 +121,22 @@ function LotCard({ l }: { l: typeof lots[0] }) {
   const [hov, setHov] = useState(false);
   return (
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer",
-        boxShadow:hov?"0 16px 48px rgba(0,0,0,0.14)":"0 2px 16px rgba(0,0,0,0.06)",
-        transform:hov?"translateY(-4px)":"translateY(0)", transition:"all 0.28s ease" }}>
-      <div style={{ position:"relative", height:170, overflow:"hidden" }}>
-        <img src={l.img} alt={l.addr} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.05)":"scale(1)", transition:"transform 0.5s ease" }} />
-        <span style={{ position:"absolute", top:12, left:12, background:l.tag==="Available"?G:"#888", color:"white", fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6 }}>{l.tag}</span>
-        <span style={{ position:"absolute", top:12, right:12, background:"white", color:TXT, fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6 }}>{l.size}</span>
+      style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
+      {/* Image */}
+      <div style={{ position:"relative", height:260, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
+        <img src={l.img} alt={l.addr} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.04)":"scale(1)", transition:"transform 0.5s ease" }} />
+        <span style={{ position:"absolute", top:14, left:14, background:l.tag==="Available"?G:"#888", color:"white", fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8 }}>{l.tag}</span>
+        <span style={{ position:"absolute", top:14, right:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{l.size}</span>
       </div>
-      <div style={{ padding:"16px 20px 20px" }}>
-        <div style={{ fontSize:18, fontWeight:800, color:TXT, letterSpacing:"-0.02em", marginBottom:3 }}>{l.price}</div>
-        <div style={{ fontSize:13, fontWeight:600, color:TXT, marginBottom:3 }}>{l.addr}</div>
-        <div style={{ fontSize:12, color:MUT, marginBottom:12 }}>📍 {l.city}</div>
-        <div style={{ fontSize:11, color:G, background:GL, padding:"7px 11px", borderRadius:6, fontWeight:600 }}>🔌 {l.utilities}</div>
+      {/* Info below image — no card box */}
+      <div style={{ paddingBottom:8 }}>
+        <div style={{ fontSize:22, fontWeight:800, color:TXT, letterSpacing:"-0.03em", marginBottom:4 }}>{l.price}</div>
+        <div style={{ fontSize:15, fontWeight:700, color:TXT, marginBottom:5 }}>{l.addr}</div>
+        <div style={{ fontSize:13, color:MUT, marginBottom:12, display:"flex", alignItems:"center", gap:4 }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {l.city}
+        </div>
+        <div style={{ fontSize:12, color:G, background:GL, padding:"7px 12px", borderRadius:8, fontWeight:600, display:"inline-block" }}>⚡ {l.utilities}</div>
       </div>
     </div>
   );
