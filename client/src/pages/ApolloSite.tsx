@@ -182,38 +182,54 @@ export default function ApolloSite() {
         {/* ── HOME PAGE ── */}
         {page==="home" && <>
 
-          {/* HERO */}
-          <div style={{ background:G, padding:"80px 32px 90px", position:"relative", overflow:"hidden" }}>
-            <div style={{ position:"absolute", top:-60, right:-60, width:400, height:400, borderRadius:"50%", background:"rgba(255,255,255,0.03)" }} />
-            <div style={{ position:"absolute", bottom:-80, left:-40, width:300, height:300, borderRadius:"50%", background:"rgba(255,255,255,0.02)" }} />
-            <div style={{ maxWidth:780, margin:"0 auto", position:"relative" }}>
-              <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(255,255,255,0.08)", borderRadius:100, padding:"6px 14px", marginBottom:24 }}>
-                <div style={{ width:6, height:6, borderRadius:"50%", background:"#4ade80" }} />
-                <span style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.7)", textTransform:"uppercase", letterSpacing:"0.1em" }}>Now Building in Pahrump, NV</span>
-              </div>
-              <h1 style={{ fontSize:52, fontWeight:800, color:"white", lineHeight:1.08, letterSpacing:"-0.03em", marginBottom:20 }}>
-                Your Dream Home,<br/>
-                <span style={{ color:"rgba(255,255,255,0.45)" }}>Built to Last.</span>
-              </h1>
-              <p style={{ fontSize:16, color:"rgba(255,255,255,0.55)", lineHeight:1.8, maxWidth:520, marginBottom:36 }}>
-                Apollo Home Builders delivers all-inclusive custom homes in Pahrump, Nevada — from foundation to finish, with no hidden costs and no surprises.
-              </p>
-              <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
-                <Btn onClick={()=>nav("contact")}>Schedule a Free Consultation</Btn>
-                <Btn outline onClick={()=>nav("homes")}>View Available Homes</Btn>
-              </div>
-            </div>
-          </div>
+          {/* HERO — Residence O style */}
+          <div style={{ background:"white", paddingTop:64, paddingBottom:0, textAlign:"center", position:"relative" }}>
+            {/* Big headline */}
+            <h1 style={{ fontSize:"clamp(38px,5.5vw,76px)", fontWeight:800, color:TXT, lineHeight:1.08, letterSpacing:"-0.03em", maxWidth:820, margin:"0 auto 20px", padding:"0 24px" }}>
+              Find Your Dream Home<br/>in Pahrump
+            </h1>
+            <p style={{ fontSize:17, color:MUT, maxWidth:480, margin:"0 auto 40px", lineHeight:1.7, fontWeight:400 }}>
+              Explore our listings to find the perfect place to call home.
+            </p>
 
-          {/* STATS BAR */}
-          <div style={{ background:"white", borderBottom:`1px solid ${BOR}`, padding:"20px 32px" }}>
-            <div style={{ maxWidth:780, margin:"0 auto", display:"flex", gap:40, flexWrap:"wrap" }}>
-              {[["50+","Homes Built"],["6–9 mo","Avg Build Time"],["$389K","Starting Price"],["100%","All-Inclusive"]].map(([v,l])=>(
-                <div key={l}>
-                  <div style={{ fontSize:22, fontWeight:800, color:G, letterSpacing:"-0.02em" }}>{v}</div>
-                  <div style={{ fontSize:11, color:MUT, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em" }}>{l}</div>
+            {/* Floating search bar */}
+            <div style={{ display:"inline-flex", alignItems:"center", background:"white", borderRadius:14, boxShadow:"0 4px 32px rgba(0,0,0,0.13)", padding:"6px 6px 6px 0", gap:0, marginBottom:0, position:"relative", zIndex:10 }}>
+              {[
+                ["📍","Location"],
+                ["🏠","Property Type"],
+                ["💰","Budget"],
+              ].map(([icon,label],i)=>(
+                <div key={label} style={{ display:"flex", alignItems:"center", gap:8, padding:"14px 24px", borderRight:i<2?`1px solid ${BOR}`:"none", cursor:"pointer", minWidth:160 }}>
+                  <span style={{ fontSize:15 }}>{icon}</span>
+                  <div style={{ textAlign:"left" }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:2 }}>{label}</div>
+                    <div style={{ fontSize:12, color:"#bbb" }}>Any ▾</div>
+                  </div>
                 </div>
               ))}
+              <button onClick={()=>nav("homes")}
+                style={{ background:G, color:"white", border:"none", padding:"16px 32px", borderRadius:10, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", marginLeft:6 }}>
+                Search
+              </button>
+            </div>
+
+            {/* Hero image — overlapped by search bar */}
+            <div style={{ position:"relative", marginTop:-28, height:480, overflow:"hidden" }}>
+              <img
+                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=85"
+                alt="Pahrump custom home"
+                style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 60%" }}
+              />
+              <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(8,15,10,0.45) 0%, transparent 55%)" }} />
+              {/* Stat pills */}
+              <div style={{ position:"absolute", bottom:24, left:"50%", transform:"translateX(-50%)", display:"flex", gap:12 }}>
+                {[["50+","Homes Built"],["$389K","Starting Price"],["6–9 mo","Build Time"]].map(([v,l])=>(
+                  <div key={l} style={{ background:"rgba(255,255,255,0.92)", backdropFilter:"blur(8px)", borderRadius:10, padding:"12px 20px", textAlign:"center", minWidth:110 }}>
+                    <div style={{ fontSize:20, fontWeight:800, color:G, letterSpacing:"-0.02em" }}>{v}</div>
+                    <div style={{ fontSize:10, color:MUT, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.06em", marginTop:2 }}>{l}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
