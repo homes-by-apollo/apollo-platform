@@ -160,6 +160,8 @@ export default function ApolloSite() {
   const [lotFilter, setLotFilter] = useState("All");
   const [blogFilter, setBlogFilter] = useState("All");
   const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const [selectedHome, setSelectedHome] = useState<typeof homes[0] | null>(null);
+  const [selectedLot, setSelectedLot] = useState<typeof lots[0] | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -395,6 +397,36 @@ export default function ApolloSite() {
             </div>
           </div>
 
+          {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
+          <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
+            <span className="photo-clip-text">Homes by Apollo</span>
+          </div>
+          <div className="section-pad" style={{ background:"white", padding:"48px 32px 64px" }}>
+            <div style={{ maxWidth:1060, margin:"0 auto" }}>
+              <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:56, alignItems:"start" }}>
+                <div>
+                  <SectionLabel>About us</SectionLabel>
+                  <h2 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.15, marginBottom:14 }}>We provide the best Services</h2>
+                  <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>Apollo Home Builders is committed to helping you find and build the perfect home in Pahrump, Nevada.</p>
+                </div>
+                <div className="why-apollo-icons" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32 }}>
+                  {[
+                    ["🏗️","All-Inclusive Pricing","One contract, one price. Land prep to final finishes — no hidden costs, ever."],
+                    ["🗺️","Local Pahrump Expertise","We know Nye County inside out — permits, soil, HOAs, and the best lots in the valley."],
+                    ["🎨","Custom Floor Plans","Every build starts with your vision. We modify layouts and finishes to match your lifestyle."],
+                    ["🤝","Preferred Lenders","We connect you with Nevada construction loan specialists from day one."],
+                  ].map(([icon,title,desc])=>(
+                    <div key={title}>
+                      <div style={{ fontSize:26, marginBottom:10 }}>{icon}</div>
+                      <div style={{ fontSize:14, fontWeight:700, color:TXT, marginBottom:6 }}>{title}</div>
+                      <div style={{ fontSize:13, color:MUT, lineHeight:1.7 }}>{desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* FEATURED HOMES */}
           <div className="section-pad-top" style={{ maxWidth:1060, margin:"0 auto", padding:"56px 32px 0" }}>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
@@ -405,7 +437,11 @@ export default function ApolloSite() {
               <button onClick={()=>nav("homes")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-              {homes.map(h=><HomeCard key={h.id} h={h}/>)}
+              {homes.map(h=>(
+                <div key={h.id} onClick={()=>{ setSelectedHome(h); nav("home-detail"); }}>
+                  <HomeCard h={h}/>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -438,36 +474,6 @@ export default function ApolloSite() {
             </div>
           </div>
 
-          {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US merged */}
-          <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
-            <span className="photo-clip-text">Homes by Apollo</span>
-          </div>
-          <div className="section-pad" style={{ background:"white", padding:"48px 32px 64px" }}>
-            <div style={{ maxWidth:1060, margin:"0 auto" }}>
-              <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:56, alignItems:"start" }}>
-                <div>
-                  <SectionLabel>About us</SectionLabel>
-                  <h2 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.15, marginBottom:14 }}>We provide the best Services</h2>
-                  <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>Apollo Home Builders is committed to helping you find and build the perfect home in Pahrump, Nevada.</p>
-                </div>
-                <div className="why-apollo-icons" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32 }}>
-                  {[
-                    ["🏗️","All-Inclusive Pricing","One contract, one price. Land prep to final finishes — no hidden costs, ever."],
-                    ["🗺️","Local Pahrump Expertise","We know Nye County inside out — permits, soil, HOAs, and the best lots in the valley."],
-                    ["🎨","Custom Floor Plans","Every build starts with your vision. We modify layouts and finishes to match your lifestyle."],
-                    ["🤝","Preferred Lenders","We connect you with Nevada construction loan specialists from day one."],
-                  ].map(([icon,title,desc])=>(
-                    <div key={title}>
-                      <div style={{ fontSize:26, marginBottom:10 }}>{icon}</div>
-                      <div style={{ fontSize:14, fontWeight:700, color:TXT, marginBottom:6 }}>{title}</div>
-                      <div style={{ fontSize:13, color:MUT, lineHeight:1.7 }}>{desc}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* AVAILABLE LOTS */}
           <div className="section-pad-top" style={{ maxWidth:1060, margin:"0 auto", padding:"0 32px 56px" }}>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
@@ -478,7 +484,11 @@ export default function ApolloSite() {
               <button onClick={()=>nav("lots")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-              {lots.map(l=><LotCard key={l.id} l={l}/>)}
+              {lots.map(l=>(
+                <div key={l.id} onClick={()=>{ setSelectedLot(l); nav("lot-detail"); }}>
+                  <LotCard l={l}/>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -622,7 +632,11 @@ export default function ApolloSite() {
               </div>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
-              {homes.map(h=><HomeCard key={h.id} h={h}/>)}
+              {homes.map(h=>(
+                <div key={h.id} onClick={()=>{ setSelectedHome(h); nav("home-detail"); }}>
+                  <HomeCard h={h}/>
+                </div>
+              ))}
             </div>
             <div className="cta-banner" style={{ background:G, borderRadius:14, padding:"32px 36px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
@@ -645,7 +659,277 @@ export default function ApolloSite() {
               </div>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-              {lots.map(l=><LotCard key={l.id} l={l}/>)}
+              {lots.map(l=>(
+                <div key={l.id} onClick={()=>{ setSelectedLot(l); nav("lot-detail"); }}>
+                  <LotCard l={l}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══ HOME DETAIL PAGE ════════════════════════════════════════════════════════ */}
+        {page==="home-detail" && selectedHome && (
+          <div style={{ background:"white", minHeight:"100%" }}>
+            {/* Back button */}
+            <div style={{ maxWidth:1160, margin:"0 auto", padding:"28px 32px 0" }}>
+              <button onClick={()=>nav("homes")}
+                style={{ display:"inline-flex", alignItems:"center", gap:8, background:"none", border:`1px solid ${BOR}`, borderRadius:8, padding:"8px 16px", fontSize:12, fontWeight:700, color:MUT, cursor:"pointer", fontFamily:"inherit", transition:"all 0.15s" }}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor=G; e.currentTarget.style.color=G;}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor=BOR; e.currentTarget.style.color=MUT;}}>
+                ← Back to Homes
+              </button>
+            </div>
+
+            {/* Opulent O-style: big address headline + price top-right */}
+            <div style={{ maxWidth:1160, margin:"0 auto", padding:"32px 32px 0" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", flexWrap:"wrap", gap:16, marginBottom:8 }}>
+                <div>
+                  <div style={{ fontSize:12, fontWeight:700, color:G, background:GL, display:"inline-block", padding:"4px 12px", borderRadius:6, marginBottom:12, letterSpacing:"0.06em", textTransform:"uppercase" }}>{selectedHome.tag}</div>
+                  <h1 style={{ fontSize:"clamp(28px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.05, color:TXT, marginBottom:6 }}>{selectedHome.addr},<br/>{selectedHome.city}</h1>
+                  <div style={{ display:"flex", gap:20, fontSize:14, color:MUT, marginTop:12 }}>
+                    <span>🛏 {selectedHome.bed} Beds</span>
+                    <span>🚿 {selectedHome.bath} Baths</span>
+                    <span>⬜ {selectedHome.sqft} sqft</span>
+                  </div>
+                </div>
+                <div style={{ textAlign:"right" }}>
+                  <div style={{ fontSize:12, color:MUT, marginBottom:4 }}>Price</div>
+                  <div style={{ fontSize:"clamp(28px,3.5vw,44px)", fontWeight:800, color:TXT, letterSpacing:"-0.03em" }}>{selectedHome.price}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Full-bleed hero image */}
+            <div style={{ maxWidth:1160, margin:"0 auto", padding:"24px 32px 0" }}>
+              <div style={{ borderRadius:20, overflow:"hidden", height:"clamp(320px,45vw,560px)", position:"relative" }}>
+                <img src={selectedHome.img} alt={selectedHome.title} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+              </div>
+            </div>
+
+            {/* Two-column: overview + sticky contact panel */}
+            <div style={{ maxWidth:1160, margin:"0 auto", padding:"48px 32px 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
+              {/* Left: overview + details + gallery + features */}
+              <div>
+                {/* Overview */}
+                <div style={{ marginBottom:40 }}>
+                  <h2 style={{ fontSize:20, fontWeight:800, color:TXT, marginBottom:16, paddingBottom:12, borderBottom:`1px solid ${BOR}` }}>Overview</h2>
+                  <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>Experience the warmth and comfort of a brand-new Apollo home in Pahrump, Nevada. Built all-inclusive — land prep, foundation, framing, finishes, and landscaping — one price, no surprises. This {selectedHome.bed}-bedroom, {selectedHome.bath}-bath home is designed for Nevada living with energy-efficient construction and custom finish options.</p>
+                </div>
+
+                {/* Details table */}
+                <div style={{ marginBottom:40 }}>
+                  <h2 style={{ fontSize:20, fontWeight:800, color:TXT, marginBottom:16, paddingBottom:12, borderBottom:`1px solid ${BOR}` }}>Details</h2>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:0 }}>
+                    {[
+                      ["Category","Family Home"],
+                      ["Status",selectedHome.tag],
+                      ["Year Built","2025"],
+                      ["Bedrooms",String(selectedHome.bed)],
+                      ["Bathrooms",String(selectedHome.bath)],
+                      ["Square Footage",selectedHome.sqft+" sqft"],
+                      ["Garage","2-Car"],
+                      ["Floors","1"],
+                    ].map(([k,v],i)=>(
+                      <div key={k} style={{ display:"flex", justifyContent:"space-between", padding:"13px 0", borderBottom:`1px solid ${BOR}`, gridColumn:"span 1" }}>
+                        <span style={{ fontSize:13, color:MUT, fontWeight:500 }}>{k}</span>
+                        <span style={{ fontSize:13, color:TXT, fontWeight:700 }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Gallery */}
+                <div style={{ marginBottom:40 }}>
+                  <h2 style={{ fontSize:20, fontWeight:800, color:TXT, marginBottom:8, paddingBottom:12, borderBottom:`1px solid ${BOR}` }}>Gallery</h2>
+                  <p style={{ fontSize:13, color:MUT, marginBottom:20 }}>Explore elegant spaces and captivating design</p>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
+                    {[
+                      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=80",
+                      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80",
+                      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=400&q=80",
+                      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=400&q=80",
+                      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400&q=80",
+                      selectedHome.img,
+                    ].map((src,i)=>(
+                      <div key={i} style={{ borderRadius:12, overflow:"hidden", height:140 }}>
+                        <img src={src} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Features */}
+                <div>
+                  <h2 style={{ fontSize:20, fontWeight:800, color:TXT, marginBottom:8, paddingBottom:12, borderBottom:`1px solid ${BOR}` }}>Features</h2>
+                  <p style={{ fontSize:13, color:MUT, marginBottom:24 }}>Exquisite details and all-inclusive amenities</p>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24 }}>
+                    {[
+                      ["Construction",[["Build Type","All-Inclusive"],["Foundation","Slab"],["Framing","Wood Frame"],["Roof","Tile"]]],
+                      ["Interior",[["Flooring","Luxury Vinyl Plank"],["Cabinets","Custom Shaker"],["Countertops","Granite"],["Appliances","Stainless Steel"]]],
+                      ["Exterior",[["Siding","Stucco"],["Garage","2-Car Attached"],["Landscaping","Included"],["Driveway","Concrete"]]],
+                      ["Systems",[["HVAC","Central Air"],["Water Heater","Tankless"],["Electrical","200 Amp"],["Plumbing","PEX"]]],
+                    ].map(([cat,items])=>(
+                      <div key={String(cat)}>
+                        <div style={{ fontSize:12, fontWeight:700, color:G, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:10 }}>{cat}</div>
+                        {(items as [string,string][]).map(([k,v])=>(
+                          <div key={k} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:`1px solid ${BOR}` }}>
+                            <span style={{ fontSize:12, color:MUT }}>{k}</span>
+                            <span style={{ fontSize:12, color:TXT, fontWeight:600 }}>{v}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: sticky contact panel */}
+              <div style={{ position:"sticky", top:24 }}>
+                <div style={{ background:"white", borderRadius:16, border:`1px solid ${BOR}`, boxShadow:"0 4px 32px rgba(0,0,0,0.08)", overflow:"hidden" }}>
+                  <div style={{ background:G, padding:"24px 24px 20px" }}>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:4 }}>Listing Price</div>
+                    <div style={{ fontSize:32, fontWeight:800, color:"white", letterSpacing:"-0.03em" }}>{selectedHome.price}</div>
+                  </div>
+                  <div style={{ padding:"20px 24px 24px" }}>
+                    <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:16 }}>
+                      {[
+                        ["🛏",`${selectedHome.bed} Bedrooms`],
+                        ["🚿",`${selectedHome.bath} Bathrooms`],
+                        ["⬜",`${selectedHome.sqft} sqft`],
+                        ["📍",selectedHome.city],
+                      ].map(([icon,val])=>(
+                        <div key={val} style={{ display:"flex", alignItems:"center", gap:10, fontSize:13, color:TXT }}>
+                          <span style={{ fontSize:16 }}>{icon}</span>{val}
+                        </div>
+                      ))}
+                    </div>
+                    <Btn full onClick={()=>nav("contact")}>Request a Call</Btn>
+                    <div style={{ marginTop:12, textAlign:"center", fontSize:11, color:MUT }}>No obligation — just a conversation</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ LOT DETAIL PAGE ════════════════════════════════════════════════════════════ */}
+        {page==="lot-detail" && selectedLot && (
+          <div style={{ background:"white", minHeight:"100%" }}>
+            {/* Back button */}
+            <div style={{ maxWidth:1160, margin:"0 auto", padding:"28px 32px 0" }}>
+              <button onClick={()=>nav("lots")}
+                style={{ display:"inline-flex", alignItems:"center", gap:8, background:"none", border:`1px solid ${BOR}`, borderRadius:8, padding:"8px 16px", fontSize:12, fontWeight:700, color:MUT, cursor:"pointer", fontFamily:"inherit", transition:"all 0.15s" }}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor=G; e.currentTarget.style.color=G;}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor=BOR; e.currentTarget.style.color=MUT;}}>
+                ← Back to Lots
+              </button>
+            </div>
+
+            {/* Big address headline */}
+            <div style={{ maxWidth:1160, margin:"0 auto", padding:"32px 32px 0" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", flexWrap:"wrap", gap:16, marginBottom:8 }}>
+                <div>
+                  <div style={{ fontSize:12, fontWeight:700, color:selectedLot.tag==="Available"?G:"#888", background:selectedLot.tag==="Available"?GL:"#f0f0f0", display:"inline-block", padding:"4px 12px", borderRadius:6, marginBottom:12, letterSpacing:"0.06em", textTransform:"uppercase" }}>{selectedLot.tag}</div>
+                  <h1 style={{ fontSize:"clamp(28px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.05, color:TXT, marginBottom:6 }}>{selectedLot.addr},<br/>{selectedLot.city}</h1>
+                  <div style={{ display:"flex", gap:20, fontSize:14, color:MUT, marginTop:12 }}>
+                    <span>📍 {selectedLot.size}</span>
+                    <span>🔌 {selectedLot.utilities}</span>
+                  </div>
+                </div>
+                <div style={{ textAlign:"right" }}>
+                  <div style={{ fontSize:12, color:MUT, marginBottom:4 }}>Price</div>
+                  <div style={{ fontSize:"clamp(28px,3.5vw,44px)", fontWeight:800, color:TXT, letterSpacing:"-0.03em" }}>{selectedLot.price}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Full-bleed hero image */}
+            <div style={{ maxWidth:1160, margin:"0 auto", padding:"24px 32px 0" }}>
+              <div style={{ borderRadius:20, overflow:"hidden", height:"clamp(280px,40vw,480px)", position:"relative" }}>
+                <img src={selectedLot.img} alt={selectedLot.addr} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+                <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(8,12,28,0.3) 0%, transparent 60%)" }} />
+              </div>
+            </div>
+
+            {/* Two-column: overview + sticky contact panel */}
+            <div style={{ maxWidth:1160, margin:"0 auto", padding:"48px 32px 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
+              {/* Left */}
+              <div>
+                {/* Overview */}
+                <div style={{ marginBottom:40 }}>
+                  <h2 style={{ fontSize:20, fontWeight:800, color:TXT, marginBottom:16, paddingBottom:12, borderBottom:`1px solid ${BOR}` }}>Overview</h2>
+                  <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>A {selectedLot.size} lot in Pahrump, Nevada — ready for your Apollo custom build. Utilities are already stubbed to the lot line: {selectedLot.utilities}. Pahrump offers no state income tax, low property taxes, and wide-open desert views just 60 miles from Las Vegas.</p>
+                </div>
+
+                {/* Details */}
+                <div style={{ marginBottom:40 }}>
+                  <h2 style={{ fontSize:20, fontWeight:800, color:TXT, marginBottom:16, paddingBottom:12, borderBottom:`1px solid ${BOR}` }}>Lot Details</h2>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:0 }}>
+                    {[
+                      ["Size",selectedLot.size],
+                      ["Status",selectedLot.tag],
+                      ["County","Nye County, NV"],
+                      ["Zoning","Residential"],
+                      ["Utilities",selectedLot.utilities],
+                      ["Road Access","Paved"],
+                      ["HOA","None"],
+                      ["Build-Ready","Yes"],
+                    ].map(([k,v])=>(
+                      <div key={k} style={{ display:"flex", justifyContent:"space-between", padding:"13px 0", borderBottom:`1px solid ${BOR}` }}>
+                        <span style={{ fontSize:13, color:MUT, fontWeight:500 }}>{k}</span>
+                        <span style={{ fontSize:13, color:TXT, fontWeight:700 }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Location features */}
+                <div>
+                  <h2 style={{ fontSize:20, fontWeight:800, color:TXT, marginBottom:8, paddingBottom:12, borderBottom:`1px solid ${BOR}` }}>Location Highlights</h2>
+                  <p style={{ fontSize:13, color:MUT, marginBottom:24 }}>What makes Pahrump, NV the right place to build</p>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                    {[
+                      ["🏕️","60 mi to Las Vegas","Easy access to the Strip, airport, and employment"],
+                      ["🌡️","Desert Climate","300+ sunny days per year, low humidity"],
+                      ["💰","No State Income Tax","Nevada is one of 9 states with zero income tax"],
+                      ["🏡","Low Property Taxes","Nye County rates well below national average"],
+                    ].map(([icon,title,desc])=>(
+                      <div key={title} style={{ background:BG, borderRadius:12, padding:"16px 18px" }}>
+                        <div style={{ fontSize:22, marginBottom:8 }}>{icon}</div>
+                        <div style={{ fontSize:13, fontWeight:700, color:TXT, marginBottom:4 }}>{title}</div>
+                        <div style={{ fontSize:12, color:MUT, lineHeight:1.6 }}>{desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: sticky contact panel */}
+              <div style={{ position:"sticky", top:24 }}>
+                <div style={{ background:"white", borderRadius:16, border:`1px solid ${BOR}`, boxShadow:"0 4px 32px rgba(0,0,0,0.08)", overflow:"hidden" }}>
+                  <div style={{ background:G, padding:"24px 24px 20px" }}>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)", marginBottom:4 }}>Lot Price</div>
+                    <div style={{ fontSize:32, fontWeight:800, color:"white", letterSpacing:"-0.03em" }}>{selectedLot.price}</div>
+                  </div>
+                  <div style={{ padding:"20px 24px 24px" }}>
+                    <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:16 }}>
+                      {[
+                        ["📍",selectedLot.size+" lot"],
+                        ["🔌",selectedLot.utilities],
+                        ["🏠","Build-ready"],
+                        ["📍",selectedLot.city],
+                      ].map(([icon,val])=>(
+                        <div key={val} style={{ display:"flex", alignItems:"center", gap:10, fontSize:13, color:TXT }}>
+                          <span style={{ fontSize:16 }}>{icon}</span>{val}
+                        </div>
+                      ))}
+                    </div>
+                    <Btn full onClick={()=>nav("contact")}>Request a Call</Btn>
+                    <div style={{ marginTop:12, textAlign:"center", fontSize:11, color:MUT }}>No obligation — just a conversation</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
