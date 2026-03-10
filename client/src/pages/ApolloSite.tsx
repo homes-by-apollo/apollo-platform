@@ -190,10 +190,10 @@ export default function ApolloSite() {
         input,textarea,select,button{font-family:inherit}
 
         .photo-clip-text {
-          font-size: clamp(52px, 10vw, 140px);
+          font-size: clamp(72px, 13.5vw, 220px);
           font-weight: 800;
           letter-spacing: -0.04em;
-          line-height: 0.9;
+          line-height: 0.88;
           background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1400&q=85');
           background-size: cover;
           background-position: center 40%;
@@ -270,7 +270,7 @@ export default function ApolloSite() {
       }}>
         {/* Logo */}
         <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
-          <img src={LOGO} alt="Homes by Apollo" style={{ height:40, width:"auto", display:"block" }} />
+          <img src={LOGO} alt="Homes by Apollo" style={{ height:54, width:"auto", display:"block" }} />
           <span style={{ fontWeight:800, fontSize:14, letterSpacing:"-0.01em", color:TXT }}>HOMES BY APOLLO</span>
         </div>
 
@@ -425,7 +425,8 @@ export default function ApolloSite() {
                   <div key={step.n} style={{ background:"white", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 20px rgba(0,0,0,0.06)" }}>
                     <div style={{ height:180, overflow:"hidden", position:"relative" }}>
                       <img src={step.img} alt={step.title} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
-                      <div style={{ position:"absolute", top:14, left:14, background:G, color:"white", fontSize:12, fontWeight:800, padding:"5px 12px", borderRadius:8, letterSpacing:"0.04em" }}>{step.n}</div>
+                      <div style={{ position:"absolute", top:0, left:0, right:0, bottom:0, background:"linear-gradient(to top, rgba(8,12,28,0.45) 0%, transparent 60%)" }} />
+                    <div style={{ position:"absolute", bottom:14, left:16, fontSize:52, fontWeight:900, color:"rgba(255,255,255,0.95)", letterSpacing:"-0.04em", lineHeight:1, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>{step.n}</div>
                     </div>
                     <div style={{ padding:"18px 20px 22px" }}>
                       <div style={{ fontSize:15, fontWeight:800, color:TXT, marginBottom:8 }}>{step.title}</div>
@@ -437,13 +438,11 @@ export default function ApolloSite() {
             </div>
           </div>
 
-          {/* PHOTO-CLIP "HOMES BY APOLLO" */}
-          <div style={{ background:"white", padding:"64px 20px 0", textAlign:"center" }}>
+          {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US merged */}
+          <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
-
-          {/* WHY APOLLO */}
-          <div className="section-pad" style={{ background:"white", padding:"40px 32px 64px" }}>
+          <div className="section-pad" style={{ background:"white", padding:"48px 32px 64px" }}>
             <div style={{ maxWidth:1060, margin:"0 auto" }}>
               <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:56, alignItems:"start" }}>
                 <div>
