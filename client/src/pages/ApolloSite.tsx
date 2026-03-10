@@ -216,7 +216,7 @@ export default function ApolloSite() {
           .desktop-nav-ctas   { display: none !important; }
           .hamburger-btn      { display: flex !important; }
 
-          .hero-headline      { font-size: clamp(36px,9vw,56px) !important; }
+          .hero-headline      { font-size: clamp(20px,6.5vw,56px) !important; white-space: nowrap !important; }
           .hero-subtitle      { font-size: 15px !important; }
           .hero-image-wrap    { margin: 0 12px !important; height: 260px !important; border-radius: 16px 16px 0 0 !important; }
 
@@ -339,10 +339,11 @@ export default function ApolloSite() {
           {/* HERO */}
           <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", position:"relative" }}>
             <h1 className="hero-headline" style={{
-              fontSize: "clamp(40px,5.5vw,80px)",
+              fontSize: "clamp(28px,4.8vw,76px)",
               fontWeight: 800, color: TXT, lineHeight: 1.08,
-              letterSpacing: "-0.04em", maxWidth: 860,
+              letterSpacing: "-0.04em",
               margin: "0 auto 20px", padding: "0 24px",
+              whiteSpace: "nowrap",
             }}>
               Find Your Dream Home<br/>in Pahrump
             </h1>
@@ -577,10 +578,6 @@ export default function ApolloSite() {
 
           {/* FOOTER */}
           <footer style={{ background:"#080c18", overflow:"hidden", position:"relative" }}>
-            {/* Watermark text */}
-            <div style={{ position:"absolute", bottom:-20, left:0, right:0, overflow:"hidden", pointerEvents:"none", userSelect:"none" }}>
-              <div style={{ fontSize:"clamp(80px,14vw,200px)", fontWeight:900, letterSpacing:"-0.04em", color:"rgba(255,255,255,0.04)", whiteSpace:"nowrap", lineHeight:1, paddingLeft:24 }}>Homes by Apollo</div>
-            </div>
 
             {/* Email capture strip */}
             <div style={{ borderBottom:"1px solid rgba(255,255,255,0.07)", padding:"52px 32px" }}>
@@ -638,6 +635,26 @@ export default function ApolloSite() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* MONOCHROMATIC WATERMARK — very bottom of footer */}
+            <div style={{ overflow:"hidden", pointerEvents:"none", userSelect:"none", lineHeight:0.85, paddingTop:8 }}>
+              <div style={{
+                fontSize:"13.5vw",
+                fontWeight:900,
+                letterSpacing:"-0.04em",
+                whiteSpace:"nowrap",
+                lineHeight:0.85,
+                background:"linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%)",
+                WebkitBackgroundClip:"text",
+                backgroundClip:"text",
+                WebkitTextFillColor:"transparent",
+                color:"transparent",
+                display:"block",
+                width:"100%",
+                textAlign:"left",
+                paddingLeft:"1.5vw",
+              }}>Homes by Apollo</div>
             </div>
           </footer>
         </>}
