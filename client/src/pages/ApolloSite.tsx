@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 
 // ── Navy theme ──────────────────────────────────────────────────────────────
-const G   = "#0f2044";   // primary navy
-const GM  = "#1a3366";   // navy hover
-const GL  = "#eef1f8";   // navy tint bg
-const BG  = "#f7f8fb";   // page bg
-const TXT = "#0d1520";   // near-black
-const MUT = "#6b7a99";   // muted blue-grey
-const BOR = "#dde3ef";   // border
-const ACC = "#c8a96e";   // warm gold accent (Residence O warmth)
+const G   = "#0f2044";
+const GM  = "#1a3366";
+const GL  = "#eef1f8";
+const BG  = "#f7f8fb";
+const TXT = "#0d1520";
+const MUT = "#6b7a99";
+const BOR = "#dde3ef";
+const ACC = "#c8a96e";
 
 const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo_31888db6.webp";
 
@@ -56,15 +56,18 @@ interface BtnProps {
   white?: boolean;
   outline?: boolean;
   small?: boolean;
+  full?: boolean;
   onClick?: () => void;
 }
 
-const Btn = ({ children, white, outline, small, onClick }: BtnProps) => {
+const Btn = ({ children, white, outline, small, full, onClick }: BtnProps) => {
   const [hov, setHov] = useState(false);
   const base: React.CSSProperties = {
-    display:"inline-flex", alignItems:"center", gap:5, borderRadius:8,
-    fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"none",
-    fontSize:small?12:13, padding:small?"9px 18px":"12px 22px", fontFamily:"inherit",
+    display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5,
+    borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s",
+    border:"none", fontSize:small?12:13,
+    padding:small?"9px 18px":"12px 22px", fontFamily:"inherit",
+    width: full ? "100%" : undefined,
   };
   let style: React.CSSProperties;
   if (white)        style = { ...base, background: hov?"#f0f0f0":"white", color:G };
@@ -83,7 +86,7 @@ function HomeCard({ h }: { h: typeof homes[0] }) {
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer",
         boxShadow:hov?"0 16px 48px rgba(0,0,0,0.14)":"0 2px 16px rgba(0,0,0,0.06)",
-        transform:hov?"translateY(-5px)":"translateY(0)", transition:"all 0.28s ease" }}>
+        transform:hov?"translateY(-4px)":"translateY(0)", transition:"all 0.28s ease" }}>
       <div style={{ position:"relative", height:200, overflow:"hidden" }}>
         <img src={h.img} alt={h.title} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.05)":"scale(1)", transition:"transform 0.5s ease" }} />
         <span style={{ position:"absolute", top:12, left:12, background:"white", color:TXT, fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6, boxShadow:"0 2px 8px rgba(0,0,0,0.12)" }}>{h.tag}</span>
@@ -106,7 +109,7 @@ function LotCard({ l }: { l: typeof lots[0] }) {
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer",
         boxShadow:hov?"0 16px 48px rgba(0,0,0,0.14)":"0 2px 16px rgba(0,0,0,0.06)",
-        transform:hov?"translateY(-5px)":"translateY(0)", transition:"all 0.28s ease" }}>
+        transform:hov?"translateY(-4px)":"translateY(0)", transition:"all 0.28s ease" }}>
       <div style={{ position:"relative", height:170, overflow:"hidden" }}>
         <img src={l.img} alt={l.addr} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.05)":"scale(1)", transition:"transform 0.5s ease" }} />
         <span style={{ position:"absolute", top:12, left:12, background:l.tag==="Available"?G:"#888", color:"white", fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6 }}>{l.tag}</span>
@@ -137,7 +140,7 @@ function FAQ({ q, a }: { q: string; a: string }) {
 
 function FilterBtn({ children, active, onClick }: { children: React.ReactNode; active: boolean; onClick: () => void }) {
   return (
-    <button onClick={onClick} style={{ padding:"7px 16px", borderRadius:8, fontSize:12, fontWeight:700, cursor:"pointer", border:`1px solid ${active?G:BOR}`, background:active?G:"white", color:active?"white":MUT, transition:"all 0.15s", fontFamily:"inherit" }}>{children}</button>
+    <button onClick={onClick} style={{ padding:"7px 14px", borderRadius:8, fontSize:12, fontWeight:700, cursor:"pointer", border:`1px solid ${active?G:BOR}`, background:active?G:"white", color:active?"white":MUT, transition:"all 0.15s", fontFamily:"inherit", whiteSpace:"nowrap" }}>{children}</button>
   );
 }
 
@@ -148,6 +151,7 @@ interface FormState {
 export default function ApolloSite() {
   const [page, setPage] = useState("home");
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState<FormState>({ name:"", email:"", phone:"", interest:"buy", message:"" });
@@ -166,7 +170,11 @@ export default function ApolloSite() {
     return () => el.removeEventListener("scroll", h);
   }, []);
 
-  const nav = (p: string) => { setPage(p); setTimeout(()=>topRef.current?.scrollTo({top:0,behavior:"smooth"}),0); };
+  const nav = (p: string) => {
+    setPage(p);
+    setMenuOpen(false);
+    setTimeout(()=>topRef.current?.scrollTo({top:0,behavior:"smooth"}),0);
+  };
 
   void homeFilter; void lotFilter; void blogFilter;
 
@@ -181,9 +189,8 @@ export default function ApolloSite() {
         ::selection{background:${G};color:white}
         input,textarea,select,button{font-family:inherit}
 
-        /* Photo-clip text — uses hero house image as texture through letterforms */
         .photo-clip-text {
-          font-size: clamp(60px, 10vw, 140px);
+          font-size: clamp(52px, 10vw, 140px);
           font-weight: 800;
           letter-spacing: -0.04em;
           line-height: 0.9;
@@ -196,27 +203,79 @@ export default function ApolloSite() {
           color: transparent;
           display: inline-block;
         }
+
+        /* ── Mobile overrides ─────────────────────────────── */
+        @media (max-width: 768px) {
+          .desktop-nav-center { display: none !important; }
+          .desktop-nav-ctas   { display: none !important; }
+          .hamburger-btn      { display: flex !important; }
+
+          .hero-headline      { font-size: clamp(36px,9vw,56px) !important; }
+          .hero-subtitle      { font-size: 15px !important; }
+          .hero-image-wrap    { margin: 0 12px !important; height: 260px !important; border-radius: 16px 16px 0 0 !important; }
+
+          .search-bar         { flex-direction: column !important; border-radius: 14px !important; padding: 10px !important; gap: 0 !important; width: calc(100% - 32px) !important; }
+          .search-bar-item    { border-right: none !important; border-bottom: 1px solid ${BOR} !important; padding: 12px 16px !important; width: 100% !important; min-width: unset !important; }
+          .search-bar-item:last-of-type { border-bottom: none !important; }
+          .search-bar-btn     { width: 100% !important; border-radius: 10px !important; margin: 8px 0 0 !important; }
+
+          .stat-pills         { gap: 8px !important; flex-wrap: wrap !important; justify-content: center !important; padding: 0 12px !important; }
+          .stat-pill          { min-width: 80px !important; padding: 10px 14px !important; }
+          .stat-pill-val      { font-size: 16px !important; }
+
+          .section-pad        { padding: 40px 16px !important; }
+          .section-pad-top    { padding-top: 40px !important; padding-left: 16px !important; padding-right: 16px !important; }
+
+          .cards-grid         { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .cards-grid-2col    { grid-template-columns: 1fr !important; gap: 16px !important; }
+
+          .how-it-works-grid  { grid-template-columns: 1fr !important; gap: 20px !important; }
+          .why-apollo-grid    { grid-template-columns: 1fr !important; gap: 32px !important; }
+          .why-apollo-icons   { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+
+          .testimonial-card   { padding: 28px 20px !important; }
+          .testimonial-quote  { font-size: 15px !important; }
+          .testimonial-bottom { flex-direction: column !important; gap: 16px !important; align-items: flex-start !important; }
+
+          .footer-grid        { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+          .footer-bottom      { flex-direction: column !important; gap: 8px !important; }
+
+          .section-header-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+          .filter-row         { overflow-x: auto !important; padding-bottom: 4px !important; }
+
+          .contact-grid       { grid-template-columns: 1fr !important; gap: 28px !important; }
+
+          .cta-banner         { flex-direction: column !important; gap: 20px !important; text-align: center !important; }
+
+          .mobile-full-cta    { width: 100% !important; justify-content: center !important; }
+        }
+
+        @media (min-width: 769px) {
+          .hamburger-btn { display: none !important; }
+          .mobile-menu   { display: none !important; }
+        }
       `}</style>
 
       {/* ── NAV ─────────────────────────────────────────────────────────────── */}
       <nav style={{
         background: scrolled ? "rgba(255,255,255,0.97)" : "white",
         borderBottom: `1px solid ${BOR}`,
-        padding: "0 40px",
+        padding: "0 24px",
         height: 64,
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        flexShrink: 0, zIndex: 100,
+        flexShrink: 0, zIndex: 200,
         boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none",
         transition: "all 0.2s",
+        position: "relative",
       }}>
-        {/* Owl logo + wordmark */}
+        {/* Logo */}
         <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
-          <img src={LOGO} alt="Homes by Apollo" style={{ height:44, width:"auto", display:"block" }} />
-          <span style={{ fontWeight:800, fontSize:15, letterSpacing:"-0.01em", color:TXT }}>HOMES BY APOLLO</span>
+          <img src={LOGO} alt="Homes by Apollo" style={{ height:40, width:"auto", display:"block" }} />
+          <span style={{ fontWeight:800, fontSize:14, letterSpacing:"-0.01em", color:TXT }}>HOMES BY APOLLO</span>
         </div>
 
-        {/* Center nav — Home + Blog only */}
-        <div style={{ display:"flex", gap:28, alignItems:"center" }}>
+        {/* Desktop center nav */}
+        <div className="desktop-nav-center" style={{ display:"flex", gap:28, alignItems:"center" }}>
           {[["home","Home"],["blog","Blog"]].map(([p,l])=>(
             <button key={p} onClick={()=>nav(p)} style={{
               background:"none", border:"none", cursor:"pointer",
@@ -228,12 +287,42 @@ export default function ApolloSite() {
           ))}
         </div>
 
-        {/* Dual CTAs */}
-        <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+        {/* Desktop CTAs */}
+        <div className="desktop-nav-ctas" style={{ display:"flex", gap:10, alignItems:"center" }}>
           <Btn small onClick={()=>nav("contact")}>Schedule a Consultation</Btn>
           <Btn small outline onClick={()=>nav("homes")}>View Homes & Lots</Btn>
         </div>
+
+        {/* Hamburger */}
+        <button className="hamburger-btn" onClick={()=>setMenuOpen(!menuOpen)}
+          style={{ background:"none", border:`1.5px solid ${BOR}`, borderRadius:8, padding:"8px 10px", cursor:"pointer", flexDirection:"column", gap:4, alignItems:"center", justifyContent:"center" }}>
+          <span style={{ display:"block", width:20, height:2, background:TXT, borderRadius:2, transition:"all 0.2s", transform:menuOpen?"rotate(45deg) translate(4px,4px)":"none" }}/>
+          <span style={{ display:"block", width:20, height:2, background:TXT, borderRadius:2, transition:"all 0.2s", opacity:menuOpen?0:1 }}/>
+          <span style={{ display:"block", width:20, height:2, background:TXT, borderRadius:2, transition:"all 0.2s", transform:menuOpen?"rotate(-45deg) translate(4px,-4px)":"none" }}/>
+        </button>
       </nav>
+
+      {/* Mobile menu dropdown */}
+      {menuOpen && (
+        <div className="mobile-menu" style={{
+          position:"fixed", top:64, left:0, right:0, zIndex:190,
+          background:"white", borderBottom:`1px solid ${BOR}`,
+          boxShadow:"0 8px 32px rgba(0,0,0,0.12)", padding:"16px 20px 20px",
+        }}>
+          {[["home","Home"],["blog","Blog"],["contact","Contact"]].map(([p,l])=>(
+            <button key={p} onClick={()=>nav(p)} style={{
+              display:"block", width:"100%", textAlign:"left",
+              background:"none", border:"none", cursor:"pointer",
+              fontSize:16, fontWeight:600, color:page===p?G:TXT,
+              padding:"12px 0", borderBottom:`1px solid ${BOR}`, fontFamily:"inherit",
+            }}>{l}</button>
+          ))}
+          <div style={{ display:"flex", flexDirection:"column", gap:10, marginTop:16 }}>
+            <Btn full onClick={()=>nav("contact")}>Schedule a Consultation</Btn>
+            <Btn full outline onClick={()=>nav("homes")}>View Homes & Lots</Btn>
+          </div>
+        </div>
+      )}
 
       {/* ── SCROLLABLE CONTENT ───────────────────────────────────────────────── */}
       <div ref={topRef} style={{ flex:1, overflowY:"auto" }}>
@@ -242,39 +331,34 @@ export default function ApolloSite() {
         {page==="home" && <>
 
           {/* HERO */}
-          <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", position:"relative" }}>
-
-            {/* Large hero headline */}
-            <h1 style={{
+          <div style={{ background:"white", paddingTop:56, paddingBottom:0, textAlign:"center", position:"relative" }}>
+            <h1 className="hero-headline" style={{
               fontSize: "clamp(44px,6.5vw,88px)",
-              fontWeight: 800,
-              color: TXT,
-              lineHeight: 1.05,
-              letterSpacing: "-0.03em",
-              maxWidth: 820,
-              margin: "0 auto 18px",
-              padding: "0 24px",
+              fontWeight: 800, color: TXT, lineHeight: 1.05,
+              letterSpacing: "-0.03em", maxWidth: 820,
+              margin: "0 auto 16px", padding: "0 20px",
             }}>
               Find Your Dream Home<br/>in Pahrump
             </h1>
-            <p style={{ fontSize:17, color:MUT, maxWidth:440, margin:"0 auto 44px", lineHeight:1.75, fontWeight:400 }}>
+            <p className="hero-subtitle" style={{ fontSize:16, color:MUT, maxWidth:440, margin:"0 auto 36px", lineHeight:1.75, fontWeight:400, padding:"0 20px" }}>
               Explore our listings to find the perfect place to call home.
             </p>
 
-            {/* Floating search bar */}
-            <div style={{
-              display:"inline-flex", alignItems:"center",
+            {/* Search bar */}
+            <div className="search-bar" style={{
+              display:"inline-flex", alignItems:"stretch",
               background:"white", borderRadius:16,
               boxShadow:"0 4px 40px rgba(0,0,0,0.12)",
               padding:"8px 8px 8px 0", gap:0,
               position:"relative", zIndex:10,
+              maxWidth:"calc(100% - 32px)",
             }}>
               {[["📍","Location"],["🏠","Property Type"],["💰","Budget"]].map(([icon,label],i)=>(
-                <div key={label} style={{
+                <div key={label} className="search-bar-item" style={{
                   display:"flex", alignItems:"center", gap:10,
-                  padding:"14px 28px",
+                  padding:"14px 24px",
                   borderRight: i<2 ? `1px solid ${BOR}` : "none",
-                  cursor:"pointer", minWidth:170,
+                  cursor:"pointer", minWidth:160,
                 }}>
                   <span style={{ fontSize:16 }}>{icon}</span>
                   <div style={{ textAlign:"left" }}>
@@ -283,16 +367,16 @@ export default function ApolloSite() {
                   </div>
                 </div>
               ))}
-              <button onClick={()=>nav("homes")} style={{
+              <button className="search-bar-btn" onClick={()=>nav("homes")} style={{
                 background:G, color:"white", border:"none",
-                padding:"16px 36px", borderRadius:12,
+                padding:"14px 32px", borderRadius:12,
                 fontSize:14, fontWeight:700, cursor:"pointer",
                 fontFamily:"inherit", marginLeft:8,
               }}>Search</button>
             </div>
 
-            {/* Hero image with rounded top corners */}
-            <div style={{ margin:"0 24px", position:"relative", marginTop:-32, height:500, overflow:"hidden", borderRadius:"24px 24px 0 0" }}>
+            {/* Hero image */}
+            <div className="hero-image-wrap" style={{ margin:"0 24px", position:"relative", marginTop:-28, height:500, overflow:"hidden", borderRadius:"24px 24px 0 0" }}>
               <img
                 src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=85"
                 alt="Pahrump custom home"
@@ -300,10 +384,10 @@ export default function ApolloSite() {
               />
               <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(8,12,28,0.55) 0%, transparent 50%)" }} />
               {/* Stat pills */}
-              <div style={{ position:"absolute", bottom:28, left:"50%", transform:"translateX(-50%)", display:"flex", gap:14, whiteSpace:"nowrap" }}>
+              <div className="stat-pills" style={{ position:"absolute", bottom:24, left:"50%", transform:"translateX(-50%)", display:"flex", gap:12, whiteSpace:"nowrap" }}>
                 {[["50+","Homes Built"],["$389K","Starting Price"],["6–9 mo","Build Time"],["100%","All-Inclusive"]].map(([v,l])=>(
-                  <div key={l} style={{ background:"rgba(255,255,255,0.93)", backdropFilter:"blur(10px)", borderRadius:12, padding:"14px 22px", textAlign:"center", minWidth:110 }}>
-                    <div style={{ fontSize:20, fontWeight:800, color:G, letterSpacing:"-0.02em" }}>{v}</div>
+                  <div key={l} className="stat-pill" style={{ background:"rgba(255,255,255,0.93)", backdropFilter:"blur(10px)", borderRadius:12, padding:"12px 18px", textAlign:"center", minWidth:100 }}>
+                    <div className="stat-pill-val" style={{ fontSize:18, fontWeight:800, color:G, letterSpacing:"-0.02em" }}>{v}</div>
                     <div style={{ fontSize:10, color:MUT, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.06em", marginTop:2 }}>{l}</div>
                   </div>
                 ))}
@@ -312,27 +396,27 @@ export default function ApolloSite() {
           </div>
 
           {/* FEATURED HOMES */}
-          <div style={{ maxWidth:1060, margin:"0 auto", padding:"64px 32px 0" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+          <div className="section-pad-top" style={{ maxWidth:1060, margin:"0 auto", padding:"56px 32px 0" }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
               <div>
                 <SectionLabel>Featured Properties</SectionLabel>
-                <h2 style={{ fontSize:30, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h2>
+                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h2>
               </div>
-              <button onClick={()=>nav("homes")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit" }}>View All →</button>
+              <button onClick={()=>nav("homes")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {homes.map(h=><HomeCard key={h.id} h={h}/>)}
             </div>
           </div>
 
           {/* HOW IT WORKS */}
-          <div style={{ background:GL, padding:"72px 32px", marginTop:64 }}>
+          <div className="section-pad" style={{ background:GL, padding:"64px 32px", marginTop:56 }}>
             <div style={{ maxWidth:1060, margin:"0 auto" }}>
-              <div style={{ textAlign:"center", marginBottom:48 }}>
+              <div style={{ textAlign:"center", marginBottom:40 }}>
                 <SectionLabel>Simple Process</SectionLabel>
-                <h2 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>How it works</h2>
+                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>How it works</h2>
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:32 }}>
+              <div className="how-it-works-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28 }}>
                 {[
                   { n:"01", title:"Browse Lots & Plans", desc:"Use our advanced search to find the perfect lot or floor plan in Pahrump. Filter by size, price, and location.", img:"https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80" },
                   { n:"02", title:"Schedule a Consultation", desc:"Sit down with Brandon and the Apollo team. We'll walk through your vision, timeline, and all-inclusive pricing.", img:"https://images.unsplash.com/photo-1521791136064-7986c2920216?w=600&q=80" },
@@ -343,7 +427,7 @@ export default function ApolloSite() {
                       <img src={step.img} alt={step.title} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
                       <div style={{ position:"absolute", top:14, left:14, background:G, color:"white", fontSize:12, fontWeight:800, padding:"5px 12px", borderRadius:8, letterSpacing:"0.04em" }}>{step.n}</div>
                     </div>
-                    <div style={{ padding:"20px 22px 24px" }}>
+                    <div style={{ padding:"18px 20px 22px" }}>
                       <div style={{ fontSize:15, fontWeight:800, color:TXT, marginBottom:8 }}>{step.title}</div>
                       <div style={{ fontSize:13, color:MUT, lineHeight:1.7 }}>{step.desc}</div>
                     </div>
@@ -353,23 +437,21 @@ export default function ApolloSite() {
             </div>
           </div>
 
-          {/* PHOTO-CLIP "HOMES BY APOLLO" — before Why Apollo */}
-          <div style={{ background:"white", padding:"72px 32px 0", textAlign:"center" }}>
+          {/* PHOTO-CLIP "HOMES BY APOLLO" */}
+          <div style={{ background:"white", padding:"64px 20px 0", textAlign:"center" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
 
-          {/* WHY APOLLO — 4-icon row */}
-          <div style={{ background:"white", padding:"48px 32px 72px" }}>
+          {/* WHY APOLLO */}
+          <div className="section-pad" style={{ background:"white", padding:"40px 32px 64px" }}>
             <div style={{ maxWidth:1060, margin:"0 auto" }}>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:64, alignItems:"start" }}>
-                {/* Left: label + headline + body */}
+              <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:56, alignItems:"start" }}>
                 <div>
                   <SectionLabel>About us</SectionLabel>
-                  <h2 style={{ fontSize:36, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.15, marginBottom:16 }}>We provide the best Services</h2>
+                  <h2 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.15, marginBottom:14 }}>We provide the best Services</h2>
                   <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>Apollo Home Builders is committed to helping you find and build the perfect home in Pahrump, Nevada.</p>
                 </div>
-                {/* Right: 2×2 icon grid */}
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:36 }}>
+                <div className="why-apollo-icons" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32 }}>
                   {[
                     ["🏗️","All-Inclusive Pricing","One contract, one price. Land prep to final finishes — no hidden costs, ever."],
                     ["🗺️","Local Pahrump Expertise","We know Nye County inside out — permits, soil, HOAs, and the best lots in the valley."],
@@ -377,8 +459,8 @@ export default function ApolloSite() {
                     ["🤝","Preferred Lenders","We connect you with Nevada construction loan specialists from day one."],
                   ].map(([icon,title,desc])=>(
                     <div key={title}>
-                      <div style={{ fontSize:26, marginBottom:12, color:G }}>{icon}</div>
-                      <div style={{ fontSize:15, fontWeight:700, color:TXT, marginBottom:8 }}>{title}</div>
+                      <div style={{ fontSize:26, marginBottom:10 }}>{icon}</div>
+                      <div style={{ fontSize:14, fontWeight:700, color:TXT, marginBottom:6 }}>{title}</div>
                       <div style={{ fontSize:13, color:MUT, lineHeight:1.7 }}>{desc}</div>
                     </div>
                   ))}
@@ -388,45 +470,45 @@ export default function ApolloSite() {
           </div>
 
           {/* AVAILABLE LOTS */}
-          <div style={{ maxWidth:1060, margin:"0 auto", padding:"0 32px 64px" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+          <div className="section-pad-top" style={{ maxWidth:1060, margin:"0 auto", padding:"0 32px 56px" }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
               <div>
                 <SectionLabel>Land</SectionLabel>
-                <h2 style={{ fontSize:30, fontWeight:800, letterSpacing:"-0.02em" }}>Available Lots</h2>
+                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>Available Lots</h2>
               </div>
-              <button onClick={()=>nav("lots")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit" }}>View All →</button>
+              <button onClick={()=>nav("lots")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {lots.map(l=><LotCard key={l.id} l={l}/>)}
             </div>
           </div>
 
           {/* TESTIMONIALS */}
-          <div style={{ background:GL, padding:"72px 32px" }}>
+          <div className="section-pad" style={{ background:GL, padding:"64px 32px" }}>
             <div style={{ maxWidth:800, margin:"0 auto" }}>
-              <div style={{ textAlign:"center", marginBottom:48 }}>
+              <div style={{ textAlign:"center", marginBottom:40 }}>
                 <SectionLabel>Client Stories</SectionLabel>
-                <h2 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>What our clients say</h2>
+                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>What our clients say</h2>
                 <p style={{ fontSize:14, color:MUT, marginTop:10 }}>Hear from homeowners and investors who built with Apollo.</p>
               </div>
-              <div style={{ position:"relative", background:"white", borderRadius:20, padding:"40px 48px", boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
-                <div style={{ fontSize:80, color:GL, fontWeight:900, lineHeight:0.6, marginBottom:24, fontFamily:"Georgia,serif" }}>"</div>
-                <p style={{ fontSize:18, color:TXT, lineHeight:1.75, fontWeight:500, marginBottom:32, fontStyle:"italic" }}>
+              <div className="testimonial-card" style={{ background:"white", borderRadius:20, padding:"36px 44px", boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
+                <div style={{ fontSize:72, color:GL, fontWeight:900, lineHeight:0.6, marginBottom:20, fontFamily:"Georgia,serif" }}>"</div>
+                <p className="testimonial-quote" style={{ fontSize:17, color:TXT, lineHeight:1.75, fontWeight:500, marginBottom:28, fontStyle:"italic" }}>
                   {testimonials[testimonialIdx].quote}
                 </p>
-                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+                <div className="testimonial-bottom" style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                     <img src={testimonials[testimonialIdx].img} alt={testimonials[testimonialIdx].name}
-                      style={{ width:48, height:48, borderRadius:"50%", objectFit:"cover", border:`2px solid ${BOR}` }} />
+                      style={{ width:46, height:46, borderRadius:"50%", objectFit:"cover", border:`2px solid ${BOR}` }} />
                     <div>
                       <div style={{ fontSize:14, fontWeight:700, color:TXT }}>{testimonials[testimonialIdx].name}</div>
                       <div style={{ fontSize:12, color:MUT }}>{testimonials[testimonialIdx].role}</div>
                     </div>
                   </div>
                   <div style={{ display:"flex", gap:10 }}>
-                    {([["\u2190", prevTestimonial],["\u2192", nextTestimonial]] as [string, ()=>void][]).map(([arrow, fn])=>(
+                    {([["←", prevTestimonial],["→", nextTestimonial]] as [string, ()=>void][]).map(([arrow, fn])=>(
                       <button key={arrow} onClick={fn}
-                        style={{ width:44, height:44, borderRadius:"50%", border:`1.5px solid ${BOR}`, background:"white", fontSize:18, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.15s", fontFamily:"inherit" }}
+                        style={{ width:42, height:42, borderRadius:"50%", border:`1.5px solid ${BOR}`, background:"white", fontSize:16, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.15s", fontFamily:"inherit" }}
                         onMouseEnter={e=>{e.currentTarget.style.background=G; e.currentTarget.style.color="white"; e.currentTarget.style.borderColor=G;}}
                         onMouseLeave={e=>{e.currentTarget.style.background="white"; e.currentTarget.style.color=TXT; e.currentTarget.style.borderColor=BOR;}}>
                         {arrow}
@@ -434,7 +516,7 @@ export default function ApolloSite() {
                     ))}
                   </div>
                 </div>
-                <div style={{ display:"flex", gap:8, justifyContent:"center", marginTop:28 }}>
+                <div style={{ display:"flex", gap:8, justifyContent:"center", marginTop:24 }}>
                   {testimonials.map((_,i)=>(
                     <div key={i} onClick={()=>setTestimonialIdx(i)} style={{ width:i===testimonialIdx?24:8, height:8, borderRadius:4, background:i===testimonialIdx?G:BOR, cursor:"pointer", transition:"all 0.25s" }} />
                   ))}
@@ -444,15 +526,15 @@ export default function ApolloSite() {
           </div>
 
           {/* BLOG PREVIEW */}
-          <div style={{ maxWidth:1060, margin:"0 auto", padding:"64px 32px 0" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+          <div className="section-pad-top" style={{ maxWidth:1060, margin:"0 auto", padding:"56px 32px 0" }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
               <div>
                 <SectionLabel>Insights</SectionLabel>
-                <h2 style={{ fontSize:30, fontWeight:800, letterSpacing:"-0.02em" }}>From the Blog</h2>
+                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>From the Blog</h2>
               </div>
-              <button onClick={()=>nav("blog")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit" }}>View All →</button>
+              <button onClick={()=>nav("blog")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {blogs.map(b=>(
                 <div key={b.title} style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer", border:`1px solid ${BOR}` }}>
                   <img src={b.img} alt={b.title} style={{ width:"100%", height:160, objectFit:"cover" }} />
@@ -467,26 +549,26 @@ export default function ApolloSite() {
           </div>
 
           {/* FAQ */}
-          <div style={{ maxWidth:720, margin:"0 auto", padding:"64px 32px 0" }}>
+          <div className="section-pad-top" style={{ maxWidth:720, margin:"0 auto", padding:"56px 32px 0" }}>
             <SectionLabel>FAQ</SectionLabel>
-            <h2 style={{ fontSize:30, fontWeight:800, letterSpacing:"-0.02em", marginBottom:24 }}>Common Questions</h2>
+            <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em", marginBottom:20 }}>Common Questions</h2>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
             </div>
           </div>
 
           {/* EMAIL CAPTURE */}
-          <div style={{ background:G, margin:"64px 0 0", padding:"56px 32px" }}>
+          <div className="section-pad" style={{ background:G, margin:"56px 0 0", padding:"52px 32px" }}>
             <div style={{ maxWidth:520, margin:"0 auto", textAlign:"center" }}>
               <SectionLabel>Stay Updated</SectionLabel>
-              <h2 style={{ fontSize:28, fontWeight:800, color:"white", letterSpacing:"-0.02em", marginBottom:12 }}>New lots and homes, first.</h2>
-              <p style={{ fontSize:13, color:"rgba(255,255,255,0.5)", marginBottom:28, lineHeight:1.7 }}>Join our list and get notified when new properties and floor plans drop — before they hit Zillow.</p>
+              <h2 style={{ fontSize:26, fontWeight:800, color:"white", letterSpacing:"-0.02em", marginBottom:10 }}>New lots and homes, first.</h2>
+              <p style={{ fontSize:13, color:"rgba(255,255,255,0.5)", marginBottom:24, lineHeight:1.7 }}>Join our list and get notified when new properties and floor plans drop — before they hit Zillow.</p>
               {submitted ? (
                 <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"18px 24px", color:"rgba(255,255,255,0.7)", fontSize:14 }}>✅ You're on the list. We'll be in touch.</div>
               ) : (
-                <div style={{ display:"flex", gap:10 }}>
+                <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
                   <input type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)}
-                    style={{ flex:1, padding:"12px 16px", borderRadius:8, border:"none", fontSize:13, outline:"none", background:"rgba(255,255,255,0.1)", color:"white" }} />
+                    style={{ flex:1, minWidth:200, padding:"12px 16px", borderRadius:8, border:"none", fontSize:13, outline:"none", background:"rgba(255,255,255,0.1)", color:"white" }} />
                   <button onClick={()=>email&&setSubmitted(true)}
                     style={{ background:"white", color:G, border:"none", padding:"12px 22px", borderRadius:8, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>
                     Notify Me
@@ -497,21 +579,21 @@ export default function ApolloSite() {
           </div>
 
           {/* FOOTER */}
-          <footer style={{ background:"#080c18", padding:"48px 32px 32px" }}>
+          <footer style={{ background:"#080c18", padding:"44px 24px 28px" }}>
             <div style={{ maxWidth:1060, margin:"0 auto" }}>
-              <div style={{ display:"flex", gap:12, alignItems:"center", marginBottom:32 }}>
-                <img src={LOGO} alt="Homes by Apollo" style={{ height:40, width:"auto" }} />
-                <span style={{ fontWeight:800, fontSize:14, color:"white" }}>HOMES BY APOLLO</span>
+              <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:28 }}>
+                <img src={LOGO} alt="Homes by Apollo" style={{ height:38, width:"auto" }} />
+                <span style={{ fontWeight:800, fontSize:13, color:"white" }}>HOMES BY APOLLO</span>
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:32, marginBottom:40 }}>
+              <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28, marginBottom:36 }}>
                 {([["Company",[["Home","home"],["About Us","home"],["Why Pahrump","home"],["Contact","contact"]]],
                   ["Properties",[["Homes for Sale","homes"],["Available Lots","lots"],["Floor Plans","homes"],["Updates","homes"]]],
                   ["Resources",[["Blog","blog"],["FAQ","home"],["Warranty","home"],["Schedule","contact"]]],
                 ] as [string, [string, string][]][]).map(([heading, links])=>(
                   <div key={heading}>
-                    <p style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,0.22)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14 }}>{heading}</p>
+                    <p style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,0.22)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:12 }}>{heading}</p>
                     {links.map(([label, pg])=>(
-                      <div key={label} onClick={()=>nav(pg)} style={{ fontSize:12, color:"rgba(255,255,255,0.4)", marginBottom:10, cursor:"pointer" }}
+                      <div key={label} onClick={()=>nav(pg)} style={{ fontSize:12, color:"rgba(255,255,255,0.4)", marginBottom:9, cursor:"pointer" }}
                         onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.8)"}}
                         onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.4)"}}>
                         {label}
@@ -520,9 +602,9 @@ export default function ApolloSite() {
                   </div>
                 ))}
               </div>
-              <div style={{ borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:18, display:"flex", justifyContent:"space-between" }}>
+              <div className="footer-bottom" style={{ borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:16, display:"flex", justifyContent:"space-between" }}>
                 <p style={{ fontSize:11, color:"rgba(255,255,255,0.2)" }}>© 2025 Homes by Apollo. All rights reserved.</p>
-                <div style={{ display:"flex", gap:18 }}>
+                <div style={{ display:"flex", gap:16 }}>
                   {["Privacy Policy","Terms"].map(i=><span key={i} style={{ fontSize:11, color:"rgba(255,255,255,0.2)", cursor:"pointer" }}>{i}</span>)}
                 </div>
               </div>
@@ -532,20 +614,20 @@ export default function ApolloSite() {
 
         {/* ══ HOMES FOR SALE ══════════════════════════════════════════════════ */}
         {page==="homes" && (
-          <div style={{ maxWidth:1060, margin:"0 auto", padding:"48px 32px" }}>
+          <div className="section-pad" style={{ maxWidth:1060, margin:"0 auto", padding:"40px 24px" }}>
             <SectionLabel>All Properties</SectionLabel>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
-              <h1 style={{ fontSize:36, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h1>
-              <div style={{ display:"flex", gap:8 }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+              <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h1>
+              <div className="filter-row" style={{ display:"flex", gap:8 }}>
                 {["All","Available","Sold"].map(f=><FilterBtn key={f} active={homeFilter===f} onClick={()=>setHomeFilter(f)}>{f}</FilterBtn>)}
               </div>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:48 }}>
+            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
               {homes.map(h=><HomeCard key={h.id} h={h}/>)}
             </div>
-            <div style={{ background:G, borderRadius:14, padding:"36px 40px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <div className="cta-banner" style={{ background:G, borderRadius:14, padding:"32px 36px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
-                <h3 style={{ fontSize:22, fontWeight:800, color:"white", marginBottom:6 }}>Don't see what you're looking for?</h3>
+                <h3 style={{ fontSize:20, fontWeight:800, color:"white", marginBottom:6 }}>Don't see what you're looking for?</h3>
                 <p style={{ fontSize:13, color:"rgba(255,255,255,0.5)" }}>We build custom — tell us your vision and we'll make it happen.</p>
               </div>
               <Btn white onClick={()=>nav("contact")}>Start a Custom Build</Btn>
@@ -555,15 +637,15 @@ export default function ApolloSite() {
 
         {/* ══ AVAILABLE LOTS ══════════════════════════════════════════════════ */}
         {page==="lots" && (
-          <div style={{ maxWidth:1060, margin:"0 auto", padding:"48px 32px" }}>
+          <div className="section-pad" style={{ maxWidth:1060, margin:"0 auto", padding:"40px 24px" }}>
             <SectionLabel>Land</SectionLabel>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
-              <h1 style={{ fontSize:36, fontWeight:800, letterSpacing:"-0.02em" }}>Available Lots</h1>
-              <div style={{ display:"flex", gap:8 }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+              <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Available Lots</h1>
+              <div className="filter-row" style={{ display:"flex", gap:8 }}>
                 {["All","Available","Reserved"].map(f=><FilterBtn key={f} active={lotFilter===f} onClick={()=>setLotFilter(f)}>{f}</FilterBtn>)}
               </div>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {lots.map(l=><LotCard key={l.id} l={l}/>)}
             </div>
           </div>
@@ -571,15 +653,15 @@ export default function ApolloSite() {
 
         {/* ══ BLOG ════════════════════════════════════════════════════════════ */}
         {page==="blog" && (
-          <div style={{ maxWidth:1060, margin:"0 auto", padding:"48px 32px" }}>
+          <div className="section-pad" style={{ maxWidth:1060, margin:"0 auto", padding:"40px 24px" }}>
             <SectionLabel>Insights</SectionLabel>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
-              <h1 style={{ fontSize:36, fontWeight:800, letterSpacing:"-0.02em" }}>From the Blog</h1>
-              <div style={{ display:"flex", gap:8 }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+              <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>From the Blog</h1>
+              <div className="filter-row" style={{ display:"flex", gap:8 }}>
                 {["All","Tips","Construction","Investment"].map(f=><FilterBtn key={f} active={blogFilter===f} onClick={()=>setBlogFilter(f)}>{f}</FilterBtn>)}
               </div>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {blogs.map(b=>(
                 <div key={b.title} style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer", border:`1px solid ${BOR}`, boxShadow:"0 2px 16px rgba(0,0,0,0.05)" }}>
                   <img src={b.img} alt={b.title} style={{ width:"100%", height:180, objectFit:"cover" }} />
@@ -597,15 +679,15 @@ export default function ApolloSite() {
 
         {/* ══ CONTACT ═════════════════════════════════════════════════════════ */}
         {page==="contact" && (
-          <div style={{ maxWidth:900, margin:"0 auto", padding:"48px 32px" }}>
+          <div className="section-pad" style={{ maxWidth:900, margin:"0 auto", padding:"40px 24px" }}>
             <SectionLabel>Get in Touch</SectionLabel>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:40 }}>
+            <div className="contact-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:36 }}>
               <div>
-                <h1 style={{ fontSize:36, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:18 }}>Schedule a<br/>Free Consultation</h1>
-                <p style={{ fontSize:14, color:MUT, lineHeight:1.85, marginBottom:32 }}>Ready to build? Have questions? Brandon and the Apollo team are here to help. No pressure — just a real conversation about your vision.</p>
-                <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:16 }}>Schedule a<br/>Free Consultation</h1>
+                <p style={{ fontSize:14, color:MUT, lineHeight:1.85, marginBottom:28 }}>Ready to build? Have questions? Brandon and the Apollo team are here to help. No pressure — just a real conversation about your vision.</p>
+                <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                   {([["📍","Office","5158 Arville St, Las Vegas, NV 89118"],["📞","Phone","(702) 588-9889"],["✉️","Email","brandon@apollohomebuilders.com"],["🪪","License","NV No. 0077907"]] as [string,string,string][]).map(([icon,label,val])=>(
-                    <div key={label} style={{ display:"flex", alignItems:"flex-start", gap:12, background:"white", padding:"14px 18px", borderRadius:10, border:`1px solid ${BOR}` }}>
+                    <div key={label} style={{ display:"flex", alignItems:"flex-start", gap:12, background:"white", padding:"13px 16px", borderRadius:10, border:`1px solid ${BOR}` }}>
                       <span style={{ fontSize:18 }}>{icon}</span>
                       <div>
                         <div style={{ fontSize:10, fontWeight:700, color:G, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:2 }}>{label}</div>
@@ -615,29 +697,29 @@ export default function ApolloSite() {
                   ))}
                 </div>
               </div>
-              <div style={{ background:"white", borderRadius:14, padding:"32px 28px", border:`1px solid ${BOR}`, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
+              <div style={{ background:"white", borderRadius:14, padding:"28px 24px", border:`1px solid ${BOR}`, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
                 {formSent ? (
-                  <div style={{ textAlign:"center", padding:"36px 0" }}>
-                    <div style={{ fontSize:44, marginBottom:14 }}>✅</div>
+                  <div style={{ textAlign:"center", padding:"32px 0" }}>
+                    <div style={{ fontSize:44, marginBottom:12 }}>✅</div>
                     <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10 }}>Message Sent!</h3>
                     <p style={{ color:MUT, fontSize:13, lineHeight:1.7 }}>Brandon will reach out within 1 business day.</p>
                   </div>
                 ) : (
                   <>
-                    <h3 style={{ fontSize:18, fontWeight:800, marginBottom:22 }}>Send us a message</h3>
-                    <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+                    <h3 style={{ fontSize:17, fontWeight:800, marginBottom:20 }}>Send us a message</h3>
+                    <div style={{ display:"flex", flexDirection:"column", gap:13 }}>
                       {([["Name","text","name","Your full name"],["Email","email","email","your@email.com"],["Phone","tel","phone","(702) 555-0000"]] as [string,string,keyof FormState,string][]).map(([label,type,key,ph])=>(
                         <div key={key}>
-                          <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:5 }}>{label}</label>
+                          <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>{label}</label>
                           <input type={type} placeholder={ph} value={form[key]} onChange={e=>setForm({...form,[key]:e.target.value})}
-                            style={{ width:"100%", padding:"10px 13px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT }}
+                            style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT }}
                             onFocus={e=>{e.currentTarget.style.borderColor=G}} onBlur={e=>{e.currentTarget.style.borderColor=BOR}}/>
                         </div>
                       ))}
                       <div>
-                        <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:5 }}>I'm interested in</label>
+                        <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>I'm interested in</label>
                         <select value={form.interest} onChange={e=>setForm({...form,interest:e.target.value})}
-                          style={{ width:"100%", padding:"10px 13px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT, background:"white" }}>
+                          style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT, background:"white" }}>
                           <option value="buy">Buying a Home</option>
                           <option value="build">Building a Custom Home</option>
                           <option value="lot">Purchasing a Lot</option>
@@ -645,9 +727,9 @@ export default function ApolloSite() {
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:5 }}>Message</label>
+                        <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>Message</label>
                         <textarea placeholder="Tell us about your project..." rows={3} value={form.message} onChange={e=>setForm({...form,message:e.target.value})}
-                          style={{ width:"100%", padding:"10px 13px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT, resize:"vertical" }}
+                          style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT, resize:"vertical" }}
                           onFocus={e=>{e.currentTarget.style.borderColor=G}} onBlur={e=>{e.currentTarget.style.borderColor=BOR}}/>
                       </div>
                       <button onClick={()=>form.email&&setFormSent(true)}
