@@ -333,16 +333,16 @@ export default function ApolloSite() {
         {page==="home" && <>
 
           {/* HERO */}
-          <div style={{ background:"white", paddingTop:56, paddingBottom:0, textAlign:"center", position:"relative" }}>
+          <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", position:"relative" }}>
             <h1 className="hero-headline" style={{
-              fontSize: "clamp(44px,6.5vw,88px)",
-              fontWeight: 800, color: TXT, lineHeight: 1.05,
-              letterSpacing: "-0.03em", maxWidth: 820,
-              margin: "0 auto 16px", padding: "0 20px",
+              fontSize: "clamp(40px,5.5vw,80px)",
+              fontWeight: 800, color: TXT, lineHeight: 1.08,
+              letterSpacing: "-0.04em", maxWidth: 860,
+              margin: "0 auto 20px", padding: "0 24px",
             }}>
               Find Your Dream Home<br/>in Pahrump
             </h1>
-            <p className="hero-subtitle" style={{ fontSize:16, color:MUT, maxWidth:440, margin:"0 auto 36px", lineHeight:1.75, fontWeight:400, padding:"0 20px" }}>
+            <p className="hero-subtitle" style={{ fontSize:18, color:MUT, maxWidth:500, margin:"0 auto 40px", lineHeight:1.65, fontWeight:400, padding:"0 24px" }}>
               Explore our listings to find the perfect place to call home.
             </p>
 
@@ -398,16 +398,16 @@ export default function ApolloSite() {
           </div>
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
+          <div style={{ background:"white", paddingTop:80, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
-          <div className="section-pad" style={{ background:"white", padding:"48px 32px 64px" }}>
+          <div className="section-pad" style={{ background:"white", padding:"56px 32px 72px" }}>
             <div style={{ maxWidth:1060, margin:"0 auto" }}>
-              <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:56, alignItems:"start" }}>
+              <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:64, alignItems:"start" }}>
                 <div>
                   <SectionLabel>About us</SectionLabel>
-                  <h2 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.15, marginBottom:14 }}>We provide the best Services</h2>
-                  <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>Apollo Home Builders is committed to helping you find and build the perfect home in Pahrump, Nevada.</p>
+                  <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:16 }}>We provide the best Services</h2>
+                  <p style={{ fontSize:16, color:MUT, lineHeight:1.8 }}>Apollo Home Builders is committed to helping you find and build the perfect home in Pahrump, Nevada.</p>
                 </div>
                 <div className="why-apollo-icons" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32 }}>
                   {[
@@ -428,11 +428,11 @@ export default function ApolloSite() {
           </div>
 
           {/* FEATURED HOMES */}
-          <div className="section-pad-top" style={{ maxWidth:1060, margin:"0 auto", padding:"56px 32px 0" }}>
-            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+          <div style={{ padding:"64px 32px 0", maxWidth:1060, margin:"0 auto" }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Featured Properties</SectionLabel>
-                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h2>
+                <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>Homes for Sale</h2>
               </div>
               <button onClick={()=>nav("homes")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
@@ -446,11 +446,14 @@ export default function ApolloSite() {
           </div>
 
           {/* HOW IT WORKS */}
-          <div className="section-pad" style={{ background:GL, padding:"64px 32px", marginTop:56 }}>
+          <div style={{ background:GL, padding:"72px 32px", marginTop:64 }}>
             <div style={{ maxWidth:1060, margin:"0 auto" }}>
-              <div style={{ textAlign:"center", marginBottom:40 }}>
-                <SectionLabel>Simple Process</SectionLabel>
-                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>How it works</h2>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:48 }}>
+                <div>
+                  <SectionLabel>Our approach</SectionLabel>
+                  <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>How it works</h2>
+                </div>
+                <Btn small onClick={()=>nav("homes")}>Our Properties</Btn>
               </div>
               <div className="how-it-works-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28 }}>
                 {[
@@ -475,11 +478,11 @@ export default function ApolloSite() {
           </div>
 
           {/* AVAILABLE LOTS */}
-          <div className="section-pad-top" style={{ maxWidth:1060, margin:"0 auto", padding:"0 32px 56px" }}>
-            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+          <div style={{ padding:"72px 32px 64px", maxWidth:1060, margin:"0 auto" }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Land</SectionLabel>
-                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>Available Lots</h2>
+                <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>Available Lots</h2>
               </div>
               <button onClick={()=>nav("lots")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
@@ -493,11 +496,11 @@ export default function ApolloSite() {
           </div>
 
           {/* TESTIMONIALS */}
-          <div className="section-pad" style={{ background:GL, padding:"64px 32px" }}>
+          <div style={{ background:GL, padding:"72px 32px" }}>
             <div style={{ maxWidth:800, margin:"0 auto" }}>
               <div style={{ textAlign:"center", marginBottom:40 }}>
                 <SectionLabel>Client Stories</SectionLabel>
-                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>What our clients say</h2>
+                <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>What our clients say</h2>
                 <p style={{ fontSize:14, color:MUT, marginTop:10 }}>Hear from homeowners and investors who built with Apollo.</p>
               </div>
               <div className="testimonial-card" style={{ background:"white", borderRadius:20, padding:"36px 44px", boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
@@ -535,11 +538,11 @@ export default function ApolloSite() {
           </div>
 
           {/* BLOG PREVIEW */}
-          <div className="section-pad-top" style={{ maxWidth:1060, margin:"0 auto", padding:"56px 32px 0" }}>
-            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+          <div style={{ padding:"72px 32px 0", maxWidth:1060, margin:"0 auto" }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Insights</SectionLabel>
-                <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em" }}>From the Blog</h2>
+                <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>From the Blog</h2>
               </div>
               <button onClick={()=>nav("blog")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
@@ -558,63 +561,77 @@ export default function ApolloSite() {
           </div>
 
           {/* FAQ */}
-          <div className="section-pad-top" style={{ maxWidth:720, margin:"0 auto", padding:"56px 32px 0" }}>
+          <div style={{ padding:"72px 32px 0", maxWidth:720, margin:"0 auto" }}>
             <SectionLabel>FAQ</SectionLabel>
-            <h2 style={{ fontSize:28, fontWeight:800, letterSpacing:"-0.02em", marginBottom:20 }}>Common Questions</h2>
+            <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em", marginBottom:24 }}>Common Questions</h2>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
             </div>
           </div>
 
-          {/* EMAIL CAPTURE */}
-          <div className="section-pad" style={{ background:G, margin:"56px 0 0", padding:"52px 32px" }}>
-            <div style={{ maxWidth:520, margin:"0 auto", textAlign:"center" }}>
-              <SectionLabel>Stay Updated</SectionLabel>
-              <h2 style={{ fontSize:26, fontWeight:800, color:"white", letterSpacing:"-0.02em", marginBottom:10 }}>New lots and homes, first.</h2>
-              <p style={{ fontSize:13, color:"rgba(255,255,255,0.5)", marginBottom:24, lineHeight:1.7 }}>Join our list and get notified when new properties and floor plans drop — before they hit Zillow.</p>
-              {submitted ? (
-                <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"18px 24px", color:"rgba(255,255,255,0.7)", fontSize:14 }}>✅ You're on the list. We'll be in touch.</div>
-              ) : (
-                <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-                  <input type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)}
-                    style={{ flex:1, minWidth:200, padding:"12px 16px", borderRadius:8, border:"none", fontSize:13, outline:"none", background:"rgba(255,255,255,0.1)", color:"white" }} />
-                  <button onClick={()=>email&&setSubmitted(true)}
-                    style={{ background:"white", color:G, border:"none", padding:"12px 22px", borderRadius:8, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>
-                    Notify Me
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+          {/* EMAIL CAPTURE — removed standalone section, now in footer */}
 
           {/* FOOTER */}
-          <footer style={{ background:"#080c18", padding:"44px 24px 28px" }}>
-            <div style={{ maxWidth:1060, margin:"0 auto" }}>
-              <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:28 }}>
-                <img src={LOGO} alt="Homes by Apollo" style={{ height:38, width:"auto" }} />
-                <span style={{ fontWeight:800, fontSize:13, color:"white" }}>HOMES BY APOLLO</span>
+          <footer style={{ background:"#080c18", overflow:"hidden", position:"relative" }}>
+            {/* Watermark text */}
+            <div style={{ position:"absolute", bottom:-20, left:0, right:0, overflow:"hidden", pointerEvents:"none", userSelect:"none" }}>
+              <div style={{ fontSize:"clamp(80px,14vw,200px)", fontWeight:900, letterSpacing:"-0.04em", color:"rgba(255,255,255,0.04)", whiteSpace:"nowrap", lineHeight:1, paddingLeft:24 }}>Homes by Apollo</div>
+            </div>
+
+            {/* Email capture strip */}
+            <div style={{ borderBottom:"1px solid rgba(255,255,255,0.07)", padding:"52px 32px" }}>
+              <div style={{ maxWidth:1060, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:24 }}>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:700, color:"rgba(255,255,255,0.35)", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:8 }}>Stay Updated</div>
+                  <h3 style={{ fontSize:28, fontWeight:800, color:"white", letterSpacing:"-0.02em", lineHeight:1.2, marginBottom:6 }}>New lots and homes, first.</h3>
+                  <p style={{ fontSize:14, color:"rgba(255,255,255,0.4)", lineHeight:1.6 }}>Get notified before new properties hit Zillow.</p>
+                </div>
+                <div style={{ display:"flex", gap:10, flexShrink:0, flexWrap:"wrap" }}>
+                  {submitted ? (
+                    <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"14px 24px", color:"rgba(255,255,255,0.7)", fontSize:14 }}>✅ You're on the list.</div>
+                  ) : (
+                    <>
+                      <input type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)}
+                        style={{ padding:"13px 18px", borderRadius:8, border:"1px solid rgba(255,255,255,0.12)", fontSize:14, outline:"none", background:"rgba(255,255,255,0.07)", color:"white", minWidth:240, fontFamily:"inherit" }} />
+                      <button onClick={()=>email&&setSubmitted(true)}
+                        style={{ background:"white", color:G, border:"none", padding:"13px 24px", borderRadius:8, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>
+                        Notify Me
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28, marginBottom:36 }}>
-                {([["Company",[["Home","home"],["About Us","home"],["Why Pahrump","home"],["Contact","contact"]]],
-                  ["Properties",[["Homes for Sale","homes"],["Available Lots","lots"],["Floor Plans","homes"],["Updates","homes"]]],
-                  ["Resources",[["Blog","blog"],["FAQ","home"],["Warranty","home"],["Schedule","contact"]]],
-                ] as [string, [string, string][]][]).map(([heading, links])=>(
-                  <div key={heading}>
-                    <p style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,0.22)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:12 }}>{heading}</p>
-                    {links.map(([label, pg])=>(
-                      <div key={label} onClick={()=>nav(pg)} style={{ fontSize:12, color:"rgba(255,255,255,0.4)", marginBottom:9, cursor:"pointer" }}
-                        onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.8)"}}
-                        onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.4)"}}>
-                        {label}
-                      </div>
-                    ))}
+            </div>
+
+            {/* Footer links */}
+            <div style={{ padding:"48px 32px 28px", position:"relative", zIndex:1 }}>
+              <div style={{ maxWidth:1060, margin:"0 auto" }}>
+                <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:36 }}>
+                  <img src={LOGO} alt="Homes by Apollo" style={{ height:38, width:"auto" }} />
+                  <span style={{ fontWeight:800, fontSize:13, color:"white" }}>HOMES BY APOLLO</span>
+                </div>
+                <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28, marginBottom:40 }}>
+                  {([["Company",[["Home","home"],["About Us","home"],["Why Pahrump","home"],["Contact","contact"]]],
+                    ["Properties",[["Homes for Sale","homes"],["Available Lots","lots"],["Floor Plans","homes"],["Updates","homes"]]],
+                    ["Resources",[["Blog","blog"],["FAQ","home"],["Warranty","home"],["Schedule","contact"]]],
+                  ] as [string, [string, string][]][]).map(([heading, links])=>(
+                    <div key={heading}>
+                      <p style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,0.22)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14 }}>{heading}</p>
+                      {links.map(([label, pg])=>(
+                        <div key={label} onClick={()=>nav(pg)} style={{ fontSize:13, color:"rgba(255,255,255,0.4)", marginBottom:10, cursor:"pointer" }}
+                          onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.85)"}}
+                          onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.4)"}}>
+                          {label}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                <div className="footer-bottom" style={{ borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:20, display:"flex", justifyContent:"space-between" }}>
+                  <p style={{ fontSize:12, color:"rgba(255,255,255,0.2)" }}>© 2025 Homes by Apollo. All rights reserved.</p>
+                  <div style={{ display:"flex", gap:16 }}>
+                    {["Privacy Policy","Terms"].map(i=><span key={i} style={{ fontSize:12, color:"rgba(255,255,255,0.2)", cursor:"pointer" }}>{i}</span>)}
                   </div>
-                ))}
-              </div>
-              <div className="footer-bottom" style={{ borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:16, display:"flex", justifyContent:"space-between" }}>
-                <p style={{ fontSize:11, color:"rgba(255,255,255,0.2)" }}>© 2025 Homes by Apollo. All rights reserved.</p>
-                <div style={{ display:"flex", gap:16 }}>
-                  {["Privacy Policy","Terms"].map(i=><span key={i} style={{ fontSize:11, color:"rgba(255,255,255,0.2)", cursor:"pointer" }}>{i}</span>)}
                 </div>
               </div>
             </div>
