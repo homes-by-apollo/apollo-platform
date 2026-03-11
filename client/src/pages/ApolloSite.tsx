@@ -304,9 +304,9 @@ export default function ApolloSite() {
         input,textarea,select,button{font-family:inherit}
 
         .photo-clip-text {
-          font-size: 10.5vw;
+          font-size: 9.8vw;
           font-weight: 800;
-          letter-spacing: -0.04em;
+          letter-spacing: -0.06em;
           line-height: 1;
           white-space: nowrap;
           background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp');
@@ -406,7 +406,7 @@ export default function ApolloSite() {
       `}</style>
 
       {/* ── NAV ─────────────────────────────────────────────────────────────── */}
-      <div style={{ background:"#ffffff", borderBottom:`1px solid ${BOR}`, boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none", transition:"box-shadow 0.2s", flexShrink:0, zIndex:200, position:"relative" }}>
+      <div style={{ background:"#ffffff", boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none", transition:"box-shadow 0.2s", flexShrink:0, zIndex:200, position:"relative" }}>
       <nav style={{
         background: "transparent",
         padding: "30px var(--pad) 0" as React.CSSProperties["padding"],
