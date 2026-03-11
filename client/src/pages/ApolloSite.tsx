@@ -1039,9 +1039,9 @@ export default function ApolloSite() {
             </div>
 
             {/* MONOCHROMATIC WATERMARK */}
-            <div style={{ overflow:"hidden", pointerEvents:"none", userSelect:"none", lineHeight:0.85, paddingTop:4 }}>
-              <div style={{ width:1680, maxWidth:"100%", margin:"0 auto", overflow:"visible" }}>
-                <div style={{ fontSize:"10.5vw", fontWeight:900, letterSpacing:"-0.04em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"center" }}>Homes by Apollo</div>
+            <div style={{ overflow:"visible", pointerEvents:"none", userSelect:"none", lineHeight:0.85, paddingTop:4 }}>
+              <div style={{ width:"100%", maxWidth:"100vw", margin:"0 auto", overflow:"visible", textAlign:"center" }}>
+                <div style={{ fontSize:"clamp(48px, 8.2vw, 138px)", fontWeight:900, letterSpacing:"-0.055em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"center" }}>Homes by Apollo</div>
               </div>
             </div>
           </footer>
