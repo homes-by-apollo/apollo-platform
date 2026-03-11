@@ -409,9 +409,9 @@ export default function ApolloSite() {
       <div style={{ background:"#ffffff", boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none", transition:"box-shadow 0.2s", flexShrink:0, zIndex:200, position:"relative" }}>
       <nav style={{
         background: "transparent",
-        padding: "0 var(--pad)" as React.CSSProperties["padding"],
-        height: 94,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "40px var(--pad) 0" as React.CSSProperties["padding"],
+        height: 136,
+        display: "flex", alignItems: "flex-start", justifyContent: "space-between",
         transition: "all 0.2s",
         position: "relative",
         maxWidth: "var(--container)" as React.CSSProperties["maxWidth"],
