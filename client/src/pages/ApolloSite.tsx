@@ -297,7 +297,7 @@ export default function ApolloSite() {
         input,textarea,select,button{font-family:inherit}
 
         .photo-clip-text {
-          font-size: 12vw;
+          font-size: clamp(64px, 8.5vw, 142px);
           font-weight: 800;
           letter-spacing: -0.04em;
           line-height: 1;
@@ -312,7 +312,15 @@ export default function ApolloSite() {
           display: block;
           width: 100%;
           text-align: center;
-          overflow: hidden;
+        }
+        .photo-clip-container {
+          width: 100%;
+          max-width: 1650px;
+          margin: 0 auto;
+          padding: 0 var(--pad);
+          background: transparent;
+          text-align: center;
+          overflow: visible;
         }
 
         /* ── Mobile overrides ─────────────────────────────── */
@@ -499,7 +507,7 @@ export default function ApolloSite() {
               <span style={{ display:"block", whiteSpace:"nowrap" }}>Find Your Dream Home</span>
               <span style={{ display:"block", whiteSpace:"nowrap" }}>in Pahrump</span>
             </h1>
-            <p className="hero-subtitle" style={{ fontSize:18, color:MUT, margin:"0 auto 40px", lineHeight:1.65, fontWeight:400, padding:"0 var(--pad)", whiteSpace:"nowrap" }}>
+            <p className="hero-subtitle" style={{ fontSize:23, color:"#4a5568", margin:"0 auto 40px", lineHeight:1.65, fontWeight:400, padding:"0 var(--pad)", whiteSpace:"nowrap" }}>
               Explore our listings to find the perfect place to call home.
             </p>
 
@@ -541,7 +549,7 @@ export default function ApolloSite() {
             </div>
 
             {/* Hero image */}
-            <div className="hero-image-wrap" style={{ margin:"0 auto", width:"100%", maxWidth:1650, position:"relative", marginTop:-28, height:720, overflow:"hidden", borderRadius:"24px 24px 0 0", zIndex:2 }}>
+            <div className="hero-image-wrap" style={{ margin:"0 auto", width:"100%", maxWidth:1650, position:"relative", marginTop:-28, height:720, overflow:"hidden", borderRadius:"24px 24px 0 0", zIndex:2, boxShadow:"0 24px 80px rgba(8,12,28,0.38), 0 8px 24px rgba(8,12,28,0.22)" }}>
               <img
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
                 alt="Pahrump custom home"
@@ -689,7 +697,7 @@ export default function ApolloSite() {
 
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div style={{ background:"transparent", paddingTop:30, paddingBottom:0, textAlign:"center", maxWidth:1650, margin:"0 auto" }}>
+          <div className="photo-clip-container" style={{ paddingTop:30, paddingBottom:0 }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
           <div className="section-pad" style={{ background:"white", padding:"56px var(--pad) 72px" }}>
@@ -838,7 +846,7 @@ export default function ApolloSite() {
           <div style={{ padding:"72px var(--pad) 0" }}>
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
-            <div style={{ background:"transparent", paddingTop:0, paddingBottom:16, textAlign:"center", maxWidth:1650, margin:"0 auto" }}>
+            <div className="photo-clip-container" style={{ paddingTop:0, paddingBottom:16 }}>
               <span className="photo-clip-text">Homes by Apollo</span>
             </div>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:36 }}>
