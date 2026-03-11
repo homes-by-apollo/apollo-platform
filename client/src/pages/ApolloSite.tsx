@@ -896,7 +896,7 @@ export default function ApolloSite() {
           <div style={{ padding:"107px var(--pad) 35px" }}>
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
-            <div className="photo-clip-container" style={{ padding:0, margin:0, background:"transparent" }}>
+            <div className="photo-clip-container" style={{ padding:0, margin:0, marginTop:"-40px", marginBottom:"60px", background:"transparent" }}>
               <svg className="photo-clip-svg" viewBox="0 0 1690 175" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <pattern id="heroImg2" patternUnits="userSpaceOnUse" width="1690" height="175">
