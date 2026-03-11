@@ -351,6 +351,8 @@ export default function ApolloSite() {
 
           .mobile-full-cta    { width: 100% !important; justify-content: center !important; }
           .mobile-sticky-cta  { display: flex !important; }
+
+          .featured-props-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
         }
 
         @media (min-width: 769px) {
@@ -467,36 +469,38 @@ export default function ApolloSite() {
 
             {/* Search bar */}
             <div className="search-bar" style={{
-              display:"inline-flex", alignItems:"stretch",
-              background:"white", borderRadius:16,
+              display:"inline-flex", alignItems:"center",
+              background:"white", borderRadius:14,
               boxShadow:"0 4px 40px rgba(0,0,0,0.12)",
-              padding:"8px 8px 8px 0", gap:0,
+              padding:"8px", gap:6,
               position:"relative", zIndex:10,
               maxWidth:"calc(100% - 32px)",
             }}>
               {[
-                [<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>, "Location"],
-                [<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, "Property Type"],
-                [<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, "Budget"],
+                [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>, "Location"],
+                [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, "Property"],
+                [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, "Budget"],
               ].map(([icon,label],i)=>(
                 <div key={label as string} className="search-bar-item" style={{
                   display:"flex", alignItems:"center", gap:10,
-                  padding:"14px 24px",
-                  borderRight: i<2 ? `1px solid ${BOR}` : "none",
-                  cursor:"pointer", minWidth:160,
+                  padding:"14px 22px",
+                  background:"white",
+                  border:"1.5px solid #d8dde8",
+                  borderRadius:10,
+                  cursor:"pointer", minWidth:148,
                 }}>
                   <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>{icon}</span>
-                  <div style={{ display:"flex", flexDirection:"column", textAlign:"left" }}>
-                    <div style={{ fontSize:12, fontWeight:700, color:TXT, letterSpacing:"0.01em", lineHeight:1.2 }}>{label}</div>
-                    <div style={{ fontSize:12, color:"#bbb", lineHeight:1.2 }}>Any ▾</div>
+                  <div style={{ display:"flex", flexDirection:"column", textAlign:"left", flex:1 }}>
+                    <div style={{ fontSize:13, fontWeight:600, color:TXT, letterSpacing:"0.01em", lineHeight:1.2 }}>{label}</div>
+                    <div style={{ fontSize:12, color:"#aab", lineHeight:1.2 }}>Any ▾</div>
                   </div>
                 </div>
               ))}
               <button className="search-bar-btn" onClick={()=>nav("homes")} style={{
-                background:G, color:"white", border:"none",
-                padding:"14px 32px", borderRadius:12,
+                background:TXT, color:"white", border:"none",
+                padding:"16px 34px", borderRadius:10,
                 fontSize:14, fontWeight:700, cursor:"pointer",
-                fontFamily:"inherit", marginLeft:8,
+                fontFamily:"inherit", letterSpacing:"0.01em",
               }}>Search</button>
             </div>
 
@@ -519,6 +523,63 @@ export default function ApolloSite() {
               </div>
             </div>
           </div>
+
+          {/* ══ FEATURED PROPERTIES ═══════════════════════════════════════════ */}
+          <div style={{ background:"#0f2044", padding:"72px 5vw 80px" }}>
+            {/* Header row */}
+            <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginBottom:40, flexWrap:"wrap", gap:16 }}>
+              <div>
+                <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+                  <div style={{ width:40, height:2, background:"#4B9CD3" }} />
+                  <span style={{ fontSize:13, fontWeight:600, color:"#4B9CD3", letterSpacing:"0.08em", textTransform:"uppercase" }}>Exclusive property</span>
+                </div>
+                <h2 style={{ fontSize:"clamp(32px,4vw,52px)", fontWeight:800, color:"white", letterSpacing:"-0.03em", lineHeight:1.1, margin:0 }}>Featured Properties</h2>
+              </div>
+              <button
+                onClick={()=>nav("homes")}
+                style={{ display:"flex", alignItems:"center", gap:8, background:"transparent", border:"1.5px solid rgba(255,255,255,0.35)", color:"white", borderRadius:8, padding:"12px 22px", fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit", letterSpacing:"0.01em", whiteSpace:"nowrap" }}
+              >
+                Explore More
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+              </button>
+            </div>
+
+            {/* Property cards */}
+            <div className="featured-props-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+              {[
+                { tag:"For Sale",    title:"The Mesquite",  sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 14, Desert Bloom Estates, Pahrump NV 89048", price:"$389,000", beds:3, baths:2, garage:2, sqft:"1,850", img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80" },
+                { tag:"For Sale",    title:"The Sunrise",   sub:"4 Bed / 3 Bath / 2-Car Garage", address:"Lot 22, Pahrump Valley Ranch, Pahrump NV 89048", price:"$459,000", beds:4, baths:3, garage:2, sqft:"2,240", img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80" },
+                { tag:"Coming Soon", title:"The Ridgeline", sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 7, Silver Mesa, Pahrump NV 89060",             price:"$419,000", beds:3, baths:2, garage:2, sqft:"1,980", img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80" },
+              ].map((p,i)=>(
+                <div key={i} style={{ background:"white", borderRadius:16, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 8px 32px rgba(0,0,0,0.18)" }}>
+                  <div style={{ position:"relative", height:220, overflow:"hidden", flexShrink:0 }}>
+                    <img src={p.img} alt={p.title} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+                    <div style={{ position:"absolute", top:14, right:14, background:p.tag==="Coming Soon" ? "#e07b39" : "#0f2044", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:6, letterSpacing:"0.04em", textTransform:"uppercase" }}>{p.tag}</div>
+                  </div>
+                  <div style={{ padding:"22px 24px 24px", display:"flex", flexDirection:"column", flex:1 }}>
+                    <h3 style={{ fontSize:20, fontWeight:800, color:TXT, letterSpacing:"-0.02em", lineHeight:1.2, margin:"0 0 2px" }}>{p.title}</h3>
+                    <p style={{ fontSize:13, color:MUT, margin:"0 0 4px", fontWeight:500 }}>{p.sub}</p>
+                    <p style={{ fontSize:12, color:"#bbb", margin:"0 0 16px", lineHeight:1.4 }}>{p.address}</p>
+                    <div style={{ fontSize:28, fontWeight:900, color:TXT, letterSpacing:"-0.03em", margin:"0 0 18px" }}>{p.price}</div>
+                    <div style={{ borderTop:`1px solid ${BOR}`, paddingTop:16, display:"grid", gridTemplateColumns:"1fr 1fr", gap:"10px 0" }}>
+                      {[
+                        ["Bedrooms", p.beds],
+                        ["Bathrooms", p.baths],
+                        ["Garage", p.garage],
+                        ["Sq Ft", p.sqft],
+                      ].map(([label,val])=>(
+                        <div key={label as string} style={{ display:"flex", justifyContent:"space-between", paddingRight:16 }}>
+                          <span style={{ fontSize:13, color:MUT }}>{label}</span>
+                          <span style={{ fontSize:13, fontWeight:700, color:TXT }}>{val}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
           <div style={{ background:"white", paddingTop:30, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>

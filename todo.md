@@ -117,3 +117,7 @@
 ## Session 16
 - [x] Change "Notify Me" button label to "Subscribe" and make it Carolina Blue (#4B9CD3)
 - [x] Make footer tagline white and remove the em dash
+
+## Session 17
+- [x] Restyle hero search bar: individual grey-bordered segments, white bg, taller, solid dark Search button
+- [x] Add navy Featured Properties section below hero image with Apollo property cards
