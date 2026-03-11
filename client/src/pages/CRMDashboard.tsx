@@ -240,6 +240,13 @@ export default function CRMDashboard() {
           >
             Properties
           </button>
+          <span className="text-white/30">|</span>
+          <button
+            onClick={() => window.location.href = "/crm/blog"}
+            className="text-white/60 hover:text-white text-sm transition-colors"
+          >
+            Blog Posts
+          </button>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-white/60">{user.name}</span>

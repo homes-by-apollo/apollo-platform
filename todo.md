@@ -172,3 +172,11 @@
 - [x] Update featured property photos with Pahrump-style desert/ranch imagery
 - [x] Increase About Us feature item title font size by 20% (16px → 19.2px)
 - [x] Increase About Us feature item description font size by 20% (14.5px → 17.4px)
+
+## Session 40
+- [x] Add kyle@kylekelly.co and brandon@lvservicesolutions.com to admin auto-promote list
+- [x] Build /crm/blog admin page with add/edit/delete blog posts
+- [x] Register /crm/blog route in App.tsx
+- [x] Add "Blog Posts" nav link to CRMDashboard header
+- [x] Register blog router in server/routers.ts
+- [x] Global footer added to all sub-pages (Homes, Lots, FAQ, Blog, Contact, Home Detail, Lot Detail)

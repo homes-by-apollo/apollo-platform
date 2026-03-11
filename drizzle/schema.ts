@@ -215,6 +215,36 @@ export const properties = mysqlTable("properties", {
 export type Property = typeof properties.$inferSelect;
 export type InsertProperty = typeof properties.$inferInsert;
 
+// ─── Blog Posts ─────────────────────────────────────────────────────────────
+
+/**
+ * Blog articles shown on the homepage and blog section.
+ * The `featured` flag controls which posts appear in the homepage preview grid.
+ */
+export const blogPosts = mysqlTable("blogPosts", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Content
+  title: varchar("title", { length: 256 }).notNull(),
+  category: varchar("category", { length: 64 }).notNull().default("Tips"),
+  excerpt: text("excerpt"),
+  body: text("body"),
+  readTime: varchar("readTime", { length: 32 }).default("5 min"),
+  imageUrl: text("imageUrl"),
+
+  // Flags
+  featured: int("featured").notNull().default(1),  // 1 = show on homepage
+  sortOrder: int("sortOrder").notNull().default(0),
+
+  // Metadata
+  publishedAt: timestamp("publishedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
 // ─── Newsletter Subscribers ───────────────────────────────────────────────────
 
 /**

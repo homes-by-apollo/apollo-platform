@@ -29,6 +29,13 @@
       "when": 1773254887604,
       "tag": "0003_mean_black_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1773264978337,
+      "tag": "0004_condemned_thunderbird",
+      "breakpoints": true
     }
   ]
 }
