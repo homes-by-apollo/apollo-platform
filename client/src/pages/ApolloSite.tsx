@@ -558,7 +558,7 @@ export default function ApolloSite() {
                   }}>
                     <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>{icon}</span>
                     <div style={{ display:"flex", alignItems:"center", gap:8, flex:1, justifyContent:"space-between" }}>
-                      <div style={{ fontSize:15, fontWeight:600, color:TXT, letterSpacing:"0.01em" }}>{label}</div>
+                      <div style={{ fontSize:18, fontWeight:600, color:TXT, letterSpacing:"0.01em" }}>{label}</div>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     </div>
                   </div>
