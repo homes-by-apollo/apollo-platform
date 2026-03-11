@@ -1,3 +1,8 @@
+/**
+ * contact.submit.test.ts
+ * Legacy test file — updated to use the new leads.submit procedure
+ * which replaced the old contact.submit endpoint.
+ */
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
@@ -20,8 +25,22 @@ vi.mock("./_core/notification", () => ({
   notifyOwner: vi.fn().mockResolvedValue(true),
 }));
 
+// Mock db helpers
+vi.mock("./db", () => ({
+  createContact: vi.fn().mockResolvedValue(42),
+  getContactById: vi.fn(),
+  getContacts: vi.fn().mockResolvedValue([]),
+  getActivityForContact: vi.fn().mockResolvedValue([]),
+  getEmailsForContact: vi.fn().mockResolvedValue([]),
+  getStageCounts: vi.fn().mockResolvedValue([]),
+  getNewLeadsThisWeek: vi.fn().mockResolvedValue(0),
+  logActivity: vi.fn().mockResolvedValue(undefined),
+  logEmail: vi.fn().mockResolvedValue(undefined),
+  updateContact: vi.fn().mockResolvedValue(undefined),
+}));
+
 // Import router after mocks are set up
-const { appRouter } = await import("./routers");
+import { appRouter } from "./routers";
 
 function createPublicContext(): TrpcContext {
   return {
@@ -36,7 +55,7 @@ function createPublicContext(): TrpcContext {
   };
 }
 
-describe("contact.submit", () => {
+describe("leads.submit (formerly contact.submit)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -45,64 +64,75 @@ describe("contact.submit", () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
-    const result = await caller.contact.submit({
-      name: "Jane Smith",
+    const result = await caller.leads.submit({
+      contactType: "BUYER",
+      firstName: "Jane",
+      lastName: "Smith",
       email: "jane@example.com",
       phone: "(702) 555-1234",
-      message: "Interest: buy\n\nI'd like to schedule a consultation.",
+      message: "I'd like to schedule a consultation.",
     });
 
-    expect(result).toEqual({ success: true });
+    expect(result.success).toBe(true);
+    expect(result.contactId).toBe(42);
   });
 
-  it("returns success:true without optional phone field", async () => {
+  it("returns success:true for an agent contact", async () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
-    const result = await caller.contact.submit({
-      name: "John Doe",
-      email: "john@example.com",
-      message: "Interest: build\n\nI want a custom home.",
+    const result = await caller.leads.submit({
+      contactType: "AGENT",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john@realty.com",
+      phone: "(702) 555-5678",
     });
 
-    expect(result).toEqual({ success: true });
+    expect(result.success).toBe(true);
   });
 
-  it("throws a validation error when email is missing", async () => {
+  it("throws a validation error when email is invalid", async () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
     await expect(
-      caller.contact.submit({
-        name: "No Email",
+      caller.leads.submit({
+        contactType: "BUYER",
+        firstName: "No",
+        lastName: "Email",
         email: "not-an-email",
-        message: "Test message",
+        phone: "7025550000",
       })
     ).rejects.toThrow();
   });
 
-  it("throws a validation error when name is empty", async () => {
+  it("throws a validation error when firstName is empty", async () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
     await expect(
-      caller.contact.submit({
-        name: "",
+      caller.leads.submit({
+        contactType: "BUYER",
+        firstName: "",
+        lastName: "Smith",
         email: "test@example.com",
-        message: "Test message",
+        phone: "7025550000",
       })
     ).rejects.toThrow();
   });
 
-  it("throws a validation error when message is empty", async () => {
+  it("throws a validation error when phone is too short", async () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
     await expect(
-      caller.contact.submit({
-        name: "Test User",
+      caller.leads.submit({
+        contactType: "BUYER",
+        firstName: "Test",
+        lastName: "User",
         email: "test@example.com",
-        message: "",
+        phone: "123",
       })
     ).rejects.toThrow();
   });

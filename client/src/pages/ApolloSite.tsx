@@ -167,7 +167,15 @@ function FilterBtn({ children, active, onClick }: { children: React.ReactNode; a
 }
 
 interface FormState {
-  name: string; email: string; phone: string; interest: string; message: string;
+  name: string;
+  email: string;
+  phone: string;
+  contactType: "BUYER" | "AGENT";
+  timeline: string;
+  priceRange: string;
+  financingStatus: string;
+  brokerageName: string;
+  message: string;
 }
 
 export default function ApolloSite() {
@@ -176,12 +184,12 @@ export default function ApolloSite() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState<FormState>({ name:"", email:"", phone:"", interest:"buy", message:"" });
+  const [form, setForm] = useState<FormState>({ name:"", email:"", phone:"", contactType:"BUYER", timeline:"", priceRange:"", financingStatus:"", brokerageName:"", message:"" });
   const [formSent, setFormSent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const contactMutation = trpc.contact.submit.useMutation({
+  const contactMutation = trpc.leads.submit.useMutation({
     onSuccess: () => { setFormSent(true); setFormError(null); },
-    onError: (err) => { setFormError(err.message || "Failed to send. Please try again."); },
+    onError: (err: { message?: string }) => { setFormError(err.message || "Failed to send. Please try again."); },
   });
   const [homeFilter, setHomeFilter] = useState("All");
   const [lotFilter, setLotFilter] = useState("All");
@@ -1059,26 +1067,76 @@ export default function ApolloSite() {
                   <>
                     <h3 style={{ fontSize:17, fontWeight:800, marginBottom:20 }}>Send us a message</h3>
                     <div style={{ display:"flex", flexDirection:"column", gap:13 }}>
-                      {([["Name","text","name","Your full name"],["Email","email","email","your@email.com"],["Phone","tel","phone","(702) 555-0000"]] as [string,string,keyof FormState,string][]).map(([label,type,key,ph])=>(
+                      {/* Contact type radio */}
+                      <div>
+                        <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>I am a</label>
+                        <div style={{ display:"flex", gap:10 }}>
+                          {([["BUYER","Homebuyer"],["AGENT","Real Estate Agent"]] as [string,string][]).map(([val,lbl])=>(
+                            <button key={val} type="button" onClick={()=>setForm({...form,contactType:val as "BUYER"|"AGENT"})}
+                              style={{ flex:1, padding:"9px 0", borderRadius:8, fontSize:12, fontWeight:700, cursor:"pointer", border:`1.5px solid ${form.contactType===val?G:BOR}`, background:form.contactType===val?GL:"white", color:form.contactType===val?G:MUT, transition:"all 0.15s", fontFamily:"inherit" }}>
+                              {lbl}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      {/* Name, Email, Phone */}
+                      {([["Name","text","name","Your full name"],["Email","email","email","your@email.com"],["Phone","tel","phone","(702) 555-0000"]] as [string,string,string,string][]).map(([label,type,key,ph])=>(
                         <div key={key}>
                           <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>{label}</label>
-                          <input type={type} placeholder={ph} value={form[key]} onChange={e=>setForm({...form,[key]:e.target.value})}
+                          <input type={type} placeholder={ph} value={form[key as keyof FormState] as string} onChange={e=>setForm({...form,[key]:e.target.value})}
                             style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT }}
                             onFocus={e=>{e.currentTarget.style.borderColor=G}} onBlur={e=>{e.currentTarget.style.borderColor=BOR}}/>
                         </div>
                       ))}
+                      {/* Buyer-specific fields */}
+                      {form.contactType === "BUYER" && (<>
+                        <div>
+                          <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>Purchase Timeline</label>
+                          <select value={form.timeline} onChange={e=>setForm({...form,timeline:e.target.value})}
+                            style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:form.timeline?TXT:"#9ca3af", background:"white" }}>
+                            <option value="">Select timeline…</option>
+                            <option value="ASAP">ASAP</option>
+                            <option value="1_3_MONTHS">1–3 months</option>
+                            <option value="3_6_MONTHS">3–6 months</option>
+                            <option value="6_12_MONTHS">6–12 months</option>
+                            <option value="JUST_BROWSING">Just browsing</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>Price Range <span style={{ fontWeight:400, textTransform:"none" }}>(optional)</span></label>
+                          <select value={form.priceRange} onChange={e=>setForm({...form,priceRange:e.target.value})}
+                            style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:form.priceRange?TXT:"#9ca3af", background:"white" }}>
+                            <option value="">Select range…</option>
+                            <option value="under_450">Under $450K</option>
+                            <option value="450_500">$450K–$500K</option>
+                            <option value="500_550">$500K–$550K</option>
+                            <option value="550_600">$550K–$600K</option>
+                            <option value="over_600">$600K+</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>Financing <span style={{ fontWeight:400, textTransform:"none" }}>(optional)</span></label>
+                          <select value={form.financingStatus} onChange={e=>setForm({...form,financingStatus:e.target.value})}
+                            style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:form.financingStatus?TXT:"#9ca3af", background:"white" }}>
+                            <option value="">Select status…</option>
+                            <option value="PRE_APPROVED">Pre-approved</option>
+                            <option value="IN_PROCESS">In process</option>
+                            <option value="NOT_STARTED">Not started yet</option>
+                            <option value="CASH_BUYER">Cash buyer</option>
+                          </select>
+                        </div>
+                      </>)}
+                      {/* Agent-specific fields */}
+                      {form.contactType === "AGENT" && (
+                        <div>
+                          <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>Brokerage Name <span style={{ fontWeight:400, textTransform:"none" }}>(optional)</span></label>
+                          <input type="text" placeholder="Your brokerage" value={form.brokerageName} onChange={e=>setForm({...form,brokerageName:e.target.value})}
+                            style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT }}
+                            onFocus={e=>{e.currentTarget.style.borderColor=G}} onBlur={e=>{e.currentTarget.style.borderColor=BOR}}/>
+                        </div>
+                      )}
                       <div>
-                        <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>I'm interested in</label>
-                        <select value={form.interest} onChange={e=>setForm({...form,interest:e.target.value})}
-                          style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT, background:"white" }}>
-                          <option value="buy">Buying a Home</option>
-                          <option value="build">Building a Custom Home</option>
-                          <option value="lot">Purchasing a Lot</option>
-                          <option value="general">General Question</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>Message</label>
+                        <label style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:4 }}>Message <span style={{ fontWeight:400, textTransform:"none" }}>(optional)</span></label>
                         <textarea placeholder="Tell us about your project..." rows={3} value={form.message} onChange={e=>setForm({...form,message:e.target.value})}
                           style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT, resize:"vertical" }}
                           onFocus={e=>{e.currentTarget.style.borderColor=G}} onBlur={e=>{e.currentTarget.style.borderColor=BOR}}/>
@@ -1090,8 +1148,25 @@ export default function ApolloSite() {
                       )}
                       <button
                         onClick={()=>{
-                          if (!form.name || !form.email || !form.message) return;
-                          contactMutation.mutate({ name:form.name, email:form.email, phone:form.phone||undefined, message:`Interest: ${form.interest}\n\n${form.message}` });
+                          if (!form.name || !form.email || !form.phone) return;
+                          const parts = form.name.trim().split(" ");
+                          const firstName = parts[0] || form.name;
+                          const lastName = parts.slice(1).join(" ") || "-";
+                          const priceMap: Record<string,[number,number]> = { under_450:[0,450000], "450_500":[450000,500000], "500_550":[500000,550000], "550_600":[550000,600000], over_600:[600000,999999] };
+                          const [prMin,prMax] = form.priceRange ? (priceMap[form.priceRange] ?? [undefined,undefined]) : [undefined,undefined];
+                          contactMutation.mutate({
+                            contactType: form.contactType,
+                            firstName,
+                            lastName,
+                            email: form.email,
+                            phone: form.phone,
+                            timeline: form.timeline ? form.timeline as "ASAP"|"1_3_MONTHS"|"3_6_MONTHS"|"6_12_MONTHS"|"JUST_BROWSING" : undefined,
+                            priceRangeMin: prMin,
+                            priceRangeMax: prMax,
+                            financingStatus: form.financingStatus ? form.financingStatus as "PRE_APPROVED"|"IN_PROCESS"|"NOT_STARTED"|"CASH_BUYER" : undefined,
+                            brokerageName: form.brokerageName || undefined,
+                            message: form.message || undefined,
+                          });
                         }}
                         disabled={contactMutation.isPending}
                         style={{ background:contactMutation.isPending?"#6b7a99":G, color:"white", border:"none", padding:"13px", borderRadius:8, fontSize:13, fontWeight:700, cursor:contactMutation.isPending?"not-allowed":"pointer", fontFamily:"inherit", transition:"background 0.2s" }}>
