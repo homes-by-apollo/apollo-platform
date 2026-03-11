@@ -49,7 +49,7 @@ const testimonials = [
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
     <div style={{ width:32, height:1.5, background:ACC, borderRadius:2 }} />
-    <span style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.12em" }}>{children}</span>
+    <span style={{ fontSize:13, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.12em" }}>{children}</span>
   </div>
 );
 
@@ -440,7 +440,7 @@ export default function ApolloSite() {
               <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:64, alignItems:"start" }}>
                 <div>
                   <SectionLabel>About us</SectionLabel>
-                  <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:16 }}>We provide the best Services</h2>
+                  <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:16 }}>We provide the best Services</h2>
                   <p style={{ fontSize:16, color:MUT, lineHeight:1.8 }}>Apollo Home Builders is committed to helping you find and build the perfect home in Pahrump, Nevada.</p>
                 </div>
                 <div className="why-apollo-icons" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32 }}>
@@ -466,7 +466,7 @@ export default function ApolloSite() {
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Featured Properties</SectionLabel>
-                <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>Homes for Sale</h2>
+                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Homes for Sale</h2>
               </div>
               <button onClick={()=>nav("homes")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
@@ -485,7 +485,7 @@ export default function ApolloSite() {
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:48 }}>
                 <div>
                   <SectionLabel>Our approach</SectionLabel>
-                  <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>How it works</h2>
+                  <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>How it works</h2>
                 </div>
                 <Btn small onClick={()=>nav("homes")}>Our Properties</Btn>
               </div>
@@ -516,7 +516,7 @@ export default function ApolloSite() {
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Land</SectionLabel>
-                <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>Available Lots</h2>
+                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Available Lots</h2>
               </div>
               <button onClick={()=>nav("lots")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
@@ -534,7 +534,7 @@ export default function ApolloSite() {
             <div>
               <div style={{ textAlign:"center", marginBottom:40 }}>
                 <SectionLabel>Client Stories</SectionLabel>
-                <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>What our clients say</h2>
+                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>What our clients say</h2>
                 <p style={{ fontSize:14, color:MUT, marginTop:10 }}>Hear from homeowners and investors who built with Apollo.</p>
               </div>
               <div className="testimonial-card" style={{ background:"white", borderRadius:20, padding:"36px 44px", boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
@@ -576,7 +576,7 @@ export default function ApolloSite() {
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Insights</SectionLabel>
-                <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>From the Blog</h2>
+                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>From the Blog</h2>
               </div>
               <button onClick={()=>nav("blog")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
@@ -597,7 +597,7 @@ export default function ApolloSite() {
           {/* FAQ */}
           <div style={{ padding:"72px 5vw 0" }}>
             <SectionLabel>FAQ</SectionLabel>
-            <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em", marginBottom:24 }}>Common Questions</h2>
+            <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", marginBottom:24 }}>Common Questions</h2>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
             </div>

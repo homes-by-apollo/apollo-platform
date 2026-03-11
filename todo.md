@@ -47,3 +47,6 @@
 - [ ] Update testimonial avatars with illustrated avatars
 - [ ] Fine-tune mobile search bar stacking
 - [ ] Add /crm link to website nav (visible only when logged in as admin)
+
+## Typography Fixes (Session 5)
+- [x] Increase desktop font size of all section labels (e.g. "How it works", "Available Lots", "Our approach")
