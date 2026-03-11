@@ -301,7 +301,7 @@ export default function ApolloSite() {
         input,textarea,select,button{font-family:inherit}
 
         .photo-clip-text {
-          font-size: clamp(64px, 8.8vw, 145px);
+          font-size: 10.5vw;
           font-weight: 800;
           letter-spacing: -0.04em;
           line-height: 1;
@@ -318,8 +318,8 @@ export default function ApolloSite() {
           text-align: center;
         }
         .photo-clip-container {
-          width: 100%;
-          max-width: 1650px;
+          width: 1680px;
+          max-width: 100%;
           margin: 0 auto;
           padding: 0;
           text-align: center;
@@ -1012,8 +1012,8 @@ export default function ApolloSite() {
 
             {/* MONOCHROMATIC WATERMARK */}
             <div style={{ overflow:"hidden", pointerEvents:"none", userSelect:"none", lineHeight:0.85, paddingTop:4 }}>
-              <div style={{ maxWidth:1650, margin:"0 auto", overflow:"visible" }}>
-                <div style={{ fontSize:"clamp(64px,8.8vw,145px)", fontWeight:900, letterSpacing:"-0.04em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"center" }}>Homes by Apollo</div>
+              <div style={{ width:1680, maxWidth:"100%", margin:"0 auto", overflow:"visible" }}>
+                <div style={{ fontSize:"10.5vw", fontWeight:900, letterSpacing:"-0.04em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"center" }}>Homes by Apollo</div>
               </div>
             </div>
           </footer>
