@@ -213,3 +213,10 @@
 - [x] Fix How It Works cards to full width with reduced image height (480→220px) on mobile
 - [x] Fix featured-props-section overlap padding on mobile
 - [x] Add section-pad class to Featured Homes, How It Works, Available Lots, Testimonials, Blog, FAQ sections
+
+## Session 45 — Mobile Cards, Headline & Buttons
+- [x] Property/lot cards: 1-per-row grid with 24px gap on mobile
+- [x] Blog cards: 1-per-row grid on mobile
+- [x] Masked "Homes by Apollo" SVG headline: scale down to 60px height on mobile (shown, not hidden)
+- [x] Property card images: 220px height, object-fit cover on mobile
+- [x] CTA buttons: full-width on mobile (section View All, FAQ, CTA banner, contact submit, Explore More, Our Properties)

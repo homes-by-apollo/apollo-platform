@@ -139,7 +139,7 @@ function HomeCard({ h }: { h: typeof homes[0] }) {
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
       {/* Image */}
-      <div style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
+      <div className="property-card-img" style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
         <img src={h.img} alt={h.title} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.04)":"scale(1)", transition:"transform 0.5s ease" }} />
         <span style={{ position:"absolute", top:14, left:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{h.tag}</span>
       </div>
@@ -176,7 +176,7 @@ function LotCard({ l }: { l: typeof lots[0] }) {
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
       {/* Image */}
-      <div style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
+      <div className="property-card-img" style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
         <img src={l.img} alt={l.addr} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.04)":"scale(1)", transition:"transform 0.5s ease" }} />
         <span style={{ position:"absolute", top:14, left:14, background:l.tag==="Available"?G:"#888", color:"white", fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8 }}>{l.tag}</span>
         <span style={{ position:"absolute", top:14, right:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{l.size}</span>
@@ -391,9 +391,10 @@ export default function ApolloSite() {
           /* ── Container padding ── */
           .site-container     { padding-left: 20px !important; padding-right: 20px !important; }
 
-          /* ── Cards ── */
-          .cards-grid         { grid-template-columns: 1fr !important; gap: 16px !important; }
-          .cards-grid-2col    { grid-template-columns: 1fr !important; gap: 16px !important; }
+          /* ── Property & lot cards: 1-per-row, 24px gap ── */
+          .cards-grid         { grid-template-columns: 1fr !important; gap: 24px !important; }
+          .cards-grid-2col    { grid-template-columns: 1fr !important; gap: 24px !important; }
+          .property-card-img  { height: 220px !important; object-fit: cover !important; }
 
           /* ── How it works ── */
           .how-it-works-grid  { grid-template-columns: 1fr !important; gap: 20px !important; }
@@ -421,12 +422,21 @@ export default function ApolloSite() {
           /* ── Contact ── */
           .contact-grid       { grid-template-columns: 1fr !important; gap: 28px !important; }
 
-          /* ── Photo-clip SVG headline ── */
-          .photo-clip-container { display: none !important; }
+          /* ── Photo-clip SVG headline: scale down instead of hiding ── */
+          .photo-clip-container { display: block !important; overflow: hidden !important; }
+          .photo-clip-svg       { height: 60px !important; }
           .blog-section         { padding-top: 40px !important; }
 
           /* ── CTA banner ── */
           .cta-banner         { flex-direction: column !important; gap: 20px !important; text-align: center !important; }
+          .cta-banner-btn     { width: 100% !important; justify-content: center !important; }
+
+          /* ── Full-width section buttons ── */
+          .section-view-all          { width: 100% !important; text-align: left !important; }
+          .section-cta-btn           { width: 100% !important; justify-content: center !important; }
+          .section-cta-btn > button  { width: 100% !important; }
+          .faq-view-all-btn          { width: 100% !important; margin-top: 0 !important; }
+          .contact-submit-btn        { width: 100% !important; }
 
           /* ── Mobile CTAs ── */
           .mobile-full-cta    { width: 100% !important; justify-content: center !important; }
@@ -639,7 +649,7 @@ export default function ApolloSite() {
               </div>
               <button
                 onClick={()=>nav("homes")}
-                style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:8, background:"#5bb8f5", border:"none", color:G, borderRadius:8, width:200, height:65, fontSize:20, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}
+                className="section-cta-btn" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:8, background:"#5bb8f5", border:"none", color:G, borderRadius:8, width:200, height:65, fontSize:20, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}
               >
                 Explore More ↗
               </button>
@@ -827,7 +837,7 @@ export default function ApolloSite() {
                 <SectionLabel>Featured Properties</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Homes for Sale</h2>
               </div>
-              <button onClick={()=>{ track("View All", { section:"Featured Properties" }); nav("homes"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button className="section-view-all" onClick={()=>{ track("View All", { section:"Featured Properties" }); nav("homes"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {homes.map(h=>(
@@ -847,7 +857,7 @@ export default function ApolloSite() {
                   <SectionLabel>Our approach</SectionLabel>
                   <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>How it works</h2>
                 </div>
-                <Btn carolina onClick={()=>nav("homes")}>Our Properties</Btn>
+                <div className="section-cta-btn" style={{ display:"inline-block" }}><Btn carolina onClick={()=>nav("homes")}>Our Properties</Btn></div>
               </div>
               <div className="how-it-works-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28 }}>
                 {[
@@ -879,7 +889,7 @@ export default function ApolloSite() {
                 <SectionLabel>Land</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Available Lots</h2>
               </div>
-              <button onClick={()=>{ track("View All", { section:"Land" }); nav("lots"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button className="section-view-all" onClick={()=>{ track("View All", { section:"Land" }); nav("lots"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {lots.map(l=>(
@@ -960,7 +970,7 @@ export default function ApolloSite() {
                 <SectionLabel>Latest Blog</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", marginBottom:8 }}>Stay updated with our latest articles</h2>
               </div>
-              <button onClick={()=>{ track("View All", { section:"Blog" }); nav("blog"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button className="section-view-all" onClick={()=>{ track("View All", { section:"Blog" }); nav("blog"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="blog-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,515px)", gap:28, justifyContent:"start" }}>
               {blogs.map(b=>(
@@ -988,7 +998,7 @@ export default function ApolloSite() {
             <SectionLabel>FAQ</SectionLabel>
             <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:24, marginBottom:40, flexWrap:"wrap" }}>
               <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, margin:0, maxWidth:520 }}>Feel free to ask any questions</h2>
-              <button onClick={()=>setPage("faq")} style={{ marginTop:8, width:200, height:65, background:"#5bb8f5", color:G, border:"none", borderRadius:8, fontSize:20, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", display:"inline-flex", alignItems:"center", justifyContent:"center", gap:6 }}>View All FAQs ↗</button>
+              <button className="faq-view-all-btn" onClick={()=>setPage("faq")} style={{ marginTop:8, width:200, height:65, background:"#5bb8f5", color:G, border:"none", borderRadius:8, fontSize:20, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", display:"inline-flex", alignItems:"center", justifyContent:"center", gap:6 }}>View All FAQs ↗</button>
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
@@ -1589,7 +1599,7 @@ export default function ApolloSite() {
                 <div style={{ fontSize:20, fontWeight:800, color:"white", marginBottom:6 }}>Still have questions?</div>
                 <div style={{ fontSize:14, color:"rgba(255,255,255,0.65)", lineHeight:1.6 }}>Schedule a free, no-pressure consultation with Brandon and the Apollo team.</div>
               </div>
-              <button onClick={()=>{ track("Schedule Consultation", { location:"cta-banner" }); nav("contact"); }} style={{ background:ACC, color:G, border:"none", borderRadius:8, padding:"14px 28px", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>Schedule a Consultation ↗</button>
+              <button className="cta-banner-btn" onClick={()=>{ track("Schedule Consultation", { location:"cta-banner" }); nav("contact"); }} style={{ background:ACC, color:G, border:"none", borderRadius:8, padding:"14px 28px", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>Schedule a Consultation ↗</button>
             </div>
           </div>
         )}
@@ -1763,7 +1773,7 @@ export default function ApolloSite() {
                           });
                         }}
                         disabled={contactMutation.isPending}
-                        style={{ background:contactMutation.isPending?"#6b7a99":G, color:"white", border:"none", padding:"13px", borderRadius:8, fontSize:13, fontWeight:700, cursor:contactMutation.isPending?"not-allowed":"pointer", fontFamily:"inherit", transition:"background 0.2s" }}>
+                        className="contact-submit-btn" style={{ background:contactMutation.isPending?"#6b7a99":G, color:"white", border:"none", padding:"13px", borderRadius:8, fontSize:13, fontWeight:700, cursor:contactMutation.isPending?"not-allowed":"pointer", fontFamily:"inherit", transition:"background 0.2s" }}>
                         {contactMutation.isPending ? "Sending…" : "Send Message ↗"}
                       </button>
                     </div>
