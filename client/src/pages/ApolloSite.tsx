@@ -1059,9 +1059,22 @@ export default function ApolloSite() {
               </div>
             </div>
 
-            {/* MONOCHROMATIC WATERMARK */}
-            <div style={{ overflow:"hidden", pointerEvents:"none", userSelect:"none", lineHeight:0.85, width:"100%", maxWidth:1690, margin:"0 auto", boxSizing:"border-box", padding:0 }}>
-              <div style={{ fontSize:"clamp(80px, 9.8vw, 148px)", fontWeight:900, letterSpacing:"-0.05em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"center" }}>Homes by Apollo</div>
+            {/* MONOCHROMATIC WATERMARK — SVG for true full-width fill, no letter-spacing */}
+            <div style={{ overflow:"hidden", pointerEvents:"none", userSelect:"none", width:"100%", maxWidth:1690, margin:"0 auto", padding:0, boxSizing:"border-box" }}>
+              <svg viewBox="0 0 1690 200" preserveAspectRatio="xMidYMid meet" style={{ display:"block", width:"100%", height:"auto" }} xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="footerGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.13"/>
+                    <stop offset="100%" stopColor="white" stopOpacity="0.04"/>
+                  </linearGradient>
+                  <mask id="footerTextMask">
+                    <text x="845" y="175" textAnchor="middle" dominantBaseline="auto"
+                      fontFamily="inherit" fontWeight="900" letterSpacing="0"
+                      fill="white" fontSize="200">Homes by Apollo</text>
+                  </mask>
+                </defs>
+                <rect x="0" y="0" width="1690" height="200" fill="url(#footerGrad)" mask="url(#footerTextMask)"/>
+              </svg>
             </div>
           </footer>
         </>}
