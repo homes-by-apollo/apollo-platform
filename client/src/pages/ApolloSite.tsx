@@ -621,65 +621,67 @@ export default function ApolloSite() {
           </div>
 
           {/* FOOTER — dark green luxury */}
-          <footer style={{ background:"#0e1f0e", overflow:"hidden", position:"relative", fontFamily:"inherit" }}>
+          <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit" }}>
 
-            {/* ── Top band: Brand + Newsletter ────────────────────────── */}
-            <div style={{ padding:"72px 5vw 56px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:48, alignItems:"center" }}>
+            {/* ── Top band: Brand + Contact info (reference layout) ──────────── */}
+            <div style={{ padding:"52px 5vw 48px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:64, alignItems:"flex-start" }}>
 
-                {/* Brand block */}
+                {/* LEFT: Logo + tagline + email form */}
                 <div>
-                  <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:20 }}>
+                  {/* Logo lockup */}
+                  <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
                     <img
                       src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png"
                       alt="Homes by Apollo"
-                      style={{ height:56, width:56, objectFit:"contain", flexShrink:0 }}
+                      style={{ height:52, width:52, objectFit:"contain", flexShrink:0 }}
                     />
                     <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:3 }}>
-                      <span style={{ fontSize:12, fontWeight:700, letterSpacing:"0.32em", color:"rgba(255,255,255,0.45)", textTransform:"uppercase" }}>HOMES BY</span>
-                      <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.07em", color:"white", lineHeight:1 }}>APOLLO</span>
+                      <span style={{ fontSize:12, fontWeight:700, letterSpacing:"0.32em", color:"rgba(255,255,255,0.55)", textTransform:"uppercase" }}>HOMES BY</span>
+                      <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.01em", color:"white", lineHeight:1 }}>APOLLO</span>
                     </div>
                   </div>
-                  <p style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.75, maxWidth:340 }}>
+                  {/* Tagline */}
+                  <p style={{ fontSize:15, color:"rgba(255,255,255,0.5)", lineHeight:1.7, maxWidth:360, marginBottom:28 }}>
                     Pahrump's premier custom home builder — all-inclusive builds, one price, no surprises.
                   </p>
-                  <div style={{ marginTop:28, display:"flex", gap:12 }}>
-                    <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.3)", textTransform:"uppercase", letterSpacing:"0.12em" }}>Call Us</div>
-                    <a href="tel:9107771" style={{ fontSize:15, fontWeight:700, color:"rgba(255,255,255,0.75)", textDecoration:"none", letterSpacing:"0.01em" }}>910-777-1</a>
-                  </div>
-                </div>
-
-                {/* Newsletter block */}
-                <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"36px 36px" }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.35)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:10 }}>Stay Updated</div>
-                  <h3 style={{ fontSize:"clamp(22px,2.5vw,30px)", fontWeight:800, color:"white", letterSpacing:"-0.02em", lineHeight:1.2, marginBottom:8 }}>New lots and homes, first.</h3>
-                  <p style={{ fontSize:14, color:"rgba(255,255,255,0.4)", lineHeight:1.65, marginBottom:24 }}>Get notified before new properties hit Zillow.</p>
+                  {/* Email form */}
                   {submitted ? (
-                    <div style={{ display:"flex", alignItems:"center", gap:10, background:"rgba(255,255,255,0.07)", borderRadius:10, padding:"14px 20px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6ee7a0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <div style={{ display:"flex", alignItems:"center", gap:10, background:"rgba(255,255,255,0.07)", borderRadius:8, padding:"14px 20px", maxWidth:420 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6ee7a0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                       <span style={{ color:"rgba(255,255,255,0.75)", fontSize:14, fontWeight:600 }}>You're on the list.</span>
                     </div>
                   ) : (
                     <>
-                      <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                      <div style={{ display:"flex", gap:0, maxWidth:420 }}>
                         <input
                           type="email"
-                          placeholder="your@email.com"
+                          placeholder="Enter your email"
                           value={email}
                           onChange={e=>setEmail(e.target.value)}
                           onKeyDown={e=>{ if(e.key==="Enter" && email) newsletterMutation.mutate({ email }); }}
-                          style={{ flex:1, minWidth:180, padding:"13px 16px", borderRadius:8, border:"1px solid rgba(255,255,255,0.14)", fontSize:14, outline:"none", background:"rgba(255,255,255,0.07)", color:"white", fontFamily:"inherit" }}
+                          style={{ flex:1, padding:"14px 18px", borderRadius:"8px 0 0 8px", border:"1px solid rgba(255,255,255,0.18)", borderRight:"none", fontSize:14, outline:"none", background:"rgba(255,255,255,0.08)", color:"white", fontFamily:"inherit" }}
                         />
                         <button
                           onClick={()=>{ if(email) newsletterMutation.mutate({ email }); }}
                           disabled={newsletterMutation.isPending || !email}
-                          style={{ background:"white", color:"#0e1f0e", border:"none", padding:"13px 22px", borderRadius:8, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", opacity: (!email || newsletterMutation.isPending) ? 0.5 : 1, transition:"opacity 0.15s" }}>
-                          {newsletterMutation.isPending ? "Subscribing…" : "Notify Me"}
+                          style={{ background:"rgba(200,169,110,0.85)", color:"white", border:"none", padding:"14px 22px", borderRadius:"0 8px 8px 0", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", opacity: (!email || newsletterMutation.isPending) ? 0.5 : 1, transition:"opacity 0.15s" }}>
+                          {newsletterMutation.isPending ? "Saving…" : "Notify Me"}
                         </button>
                       </div>
                       {newsletterError && <p style={{ marginTop:8, fontSize:13, color:"#f87171" }}>{newsletterError}</p>}
                     </>
                   )}
+                </div>
+
+                {/* RIGHT: Call Us Free + phone + address */}
+                <div style={{ paddingTop:4 }}>
+                  <div style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:10, letterSpacing:"0.02em" }}>Call Us Free</div>
+                  <a href="tel:9107771" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>910-777-1</a>
+                  <div style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.7 }}>
+                    4081 Jessica St<br/>
+                    Pahrump, NV 89048
+                  </div>
                 </div>
               </div>
             </div>
@@ -688,9 +690,9 @@ export default function ApolloSite() {
             <div style={{ padding:"52px 5vw 40px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
               <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:32 }}>
                 {([
-                  ["Company",  [["Home","home"],["About Us","home"],["Contact","contact"]]],
-                  ["Properties",[["Homes for Sale","homes"],["Available Lots","lots"],["Floor Plans","homes"],["Updates","homes"]]],
-                  ["Resources", [["Blog","blog"],["FAQ","home"],["Warranty","home"],["Schedule","contact"]]],
+                  ["Company",  [["Home","home"],["About Us","about"],["Contact","contact"]]],
+                  ["Properties",[["Homes","homes"],["Lots","lots"]]],
+                  ["Resources", [["Blog","blog"],["FAQ","home"]]],
                 ] as [string, [string, string][]][]).map(([heading, links])=>(
                   <div key={heading}>
                     <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>

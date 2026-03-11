@@ -71,3 +71,10 @@
 - [x] Wire footer newsletter "Notify Me" to Resend via newsletter.subscribe tRPC endpoint
 - [x] Promote owner account to admin role in database
 - [x] Auto-promote 3 admin emails on login: kyle@apollohomebuilders.com, brandon@apollohomebuilders.com, kyle@workplaypartners.com
+
+## Footer Refinements (Session 8)
+- [x] Change footer background from dark green to navy (#0f2044)
+- [x] Adjust APOLLO letter-spacing in footer lockup to match width of "HOMES BY" above it
+- [x] Update "About Us" footer link to scroll to the About section anchor
+- [x] Remove from footer nav: Updates, Warranty, Schedule, Homes for Sale, Available Lots, Floor Plans
+- [x] Restructure footer top band: logo+tagline+email form on left, Call Us Free + phone + address on right (matching reference image)
