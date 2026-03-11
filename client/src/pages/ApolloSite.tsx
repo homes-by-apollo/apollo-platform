@@ -233,14 +233,16 @@ export default function ApolloSite() {
           .desktop-nav-ctas   { display: none !important; }
           .hamburger-btn      { display: flex !important; }
 
-          .hero-headline      { font-size: clamp(20px,6.5vw,56px) !important; white-space: nowrap !important; }
+          .hero-headline      { font-size: clamp(32px,9.5vw,56px) !important; white-space: normal !important; max-width: 90vw !important; margin-left: auto !important; margin-right: auto !important; }
           .hero-subtitle      { font-size: 15px !important; }
-          .hero-image-wrap    { margin: 0 12px !important; height: 260px !important; border-radius: 16px 16px 0 0 !important; }
+          .hero-image-wrap    { margin: 0 16px !important; height: 280px !important; border-radius: 16px 16px 0 0 !important; }
+          .hero-subtitle      { font-size: 16px !important; max-width: 90vw !important; }
 
-          .search-bar         { flex-direction: column !important; border-radius: 14px !important; padding: 10px !important; gap: 0 !important; width: calc(100% - 32px) !important; }
-          .search-bar-item    { border-right: none !important; border-bottom: 1px solid ${BOR} !important; padding: 12px 16px !important; width: 100% !important; min-width: unset !important; }
-          .search-bar-item:last-of-type { border-bottom: none !important; }
-          .search-bar-btn     { width: 100% !important; border-radius: 10px !important; margin: 8px 0 0 !important; }
+          .search-bar         { flex-direction: column !important; border-radius: 16px !important; padding: 12px !important; gap: 8px !important; width: calc(100% - 32px) !important; box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important; }
+          .search-bar-item    { border-right: none !important; border-bottom: none !important; border: 1px solid #dde3ef !important; border-radius: 10px !important; padding: 14px 18px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; }
+          .search-bar-item-inner { flex: 1 !important; }
+          .search-bar-chevron { display: flex !important; }
+          .search-bar-btn     { width: 100% !important; border-radius: 10px !important; margin: 4px 0 0 !important; padding: 16px !important; font-size: 16px !important; }
 
           .stat-pills         { gap: 8px !important; flex-wrap: wrap !important; justify-content: center !important; padding: 0 12px !important; }
           .stat-pill          { min-width: 80px !important; padding: 10px 14px !important; }
@@ -294,7 +296,7 @@ export default function ApolloSite() {
         {/* Logo */}
         <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
           <img src={LOGO} alt="Homes by Apollo" style={{ height:54, width:"auto", display:"block" }} />
-          <span style={{ fontWeight:800, fontSize:14, letterSpacing:"-0.01em", color:TXT }}>HOMES BY APOLLO</span>
+          <span style={{ fontWeight:800, fontSize:17, letterSpacing:"0.04em", color:TXT }}>HOMES BY APOLLO</span>
         </div>
 
         {/* Desktop center nav */}
@@ -318,10 +320,10 @@ export default function ApolloSite() {
 
         {/* Hamburger */}
         <button className="hamburger-btn" onClick={()=>setMenuOpen(!menuOpen)}
-          style={{ background:"none", border:`1.5px solid ${BOR}`, borderRadius:8, padding:"8px 10px", cursor:"pointer", flexDirection:"column", gap:4, alignItems:"center", justifyContent:"center" }}>
-          <span style={{ display:"block", width:20, height:2, background:TXT, borderRadius:2, transition:"all 0.2s", transform:menuOpen?"rotate(45deg) translate(4px,4px)":"none" }}/>
-          <span style={{ display:"block", width:20, height:2, background:TXT, borderRadius:2, transition:"all 0.2s", opacity:menuOpen?0:1 }}/>
-          <span style={{ display:"block", width:20, height:2, background:TXT, borderRadius:2, transition:"all 0.2s", transform:menuOpen?"rotate(-45deg) translate(4px,-4px)":"none" }}/>
+          style={{ background:G, border:"none", borderRadius:8, padding:"10px 12px", cursor:"pointer", flexDirection:"column", gap:5, alignItems:"center", justifyContent:"center" }}>
+          <span style={{ display:"block", width:20, height:2, background:"white", borderRadius:2, transition:"all 0.2s", transform:menuOpen?"rotate(45deg) translate(4px,4px)":"none" }}/>
+          <span style={{ display:"block", width:20, height:2, background:"white", borderRadius:2, transition:"all 0.2s", opacity:menuOpen?0:1 }}/>
+          <span style={{ display:"block", width:20, height:2, background:"white", borderRadius:2, transition:"all 0.2s", transform:menuOpen?"rotate(-45deg) translate(4px,-4px)":"none" }}/>
         </button>
       </nav>
 
