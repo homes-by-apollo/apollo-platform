@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import type React from "react";
+import { trpc } from "@/lib/trpc";
 
 // ── Navy theme ──────────────────────────────────────────────────────────────
 const G   = "#0f2044";
@@ -176,6 +178,11 @@ export default function ApolloSite() {
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState<FormState>({ name:"", email:"", phone:"", interest:"buy", message:"" });
   const [formSent, setFormSent] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const contactMutation = trpc.contact.submit.useMutation({
+    onSuccess: () => { setFormSent(true); setFormError(null); },
+    onError: (err) => { setFormError(err.message || "Failed to send. Please try again."); },
+  });
   const [homeFilter, setHomeFilter] = useState("All");
   const [lotFilter, setLotFilter] = useState("All");
   const [blogFilter, setBlogFilter] = useState("All");
@@ -275,6 +282,7 @@ export default function ApolloSite() {
           .cta-banner         { flex-direction: column !important; gap: 20px !important; text-align: center !important; }
 
           .mobile-full-cta    { width: 100% !important; justify-content: center !important; }
+          .mobile-sticky-cta  { display: flex !important; }
         }
 
         @media (min-width: 769px) {
@@ -492,7 +500,7 @@ export default function ApolloSite() {
               <div className="how-it-works-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28 }}>
                 {[
                   { n:"01", title:"Browse Lots & Plans", desc:"Use our advanced search to find the perfect lot or floor plan in Pahrump. Filter by size, price, and location.", img:"https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80" },
-                  { n:"02", title:"Schedule a Consultation", desc:"Sit down with Brandon and the Apollo team. We'll walk through your vision, timeline, and all-inclusive pricing.", img:"https://images.unsplash.com/photo-1521791136064-7986c2920216?w=600&q=80" },
+                  { n:"02", title:"Schedule a Consultation", desc:"Sit down with Brandon and the Apollo team. We'll walk through your vision, timeline, and all-inclusive pricing.", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/consultation-step_ca878c80.jpg" },
                   { n:"03", title:"Sign & Start Building", desc:"One contract, one price. We break ground and keep you updated every step — from foundation to keys.", img:"https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80" },
                 ].map(step=>(
                   <div key={step.n} style={{ background:"white", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 20px rgba(0,0,0,0.06)" }}>
@@ -1037,9 +1045,14 @@ export default function ApolloSite() {
                 <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:16 }}>Schedule a<br/>Free Consultation</h1>
                 <p style={{ fontSize:14, color:MUT, lineHeight:1.85, marginBottom:28 }}>Ready to build? Have questions? Brandon and the Apollo team are here to help. No pressure — just a real conversation about your vision.</p>
                 <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-                  {([["📍","Office","5158 Arville St, Las Vegas, NV 89118"],["📞","Phone","(702) 588-9889"],["✉️","Email","brandon@apollohomebuilders.com"],["🪪","License","NV No. 0077907"]] as [string,string,string][]).map(([icon,label,val])=>(
+                  {([
+                    [<svg key="pin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,"Office","5158 Arville St, Las Vegas, NV 89118"],
+                    [<svg key="phone" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,"Phone","(702) 588-9889"],
+                    [<svg key="mail" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,"Email","brandon@apollohomebuilders.com"],
+                    [<svg key="lic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>,"License","NV No. 0077907"],
+                  ] as [React.ReactNode,string,string][]).map(([icon,label,val])=>(
                     <div key={label} style={{ display:"flex", alignItems:"flex-start", gap:12, background:"white", padding:"13px 16px", borderRadius:10, border:`1px solid ${BOR}` }}>
-                      <span style={{ fontSize:18 }}>{icon}</span>
+                      <span style={{ color:G, flexShrink:0, marginTop:1 }}>{icon}</span>
                       <div>
                         <div style={{ fontSize:10, fontWeight:700, color:G, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:2 }}>{label}</div>
                         <div style={{ fontSize:13, color:TXT, fontWeight:500 }}>{val}</div>
@@ -1051,7 +1064,12 @@ export default function ApolloSite() {
               <div style={{ background:"white", borderRadius:14, padding:"28px 24px", border:`1px solid ${BOR}`, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
                 {formSent ? (
                   <div style={{ textAlign:"center", padding:"32px 0" }}>
-                    <div style={{ fontSize:44, marginBottom:12 }}>✅</div>
+                    <div style={{ marginBottom:16, display:"flex", justifyContent:"center" }}>
+                      <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="26" cy="26" r="26" fill="#dcfce7"/>
+                        <path d="M16 26.5l7 7 13-14" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10 }}>Message Sent!</h3>
                     <p style={{ color:MUT, fontSize:13, lineHeight:1.7 }}>Brandon will reach out within 1 business day.</p>
                   </div>
@@ -1083,9 +1101,19 @@ export default function ApolloSite() {
                           style={{ width:"100%", padding:"10px 12px", borderRadius:8, border:`1px solid ${BOR}`, fontSize:13, outline:"none", color:TXT, resize:"vertical" }}
                           onFocus={e=>{e.currentTarget.style.borderColor=G}} onBlur={e=>{e.currentTarget.style.borderColor=BOR}}/>
                       </div>
-                      <button onClick={()=>form.email&&setFormSent(true)}
-                        style={{ background:G, color:"white", border:"none", padding:"13px", borderRadius:8, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
-                        Send Message ↗
+                      {formError && (
+                        <div style={{ background:"#fff0f0", border:"1px solid #fca5a5", borderRadius:8, padding:"10px 14px", fontSize:12, color:"#dc2626" }}>
+                          {formError}
+                        </div>
+                      )}
+                      <button
+                        onClick={()=>{
+                          if (!form.name || !form.email || !form.message) return;
+                          contactMutation.mutate({ name:form.name, email:form.email, phone:form.phone||undefined, message:`Interest: ${form.interest}\n\n${form.message}` });
+                        }}
+                        disabled={contactMutation.isPending}
+                        style={{ background:contactMutation.isPending?"#6b7a99":G, color:"white", border:"none", padding:"13px", borderRadius:8, fontSize:13, fontWeight:700, cursor:contactMutation.isPending?"not-allowed":"pointer", fontFamily:"inherit", transition:"background 0.2s" }}>
+                        {contactMutation.isPending ? "Sending…" : "Send Message ↗"}
                       </button>
                     </div>
                   </>
@@ -1094,6 +1122,34 @@ export default function ApolloSite() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* ── STICKY MOBILE CTA BAR ─────────────────────────────────────────── */}
+      <div className="mobile-sticky-cta" style={{
+        display: "none",
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 300,
+        background: "white",
+        borderTop: `1px solid ${BOR}`,
+        padding: "12px 16px",
+        gap: 10,
+        boxShadow: "0 -4px 24px rgba(0,0,0,0.10)",
+        alignItems: "center",
+        justifyContent: "stretch",
+      }}>
+        <button
+          onClick={()=>nav("contact")}
+          style={{ flex:1, background:G, color:"white", border:"none", borderRadius:10, padding:"14px 16px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", letterSpacing:"0.01em" }}>
+          Schedule a Free Consultation
+        </button>
+        <button
+          onClick={()=>nav("homes")}
+          style={{ flexShrink:0, background:"white", color:G, border:`1.5px solid ${G}`, borderRadius:10, padding:"14px 16px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+          View Homes
+        </button>
       </div>
     </div>
   );
