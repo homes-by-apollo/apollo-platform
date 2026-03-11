@@ -8,6 +8,7 @@ import {
   getContacts,
   getEmailsForContact,
   getNewLeadsThisWeek,
+  getSourceCounts,
   getStageCounts,
   logActivity,
   logEmail,
@@ -371,10 +372,11 @@ export const leadsRouter = router({
    * Protected: dashboard stats — stage counts + new leads this week.
    */
   dashboardStats: protectedProcedure.query(async () => {
-    const [stageCounts, newLeadsThisWeek] = await Promise.all([
+    const [stageCounts, newLeadsThisWeek, sourceCounts] = await Promise.all([
       getStageCounts(),
       getNewLeadsThisWeek(),
+      getSourceCounts(),
     ]);
-    return { stageCounts, newLeadsThisWeek };
+    return { stageCounts, newLeadsThisWeek, sourceCounts };
   }),
 });

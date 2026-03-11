@@ -193,6 +193,18 @@ export async function getNewLeadsThisWeek() {
 
 // ─── Activity Log ─────────────────────────────────────────────────────────────
 
+export async function getSourceCounts() {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select({
+      source: contacts.source,
+      count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(contacts)
+    .groupBy(contacts.source);
+}
+
 export async function logActivity(data: InsertActivityLog): Promise<void> {
   const db = await getDb();
   if (!db) return;

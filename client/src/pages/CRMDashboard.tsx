@@ -58,6 +58,62 @@ function formatTimeline(t: string | null | undefined) {
   return t ? (map[t] ?? t) : "—";
 }
 
+// ─── Source Breakdown Chart ──────────────────────────────────────────────────
+
+const SOURCE_LABELS: Record<string, string> = {
+  WEBSITE: "Website",
+  ZILLOW: "Zillow",
+  MLS: "MLS",
+  REFERRAL: "Referral",
+  AGENT: "Agent",
+  BILLBOARD: "Billboard",
+  WALK_IN: "Walk-In",
+  OTHER: "Other",
+};
+
+const SOURCE_COLORS: Record<string, string> = {
+  WEBSITE: "#0f2044",
+  ZILLOW: "#006aff",
+  MLS: "#7c3aed",
+  REFERRAL: "#e07b39",
+  AGENT: "#059669",
+  BILLBOARD: "#dc2626",
+  WALK_IN: "#ca8a04",
+  OTHER: "#94a3b8",
+};
+
+function SourceChart({ sourceCounts }: { sourceCounts: { source: string; count: number }[] }) {
+  const total = sourceCounts.reduce((s, c) => s + c.count, 0);
+  const sorted = [...sourceCounts].sort((a, b) => b.count - a.count);
+
+  if (total === 0) {
+    return <p className="text-xs text-muted-foreground py-2">No leads yet.</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {sorted.map(({ source, count }) => {
+        const pct = Math.round((count / total) * 100);
+        const color = SOURCE_COLORS[source] ?? "#94a3b8";
+        return (
+          <div key={source} className="flex items-center gap-3">
+            <div className="w-20 text-xs text-muted-foreground text-right shrink-0">{SOURCE_LABELS[source] ?? source}</div>
+            <div className="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden">
+              <div
+                className="h-full rounded-md transition-all duration-500 flex items-center justify-end pr-2"
+                style={{ width: `${Math.max(pct, count > 0 ? 4 : 0)}%`, background: color }}
+              >
+                {count > 0 && <span className="text-[10px] font-bold text-white">{count}</span>}
+              </div>
+            </div>
+            <div className="text-xs text-muted-foreground w-8 text-right">{pct}%</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Funnel Bar Chart ─────────────────────────────────────────────────────────
 
 function FunnelChart({ stageCounts }: { stageCounts: { stage: string; count: number }[] }) {
@@ -133,6 +189,7 @@ export default function CRMDashboard() {
   const stats = statsQuery.data;
   const stageCounts = stats?.stageCounts ?? [];
   const newLeadsThisWeek = stats?.newLeadsThisWeek ?? 0;
+  const sourceCounts = stats?.sourceCounts ?? [];
   const traffic = trafficQuery.data;
 
   // Derived stats
@@ -284,9 +341,9 @@ export default function CRMDashboard() {
           </div>
         </div>
 
-        {/* Funnel + Contracts */}
+        {/* Funnel + Source + Stage */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <Card className="lg:col-span-2 border-0 shadow-sm">
+          <Card className="lg:col-span-1 border-0 shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">Pipeline Funnel</CardTitle>
             </CardHeader>
@@ -295,6 +352,19 @@ export default function CRMDashboard() {
                 <div className="text-sm text-muted-foreground py-4">Loading…</div>
               ) : (
                 <FunnelChart stageCounts={stageCounts} />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="lg:col-span-1 border-0 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">Lead Source</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {statsQuery.isLoading ? (
+                <div className="text-sm text-muted-foreground py-4">Loading…</div>
+              ) : (
+                <SourceChart sourceCounts={sourceCounts} />
               )}
             </CardContent>
           </Card>

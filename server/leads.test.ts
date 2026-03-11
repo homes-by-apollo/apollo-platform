@@ -17,6 +17,7 @@ vi.mock("./db", () => ({
   getEmailsForContact: vi.fn().mockResolvedValue([]),
   getStageCounts: vi.fn().mockResolvedValue([]),
   getNewLeadsThisWeek: vi.fn().mockResolvedValue(0),
+  getSourceCounts: vi.fn().mockResolvedValue([]),
   logActivity: vi.fn().mockResolvedValue(undefined),
   logEmail: vi.fn().mockResolvedValue(undefined),
   updateContact: vi.fn().mockResolvedValue(undefined),
@@ -237,14 +238,16 @@ describe("leads.addNote (protected)", () => {
 });
 
 describe("leads.dashboardStats (protected)", () => {
-  it("returns stage counts and new leads this week", async () => {
+  it("returns stage counts, new leads this week, and source counts", async () => {
     vi.mocked(db.getStageCounts).mockResolvedValue([{ stage: "NEW_LEAD", count: 3 }]);
     vi.mocked(db.getNewLeadsThisWeek).mockResolvedValue(2);
+    vi.mocked(db.getSourceCounts).mockResolvedValue([{ source: "WEBSITE", count: 5 }]);
 
     const caller = appRouter.createCaller(createAuthContext());
     const result = await caller.leads.dashboardStats();
 
     expect(result.stageCounts).toEqual([{ stage: "NEW_LEAD", count: 3 }]);
     expect(result.newLeadsThisWeek).toBe(2);
+    expect(result.sourceCounts).toEqual([{ source: "WEBSITE", count: 5 }]);
   });
 });

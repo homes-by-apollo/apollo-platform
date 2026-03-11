@@ -422,10 +422,23 @@ export default function ApolloSite() {
           background:"white", borderBottom:`1px solid ${BOR}`,
           boxShadow:"0 8px 32px rgba(0,0,0,0.12)", padding:"16px 20px 20px",
         }}>
-          {/* No text nav items in mobile menu; CTAs below serve as primary navigation */}
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+            {isAdmin && (
+              <a
+                href="/crm"
+                style={{
+                  display:"block", textAlign:"center", padding:"12px 16px",
+                  fontSize:14, fontWeight:700, textDecoration:"none",
+                  color:"#e07b39", background:"white",
+                  border:"2px solid #e07b39", borderRadius:8,
+                  letterSpacing:"0.01em",
+                }}
+              >
+                Admin
+              </a>
+            )}
             <Btn full onClick={()=>nav("contact")}>Schedule a Consultation</Btn>
-            <Btn full outline onClick={()=>nav("homes")}>View Homes & Lots</Btn>
+            <Btn full outline onClick={()=>nav("homes")}>View Homes &amp; Lots</Btn>
           </div>
         </div>
       )}
@@ -699,12 +712,12 @@ export default function ApolloSite() {
                       style={{ height:52, width:52, objectFit:"contain", flexShrink:0 }}
                     />
                     <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:3 }}>
-                      <span style={{ fontSize:12, fontWeight:700, letterSpacing:"0.32em", color:"rgba(255,255,255,0.55)", textTransform:"uppercase" }}>HOMES BY</span>
+                      <span style={{ fontSize:16, fontWeight:700, letterSpacing:"0.52em", color:"white", textTransform:"uppercase" }}>HOMES BY</span>
                       <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.085em", color:"white", lineHeight:1 }}>APOLLO</span>
                     </div>
                   </div>
                   {/* Tagline */}
-                  <p style={{ fontSize:15, color:"rgba(255,255,255,0.5)", lineHeight:1.7, maxWidth:360, marginBottom:28 }}>
+                  <p style={{ fontSize:19.5, color:"rgba(255,255,255,0.6)", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>
                     Pahrump's premier custom home builder — all-inclusive builds, one price, no surprises.
                   </p>
                   {/* Email form */}

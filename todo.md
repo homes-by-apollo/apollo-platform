@@ -98,3 +98,12 @@
 - [x] Fix APOLLO letter-spacing in footer wordmark to visually match width of "HOMES BY" line
 - [x] Increase footer nav link font sizes to match the green-background footer style
 - [x] Restyle Dashboard nav link as "Admin" button with orange border + white background, left of "Schedule a Consultation"
+
+## Session 13
+- [ ] Footer wordmark: increase "HOMES BY" size, make it white, match visual width of "APOLLO"
+
+## Session 14
+- [x] Add Admin link to mobile hamburger dropdown (visible to logged-in admins only)
+- [x] Increase footer tagline font size by 30% (15px → ~19.5px)
+- [x] Add Source breakdown bar chart to CRM dashboard showing leads by source
+- [x] Add getSourceCounts DB helper and dashboardStats procedure update
