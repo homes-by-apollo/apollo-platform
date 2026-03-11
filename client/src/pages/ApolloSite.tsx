@@ -128,7 +128,7 @@ function HomeCard({ h }: { h: typeof homes[0] }) {
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
       {/* Image */}
-      <div style={{ position:"relative", height:260, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
+      <div style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
         <img src={h.img} alt={h.title} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.04)":"scale(1)", transition:"transform 0.5s ease" }} />
         <span style={{ position:"absolute", top:14, left:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{h.tag}</span>
       </div>
@@ -165,7 +165,7 @@ function LotCard({ l }: { l: typeof lots[0] }) {
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
       {/* Image */}
-      <div style={{ position:"relative", height:260, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
+      <div style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
         <img src={l.img} alt={l.addr} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.04)":"scale(1)", transition:"transform 0.5s ease" }} />
         <span style={{ position:"absolute", top:14, left:14, background:l.tag==="Available"?G:"#888", color:"white", fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8 }}>{l.tag}</span>
         <span style={{ position:"absolute", top:14, right:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{l.size}</span>
@@ -393,7 +393,7 @@ export default function ApolloSite() {
 
       {/* ── NAV ─────────────────────────────────────────────────────────────── */}
       <nav style={{
-        background: scrolled ? "rgba(255,255,255,0.97)" : "white",
+        background: "white",
         borderBottom: `1px solid ${BOR}`,
         padding: "0 var(--pad)" as React.CSSProperties["padding"],
         height: 64,
@@ -689,7 +689,7 @@ export default function ApolloSite() {
 
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div style={{ background:"transparent", paddingTop:30, paddingBottom:0, textAlign:"center", overflow:"hidden", maxWidth:1650, margin:"0 auto" }}>
+          <div style={{ background:"transparent", paddingTop:30, paddingBottom:0, textAlign:"center", maxWidth:1650, margin:"0 auto" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
           <div className="section-pad" style={{ background:"white", padding:"56px var(--pad) 72px" }}>
@@ -739,7 +739,7 @@ export default function ApolloSite() {
           </div>
 
           {/* HOW IT WORKS */}
-          <div style={{ background:GL, padding:"72px var(--pad)", marginTop:64 }}>
+          <div style={{ background:"white", padding:"72px var(--pad)", marginTop:64 }}>
             <div className="site-container">
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:48 }}>
                 <div>
@@ -791,7 +791,7 @@ export default function ApolloSite() {
           </div>
 
           {/* TESTIMONIALS */}
-          <div style={{ background:GL, padding:"72px var(--pad)" }}>
+          <div style={{ background:"white", padding:"72px var(--pad)" }}>
             <div className="site-container">
             <div>
               <div style={{ textAlign:"center", marginBottom:40 }}>
@@ -838,7 +838,7 @@ export default function ApolloSite() {
           <div style={{ padding:"72px var(--pad) 0" }}>
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
-            <div style={{ background:"transparent", paddingTop:0, paddingBottom:16, textAlign:"center", overflow:"hidden", maxWidth:1650, margin:"0 auto" }}>
+            <div style={{ background:"transparent", paddingTop:0, paddingBottom:16, textAlign:"center", maxWidth:1650, margin:"0 auto" }}>
               <span className="photo-clip-text">Homes by Apollo</span>
             </div>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:36 }}>
@@ -869,7 +869,7 @@ export default function ApolloSite() {
           </div>
 
           {/* FAQ */}
-          <div style={{ padding:"80px var(--pad) 80px" }}>
+          <div style={{ background:"white", padding:"80px var(--pad) 80px" }}>
             <div className="site-container">
             <SectionLabel>FAQ</SectionLabel>
             <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:24, marginBottom:40, flexWrap:"wrap" }}>
