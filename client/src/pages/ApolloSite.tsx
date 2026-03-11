@@ -309,20 +309,14 @@ export default function ApolloSite() {
         input,textarea,select,button{font-family:inherit}
 
         .photo-clip-text {
-          /* Scale font so 'Homes by Apollo' fills the container width.
-             The string is ~14 chars; at letter-spacing -0.06em each char ≈ 0.94em wide.
-             Target: container_width / (14 * 0.94) ≈ container_width / 13.16
-             At 1680px container: 1680/13.16 ≈ 127px ≈ 7.6vw at 1680px viewport.
-             We use a slightly smaller value so the text never clips, then let
-             the container clip-path/overflow handle the rest. */
-          font-size: clamp(48px, 7.5vw, 126px);
+          font-size: clamp(72px, 9.2vw, 155px);
           font-weight: 900;
           letter-spacing: -0.04em;
           line-height: 1;
           white-space: nowrap;
           background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp');
           background-size: cover;
-          background-position: center 40%;
+          background-position: center center;
           -webkit-background-clip: text;
           background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -330,13 +324,14 @@ export default function ApolloSite() {
           display: block;
           width: 100%;
           text-align: center;
+          padding: 0;
+          margin: 0;
         }
         .photo-clip-container {
           width: 100%;
-          max-width: 1680px;
-          margin: 0 auto;
-          padding: 0 16px;
-          box-sizing: border-box;
+          max-width: 100%;
+          margin: 0;
+          padding: 0;
           text-align: center;
           overflow: hidden;
         }
@@ -748,7 +743,7 @@ export default function ApolloSite() {
 
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div style={{ width:"100%", background:"white", paddingTop:30, paddingBottom:0 }}>
+          <div style={{ width:"100%", background:"white", padding:0, margin:0 }}>
             <div className="photo-clip-container">
               <span className="photo-clip-text">Homes by Apollo</span>
             </div>
@@ -899,7 +894,7 @@ export default function ApolloSite() {
           <div style={{ padding:"72px var(--pad) 0" }}>
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
-            <div className="photo-clip-container" style={{ paddingTop:0, paddingBottom:16, background:"transparent" }}>
+            <div className="photo-clip-container" style={{ padding:0, margin:0, background:"transparent" }}>
               <span className="photo-clip-text">Homes by Apollo</span>
             </div>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:36 }}>
