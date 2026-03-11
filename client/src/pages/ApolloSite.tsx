@@ -195,6 +195,12 @@ export default function ApolloSite() {
     onSuccess: () => { setFormSent(true); setFormError(null); },
     onError: (err: { message?: string }) => { setFormError(err.message || "Failed to send. Please try again."); },
   });
+  const [newsletterError, setNewsletterError] = useState<string | null>(null);
+  const newsletterMutation = trpc.newsletter.subscribe.useMutation({
+    onSuccess: () => { setSubmitted(true); setNewsletterError(null); },
+    onError: (err: { message?: string }) => { setNewsletterError(err.message || "Something went wrong. Please try again."); },
+  });
+
   const [homeFilter, setHomeFilter] = useState("All");
   const [lotFilter, setLotFilter] = useState("All");
   const [blogFilter, setBlogFilter] = useState("All");
@@ -319,8 +325,8 @@ export default function ApolloSite() {
         <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
           <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:40, width:40, objectFit:"contain", display:"block" }} />
           <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:1 }}>
-          <span style={{ fontSize:15, fontWeight:700, letterSpacing:"0.32em", color:TXT, textTransform:"uppercase", opacity:1 }}>HOMES BY</span>
-          <span style={{ fontSize:26, fontWeight:900, letterSpacing:"0.07em", color:TXT, lineHeight:1 }}>APOLLO</span>
+            <span style={{ fontSize:15, fontWeight:700, letterSpacing:"0.32em", color:TXT, textTransform:"uppercase", opacity:1 }}>HOMES BY</span>
+            <span style={{ fontSize:26, fontWeight:900, letterSpacing:"0.07em", color:TXT, lineHeight:1 }}>APOLLO</span>
           </div>
         </div>
 
@@ -614,93 +620,108 @@ export default function ApolloSite() {
             </div>
           </div>
 
-          {/* EMAIL CAPTURE — removed standalone section, now in footer */}
+          {/* FOOTER — dark green luxury */}
+          <footer style={{ background:"#0e1f0e", overflow:"hidden", position:"relative", fontFamily:"inherit" }}>
 
-          {/* FOOTER */}
-          <footer style={{ background:"#080c18", overflow:"hidden", position:"relative" }}>
+            {/* ── Top band: Brand + Newsletter ────────────────────────── */}
+            <div style={{ padding:"72px 5vw 56px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:48, alignItems:"center" }}>
 
-            {/* Email capture strip */}
-            <div style={{ borderBottom:"1px solid rgba(255,255,255,0.07)", padding:"52px 5vw" }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:24 }}>
+                {/* Brand block */}
                 <div>
-                  <div style={{ fontSize:13, fontWeight:700, color:"rgba(255,255,255,0.35)", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:8 }}>Stay Updated</div>
-                  <h3 style={{ fontSize:28, fontWeight:800, color:"white", letterSpacing:"-0.02em", lineHeight:1.2, marginBottom:6 }}>New lots and homes, first.</h3>
-                  <p style={{ fontSize:14, color:"rgba(255,255,255,0.4)", lineHeight:1.6 }}>Get notified before new properties hit Zillow.</p>
+                  <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:20 }}>
+                    <img
+                      src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png"
+                      alt="Homes by Apollo"
+                      style={{ height:56, width:56, objectFit:"contain", flexShrink:0 }}
+                    />
+                    <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:3 }}>
+                      <span style={{ fontSize:12, fontWeight:700, letterSpacing:"0.32em", color:"rgba(255,255,255,0.45)", textTransform:"uppercase" }}>HOMES BY</span>
+                      <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.07em", color:"white", lineHeight:1 }}>APOLLO</span>
+                    </div>
+                  </div>
+                  <p style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.75, maxWidth:340 }}>
+                    Pahrump's premier custom home builder — all-inclusive builds, one price, no surprises.
+                  </p>
+                  <div style={{ marginTop:28, display:"flex", gap:12 }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.3)", textTransform:"uppercase", letterSpacing:"0.12em" }}>Call Us</div>
+                    <a href="tel:9107771" style={{ fontSize:15, fontWeight:700, color:"rgba(255,255,255,0.75)", textDecoration:"none", letterSpacing:"0.01em" }}>910-777-1</a>
+                  </div>
                 </div>
-                <div style={{ display:"flex", gap:10, flexShrink:0, flexWrap:"wrap" }}>
+
+                {/* Newsletter block */}
+                <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"36px 36px" }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.35)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:10 }}>Stay Updated</div>
+                  <h3 style={{ fontSize:"clamp(22px,2.5vw,30px)", fontWeight:800, color:"white", letterSpacing:"-0.02em", lineHeight:1.2, marginBottom:8 }}>New lots and homes, first.</h3>
+                  <p style={{ fontSize:14, color:"rgba(255,255,255,0.4)", lineHeight:1.65, marginBottom:24 }}>Get notified before new properties hit Zillow.</p>
                   {submitted ? (
-                    <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"14px 24px", color:"rgba(255,255,255,0.7)", fontSize:14 }}>✅ You're on the list.</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:10, background:"rgba(255,255,255,0.07)", borderRadius:10, padding:"14px 20px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6ee7a0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span style={{ color:"rgba(255,255,255,0.75)", fontSize:14, fontWeight:600 }}>You're on the list.</span>
+                    </div>
                   ) : (
                     <>
-                      <input type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)}
-                        style={{ padding:"13px 18px", borderRadius:8, border:"1px solid rgba(255,255,255,0.12)", fontSize:14, outline:"none", background:"rgba(255,255,255,0.07)", color:"white", minWidth:240, fontFamily:"inherit" }} />
-                      <button onClick={()=>email&&setSubmitted(true)}
-                        style={{ background:"white", color:G, border:"none", padding:"13px 24px", borderRadius:8, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>
-                        Notify Me
-                      </button>
+                      <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                        <input
+                          type="email"
+                          placeholder="your@email.com"
+                          value={email}
+                          onChange={e=>setEmail(e.target.value)}
+                          onKeyDown={e=>{ if(e.key==="Enter" && email) newsletterMutation.mutate({ email }); }}
+                          style={{ flex:1, minWidth:180, padding:"13px 16px", borderRadius:8, border:"1px solid rgba(255,255,255,0.14)", fontSize:14, outline:"none", background:"rgba(255,255,255,0.07)", color:"white", fontFamily:"inherit" }}
+                        />
+                        <button
+                          onClick={()=>{ if(email) newsletterMutation.mutate({ email }); }}
+                          disabled={newsletterMutation.isPending || !email}
+                          style={{ background:"white", color:"#0e1f0e", border:"none", padding:"13px 22px", borderRadius:8, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", opacity: (!email || newsletterMutation.isPending) ? 0.5 : 1, transition:"opacity 0.15s" }}>
+                          {newsletterMutation.isPending ? "Subscribing…" : "Notify Me"}
+                        </button>
+                      </div>
+                      {newsletterError && <p style={{ marginTop:8, fontSize:13, color:"#f87171" }}>{newsletterError}</p>}
                     </>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Footer links */}
-            <div style={{ padding:"48px 5vw 28px", position:"relative", zIndex:1 }}>
-              <div>
-                <div style={{ display:"flex", flexDirection:"column", gap:6, marginBottom:36 }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-                    <img src={LOGO} alt="Homes by Apollo" style={{ height:52, width:52, objectFit:"contain" }} />
-                    <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:2 }}>
-                      <span style={{ fontSize:12, fontWeight:700, letterSpacing:"0.32em", color:"rgba(255,255,255,0.55)", textTransform:"uppercase" }}>HOMES BY</span>
-                      <span style={{ fontSize:28, fontWeight:900, letterSpacing:"0.07em", color:"white", lineHeight:1 }}>APOLLO</span>
-                    </div>
+            {/* ── Middle band: Nav columns ─────────────────────────────── */}
+            <div style={{ padding:"52px 5vw 40px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+              <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:32 }}>
+                {([
+                  ["Company",  [["Home","home"],["About Us","home"],["Contact","contact"]]],
+                  ["Properties",[["Homes for Sale","homes"],["Available Lots","lots"],["Floor Plans","homes"],["Updates","homes"]]],
+                  ["Resources", [["Blog","blog"],["FAQ","home"],["Warranty","home"],["Schedule","contact"]]],
+                ] as [string, [string, string][]][]).map(([heading, links])=>(
+                  <div key={heading}>
+                    <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>
+                    {links.map(([label, pg])=>(
+                      <div key={label} onClick={()=>nav(pg)}
+                        style={{ fontSize:15, color:"rgba(255,255,255,0.45)", marginBottom:14, cursor:"pointer", transition:"color 0.15s" }}
+                        onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.9)"}}
+                        onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.45)"}}>
+                        {label}
+                      </div>
+                    ))}
                   </div>
-                  <p style={{ fontSize:13, color:"rgba(255,255,255,0.35)", lineHeight:1.65, maxWidth:280, marginTop:8 }}>Apollo Home Builders is Pahrump’s premier custom home builder — all-inclusive builds, one price, no surprises.</p>
-                </div>
-                <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28, marginBottom:40 }}>
-                  {([["Company",[["Home","home"],["About Us","home"],["Why Pahrump","home"],["Contact","contact"]]],
-                    ["Properties",[["Homes for Sale","homes"],["Available Lots","lots"],["Floor Plans","homes"],["Updates","homes"]]],
-                    ["Resources",[["Blog","blog"],["FAQ","home"],["Warranty","home"],["Schedule","contact"]]],
-                  ] as [string, [string, string][]][]).map(([heading, links])=>(
-                    <div key={heading}>
-                      <p style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,0.22)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14 }}>{heading}</p>
-                      {links.map(([label, pg])=>(
-                        <div key={label} onClick={()=>nav(pg)} style={{ fontSize:13, color:"rgba(255,255,255,0.4)", marginBottom:10, cursor:"pointer" }}
-                          onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.85)"}}
-                          onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.4)"}}>
-                          {label}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-                <div className="footer-bottom" style={{ borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:20, display:"flex", justifyContent:"space-between" }}>
-                  <p style={{ fontSize:12, color:"rgba(255,255,255,0.2)" }}>© 2025 Homes by Apollo. All rights reserved.</p>
-                  <div style={{ display:"flex", gap:16 }}>
-                    {["Privacy Policy","Terms"].map(i=><span key={i} style={{ fontSize:12, color:"rgba(255,255,255,0.2)", cursor:"pointer" }}>{i}</span>)}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
-            {/* MONOCHROMATIC WATERMARK — very bottom of footer */}
-            <div style={{ overflow:"hidden", pointerEvents:"none", userSelect:"none", lineHeight:0.85, paddingTop:8 }}>
-              <div style={{
-                fontSize:"13.5vw",
-                fontWeight:900,
-                letterSpacing:"-0.04em",
-                whiteSpace:"nowrap",
-                lineHeight:0.85,
-                background:"linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%)",
-                WebkitBackgroundClip:"text",
-                backgroundClip:"text",
-                WebkitTextFillColor:"transparent",
-                color:"transparent",
-                display:"block",
-                width:"100%",
-                textAlign:"left",
-                paddingLeft:"1.5vw",
-              }}>Homes by Apollo</div>
+            {/* ── Bottom bar ───────────────────────────────────────────── */}
+            <div style={{ padding:"22px 5vw", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+              <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
+              <div style={{ display:"flex", gap:20 }}>
+                {["Privacy Policy","Terms"].map(i=>(
+                  <span key={i} style={{ fontSize:13, color:"rgba(255,255,255,0.22)", cursor:"pointer", transition:"color 0.15s" }}
+                    onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.6)"}}
+                    onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.22)"}}>{i}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* MONOCHROMATIC WATERMARK */}
+            <div style={{ overflow:"hidden", pointerEvents:"none", userSelect:"none", lineHeight:0.85, paddingTop:4 }}>
+              <div style={{ fontSize:"13.5vw", fontWeight:900, letterSpacing:"-0.04em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"left", paddingLeft:"1.5vw" }}>Homes by Apollo</div>
             </div>
           </footer>
         </>}

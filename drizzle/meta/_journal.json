@@ -15,6 +15,13 @@
       "when": 1773212293546,
       "tag": "0001_amused_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773216206781,
+      "tag": "0002_thankful_doctor_strange",
+      "breakpoints": true
     }
   ]
 }

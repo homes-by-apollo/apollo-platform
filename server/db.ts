@@ -50,8 +50,16 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   textFields.forEach(assignNullable);
 
   if (user.lastSignedIn !== undefined) { values.lastSignedIn = user.lastSignedIn; updateSet.lastSignedIn = user.lastSignedIn; }
+  // Admin email whitelist — these accounts are always promoted to admin on login
+  const ADMIN_EMAILS = [
+    "kyle@apollohomebuilders.com",
+    "brandon@apollohomebuilders.com",
+    "kyle@workplaypartners.com",
+  ];
+  const isAdminEmail = user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+
   if (user.role !== undefined) { values.role = user.role; updateSet.role = user.role; }
-  else if (user.openId === ENV.ownerOpenId) { values.role = "admin"; updateSet.role = "admin"; }
+  else if (user.openId === ENV.ownerOpenId || isAdminEmail) { values.role = "admin"; updateSet.role = "admin"; }
   if (!values.lastSignedIn) values.lastSignedIn = new Date();
   if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
 

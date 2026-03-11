@@ -62,3 +62,12 @@
 - [x] Change welcome email sender from app@ to hello@apollohomebuilders.com
 - [x] Fix search bar stacked filters (icon and label should be inline, not stacked)
 - [x] Add Apollo logo and wordmark to global footer
+
+## Footer & Nav Redesign (Session 7)
+- [x] Update nav logo to white version (white owl + white wordmark)
+- [x] Rebuild footer with dark green luxury style (matching Residence O reference)
+- [x] Integrate newsletter signup visually into footer (not a separate strip)
+- [x] Remove "Why Pahrump" from footer links
+- [x] Wire footer newsletter "Notify Me" to Resend via newsletter.subscribe tRPC endpoint
+- [x] Promote owner account to admin role in database
+- [x] Auto-promote 3 admin emails on login: kyle@apollohomebuilders.com, brandon@apollohomebuilders.com, kyle@workplaypartners.com
