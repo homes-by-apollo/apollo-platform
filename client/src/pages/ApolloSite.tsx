@@ -738,7 +738,7 @@ export default function ApolloSite() {
               <svg className="photo-clip-svg" viewBox="0 0 1690 205" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <pattern id="heroImg1" patternUnits="userSpaceOnUse" width="1690" height="205">
-                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="-460" width="1690" height="875" preserveAspectRatio="xMidYMid slice"/>
+                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="-300" width="1690" height="875" preserveAspectRatio="xMidYMid slice"/>
                   </pattern>
                   <mask id="textMask1">
                     <text x="845" y="182" textAnchor="middle" dominantBaseline="auto"
@@ -901,7 +901,7 @@ export default function ApolloSite() {
                 <defs>
                   <pattern id="heroImg2" patternUnits="userSpaceOnUse" width="1690" height="205">
                     {/* background-position: center ~65% → horizon/foothills visible */}
-                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="-460" width="1690" height="875" preserveAspectRatio="xMidYMid slice"/>
+                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="-300" width="1690" height="875" preserveAspectRatio="xMidYMid slice"/>
                   </pattern>
                   <mask id="textMask2">
                     <text x="845" y="182" textAnchor="middle" dominantBaseline="auto"
