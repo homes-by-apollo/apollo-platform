@@ -136,3 +136,11 @@
 - [x] Resize Featured Property carousel cards to 960×530 (cardW 960px, minHeight 530px)
 - [x] Constrain "Homes by Apollo" photo-clip header (above About section) to 1650px width
 - [x] Add "Homes by Apollo" photo-clip header inside Blog/Insights section at 1650px width
+
+## Session 22
+- [x] Blog card images resized to 515×336 on desktop with cover cropping
+- [x] Blog grid updated to repeat(3, 515px) columns with 28px gap
+- [x] Blog cards scale responsively: 2-col at ≤1200px, 1-col at ≤768px
+- [x] Section label changed from "Insights" to "Latest Blog"
+- [x] Section heading changed from "From the Blog" to "Stay updated with our latest articles"
+- [x] Category tag and read time/date moved to same row in card content area

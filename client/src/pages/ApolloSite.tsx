@@ -318,6 +318,23 @@ export default function ApolloSite() {
         /* ── Mobile overrides ─────────────────────────────── */
         .hero-section { padding-top: 188px; }
 
+        /* Blog cards: fixed 515px on desktop, fluid on smaller screens */
+        .blog-cards-grid {
+          grid-template-columns: repeat(3, 515px);
+          justify-content: start;
+        }
+        .blog-card-img { width: 515px; height: 336px; }
+
+        @media (max-width: 1200px) {
+          .blog-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .blog-card-img { width: 100% !important; height: 260px !important; }
+        }
+
+        @media (max-width: 768px) {
+          .blog-cards-grid { grid-template-columns: 1fr !important; }
+          .blog-card-img { width: 100% !important; height: 220px !important; }
+        }
+
         @media (max-width: 768px) {
           .hero-section { padding-top: 40px !important; }
           .desktop-nav-center { display: none !important; }
@@ -820,21 +837,26 @@ export default function ApolloSite() {
             <div style={{ background:"white", paddingTop:0, paddingBottom:16, textAlign:"center", overflow:"hidden", maxWidth:1650, margin:"0 auto" }}>
               <span className="photo-clip-text">Homes by Apollo</span>
             </div>
-            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:36 }}>
               <div>
-                <SectionLabel>Insights</SectionLabel>
-                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>From the Blog</h2>
+                <SectionLabel>Latest Blog</SectionLabel>
+                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", marginBottom:8 }}>Stay updated with our latest articles</h2>
               </div>
               <button onClick={()=>nav("blog")} style={{ fontSize:15, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
-            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+            <div className="blog-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,515px)", gap:28, justifyContent:"start" }}>
               {blogs.map(b=>(
                 <div key={b.title} style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer", border:`1px solid ${BOR}` }}>
-                  <img src={b.img} alt={b.title} style={{ width:"100%", height:160, objectFit:"cover" }} />
-                  <div style={{ padding:"16px 18px 20px" }}>
-                    <span style={{ fontSize:10, fontWeight:700, color:G, background:GL, padding:"3px 9px", borderRadius:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>{b.cat}</span>
-                    <div style={{ fontSize:14, fontWeight:700, color:TXT, lineHeight:1.45, marginTop:10, marginBottom:8 }}>{b.title}</div>
-                    <div style={{ fontSize:11, color:MUT }}>{b.date} · {b.read} read</div>
+                  {/* Fixed 515×336 image container */}
+                  <div className="blog-card-img" style={{ overflow:"hidden", flexShrink:0 }}>
+                    <img src={b.img} alt={b.title} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                  </div>
+                  <div style={{ padding:"18px 20px 22px" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                      <span style={{ fontSize:10, fontWeight:700, color:G, background:GL, padding:"3px 9px", borderRadius:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>{b.cat}</span>
+                      <span style={{ fontSize:11, color:MUT }}>{b.date} · {b.read} read</span>
+                    </div>
+                    <div style={{ fontSize:15, fontWeight:700, color:TXT, lineHeight:1.45 }}>{b.title}</div>
                   </div>
                 </div>
               ))}
