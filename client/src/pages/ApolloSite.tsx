@@ -87,9 +87,9 @@ const testimonials = [
 ];
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-    <div style={{ width:48, height:1.5, background:ACC, borderRadius:2 }} />
-    <span style={{ fontSize:13, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.12em" }}>{children}</span>
+  <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
+    <div style={{ width:56, height:2, background:ACC, borderRadius:2 }} />
+    <span style={{ fontSize:19, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.12em" }}>{children}</span>
   </div>
 );
 
@@ -416,7 +416,7 @@ export default function ApolloSite() {
         width: "100%",
       }}>
         {/* Logo — owl icon + wordmark */}
-        <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer", marginBottom:7 }} onClick={()=>nav("home")}>
           <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:52, width:52, objectFit:"contain", display:"block" }} />
           <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:1 }}>
             <span style={{ fontSize:17, fontWeight:700, letterSpacing:"0.32em", color:TXT, textTransform:"uppercase", opacity:1 }}>HOMES BY</span>
