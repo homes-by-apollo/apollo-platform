@@ -255,6 +255,7 @@ export default function ApolloSite() {
   const [lotFilter, setLotFilter] = useState("All");
   const [blogFilter, setBlogFilter] = useState("All");
   const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const [featCarouselIdx, setFeatCarouselIdx] = useState(0);
   const [selectedHome, setSelectedHome] = useState<typeof homes[0] | null>(null);
   const [selectedLot, setSelectedLot] = useState<typeof lots[0] | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
@@ -544,40 +545,116 @@ export default function ApolloSite() {
               </button>
             </div>
 
-            {/* Property cards */}
-            <div className="featured-props-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-              {[
-                { tag:"For Sale",    title:"The Mesquite",  sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 14, Desert Bloom Estates, Pahrump NV 89048", price:"$389,000", beds:3, baths:2, garage:2, sqft:"1,850", img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80" },
-                { tag:"For Sale",    title:"The Sunrise",   sub:"4 Bed / 3 Bath / 2-Car Garage", address:"Lot 22, Pahrump Valley Ranch, Pahrump NV 89048", price:"$459,000", beds:4, baths:3, garage:2, sqft:"2,240", img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80" },
-                { tag:"Coming Soon", title:"The Ridgeline", sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 7, Silver Mesa, Pahrump NV 89060",             price:"$419,000", beds:3, baths:2, garage:2, sqft:"1,980", img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80" },
-              ].map((p,i)=>(
-                <div key={i} style={{ background:"white", borderRadius:16, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 8px 32px rgba(0,0,0,0.18)" }}>
-                  <div style={{ position:"relative", height:220, overflow:"hidden", flexShrink:0 }}>
-                    <img src={p.img} alt={p.title} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
-                    <div style={{ position:"absolute", top:14, right:14, background:p.tag==="Coming Soon" ? "#e07b39" : "#0f2044", color:"white", fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:6, letterSpacing:"0.04em", textTransform:"uppercase" }}>{p.tag}</div>
-                  </div>
-                  <div style={{ padding:"22px 24px 24px", display:"flex", flexDirection:"column", flex:1 }}>
-                    <h3 style={{ fontSize:20, fontWeight:800, color:TXT, letterSpacing:"-0.02em", lineHeight:1.2, margin:"0 0 2px" }}>{p.title}</h3>
-                    <p style={{ fontSize:13, color:MUT, margin:"0 0 4px", fontWeight:500 }}>{p.sub}</p>
-                    <p style={{ fontSize:12, color:"#bbb", margin:"0 0 16px", lineHeight:1.4 }}>{p.address}</p>
-                    <div style={{ fontSize:28, fontWeight:900, color:TXT, letterSpacing:"-0.03em", margin:"0 0 18px" }}>{p.price}</div>
-                    <div style={{ borderTop:`1px solid ${BOR}`, paddingTop:16, display:"grid", gridTemplateColumns:"1fr 1fr", gap:"10px 0" }}>
-                      {[
-                        ["Bedrooms", p.beds],
-                        ["Bathrooms", p.baths],
-                        ["Garage", p.garage],
-                        ["Sq Ft", p.sqft],
-                      ].map(([label,val])=>(
-                        <div key={label as string} style={{ display:"flex", justifyContent:"space-between", paddingRight:16 }}>
-                          <span style={{ fontSize:13, color:MUT }}>{label}</span>
-                          <span style={{ fontSize:13, fontWeight:700, color:TXT }}>{val}</span>
+            {/* Property carousel — 1.5 cards visible, split text/photo layout */}
+            {(() => {
+              const featProps = [
+                { tag:"For Sale",    title:"The Mesquite",  sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 14, Desert Bloom Estates, Pahrump NV 89048", price:"$389,000", beds:3, baths:2, garage:2, sqft:"1,850", img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80" },
+                { tag:"For Sale",    title:"The Sunrise",   sub:"4 Bed / 3 Bath / 2-Car Garage", address:"Lot 22, Pahrump Valley Ranch, Pahrump NV 89048", price:"$459,000", beds:4, baths:3, garage:2, sqft:"2,240", img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80" },
+                { tag:"Coming Soon", title:"The Ridgeline", sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 7, Silver Mesa, Pahrump NV 89060",             price:"$419,000", beds:3, baths:2, garage:2, sqft:"1,980", img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80" },
+              ];
+              const cardW = 680; // px width of each card
+              const gap = 24;
+              const canAdvance = featCarouselIdx < featProps.length - 1;
+              const canBack = featCarouselIdx > 0;
+              return (
+                <div style={{ position:"relative" }}>
+                  {/* Scrollable track */}
+                  <div style={{
+                    display:"flex", gap:gap,
+                    overflow:"hidden",
+                    /* Show 1.5 cards: cardW + half of next card */
+                    width:"100%",
+                  }}>
+                    <div style={{
+                      display:"flex", gap:gap,
+                      transform:`translateX(calc(-${featCarouselIdx} * (${cardW}px + ${gap}px)))`,
+                      transition:"transform 0.45s cubic-bezier(0.4,0,0.2,1)",
+                      willChange:"transform",
+                    }}>
+                      {featProps.map((p,i)=>(
+                        <div key={i} style={{
+                          flexShrink:0,
+                          width:cardW,
+                          background:"white", borderRadius:18, overflow:"hidden",
+                          display:"flex", flexDirection:"row",
+                          boxShadow:"0 12px 48px rgba(0,0,0,0.22)",
+                          minHeight:400,
+                        }}>
+                          {/* Text panel */}
+                          <div style={{ flex:"0 0 52%", padding:"36px 32px 36px", display:"flex", flexDirection:"column", justifyContent:"space-between" }}>
+                            <div>
+                              <h3 style={{ fontSize:26, fontWeight:900, color:TXT, letterSpacing:"-0.03em", lineHeight:1.15, margin:"0 0 6px" }}>{p.title}</h3>
+                              <p style={{ fontSize:14, color:MUT, margin:"0 0 4px", fontWeight:500 }}>{p.sub}</p>
+                              <p style={{ fontSize:12, color:"#bbb", margin:"0 0 20px", lineHeight:1.4 }}>{p.address}</p>
+                              <div style={{ fontSize:34, fontWeight:900, color:TXT, letterSpacing:"-0.04em", margin:"0 0 24px" }}>{p.price}</div>
+                            </div>
+                            <div style={{ borderTop:`1px solid ${BOR}`, paddingTop:20, display:"flex", flexDirection:"column", gap:12 }}>
+                              {[["Bedrooms",p.beds],["Bathrooms",p.baths],["Garage",p.garage],["Area",`${p.sqft} sqft`]].map(([label,val])=>(
+                                <div key={label as string} style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                                  <span style={{ fontSize:14, color:MUT }}>{label}</span>
+                                  <span style={{ fontSize:14, fontWeight:700, color:TXT }}>{val}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          {/* Photo panel */}
+                          <div style={{ flex:"0 0 48%", position:"relative", overflow:"hidden" }}>
+                            <img src={p.img} alt={p.title} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                            <div style={{ position:"absolute", top:16, right:16, background:p.tag==="Coming Soon" ? "#e07b39" : "#0f2044", color:"white", fontSize:11, fontWeight:700, padding:"6px 14px", borderRadius:6, letterSpacing:"0.04em", textTransform:"uppercase" }}>{p.tag}</div>
+                            {/* Advance button — sits on the right edge of the photo */}
+                            {i === featCarouselIdx && canAdvance && (
+                              <button
+                                onClick={()=>setFeatCarouselIdx(idx=>idx+1)}
+                                style={{
+                                  position:"absolute", bottom:24, right:24,
+                                  width:56, height:56, borderRadius:"50%",
+                                  background:"rgba(75,156,211,0.92)", backdropFilter:"blur(6px)",
+                                  border:"none", cursor:"pointer",
+                                  display:"flex", alignItems:"center", justifyContent:"center",
+                                  boxShadow:"0 4px 20px rgba(0,0,0,0.25)",
+                                  transition:"transform 0.2s, background 0.2s",
+                                }}
+                                onMouseEnter={e=>(e.currentTarget.style.transform="scale(1.08)")}
+                                onMouseLeave={e=>(e.currentTarget.style.transform="scale(1)")}
+                                aria-label="Next property"
+                              >
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                              </button>
+                            )}
+                            {/* Back button */}
+                            {i === featCarouselIdx && canBack && (
+                              <button
+                                onClick={()=>setFeatCarouselIdx(idx=>idx-1)}
+                                style={{
+                                  position:"absolute", bottom:24, right:92,
+                                  width:56, height:56, borderRadius:"50%",
+                                  background:"rgba(255,255,255,0.25)", backdropFilter:"blur(6px)",
+                                  border:"1.5px solid rgba(255,255,255,0.5)", cursor:"pointer",
+                                  display:"flex", alignItems:"center", justifyContent:"center",
+                                  boxShadow:"0 4px 20px rgba(0,0,0,0.15)",
+                                  transition:"transform 0.2s",
+                                }}
+                                onMouseEnter={e=>(e.currentTarget.style.transform="scale(1.08)")}
+                                onMouseLeave={e=>(e.currentTarget.style.transform="scale(1)")}
+                                aria-label="Previous property"
+                              >
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
+                  {/* Dot indicators */}
+                  <div style={{ display:"flex", gap:8, justifyContent:"center", marginTop:24 }}>
+                    {featProps.map((_,i)=>(
+                      <button key={i} onClick={()=>setFeatCarouselIdx(i)} style={{ width:i===featCarouselIdx?24:8, height:8, borderRadius:4, background:i===featCarouselIdx?"#4B9CD3":"rgba(255,255,255,0.3)", border:"none", cursor:"pointer", padding:0, transition:"all 0.3s" }} aria-label={`Go to property ${i+1}`} />
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </div>
 
 

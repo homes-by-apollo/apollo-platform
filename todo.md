@@ -121,3 +121,6 @@
 ## Session 17
 - [x] Restyle hero search bar: individual grey-bordered segments, white bg, taller, solid dark Search button
 - [x] Add navy Featured Properties section below hero image with Apollo property cards
+
+## Session 18
+- [x] Convert Featured Properties to horizontal carousel: 1.5 cards visible, split text/photo layout, circular arrow advance button
