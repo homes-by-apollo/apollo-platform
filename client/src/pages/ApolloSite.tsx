@@ -292,10 +292,13 @@ export default function ApolloSite() {
         transition: "all 0.2s",
         position: "relative",
       }}>
-        {/* Logo — wordmark only */}
-        <div style={{ display:"flex", flexDirection:"column", lineHeight:1, cursor:"pointer", gap:1 }} onClick={()=>nav("home")}>
-          <span style={{ fontSize:10, fontWeight:500, letterSpacing:"0.22em", color:MUT, textTransform:"uppercase" }}>HOMES BY</span>
-          <span style={{ fontSize:22, fontWeight:900, letterSpacing:"-0.03em", color:TXT, lineHeight:1 }}>APOLLO</span>
+        {/* Logo — owl icon + wordmark */}
+        <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:40, width:40, objectFit:"contain", display:"block" }} />
+          <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:1 }}>
+            <span style={{ fontSize:10, fontWeight:500, letterSpacing:"0.22em", color:MUT, textTransform:"uppercase" }}>HOMES BY</span>
+            <span style={{ fontSize:22, fontWeight:900, letterSpacing:"-0.03em", color:TXT, lineHeight:1 }}>APOLLO</span>
+          </div>
         </div>
 
         {/* Desktop center nav */}
