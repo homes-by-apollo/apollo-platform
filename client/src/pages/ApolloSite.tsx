@@ -735,19 +735,19 @@ export default function ApolloSite() {
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
           <div style={{ width:"100%", background:"white", padding:0, margin:0 }}>
             <div className="photo-clip-container">
-              <svg className="photo-clip-svg" viewBox="0 0 1690 160" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+              <svg className="photo-clip-svg" viewBox="0 0 1690 175" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                  <pattern id="heroImg1" patternUnits="userSpaceOnUse" width="1690" height="160">
-                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="0" width="1690" height="160" preserveAspectRatio="xMidYMid slice"/>
+                  <pattern id="heroImg1" patternUnits="userSpaceOnUse" width="1690" height="175">
+                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="0" width="1690" height="175" preserveAspectRatio="xMidYMid slice"/>
                   </pattern>
                   <mask id="textMask1">
-                    <text x="845" y="140" textAnchor="middle" dominantBaseline="auto"
-                      fontFamily="inherit" fontWeight="900" letterSpacing="-6"
-                      textLength="1680" lengthAdjust="spacing"
-                      fill="white" fontSize="148">Homes by Apollo</text>
+                    <text x="845" y="148" textAnchor="middle" dominantBaseline="auto"
+                      fontFamily="inherit" fontWeight="900" letterSpacing="0"
+                      textLength="1680" lengthAdjust="spacingAndGlyphs"
+                      fill="white" fontSize="168">Homes by Apollo</text>
                   </mask>
                 </defs>
-                <rect x="0" y="0" width="1690" height="160" fill="url(#heroImg1)" mask="url(#textMask1)"/>
+                <rect x="0" y="0" width="1690" height="175" fill="url(#heroImg1)" mask="url(#textMask1)"/>
               </svg>
             </div>
           </div>
@@ -898,19 +898,19 @@ export default function ApolloSite() {
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
             <div className="photo-clip-container" style={{ padding:0, margin:0, background:"transparent" }}>
-              <svg className="photo-clip-svg" viewBox="0 0 1690 160" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+              <svg className="photo-clip-svg" viewBox="0 0 1690 175" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                  <pattern id="heroImg2" patternUnits="userSpaceOnUse" width="1690" height="160">
-                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="0" width="1690" height="160" preserveAspectRatio="xMidYMid slice"/>
+                  <pattern id="heroImg2" patternUnits="userSpaceOnUse" width="1690" height="175">
+                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="0" width="1690" height="175" preserveAspectRatio="xMidYMid slice"/>
                   </pattern>
                   <mask id="textMask2">
-                    <text x="845" y="140" textAnchor="middle" dominantBaseline="auto"
-                      fontFamily="inherit" fontWeight="900" letterSpacing="-6"
-                      textLength="1680" lengthAdjust="spacing"
-                      fill="white" fontSize="148">Homes by Apollo</text>
+                    <text x="845" y="148" textAnchor="middle" dominantBaseline="auto"
+                      fontFamily="inherit" fontWeight="900" letterSpacing="0"
+                      textLength="1680" lengthAdjust="spacingAndGlyphs"
+                      fill="white" fontSize="168">Homes by Apollo</text>
                   </mask>
                 </defs>
-                <rect x="0" y="0" width="1690" height="160" fill="url(#heroImg2)" mask="url(#textMask2)"/>
+                <rect x="0" y="0" width="1690" height="175" fill="url(#heroImg2)" mask="url(#textMask2)"/>
               </svg>
             </div>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:36 }}>
