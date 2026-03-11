@@ -167,3 +167,8 @@
 - [x] Build /crm/properties admin page: full CRUD table, Featured toggle, add/edit/delete modals, KPI cards
 - [x] Register /crm/properties route in App.tsx
 - [x] Add "Properties" nav link to CRMDashboard header
+
+## Session 39
+- [x] Update featured property photos with Pahrump-style desert/ranch imagery
+- [x] Increase About Us feature item title font size by 20% (16px → 19.2px)
+- [x] Increase About Us feature item description font size by 20% (14.5px → 17.4px)

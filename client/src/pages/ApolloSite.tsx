@@ -22,9 +22,9 @@ const ACC = "#c8a96e";
 const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo_31888db6.webp";
 
 const homes = [
-  { id:1, tag:"For Sale", price:"$389,900", title:"3-Bed Ranch Home", addr:"480 E Arapahoe St", city:"Pahrump, NV 89048", sqft:"1,800", bed:3, bath:2.5, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1-esiDT2wxav6EBQnFHtCgBX.webp" },
-  { id:2, tag:"For Sale", price:"$749,900", title:"12-Bed Investment Property", addr:"461 Comstock Ave", city:"Pahrump, NV 89048", sqft:"4,400", bed:12, bath:8, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-3-iGSesPKDzLQrVDfJwcyYWN.webp" },
-  { id:3, tag:"For Sale", price:"$409,900", title:"All-Inclusive Dream Home", addr:"4081 Jessica St", city:"Pahrump, NV 89048", sqft:"1,800", bed:3, bath:2.5, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-2-6CPy9723w6iJntcgGgyqZT.webp" },
+  { id:1, tag:"For Sale", price:"$389,900", title:"3-Bed Desert Ranch Home", addr:"480 E Arapahoe St", city:"Pahrump, NV 89048", sqft:"1,800", bed:3, bath:2.5, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg" },
+  { id:2, tag:"For Sale", price:"$459,900", title:"4-Bed Stucco Home w/ Mountain Views", addr:"1204 W Calvada Blvd", city:"Pahrump, NV 89048", sqft:"2,240", bed:4, bath:3, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-2_558bc368.jpg" },
+  { id:3, tag:"For Sale", price:"$409,900", title:"3-Bed New Build — Desert Modern", addr:"4081 Jessica St", city:"Pahrump, NV 89048", sqft:"1,950", bed:3, bath:2.5, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-4_84756e7b.jpg" },
 ];
 
 const lots = [
@@ -773,8 +773,8 @@ export default function ApolloSite() {
                   ].map(([icon,title,desc])=>(
                     <div key={title as string}>
                       <div style={{ width:44, height:44, borderRadius:12, background:GL, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:14 }}>{icon}</div>
-                      <div style={{ fontSize:16, fontWeight:700, color:TXT, marginBottom:10 }}>{title}</div>
-                      <div style={{ fontSize:14.5, color:MUT, lineHeight:1.75 }}>{desc}</div>
+                      <div style={{ fontSize:19.2, fontWeight:700, color:TXT, marginBottom:10 }}>{title}</div>
+                      <div style={{ fontSize:17.4, color:MUT, lineHeight:1.75 }}>{desc}</div>
                     </div>
                   ))}
                 </div>
