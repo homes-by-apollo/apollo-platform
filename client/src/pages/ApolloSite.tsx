@@ -409,7 +409,7 @@ export default function ApolloSite() {
       <div style={{ background:"#ffffff", boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none", transition:"box-shadow 0.2s", flexShrink:0, zIndex:200, position:"relative" }}>
       <nav style={{
         background: "transparent",
-        padding: "30px var(--pad) 0" as React.CSSProperties["padding"],
+        padding: "0 var(--pad)" as React.CSSProperties["padding"],
         height: 94,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         transition: "all 0.2s",
@@ -419,7 +419,7 @@ export default function ApolloSite() {
         width: "100%",
       }}>
         {/* Logo — owl icon + wordmark */}
-        <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer", marginBottom:7 }} onClick={()=>nav("home")}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
           <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:52, width:52, objectFit:"contain", display:"block" }} />
           <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:1 }}>
             <span style={{ fontSize:17, fontWeight:700, letterSpacing:"0.32em", color:TXT, textTransform:"uppercase", opacity:1 }}>HOMES BY</span>
