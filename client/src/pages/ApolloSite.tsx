@@ -316,7 +316,10 @@ export default function ApolloSite() {
         }
 
         /* ── Mobile overrides ─────────────────────────────── */
+        .hero-section { padding-top: 188px; }
+
         @media (max-width: 768px) {
+          .hero-section { padding-top: 40px !important; }
           .desktop-nav-center { display: none !important; }
           .desktop-nav-ctas   { display: none !important; }
           .hamburger-btn      { display: flex !important; }
@@ -465,7 +468,7 @@ export default function ApolloSite() {
         {page==="home" && <>
 
           {/* HERO */}
-          <div style={{ background:"white", paddingTop:40, paddingBottom:0, textAlign:"center", position:"relative" }}>
+          <div className="hero-section" style={{ background:"white", paddingTop:188, paddingBottom:0, textAlign:"center", position:"relative" }}>
             <h1 className="hero-headline" style={{
               fontSize: "clamp(36px,5.8vw,92px)",
               fontWeight: 800, color: TXT, lineHeight: 1.05,
