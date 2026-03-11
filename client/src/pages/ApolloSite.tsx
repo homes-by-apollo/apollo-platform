@@ -217,7 +217,7 @@ export default function ApolloSite() {
           letter-spacing: -0.04em;
           line-height: 1;
           white-space: nowrap;
-          background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1400&q=85');
+          background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp');
           background-size: cover;
           background-position: center 40%;
           -webkit-background-clip: text;
