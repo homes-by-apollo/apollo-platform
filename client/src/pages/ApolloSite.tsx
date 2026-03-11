@@ -308,38 +308,22 @@ export default function ApolloSite() {
         ::selection{background:${G};color:white}
         input,textarea,select,button{font-family:inherit}
 
-        .photo-clip-text {
-          /* 'Homes by Apollo' is ~14 chars.
-             At letter-spacing -0.05em, effective width ≈ font-size × 14 × 0.95.
-             To fill 1690px: font-size ≈ 1690 / (14 × 0.95) ≈ 127px ≈ 7.56vw at 1680px.
-             We use 9.8vw capped at 148px so it fills the container at large screens
-             while the clamp floor (80px) keeps it readable on small screens. */
-          font-size: clamp(80px, 9.8vw, 148px);
-          font-weight: 900;
-          letter-spacing: -0.05em;
-          line-height: 1;
-          white-space: nowrap;
-          background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp');
-          background-size: cover;
-          background-position: center center;
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-          color: transparent;
-          display: block;
-          width: 100%;
-          text-align: center;
-          padding: 0;
-          margin: 0;
-        }
+        /* Auto-fit masked headline: SVG <text> with textLength fills 100% width exactly */
         .photo-clip-container {
           width: 100%;
           max-width: 1690px;
           margin: 0 auto;
           padding: 0;
           box-sizing: border-box;
-          text-align: center;
+          display: block;
           overflow: hidden;
+          line-height: 1;
+        }
+        .photo-clip-svg {
+          display: block;
+          width: 100%;
+          height: auto;
+          overflow: visible;
         }
 
         /* ── Mobile overrides ─────────────────────────────── */
@@ -751,7 +735,20 @@ export default function ApolloSite() {
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
           <div style={{ width:"100%", background:"white", padding:0, margin:0 }}>
             <div className="photo-clip-container">
-              <span className="photo-clip-text">Homes by Apollo</span>
+              <svg className="photo-clip-svg" viewBox="0 0 1690 160" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id="heroImg1" patternUnits="userSpaceOnUse" width="1690" height="160">
+                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="0" width="1690" height="160" preserveAspectRatio="xMidYMid slice"/>
+                  </pattern>
+                  <mask id="textMask1">
+                    <text x="845" y="140" textAnchor="middle" dominantBaseline="auto"
+                      fontFamily="inherit" fontWeight="900" letterSpacing="-6"
+                      textLength="1680" lengthAdjust="spacing"
+                      fill="white" fontSize="148">Homes by Apollo</text>
+                  </mask>
+                </defs>
+                <rect x="0" y="0" width="1690" height="160" fill="url(#heroImg1)" mask="url(#textMask1)"/>
+              </svg>
             </div>
           </div>
           <div className="section-pad" style={{ background:"white", padding:"56px var(--pad) 72px" }}>
@@ -901,7 +898,20 @@ export default function ApolloSite() {
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
             <div className="photo-clip-container" style={{ padding:0, margin:0, background:"transparent" }}>
-              <span className="photo-clip-text">Homes by Apollo</span>
+              <svg className="photo-clip-svg" viewBox="0 0 1690 160" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id="heroImg2" patternUnits="userSpaceOnUse" width="1690" height="160">
+                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="0" width="1690" height="160" preserveAspectRatio="xMidYMid slice"/>
+                  </pattern>
+                  <mask id="textMask2">
+                    <text x="845" y="140" textAnchor="middle" dominantBaseline="auto"
+                      fontFamily="inherit" fontWeight="900" letterSpacing="-6"
+                      textLength="1680" lengthAdjust="spacing"
+                      fill="white" fontSize="148">Homes by Apollo</text>
+                  </mask>
+                </defs>
+                <rect x="0" y="0" width="1690" height="160" fill="url(#heroImg2)" mask="url(#textMask2)"/>
+              </svg>
             </div>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:36 }}>
               <div>
