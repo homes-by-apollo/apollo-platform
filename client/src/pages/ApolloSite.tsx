@@ -767,8 +767,8 @@ export default function ApolloSite() {
                   ].map(([icon,title,desc])=>(
                     <div key={title as string}>
                       <div style={{ width:44, height:44, borderRadius:12, background:GL, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:14 }}>{icon}</div>
-                      <div style={{ fontSize:14, fontWeight:700, color:TXT, marginBottom:6 }}>{title}</div>
-                      <div style={{ fontSize:13, color:MUT, lineHeight:1.7 }}>{desc}</div>
+                      <div style={{ fontSize:16, fontWeight:700, color:TXT, marginBottom:10 }}>{title}</div>
+                      <div style={{ fontSize:14.5, color:MUT, lineHeight:1.75 }}>{desc}</div>
                     </div>
                   ))}
                 </div>
