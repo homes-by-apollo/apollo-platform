@@ -195,18 +195,22 @@ function FAQ({ q, a }: { q: string; a: string }) {
       style={{
         background: open ? "white" : "#f4f5f7",
         borderRadius: 10,
-        padding: "22px 28px",
+        padding: "0 28px",
         cursor: "pointer",
         border: `1px solid ${open ? BOR : "transparent"}`,
         transition: "background 0.2s, box-shadow 0.2s",
         boxShadow: open ? "0 2px 16px rgba(0,0,0,0.06)" : "none",
+        minHeight: open ? undefined : 95,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
       }}
     >
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:24 }}>
-        <span style={{ fontSize:18, fontWeight:700, color:TXT, lineHeight:1.4 }}>{q}</span>
-        <span style={{ fontSize:22, color: open ? G : MUT, fontWeight:300, flexShrink:0, transform:open?"rotate(45deg)":"rotate(0)", transition:"transform 0.2s, color 0.2s", lineHeight:1 }}>+</span>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:24, minHeight: open ? 95 : undefined }}>
+        <span style={{ fontSize:20, fontWeight:700, color:TXT, lineHeight:1.4 }}>{q}</span>
+        <span style={{ fontSize:24, color: open ? G : MUT, fontWeight:300, flexShrink:0, transform:open?"rotate(45deg)":"rotate(0)", transition:"transform 0.2s, color 0.2s", lineHeight:1 }}>+</span>
       </div>
-      {open && <p style={{ marginTop:14, fontSize:15, color:MUT, lineHeight:1.8 }}>{a}</p>}
+      {open && <p style={{ marginTop:0, paddingBottom:22, fontSize:16, color:MUT, lineHeight:1.8 }}>{a}</p>}
     </div>
   );
 }
@@ -297,7 +301,7 @@ export default function ApolloSite() {
         input,textarea,select,button{font-family:inherit}
 
         .photo-clip-text {
-          font-size: clamp(64px, 8.5vw, 142px);
+          font-size: clamp(64px, 8.8vw, 145px);
           font-weight: 800;
           letter-spacing: -0.04em;
           line-height: 1;
@@ -317,8 +321,7 @@ export default function ApolloSite() {
           width: 100%;
           max-width: 1650px;
           margin: 0 auto;
-          padding: 0 var(--pad);
-          background: transparent;
+          padding: 0;
           text-align: center;
           overflow: visible;
         }
@@ -697,7 +700,7 @@ export default function ApolloSite() {
 
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div className="photo-clip-container" style={{ paddingTop:30, paddingBottom:0 }}>
+          <div className="photo-clip-container" style={{ paddingTop:30, paddingBottom:0, background:"white" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
           <div className="section-pad" style={{ background:"white", padding:"56px var(--pad) 72px" }}>
@@ -846,7 +849,7 @@ export default function ApolloSite() {
           <div style={{ padding:"72px var(--pad) 0" }}>
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
-            <div className="photo-clip-container" style={{ paddingTop:0, paddingBottom:16 }}>
+            <div className="photo-clip-container" style={{ paddingTop:0, paddingBottom:16, background:"transparent" }}>
               <span className="photo-clip-text">Homes by Apollo</span>
             </div>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:36 }}>
