@@ -54,3 +54,11 @@
 ## Typography Fixes (Session 5 cont.)
 - [x] Increase section button sizes and fonts ("View All", "Our Properties", etc.)
 - [x] Increase FAQ question font sizes in Common Questions section
+
+## UI Polish (Session 6)
+- [x] Add /crm nav link visible only when admin is logged in
+- [x] Increase body/description paragraph text to 16-18px on desktop
+- [x] Extend SectionLabel accent line from 32px to 48px
+- [x] Change welcome email sender from app@ to hello@apollohomebuilders.com
+- [x] Fix search bar stacked filters (icon and label should be inline, not stacked)
+- [x] Add Apollo logo and wordmark to global footer

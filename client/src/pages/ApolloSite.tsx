@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import type React from "react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 // ── Navy theme ──────────────────────────────────────────────────────────────
 const G   = "#0f2044";
@@ -48,7 +49,7 @@ const testimonials = [
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-    <div style={{ width:32, height:1.5, background:ACC, borderRadius:2 }} />
+    <div style={{ width:48, height:1.5, background:ACC, borderRadius:2 }} />
     <span style={{ fontSize:13, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.12em" }}>{children}</span>
   </div>
 );
@@ -187,6 +188,9 @@ export default function ApolloSite() {
   const [form, setForm] = useState<FormState>({ name:"", email:"", phone:"", contactType:"BUYER", timeline:"", priceRange:"", financingStatus:"", brokerageName:"", message:"" });
   const [formSent, setFormSent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const contactMutation = trpc.leads.submit.useMutation({
     onSuccess: () => { setFormSent(true); setFormError(null); },
     onError: (err: { message?: string }) => { setFormError(err.message || "Failed to send. Please try again."); },
@@ -320,8 +324,15 @@ export default function ApolloSite() {
           </div>
         </div>
 
-        {/* Desktop center nav — no items currently; kept for future links */}
+        {/* Desktop center nav */}
         <div className="desktop-nav-center" style={{ display:"flex", gap:28, alignItems:"center" }}>
+          {isAdmin && (
+            <a href="/crm" style={{ fontSize:14, fontWeight:700, color:G, textDecoration:"none", letterSpacing:"0.01em", opacity:0.7 }}
+              onMouseEnter={e=>(e.currentTarget.style.opacity="1")}
+              onMouseLeave={e=>(e.currentTarget.style.opacity="0.7")}>
+              Dashboard
+            </a>
+          )}
         </div>
 
         {/* Desktop CTAs */}
@@ -396,10 +407,10 @@ export default function ApolloSite() {
                   borderRight: i<2 ? `1px solid ${BOR}` : "none",
                   cursor:"pointer", minWidth:160,
                 }}>
-                  <span style={{ display:"flex", alignItems:"center" }}>{icon}</span>
-                  <div style={{ textAlign:"left" }}>
-                    <div style={{ fontSize:11, fontWeight:700, color:TXT, letterSpacing:"0.02em", marginBottom:2 }}>{label}</div>
-                    <div style={{ fontSize:12, color:"#bbb" }}>Any ▾</div>
+                  <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>{icon}</span>
+                  <div style={{ display:"flex", flexDirection:"column", textAlign:"left" }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:TXT, letterSpacing:"0.01em", lineHeight:1.2 }}>{label}</div>
+                    <div style={{ fontSize:12, color:"#bbb", lineHeight:1.2 }}>Any ▾</div>
                   </div>
                 </div>
               ))}
@@ -636,9 +647,15 @@ export default function ApolloSite() {
             {/* Footer links */}
             <div style={{ padding:"48px 5vw 28px", position:"relative", zIndex:1 }}>
               <div>
-                <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:36 }}>
-                  <img src={LOGO} alt="Homes by Apollo" style={{ height:38, width:"auto" }} />
-                  <span style={{ fontWeight:800, fontSize:13, color:"white" }}>HOMES BY APOLLO</span>
+                <div style={{ display:"flex", flexDirection:"column", gap:6, marginBottom:36 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                    <img src={LOGO} alt="Homes by Apollo" style={{ height:52, width:52, objectFit:"contain" }} />
+                    <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:2 }}>
+                      <span style={{ fontSize:12, fontWeight:700, letterSpacing:"0.32em", color:"rgba(255,255,255,0.55)", textTransform:"uppercase" }}>HOMES BY</span>
+                      <span style={{ fontSize:28, fontWeight:900, letterSpacing:"0.07em", color:"white", lineHeight:1 }}>APOLLO</span>
+                    </div>
+                  </div>
+                  <p style={{ fontSize:13, color:"rgba(255,255,255,0.35)", lineHeight:1.65, maxWidth:280, marginTop:8 }}>Apollo Home Builders is Pahrump’s premier custom home builder — all-inclusive builds, one price, no surprises.</p>
                 </div>
                 <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28, marginBottom:40 }}>
                   {([["Company",[["Home","home"],["About Us","home"],["Why Pahrump","home"],["Contact","contact"]]],

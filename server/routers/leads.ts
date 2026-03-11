@@ -85,7 +85,7 @@ async function sendLeadWelcomeEmail(contact: {
   `;
 
   const { data, error } = await resend.emails.send({
-    from: "Apollo Home Builders <app@apollohomebuilders.com>",
+    from: "Apollo Home Builders <hello@apollohomebuilders.com>",
     to: [contact.email],
     subject,
     html,
