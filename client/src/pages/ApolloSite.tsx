@@ -893,7 +893,7 @@ export default function ApolloSite() {
           </div>
 
           {/* BLOG PREVIEW */}
-          <div style={{ padding:"107px var(--pad) 0" }}>
+          <div style={{ padding:"107px var(--pad) 35px" }}>
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
             <div className="photo-clip-container" style={{ padding:0, margin:0, background:"transparent" }}>
