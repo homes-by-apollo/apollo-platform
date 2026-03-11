@@ -343,7 +343,7 @@ export default function ApolloSite() {
         }
 
         /* ── Mobile overrides ─────────────────────────────── */
-        .hero-section { padding-top: 128px; }
+        .hero-section { padding-top: 108px; }
 
         /* Blog cards: fixed 515px on desktop, fluid on smaller screens */
         .blog-cards-grid {
@@ -524,7 +524,7 @@ export default function ApolloSite() {
           <div style={{ position:"relative", background:"white" }}>
 
           {/* HERO */}
-          <div className="hero-section" style={{ paddingTop:128, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
+          <div className="hero-section" style={{ paddingTop:108, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
             {/* White top band — covers headline + search bar area */}
             <div style={{ position:"absolute", inset:0, bottom:"50%", background:"white", zIndex:0 }} />
             {/* Navy bottom band — covers bottom 32.5% of hero section (50% × 0.65) */}
