@@ -25,9 +25,9 @@ const lots = [
 ];
 
 const blogs = [
-  { cat:"Tips", title:"Why Pahrump is Nevada's Best-Kept Secret for New Home Buyers", date:"Feb 12, 2025", read:"5 min", img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80" },
-  { cat:"Construction", title:"What to Expect During Your Apollo Home Build", date:"Jan 28, 2025", read:"7 min", img:"https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80" },
-  { cat:"Investment", title:"The Case for Multi-Family Builds in Southern Nevada", date:"Jan 10, 2025", read:"6 min", img:"https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80" },
+  { cat:"Tips", title:"Why Pahrump is Nevada's Best-Kept Secret for New Home Buyers", date:"Feb 12, 2025", read:"5 min", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/blog-nevada-homebuying-7NoddsjLZqhAmdfd2knfqU.webp" },
+  { cat:"Construction", title:"What to Expect During Your Apollo Home Build", date:"Jan 28, 2025", read:"7 min", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/blog-construction-4GJBhhCpotjFbWS7hpxogF.webp" },
+  { cat:"Investment", title:"The Case for Multi-Family Builds in Southern Nevada", date:"Jan 10, 2025", read:"6 min", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/blog-investment-8KFZKqzrwoZiwzAc7Cw3b4.webp" },
 ];
 
 const faqs: [string, string][] = [
@@ -432,7 +432,7 @@ export default function ApolloSite() {
           </div>
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div style={{ background:"white", paddingTop:40, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
+          <div style={{ background:"white", paddingTop:30, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
           <div className="section-pad" style={{ background:"white", padding:"56px 32px 72px" }}>
