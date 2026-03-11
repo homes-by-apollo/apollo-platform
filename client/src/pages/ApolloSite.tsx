@@ -736,8 +736,10 @@ export default function ApolloSite() {
 
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div className="photo-clip-container" style={{ paddingTop:30, paddingBottom:0, background:"white" }}>
-            <span className="photo-clip-text">Homes by Apollo</span>
+          <div style={{ width:"100%", background:"white", paddingTop:30, paddingBottom:0 }}>
+            <div className="photo-clip-container">
+              <span className="photo-clip-text">Homes by Apollo</span>
+            </div>
           </div>
           <div className="section-pad" style={{ background:"white", padding:"56px var(--pad) 72px" }}>
             <div className="site-container">
