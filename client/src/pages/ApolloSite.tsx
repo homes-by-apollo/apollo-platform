@@ -685,7 +685,7 @@ export default function ApolloSite() {
 
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div style={{ background:"white", paddingTop:30, paddingBottom:0, textAlign:"center", overflow:"hidden", maxWidth:1650, margin:"0 auto" }}>
+          <div style={{ background:"transparent", paddingTop:30, paddingBottom:0, textAlign:"center", overflow:"hidden", maxWidth:1650, margin:"0 auto" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
           <div className="section-pad" style={{ background:"white", padding:"56px var(--pad) 72px" }}>
@@ -834,7 +834,7 @@ export default function ApolloSite() {
           <div style={{ padding:"72px var(--pad) 0" }}>
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
-            <div style={{ background:"white", paddingTop:0, paddingBottom:16, textAlign:"center", overflow:"hidden", maxWidth:1650, margin:"0 auto" }}>
+            <div style={{ background:"transparent", paddingTop:0, paddingBottom:16, textAlign:"center", overflow:"hidden", maxWidth:1650, margin:"0 auto" }}>
               <span className="photo-clip-text">Homes by Apollo</span>
             </div>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:36 }}>
@@ -883,6 +883,7 @@ export default function ApolloSite() {
 
             {/* ── Top band: Brand + Contact info (reference layout) ──────────── */}
             <div style={{ padding:"52px var(--pad) 48px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ maxWidth:1650, margin:"0 auto" }}>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:64, alignItems:"flex-start" }}>
 
                 {/* LEFT: Logo + tagline + email form */}
@@ -942,10 +943,12 @@ export default function ApolloSite() {
                   </div>
                 </div>
               </div>
+              </div>
             </div>
 
             {/* ── Middle band: Nav columns ─────────────────────────────── */}
             <div style={{ padding:"52px var(--pad) 40px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+              <div style={{ maxWidth:1650, margin:"0 auto" }}>
               <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:32 }}>
                 {([
                   ["Company",  [["Home","home"],["About Us","about"],["Contact","contact"]]],
@@ -965,10 +968,12 @@ export default function ApolloSite() {
                   </div>
                 ))}
               </div>
+              </div>
             </div>
 
             {/* ── Bottom bar ───────────────────────────────────────────── */}
-            <div style={{ padding:"22px var(--pad)", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+            <div style={{ padding:"22px var(--pad)" }}>
+              <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
               <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
               <div style={{ display:"flex", gap:20 }}>
                 {["Privacy Policy","Terms"].map(i=>(
@@ -976,6 +981,7 @@ export default function ApolloSite() {
                     onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.6)"}}
                     onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.22)"}}>{i}</span>
                 ))}
+              </div>
               </div>
             </div>
 

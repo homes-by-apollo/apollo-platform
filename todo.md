@@ -144,3 +144,8 @@
 - [x] Section label changed from "Insights" to "Latest Blog"
 - [x] Section heading changed from "From the Blog" to "Stay updated with our latest articles"
 - [x] Category tag and read time/date moved to same row in card content area
+
+## Session 23
+- [x] Photo-clip "Homes by Apollo" headers: background set to transparent (both instances), max-width 1650px, margin 0 auto
+- [x] Footer top band, middle nav band, and bottom bar each wrapped in max-width:1650px centered inner container
+- [x] Footer navy background and full-bleed watermark preserved; only content width constrained to 1650px
