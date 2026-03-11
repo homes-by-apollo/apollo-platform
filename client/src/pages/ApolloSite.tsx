@@ -309,9 +309,15 @@ export default function ApolloSite() {
         input,textarea,select,button{font-family:inherit}
 
         .photo-clip-text {
-          font-size: 9.8vw;
-          font-weight: 800;
-          letter-spacing: -0.06em;
+          /* Scale font so 'Homes by Apollo' fills the container width.
+             The string is ~14 chars; at letter-spacing -0.06em each char ≈ 0.94em wide.
+             Target: container_width / (14 * 0.94) ≈ container_width / 13.16
+             At 1680px container: 1680/13.16 ≈ 127px ≈ 7.6vw at 1680px viewport.
+             We use a slightly smaller value so the text never clips, then let
+             the container clip-path/overflow handle the rest. */
+          font-size: clamp(48px, 7.5vw, 126px);
+          font-weight: 900;
+          letter-spacing: -0.04em;
           line-height: 1;
           white-space: nowrap;
           background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp');
@@ -326,12 +332,13 @@ export default function ApolloSite() {
           text-align: center;
         }
         .photo-clip-container {
-          width: 1680px;
-          max-width: 100%;
+          width: 100%;
+          max-width: 1680px;
           margin: 0 auto;
-          padding: 0;
+          padding: 0 16px;
+          box-sizing: border-box;
           text-align: center;
-          overflow: visible;
+          overflow: hidden;
         }
 
         /* ── Mobile overrides ─────────────────────────────── */
@@ -1044,10 +1051,8 @@ export default function ApolloSite() {
             </div>
 
             {/* MONOCHROMATIC WATERMARK */}
-            <div style={{ overflow:"visible", pointerEvents:"none", userSelect:"none", lineHeight:0.85, paddingTop:4 }}>
-              <div style={{ width:"100%", maxWidth:"100vw", margin:"0 auto", overflow:"visible", textAlign:"center" }}>
-                <div style={{ fontSize:"clamp(48px, 8.2vw, 138px)", fontWeight:900, letterSpacing:"-0.055em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"center" }}>Homes by Apollo</div>
-              </div>
+            <div style={{ overflow:"hidden", pointerEvents:"none", userSelect:"none", lineHeight:0.85, paddingTop:4, width:"100%", maxWidth:1680, margin:"0 auto", boxSizing:"border-box", padding:"4px 16px 0" }}>
+              <div style={{ fontSize:"clamp(48px, 7.5vw, 126px)", fontWeight:900, letterSpacing:"-0.04em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"center" }}>Homes by Apollo</div>
             </div>
           </footer>
         </>}
