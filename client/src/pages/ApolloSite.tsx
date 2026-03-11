@@ -438,7 +438,7 @@ export default function ApolloSite() {
                 fontSize:14, fontWeight:700, textDecoration:"none",
                 color:"#e07b39", background:"white",
                 border:"2px solid #e07b39", borderRadius:8,
-                padding:"8px 18px", letterSpacing:"0.01em",
+                padding:"0 18px", height:70, letterSpacing:"0.01em",
                 lineHeight:1, display:"inline-flex", alignItems:"center",
                 transition:"background 0.15s, color 0.15s",
               }}
@@ -448,8 +448,18 @@ export default function ApolloSite() {
               Admin
             </a>
           )}
-          <Btn small onClick={()=>nav("contact")}>Schedule a Consultation</Btn>
-          <Btn small outline onClick={()=>nav("homes")}>View Homes &amp; Lots</Btn>
+          <button
+            onClick={()=>nav("contact")}
+            style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"none", fontSize:14, fontFamily:"inherit", background:G, color:"white", flexShrink:0 }}
+            onMouseEnter={e=>{ e.currentTarget.style.background=GM; }}
+            onMouseLeave={e=>{ e.currentTarget.style.background=G; }}
+          >Schedule a Consultation ↗</button>
+          <button
+            onClick={()=>nav("homes")}
+            style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:`1.5px solid ${G}`, fontSize:14, fontFamily:"inherit", background:"transparent", color:G, flexShrink:0 }}
+            onMouseEnter={e=>{ e.currentTarget.style.background=GL; }}
+            onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; }}
+          >View Homes &amp; Lots ↗</button>
         </div>
 
         {/* Hamburger */}
