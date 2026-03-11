@@ -540,8 +540,8 @@ export default function ApolloSite() {
                 boxShadow:"0 4px 40px rgba(0,0,0,0.12)",
                 padding:"8px", gap:6,
                 position:"relative", zIndex:10,
-                maxWidth:"calc(100% - 32px)",
-                marginBottom:32,
+                width:790, maxWidth:"calc(100% - 32px)",
+                marginBottom:0,
               }}>
                 {[
                   [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>, "Location"],
@@ -554,7 +554,7 @@ export default function ApolloSite() {
                     background:"white",
                     border:"1.5px solid #d8dde8",
                     borderRadius:10,
-                    cursor:"pointer", minWidth:148,
+                    cursor:"pointer", flex:1,
                   }}>
                     <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>{icon}</span>
                     <div style={{ display:"flex", flexDirection:"column", textAlign:"left", flex:1 }}>
@@ -572,7 +572,7 @@ export default function ApolloSite() {
               </div>
 
               {/* Hero image — inset with horizontal padding, sits above both bg bands */}
-              <div className="hero-image-wrap" style={{ margin:"0 auto", marginTop:-20, width:1680, maxWidth:"100%", padding:"0 16px", boxSizing:"border-box", position:"relative", zIndex:3 }}>
+              <div className="hero-image-wrap" style={{ margin:"0 auto", marginTop:-40, width:1680, maxWidth:"100%", padding:"0 16px", boxSizing:"border-box", position:"relative", zIndex:3 }}>
                 <div style={{ width:"100%", height:720, overflow:"hidden", borderRadius:16, boxShadow:"0 24px 80px rgba(8,12,28,0.38), 0 8px 24px rgba(8,12,28,0.22)", position:"relative" }}>
                   <img
                     src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
