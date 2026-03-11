@@ -750,7 +750,7 @@ export default function ApolloSite() {
               </svg>
             </div>
           </div>
-          <div className="section-pad" style={{ background:"white", padding:"56px var(--pad) 72px" }}>
+          <div className="section-pad" style={{ background:"white", padding:"76px var(--pad) 92px" }}>
             <div className="site-container">
               <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:64, alignItems:"start" }}>
                 <div>
