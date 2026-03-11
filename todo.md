@@ -149,3 +149,14 @@
 - [x] Photo-clip "Homes by Apollo" headers: background set to transparent (both instances), max-width 1650px, margin 0 auto
 - [x] Footer top band, middle nav band, and bottom bar each wrapped in max-width:1650px centered inner container
 - [x] Footer navy background and full-bleed watermark preserved; only content width constrained to 1650px
+
+## Session 37
+- [x] Add `properties` table to Drizzle schema (HOME/LOT, tag, price, beds, baths, sqft, imageUrl, featured flag, sortOrder)
+- [x] Run `pnpm db:push` — migration applied successfully (drizzle/0003_mean_black_queen.sql)
+- [x] Add CRUD helpers to server/db.ts: getFeaturedProperties, getAllProperties, getPropertyById, createProperty, updateProperty, deleteProperty
+- [x] Create server/routers/properties.ts with public getFeatured/getAll/getById and admin-only create/update/delete procedures
+- [x] Register propertiesRouter in appRouter
+- [x] Wire Featured Properties carousel to trpc.properties.getFeatured.useQuery() with graceful fallback to hardcoded data when DB is empty
+- [x] Null-safe property detail rows (Garage/Area hidden when not set)
+- [x] Section labels font size increased to 19px (+45%)
+- [x] Nav logo marginBottom:7px added

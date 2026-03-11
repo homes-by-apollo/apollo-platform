@@ -166,6 +166,55 @@ export const emailLog = mysqlTable("emailLog", {
 export type EmailLog = typeof emailLog.$inferSelect;
 export type InsertEmailLog = typeof emailLog.$inferInsert;
 
+// ─── Properties ─────────────────────────────────────────────────────────────
+
+/**
+ * Residential properties and lots listed by Apollo Home Builders.
+ * The `featured` flag controls which cards appear in the homepage carousel.
+ */
+export const properties = mysqlTable("properties", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Classification
+  propertyType: mysqlEnum("propertyType", ["HOME", "LOT"]).notNull().default("HOME"),
+  tag: mysqlEnum("tag", ["Available", "Coming Soon", "Sold", "Under Contract"]).notNull().default("Available"),
+
+  // Location
+  address: varchar("address", { length: 256 }).notNull(),
+  city: varchar("city", { length: 128 }).notNull().default("Pahrump"),
+  state: varchar("state", { length: 32 }).notNull().default("NV"),
+
+  // Pricing
+  price: varchar("price", { length: 64 }).notNull(),   // display string e.g. "$489,000"
+  priceValue: int("priceValue"),                        // numeric for sorting/filtering
+
+  // Home-specific
+  beds: int("beds"),
+  baths: int("baths"),
+  sqft: varchar("sqft", { length: 32 }),
+
+  // Lot-specific
+  lotSize: varchar("lotSize", { length: 64 }),
+  utilities: varchar("utilities", { length: 128 }),
+
+  // Media
+  imageUrl: text("imageUrl"),        // primary listing photo
+  imageUrls: text("imageUrls"),      // JSON array of gallery URLs
+
+  // Flags
+  featured: int("featured").notNull().default(0),  // 1 = show in homepage carousel
+  sortOrder: int("sortOrder").notNull().default(0),
+
+  // Description
+  description: text("description"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Property = typeof properties.$inferSelect;
+export type InsertProperty = typeof properties.$inferInsert;
+
 // ─── Newsletter Subscribers ───────────────────────────────────────────────────
 
 /**

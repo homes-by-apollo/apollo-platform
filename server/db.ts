@@ -7,9 +7,12 @@ import {
   InsertContact,
   InsertEmailLog,
   InsertUser,
+  Property,
+  InsertProperty,
   activityLog,
   contacts,
   emailLog,
+  properties,
   users,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -246,4 +249,58 @@ export async function getEmailsForContact(contactId: number) {
     .from(emailLog)
     .where(eq(emailLog.contactId, contactId))
     .orderBy(desc(emailLog.sentAt));
+}
+
+// ─── Properties ───────────────────────────────────────────────────────────────
+
+export async function getFeaturedProperties(): Promise<Property[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(properties)
+    .where(eq(properties.featured, 1))
+    .orderBy(properties.sortOrder, desc(properties.createdAt));
+}
+
+export async function getAllProperties(filters?: {
+  propertyType?: Property["propertyType"];
+  tag?: Property["tag"];
+}): Promise<Property[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions = [];
+  if (filters?.propertyType) conditions.push(eq(properties.propertyType, filters.propertyType));
+  if (filters?.tag) conditions.push(eq(properties.tag, filters.tag));
+  return db
+    .select()
+    .from(properties)
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(properties.sortOrder, desc(properties.createdAt));
+}
+
+export async function getPropertyById(id: number): Promise<Property | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(properties).where(eq(properties.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createProperty(data: InsertProperty): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(properties).values(data);
+  return Number((result[0] as { insertId: number }).insertId);
+}
+
+export async function updateProperty(id: number, data: Partial<InsertProperty>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(properties).set(data).where(eq(properties.id, id));
+}
+
+export async function deleteProperty(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(properties).where(eq(properties.id, id));
 }

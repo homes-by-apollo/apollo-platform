@@ -1,0 +1,23 @@
+CREATE TABLE `properties` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`propertyType` enum('HOME','LOT') NOT NULL DEFAULT 'HOME',
+	`tag` enum('Available','Coming Soon','Sold','Under Contract') NOT NULL DEFAULT 'Available',
+	`address` varchar(256) NOT NULL,
+	`city` varchar(128) NOT NULL DEFAULT 'Pahrump',
+	`state` varchar(32) NOT NULL DEFAULT 'NV',
+	`price` varchar(64) NOT NULL,
+	`priceValue` int,
+	`beds` int,
+	`baths` int,
+	`sqft` varchar(32),
+	`lotSize` varchar(64),
+	`utilities` varchar(128),
+	`imageUrl` text,
+	`imageUrls` text,
+	`featured` int NOT NULL DEFAULT 0,
+	`sortOrder` int NOT NULL DEFAULT 0,
+	`description` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `properties_id` PRIMARY KEY(`id`)
+);

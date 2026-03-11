@@ -260,6 +260,9 @@ export default function ApolloSite() {
   const [blogFilter, setBlogFilter] = useState("All");
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [featCarouselIdx, setFeatCarouselIdx] = useState(0);
+
+  // Live featured properties from database
+  const { data: dbFeaturedProps, isLoading: featPropsLoading } = trpc.properties.getFeatured.useQuery();
   const [selectedHome, setSelectedHome] = useState<typeof homes[0] | null>(null);
   const [selectedLot, setSelectedLot] = useState<typeof lots[0] | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
@@ -604,11 +607,26 @@ export default function ApolloSite() {
 
             {/* Property carousel — 1.5 cards visible, split text/photo layout */}
             {(() => {
-              const featProps = [
-                { tag:"For Sale",    title:"The Mesquite",  sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 14, Desert Bloom Estates, Pahrump NV 89048", price:"$389,000", beds:3, baths:2, garage:2, sqft:"1,850", img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80" },
-                { tag:"For Sale",    title:"The Sunrise",   sub:"4 Bed / 3 Bath / 2-Car Garage", address:"Lot 22, Pahrump Valley Ranch, Pahrump NV 89048", price:"$459,000", beds:4, baths:3, garage:2, sqft:"2,240", img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80" },
-                { tag:"Coming Soon", title:"The Ridgeline", sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 7, Silver Mesa, Pahrump NV 89060",             price:"$419,000", beds:3, baths:2, garage:2, sqft:"1,980", img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80" },
+              // Fallback hardcoded data shown until DB has entries
+              const fallbackProps = [
+                { tag:"For Sale",    title:"The Mesquite",  sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 14, Desert Bloom Estates, Pahrump NV 89048", price:"$389,000", beds:3, baths:2, garage:null as number|null, sqft:"1,850", img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80" },
+                { tag:"For Sale",    title:"The Sunrise",   sub:"4 Bed / 3 Bath / 2-Car Garage", address:"Lot 22, Pahrump Valley Ranch, Pahrump NV 89048", price:"$459,000", beds:4, baths:3, garage:null as number|null, sqft:"2,240", img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80" },
+                { tag:"Coming Soon", title:"The Ridgeline", sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 7, Silver Mesa, Pahrump NV 89060",             price:"$419,000", beds:3, baths:2, garage:null as number|null, sqft:"1,980", img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80" },
               ];
+              // Map DB rows to the same shape as fallback
+              const dbProps = (dbFeaturedProps ?? []).map(p => ({
+                tag: p.tag,
+                title: p.address,
+                sub: [p.beds ? `${p.beds} Bed` : null, p.baths ? `${p.baths} Bath` : null, p.lotSize ?? null].filter(Boolean).join(" / "),
+                address: `${p.address}, ${p.city} ${p.state}`,
+                price: p.price,
+                beds: p.beds ?? null,
+                baths: p.baths ?? null,
+                garage: null as number|null,
+                sqft: p.sqft ?? null,
+                img: p.imageUrl ?? "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
+              }));
+              const featProps = featPropsLoading ? fallbackProps : (dbProps.length > 0 ? dbProps : fallbackProps);
               const cardW = 960; // px width of each card
               const gap = 24;
               const canAdvance = featCarouselIdx < featProps.length - 1;
@@ -646,7 +664,7 @@ export default function ApolloSite() {
                               <div style={{ fontSize:34, fontWeight:900, color:TXT, letterSpacing:"-0.04em", margin:"0 0 24px" }}>{p.price}</div>
                             </div>
                             <div style={{ borderTop:`1px solid ${BOR}`, paddingTop:20, display:"flex", flexDirection:"column", gap:12 }}>
-                              {[["Bedrooms",p.beds],["Bathrooms",p.baths],["Garage",p.garage],["Area",`${p.sqft} sqft`]].map(([label,val])=>(
+                              {([["Bedrooms",p.beds],["Bathrooms",p.baths],["Garage",p.garage],["Area",p.sqft ? `${p.sqft} sqft` : null]] as [string, string|number|null|undefined][]).filter(([,val])=>val!=null).map(([label,val])=>(
                                 <div key={label as string} style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                                   <span style={{ fontSize:14, color:MUT }}>{label}</span>
                                   <span style={{ fontSize:14, fontWeight:700, color:TXT }}>{val}</span>
