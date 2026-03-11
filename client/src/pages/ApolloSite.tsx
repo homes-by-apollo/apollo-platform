@@ -233,10 +233,9 @@ export default function ApolloSite() {
           .desktop-nav-ctas   { display: none !important; }
           .hamburger-btn      { display: flex !important; }
 
-          .hero-headline      { font-size: clamp(32px,9.5vw,56px) !important; white-space: normal !important; max-width: 90vw !important; margin-left: auto !important; margin-right: auto !important; }
+          .hero-headline      { font-size: clamp(22px,7.5vw,56px) !important; }
           .hero-subtitle      { font-size: 15px !important; }
           .hero-image-wrap    { margin: 0 16px !important; height: 280px !important; border-radius: 16px 16px 0 0 !important; }
-          .hero-subtitle      { font-size: 16px !important; max-width: 90vw !important; }
 
           .search-bar         { flex-direction: column !important; border-radius: 16px !important; padding: 12px !important; gap: 8px !important; width: calc(100% - 32px) !important; box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important; }
           .search-bar-item    { border-right: none !important; border-bottom: none !important; border: 1px solid #dde3ef !important; border-radius: 10px !important; padding: 14px 18px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; }
@@ -359,12 +358,13 @@ export default function ApolloSite() {
           <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", position:"relative" }}>
             <h1 className="hero-headline" style={{
               fontSize: "clamp(28px,4.8vw,76px)",
-              fontWeight: 800, color: TXT, lineHeight: 1.08,
+              fontWeight: 800, color: TXT, lineHeight: 1.1,
               letterSpacing: "-0.04em",
               margin: "0 auto 20px", padding: "0 24px",
-              whiteSpace: "nowrap",
+              whiteSpace: "normal",
             }}>
-              Find Your Dream Home<br/>in Pahrump
+              <span style={{ display:"block", whiteSpace:"nowrap" }}>Find Your Dream Home</span>
+              <span style={{ display:"block", whiteSpace:"nowrap" }}>in Pahrump</span>
             </h1>
             <p className="hero-subtitle" style={{ fontSize:18, color:MUT, maxWidth:500, margin:"0 auto 40px", lineHeight:1.65, fontWeight:400, padding:"0 24px" }}>
               Explore our listings to find the perfect place to call home.
