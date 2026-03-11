@@ -572,7 +572,7 @@ export default function ApolloSite() {
               </div>
 
               {/* Hero image — inset with horizontal padding, sits above both bg bands */}
-              <div className="hero-image-wrap" style={{ margin:"0 auto", width:1680, maxWidth:"100%", padding:"0 16px", boxSizing:"border-box", position:"relative", zIndex:3 }}>
+              <div className="hero-image-wrap" style={{ margin:"0 auto", marginTop:-20, width:1680, maxWidth:"100%", padding:"0 16px", boxSizing:"border-box", position:"relative", zIndex:3 }}>
                 <div style={{ width:"100%", height:720, overflow:"hidden", borderRadius:16, boxShadow:"0 24px 80px rgba(8,12,28,0.38), 0 8px 24px rgba(8,12,28,0.22)", position:"relative" }}>
                   <img
                     src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
