@@ -306,7 +306,7 @@ export default function ApolloSite() {
 
         {/* Desktop center nav */}
         <div className="desktop-nav-center" style={{ display:"flex", gap:28, alignItems:"center" }}>
-          {[["home","Home"],["blog","Blog"]].map(([p,l])=>(
+          {([] as [string,string][]).map(([p,l])=>(
             <button key={p} onClick={()=>nav(p)} style={{
               background:"none", border:"none", cursor:"pointer",
               fontSize:14, fontWeight:500,
@@ -339,7 +339,7 @@ export default function ApolloSite() {
           background:"white", borderBottom:`1px solid ${BOR}`,
           boxShadow:"0 8px 32px rgba(0,0,0,0.12)", padding:"16px 20px 20px",
         }}>
-          {[["home","Home"],["blog","Blog"],["contact","Contact"]].map(([p,l])=>(
+          {([["contact","Contact"]] as [string,string][]).map(([p,l])=>(
             <button key={p} onClick={()=>nav(p)} style={{
               display:"block", width:"100%", textAlign:"left",
               background:"none", border:"none", cursor:"pointer",
