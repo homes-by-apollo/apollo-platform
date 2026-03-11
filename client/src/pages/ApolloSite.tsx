@@ -388,10 +388,10 @@ export default function ApolloSite() {
       }}>
         {/* Logo — owl icon + wordmark */}
         <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:40, width:40, objectFit:"contain", display:"block" }} />
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:52, width:52, objectFit:"contain", display:"block" }} />
           <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:1 }}>
-            <span style={{ fontSize:15, fontWeight:700, letterSpacing:"0.32em", color:TXT, textTransform:"uppercase", opacity:1 }}>HOMES BY</span>
-            <span style={{ fontSize:26, fontWeight:900, letterSpacing:"0.07em", color:TXT, lineHeight:1 }}>APOLLO</span>
+            <span style={{ fontSize:17, fontWeight:700, letterSpacing:"0.32em", color:TXT, textTransform:"uppercase", opacity:1 }}>HOMES BY</span>
+            <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.07em", color:TXT, lineHeight:1 }}>APOLLO</span>
           </div>
         </div>
 
@@ -518,22 +518,14 @@ export default function ApolloSite() {
             </div>
 
             {/* Hero image */}
-            <div className="hero-image-wrap" style={{ margin:"0 var(--pad)", position:"relative", marginTop:-28, height:500, overflow:"hidden", borderRadius:"24px 24px 0 0" }}>
+            <div className="hero-image-wrap" style={{ margin:"0 auto", width:"100%", maxWidth:1650, position:"relative", marginTop:-28, height:720, overflow:"hidden", borderRadius:"24px 24px 0 0" }}>
               <img
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
                 alt="Pahrump custom home"
                 style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 40%" }}
               />
               <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(8,12,28,0.55) 0%, transparent 50%)" }} />
-              {/* Stat pills */}
-              <div className="stat-pills" style={{ position:"absolute", bottom:24, left:"50%", transform:"translateX(-50%)", display:"flex", gap:12, whiteSpace:"nowrap" }}>
-                {[["50+","Homes Built"],["$389K","Starting Price"],["6–9 mo","Build Time"],["100%","All-Inclusive"]].map(([v,l])=>(
-                  <div key={l} className="stat-pill" style={{ background:"rgba(255,255,255,0.93)", backdropFilter:"blur(10px)", borderRadius:12, padding:"12px 18px", textAlign:"center", minWidth:100 }}>
-                    <div className="stat-pill-val" style={{ fontSize:18, fontWeight:800, color:G, letterSpacing:"-0.02em" }}>{v}</div>
-                    <div style={{ fontSize:10, color:MUT, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.06em", marginTop:2 }}>{l}</div>
-                  </div>
-                ))}
-              </div>
+
             </div>
           </div>
 
@@ -565,7 +557,7 @@ export default function ApolloSite() {
                 { tag:"For Sale",    title:"The Sunrise",   sub:"4 Bed / 3 Bath / 2-Car Garage", address:"Lot 22, Pahrump Valley Ranch, Pahrump NV 89048", price:"$459,000", beds:4, baths:3, garage:2, sqft:"2,240", img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80" },
                 { tag:"Coming Soon", title:"The Ridgeline", sub:"3 Bed / 2 Bath / 2-Car Garage", address:"Lot 7, Silver Mesa, Pahrump NV 89060",             price:"$419,000", beds:3, baths:2, garage:2, sqft:"1,980", img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80" },
               ];
-              const cardW = 680; // px width of each card
+              const cardW = 960; // px width of each card
               const gap = 24;
               const canAdvance = featCarouselIdx < featProps.length - 1;
               const canBack = featCarouselIdx > 0;
@@ -591,7 +583,7 @@ export default function ApolloSite() {
                           background:"white", borderRadius:18, overflow:"hidden",
                           display:"flex", flexDirection:"row",
                           boxShadow:"0 12px 48px rgba(0,0,0,0.22)",
-                          minHeight:400,
+                          minHeight:530,
                         }}>
                           {/* Text panel */}
                           <div style={{ flex:"0 0 52%", padding:"36px 32px 36px", display:"flex", flexDirection:"column", justifyContent:"space-between" }}>
@@ -673,7 +665,7 @@ export default function ApolloSite() {
 
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div style={{ background:"white", paddingTop:30, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
+          <div style={{ background:"white", paddingTop:30, paddingBottom:0, textAlign:"center", overflow:"hidden", maxWidth:1650, margin:"0 auto" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
           <div className="section-pad" style={{ background:"white", padding:"56px var(--pad) 72px" }}>
@@ -738,8 +730,8 @@ export default function ApolloSite() {
                   { n:"02", title:"Schedule a Consultation", desc:"Sit down with Brandon and the Apollo team. We'll walk through your vision, timeline, and all-inclusive pricing.", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/consultation-step_ca878c80.jpg" },
                   { n:"03", title:"Sign & Start Building", desc:"One contract, one price. We break ground and keep you updated every step — from foundation to keys.", img:"https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80" },
                 ].map(step=>(
-                  <div key={step.n} style={{ background:"white", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 20px rgba(0,0,0,0.06)" }}>
-                    <div style={{ height:180, overflow:"hidden", position:"relative" }}>
+                  <div key={step.n} style={{ background:"white", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 20px rgba(0,0,0,0.06)", width:515 }}>
+                    <div style={{ height:480, overflow:"hidden", position:"relative" }}>
                       <img src={step.img} alt={step.title} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
                       <div style={{ position:"absolute", top:0, left:0, right:0, bottom:0, background:"linear-gradient(to top, rgba(8,12,28,0.45) 0%, transparent 60%)" }} />
                     <div style={{ position:"absolute", bottom:14, left:16, fontSize:52, fontWeight:900, color:"rgba(255,255,255,0.95)", letterSpacing:"-0.04em", lineHeight:1, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>{step.n}</div>
@@ -821,6 +813,10 @@ export default function ApolloSite() {
           {/* BLOG PREVIEW */}
           <div style={{ padding:"72px var(--pad) 0" }}>
             <div className="site-container">
+            {/* "Homes by Apollo" photo-clip header — Blog section */}
+            <div style={{ background:"white", paddingTop:0, paddingBottom:16, textAlign:"center", overflow:"hidden", maxWidth:1650, margin:"0 auto" }}>
+              <span className="photo-clip-text">Homes by Apollo</span>
+            </div>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Insights</SectionLabel>

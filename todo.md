@@ -127,3 +127,12 @@
 
 ## Session 19
 - [x] Widen site to 1680px container, remove narrow/boxed layouts, standardize horizontal padding across all sections
+
+## Session 20
+- [x] Resize How It Works cards to 515×480 (width 515px, image height 480px)
+- [x] Resize main hero image to 1650×720 (maxWidth 1650px, height 720px)
+- [x] Remove stat pills (50+ Homes Built, $389K Starting Price, 6–9 mo Build Time, 100% All-Inclusive)
+- [x] Resize nav logo + wordmark to ~325×52 (icon 52px, HOMES BY 17px, APOLLO 30px)
+- [x] Resize Featured Property carousel cards to 960×530 (cardW 960px, minHeight 530px)
+- [x] Constrain "Homes by Apollo" photo-clip header (above About section) to 1650px width
+- [x] Add "Homes by Apollo" photo-clip header inside Blog/Insights section at 1650px width
