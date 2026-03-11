@@ -284,6 +284,15 @@ export default function ApolloSite() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
+        :root {
+          --pad: clamp(24px, 4.5vw, 80px);
+          --container: 1680px;
+        }
+        .site-container {
+          max-width: var(--container);
+          margin: 0 auto;
+          width: 100%;
+        }
         ::selection{background:${G};color:white}
         input,textarea,select,button{font-family:inherit}
 
@@ -366,13 +375,16 @@ export default function ApolloSite() {
       <nav style={{
         background: scrolled ? "rgba(255,255,255,0.97)" : "white",
         borderBottom: `1px solid ${BOR}`,
-        padding: "0 24px",
+        padding: "0 var(--pad)" as React.CSSProperties["padding"],
         height: 64,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         flexShrink: 0, zIndex: 200,
         boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none",
         transition: "all 0.2s",
         position: "relative",
+        maxWidth: "var(--container)" as React.CSSProperties["maxWidth"],
+        marginLeft: "auto", marginRight: "auto",
+        width: "100%",
       }}>
         {/* Logo — owl icon + wordmark */}
         <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
@@ -458,13 +470,13 @@ export default function ApolloSite() {
               fontSize: "clamp(36px,5.8vw,92px)",
               fontWeight: 800, color: TXT, lineHeight: 1.05,
               letterSpacing: "-0.04em",
-              margin: "0 auto 24px", padding: "0 24px",
+              margin: "0 auto 24px", padding: "0 var(--pad)",
               whiteSpace: "normal",
             }}>
               <span style={{ display:"block", whiteSpace:"nowrap" }}>Find Your Dream Home</span>
               <span style={{ display:"block", whiteSpace:"nowrap" }}>in Pahrump</span>
             </h1>
-            <p className="hero-subtitle" style={{ fontSize:18, color:MUT, margin:"0 auto 40px", lineHeight:1.65, fontWeight:400, padding:"0 24px", whiteSpace:"nowrap" }}>
+            <p className="hero-subtitle" style={{ fontSize:18, color:MUT, margin:"0 auto 40px", lineHeight:1.65, fontWeight:400, padding:"0 var(--pad)", whiteSpace:"nowrap" }}>
               Explore our listings to find the perfect place to call home.
             </p>
 
@@ -506,7 +518,7 @@ export default function ApolloSite() {
             </div>
 
             {/* Hero image */}
-            <div className="hero-image-wrap" style={{ margin:"0 24px", position:"relative", marginTop:-28, height:500, overflow:"hidden", borderRadius:"24px 24px 0 0" }}>
+            <div className="hero-image-wrap" style={{ margin:"0 var(--pad)", position:"relative", marginTop:-28, height:500, overflow:"hidden", borderRadius:"24px 24px 0 0" }}>
               <img
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
                 alt="Pahrump custom home"
@@ -526,7 +538,8 @@ export default function ApolloSite() {
           </div>
 
           {/* ══ FEATURED PROPERTIES ═══════════════════════════════════════════ */}
-          <div style={{ background:"#0f2044", padding:"72px 5vw 80px" }}>
+          <div style={{ background:"#0f2044", padding:"72px var(--pad) 80px" }}>
+            <div className="site-container">
             {/* Header row */}
             <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginBottom:40, flexWrap:"wrap", gap:16 }}>
               <div>
@@ -655,6 +668,7 @@ export default function ApolloSite() {
                 </div>
               );
             })()}
+            </div>
           </div>
 
 
@@ -662,8 +676,8 @@ export default function ApolloSite() {
           <div style={{ background:"white", paddingTop:30, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
-          <div className="section-pad" style={{ background:"white", padding:"56px 5vw 72px" }}>
-            <div>
+          <div className="section-pad" style={{ background:"white", padding:"56px var(--pad) 72px" }}>
+            <div className="site-container">
               <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:64, alignItems:"start" }}>
                 <div>
                   <SectionLabel>About us</SectionLabel>
@@ -689,7 +703,8 @@ export default function ApolloSite() {
           </div>
 
           {/* FEATURED HOMES */}
-          <div style={{ padding:"64px 5vw 0" }}>
+          <div style={{ padding:"64px var(--pad) 0" }}>
+            <div className="site-container">
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Featured Properties</SectionLabel>
@@ -704,11 +719,12 @@ export default function ApolloSite() {
                 </div>
               ))}
             </div>
+            </div>
           </div>
 
           {/* HOW IT WORKS */}
-          <div style={{ background:GL, padding:"72px 5vw", marginTop:64 }}>
-            <div>
+          <div style={{ background:GL, padding:"72px var(--pad)", marginTop:64 }}>
+            <div className="site-container">
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:48 }}>
                 <div>
                   <SectionLabel>Our approach</SectionLabel>
@@ -739,7 +755,8 @@ export default function ApolloSite() {
           </div>
 
           {/* AVAILABLE LOTS */}
-          <div style={{ padding:"72px 5vw 64px" }}>
+          <div style={{ padding:"72px var(--pad) 64px" }}>
+            <div className="site-container">
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Land</SectionLabel>
@@ -754,10 +771,12 @@ export default function ApolloSite() {
                 </div>
               ))}
             </div>
+            </div>
           </div>
 
           {/* TESTIMONIALS */}
-          <div style={{ background:GL, padding:"72px 5vw" }}>
+          <div style={{ background:GL, padding:"72px var(--pad)" }}>
+            <div className="site-container">
             <div>
               <div style={{ textAlign:"center", marginBottom:40 }}>
                 <SectionLabel>Client Stories</SectionLabel>
@@ -796,10 +815,12 @@ export default function ApolloSite() {
                 </div>
               </div>
             </div>
+            </div>
           </div>
 
           {/* BLOG PREVIEW */}
-          <div style={{ padding:"72px 5vw 0" }}>
+          <div style={{ padding:"72px var(--pad) 0" }}>
+            <div className="site-container">
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Insights</SectionLabel>
@@ -819,10 +840,12 @@ export default function ApolloSite() {
                 </div>
               ))}
             </div>
+            </div>
           </div>
 
           {/* FAQ */}
-          <div style={{ padding:"80px 5vw 80px" }}>
+          <div style={{ padding:"80px var(--pad) 80px" }}>
+            <div className="site-container">
             <SectionLabel>FAQ</SectionLabel>
             <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:24, marginBottom:40, flexWrap:"wrap" }}>
               <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, margin:0, maxWidth:520 }}>Feel free to ask any questions</h2>
@@ -831,13 +854,14 @@ export default function ApolloSite() {
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
             </div>
+            </div>
           </div>
 
           {/* FOOTER — dark green luxury */}
           <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit" }}>
 
             {/* ── Top band: Brand + Contact info (reference layout) ──────────── */}
-            <div style={{ padding:"52px 5vw 48px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ padding:"52px var(--pad) 48px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:64, alignItems:"flex-start" }}>
 
                 {/* LEFT: Logo + tagline + email form */}
@@ -900,7 +924,7 @@ export default function ApolloSite() {
             </div>
 
             {/* ── Middle band: Nav columns ─────────────────────────────── */}
-            <div style={{ padding:"52px 5vw 40px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ padding:"52px var(--pad) 40px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
               <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:32 }}>
                 {([
                   ["Company",  [["Home","home"],["About Us","about"],["Contact","contact"]]],
@@ -923,7 +947,7 @@ export default function ApolloSite() {
             </div>
 
             {/* ── Bottom bar ───────────────────────────────────────────── */}
-            <div style={{ padding:"22px 5vw", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+            <div style={{ padding:"22px var(--pad)", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
               <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
               <div style={{ display:"flex", gap:20 }}>
                 {["Privacy Policy","Terms"].map(i=>(
@@ -941,8 +965,9 @@ export default function ApolloSite() {
           </footer>
         </>}
 
-        {/* ══ HOMES FOR SALE ══════════════════════════════════════════════════         {page==="homes" && (
-          <div className="section-pad" style={{ padding:"40px 5vw" }}>gin:"0 auto", padding:"40px 24px" }}>
+        {/* ══ HOMES FOR SALE ══════════════════════════════════════════════════ */}
+        {page==="homes" && (
+          <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>All Properties</SectionLabel>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
               <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h1>
@@ -969,7 +994,7 @@ export default function ApolloSite() {
 
         {/* ══ AVAILABLE LOTS ══════════════════════════════════════════════════ */}
         {page==="lots" && (
-          <div className="section-pad" style={{ padding:"40px 5vw" }}>
+          <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>Land</SectionLabel>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
               <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Available Lots</h1>
@@ -1027,7 +1052,7 @@ export default function ApolloSite() {
             </div>
 
             {/* Two-column: overview + sticky contact panel */}
-            <div style={{ padding:"48px 5vw 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
+            <div style={{ padding:"48px var(--pad) 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
               {/* Left: overview + details + gallery + features */}
               <div>
                 {/* Overview */}
@@ -1172,7 +1197,7 @@ export default function ApolloSite() {
             </div>
 
             {/* Two-column: overview + sticky contact panel */}
-            <div style={{ padding:"48px 5vw 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
+            <div style={{ padding:"48px var(--pad) 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
               {/* Left */}
               <div>
                 {/* Overview */}
@@ -1255,7 +1280,7 @@ export default function ApolloSite() {
 
         {/* ══ FAQ PAGE ═══════════════════════════════════════════════════════ */}
         {page==="faq" && (
-          <div className="section-pad" style={{ padding:"60px 5vw 80px" }}>
+          <div className="section-pad" style={{ padding:"60px var(--pad) 80px" }}>
             <div style={{ marginBottom:8 }}>
               <button onClick={()=>nav("home")} style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, fontWeight:700, color:MUT, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6, padding:0, marginBottom:28 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -1288,7 +1313,7 @@ export default function ApolloSite() {
 
         {/* ══ BLOG ════════════════════════════════════════════════════════════ */}
         {page==="blog" && (
-          <div className="section-pad" style={{ padding:"40px 5vw" }}>
+          <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>Insights</SectionLabel>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
               <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>From the Blog</h1>
@@ -1314,7 +1339,7 @@ export default function ApolloSite() {
 
         {/* ══ CONTACT ═════════════════════════════════════════════════════════ */}
         {page==="contact" && (
-          <div className="section-pad" style={{ padding:"40px 5vw" }}>
+          <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>Get in Touch</SectionLabel>
             <div className="contact-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:36 }}>
               <div>

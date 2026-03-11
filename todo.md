@@ -100,7 +100,7 @@
 - [x] Restyle Dashboard nav link as "Admin" button with orange border + white background, left of "Schedule a Consultation"
 
 ## Session 13
-- [ ] Footer wordmark: increase "HOMES BY" size, make it white, match visual width of "APOLLO"
+- [x] Footer wordmark: increase "HOMES BY" size, make it white, match visual width of "APOLLO"
 
 ## Session 14
 - [x] Add Admin link to mobile hamburger dropdown (visible to logged-in admins only)
@@ -109,10 +109,10 @@
 - [x] Add getSourceCounts DB helper and dashboardStats procedure update
 
 ## Session 15
-- [ ] Add time-period toggle (7d / 30d / all-time) to Lead Source chart in CRM
-- [ ] Update getSourceCounts DB helper to accept optional period filter
-- [ ] Add persistent Admin link to mobile site footer
-- [ ] Request Plausible API key secret
+- [x] Add time-period toggle (7d / 30d / all-time) to Lead Source chart in CRM
+- [x] Update getSourceCounts DB helper to accept optional period filter
+- [x] Add persistent Admin link to mobile site footer
+- [x] Request Plausible API key secret
 
 ## Session 16
 - [x] Change "Notify Me" button label to "Subscribe" and make it Carolina Blue (#4B9CD3)
@@ -124,3 +124,6 @@
 
 ## Session 18
 - [x] Convert Featured Properties to horizontal carousel: 1.5 cards visible, split text/photo layout, circular arrow advance button
+
+## Session 19
+- [x] Widen site to 1680px container, remove narrow/boxed layouts, standardize horizontal padding across all sections

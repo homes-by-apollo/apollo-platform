@@ -244,7 +244,7 @@ describe("leads.dashboardStats (protected)", () => {
     vi.mocked(db.getSourceCounts).mockResolvedValue([{ source: "WEBSITE", count: 5 }]);
 
     const caller = appRouter.createCaller(createAuthContext());
-    const result = await caller.leads.dashboardStats();
+    const result = await caller.leads.dashboardStats({ sourcePeriod: "all" });
 
     expect(result.stageCounts).toEqual([{ stage: "NEW_LEAD", count: 3 }]);
     expect(result.newLeadsThisWeek).toBe(2);
