@@ -511,8 +511,8 @@ export default function ApolloSite() {
           <div className="hero-section" style={{ paddingTop:188, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
             {/* White top band — covers headline + search bar area */}
             <div style={{ position:"absolute", inset:0, bottom:"50%", background:"white", zIndex:0 }} />
-            {/* Navy bottom band — covers bottom half of image area */}
-            <div style={{ position:"absolute", inset:0, top:"50%", background:"#0f2044", zIndex:0 }} />
+            {/* Navy bottom band — covers bottom 32.5% of hero section (50% × 0.65) */}
+            <div style={{ position:"absolute", inset:0, top:"67.5%", background:"#0f2044", zIndex:0 }} />
 
             {/* Content sits above both bands */}
             <div style={{ position:"relative", zIndex:2 }}>
