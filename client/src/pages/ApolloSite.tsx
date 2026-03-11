@@ -403,14 +403,12 @@ export default function ApolloSite() {
       `}</style>
 
       {/* ── NAV ─────────────────────────────────────────────────────────────── */}
+      <div style={{ background:"#ffffff", borderBottom:`1px solid ${BOR}`, boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none", transition:"box-shadow 0.2s", flexShrink:0, zIndex:200, position:"relative" }}>
       <nav style={{
-        background: "#ffffff",
-        borderBottom: `1px solid ${BOR}`,
+        background: "transparent",
         padding: "30px var(--pad) 0" as React.CSSProperties["padding"],
         height: 94,
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        flexShrink: 0, zIndex: 200,
-        boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none",
         transition: "all 0.2s",
         position: "relative",
         maxWidth: "var(--container)" as React.CSSProperties["maxWidth"],
@@ -470,6 +468,7 @@ export default function ApolloSite() {
           <span style={{ display:"block", width:20, height:2, background:"white", borderRadius:2, transition:"all 0.2s", transform:menuOpen?"rotate(-45deg) translate(4px,-4px)":"none" }}/>
         </button>
       </nav>
+      </div>
 
       {/* Mobile menu dropdown */}
       {menuOpen && (
