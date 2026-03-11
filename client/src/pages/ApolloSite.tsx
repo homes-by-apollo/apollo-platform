@@ -404,10 +404,10 @@ export default function ApolloSite() {
 
       {/* ── NAV ─────────────────────────────────────────────────────────────── */}
       <nav style={{
-        background: "white",
+        background: "#ffffff",
         borderBottom: `1px solid ${BOR}`,
-        padding: "0 var(--pad)" as React.CSSProperties["padding"],
-        height: 64,
+        padding: "30px var(--pad) 0" as React.CSSProperties["padding"],
+        height: 94,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         flexShrink: 0, zIndex: 200,
         boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none",
