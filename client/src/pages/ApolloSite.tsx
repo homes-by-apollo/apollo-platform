@@ -67,8 +67,8 @@ const Btn = ({ children, white, outline, small, full, onClick }: BtnProps) => {
   const base: React.CSSProperties = {
     display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5,
     borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s",
-    border:"none", fontSize:small?12:13,
-    padding:small?"9px 18px":"12px 22px", fontFamily:"inherit",
+    border:"none", fontSize:small?14:15,
+    padding:small?"11px 22px":"14px 26px", fontFamily:"inherit",
     width: full ? "100%" : undefined,
   };
   let style: React.CSSProperties;
@@ -152,10 +152,10 @@ function FAQ({ q, a }: { q: string; a: string }) {
   return (
     <div onClick={()=>setOpen(!open)} style={{ background:open?"white":BG, borderRadius:10, padding:"16px 20px", cursor:"pointer", border:`1px solid ${open?BOR:"transparent"}`, transition:"all 0.2s", boxShadow:open?"0 2px 16px rgba(0,0,0,0.05)":"none" }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:16 }}>
-        <span style={{ fontSize:14, fontWeight:600, color:TXT, lineHeight:1.4 }}>{q}</span>
+        <span style={{ fontSize:17, fontWeight:700, color:TXT, lineHeight:1.4 }}>{q}</span>
         <span style={{ fontSize:18, color:G, fontWeight:300, flexShrink:0, transform:open?"rotate(45deg)":"rotate(0)", transition:"transform 0.2s", lineHeight:1 }}>+</span>
       </div>
-      {open && <p style={{ marginTop:12, fontSize:13, color:MUT, lineHeight:1.75 }}>{a}</p>}
+      {open && <p style={{ marginTop:12, fontSize:15, color:MUT, lineHeight:1.75 }}>{a}</p>}
     </div>
   );
 }
@@ -468,7 +468,7 @@ export default function ApolloSite() {
                 <SectionLabel>Featured Properties</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Homes for Sale</h2>
               </div>
-              <button onClick={()=>nav("homes")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button onClick={()=>nav("homes")} style={{ fontSize:15, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {homes.map(h=>(
@@ -518,7 +518,7 @@ export default function ApolloSite() {
                 <SectionLabel>Land</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Available Lots</h2>
               </div>
-              <button onClick={()=>nav("lots")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button onClick={()=>nav("lots")} style={{ fontSize:15, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {lots.map(l=>(
@@ -578,7 +578,7 @@ export default function ApolloSite() {
                 <SectionLabel>Insights</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>From the Blog</h2>
               </div>
-              <button onClick={()=>nav("blog")} style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button onClick={()=>nav("blog")} style={{ fontSize:15, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {blogs.map(b=>(

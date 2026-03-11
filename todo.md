@@ -50,3 +50,7 @@
 
 ## Typography Fixes (Session 5)
 - [x] Increase desktop font size of all section labels (e.g. "How it works", "Available Lots", "Our approach")
+
+## Typography Fixes (Session 5 cont.)
+- [x] Increase section button sizes and fonts ("View All", "Our Properties", etc.)
+- [x] Increase FAQ question font sizes in Common Questions section
