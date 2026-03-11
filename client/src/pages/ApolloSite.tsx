@@ -435,8 +435,8 @@ export default function ApolloSite() {
           <div style={{ background:"white", paddingTop:30, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
-          <div className="section-pad" style={{ background:"white", padding:"56px 32px 72px" }}>
-            <div style={{ maxWidth:1060, margin:"0 auto" }}>
+          <div className="section-pad" style={{ background:"white", padding:"56px 5vw 72px" }}>
+            <div>
               <div className="why-apollo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:64, alignItems:"start" }}>
                 <div>
                   <SectionLabel>About us</SectionLabel>
@@ -462,7 +462,7 @@ export default function ApolloSite() {
           </div>
 
           {/* FEATURED HOMES */}
-          <div style={{ padding:"64px 32px 0", maxWidth:1060, margin:"0 auto" }}>
+          <div style={{ padding:"64px 5vw 0" }}>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Featured Properties</SectionLabel>
@@ -480,8 +480,8 @@ export default function ApolloSite() {
           </div>
 
           {/* HOW IT WORKS */}
-          <div style={{ background:GL, padding:"72px 32px", marginTop:64 }}>
-            <div style={{ maxWidth:1060, margin:"0 auto" }}>
+          <div style={{ background:GL, padding:"72px 5vw", marginTop:64 }}>
+            <div>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:48 }}>
                 <div>
                   <SectionLabel>Our approach</SectionLabel>
@@ -512,7 +512,7 @@ export default function ApolloSite() {
           </div>
 
           {/* AVAILABLE LOTS */}
-          <div style={{ padding:"72px 32px 64px", maxWidth:1060, margin:"0 auto" }}>
+          <div style={{ padding:"72px 5vw 64px" }}>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Land</SectionLabel>
@@ -530,8 +530,8 @@ export default function ApolloSite() {
           </div>
 
           {/* TESTIMONIALS */}
-          <div style={{ background:GL, padding:"72px 32px" }}>
-            <div style={{ maxWidth:800, margin:"0 auto" }}>
+          <div style={{ background:GL, padding:"72px 5vw" }}>
+            <div style={{ maxWidth:860, margin:"0 auto" }}>
               <div style={{ textAlign:"center", marginBottom:40 }}>
                 <SectionLabel>Client Stories</SectionLabel>
                 <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>What our clients say</h2>
@@ -572,7 +572,7 @@ export default function ApolloSite() {
           </div>
 
           {/* BLOG PREVIEW */}
-          <div style={{ padding:"72px 32px 0", maxWidth:1060, margin:"0 auto" }}>
+          <div style={{ padding:"72px 5vw 0" }}>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
                 <SectionLabel>Insights</SectionLabel>
@@ -595,11 +595,13 @@ export default function ApolloSite() {
           </div>
 
           {/* FAQ */}
-          <div style={{ padding:"72px 32px 0", maxWidth:720, margin:"0 auto" }}>
+          <div style={{ padding:"72px 5vw 0" }}>
+            <div style={{ maxWidth:760, margin:"0 auto" }}>
             <SectionLabel>FAQ</SectionLabel>
             <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em", marginBottom:24 }}>Common Questions</h2>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
+            </div>
             </div>
           </div>
 
@@ -609,8 +611,8 @@ export default function ApolloSite() {
           <footer style={{ background:"#080c18", overflow:"hidden", position:"relative" }}>
 
             {/* Email capture strip */}
-            <div style={{ borderBottom:"1px solid rgba(255,255,255,0.07)", padding:"52px 32px" }}>
-              <div style={{ maxWidth:1060, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:24 }}>
+            <div style={{ borderBottom:"1px solid rgba(255,255,255,0.07)", padding:"52px 5vw" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:24 }}>
                 <div>
                   <div style={{ fontSize:13, fontWeight:700, color:"rgba(255,255,255,0.35)", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:8 }}>Stay Updated</div>
                   <h3 style={{ fontSize:28, fontWeight:800, color:"white", letterSpacing:"-0.02em", lineHeight:1.2, marginBottom:6 }}>New lots and homes, first.</h3>
@@ -634,8 +636,8 @@ export default function ApolloSite() {
             </div>
 
             {/* Footer links */}
-            <div style={{ padding:"48px 32px 28px", position:"relative", zIndex:1 }}>
-              <div style={{ maxWidth:1060, margin:"0 auto" }}>
+            <div style={{ padding:"48px 5vw 28px", position:"relative", zIndex:1 }}>
+              <div>
                 <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:36 }}>
                   <img src={LOGO} alt="Homes by Apollo" style={{ height:38, width:"auto" }} />
                   <span style={{ fontWeight:800, fontSize:13, color:"white" }}>HOMES BY APOLLO</span>
@@ -688,9 +690,8 @@ export default function ApolloSite() {
           </footer>
         </>}
 
-        {/* ══ HOMES FOR SALE ══════════════════════════════════════════════════ */}
-        {page==="homes" && (
-          <div className="section-pad" style={{ maxWidth:1060, margin:"0 auto", padding:"40px 24px" }}>
+        {/* ══ HOMES FOR SALE ══════════════════════════════════════════════════         {page==="homes" && (
+          <div className="section-pad" style={{ padding:"40px 5vw" }}>gin:"0 auto", padding:"40px 24px" }}>
             <SectionLabel>All Properties</SectionLabel>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
               <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h1>
@@ -717,7 +718,7 @@ export default function ApolloSite() {
 
         {/* ══ AVAILABLE LOTS ══════════════════════════════════════════════════ */}
         {page==="lots" && (
-          <div className="section-pad" style={{ maxWidth:1060, margin:"0 auto", padding:"40px 24px" }}>
+          <div className="section-pad" style={{ padding:"40px 5vw" }}>
             <SectionLabel>Land</SectionLabel>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
               <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Available Lots</h1>
@@ -739,7 +740,7 @@ export default function ApolloSite() {
         {page==="home-detail" && selectedHome && (
           <div style={{ background:"white", minHeight:"100%" }}>
             {/* Back button */}
-            <div style={{ maxWidth:1160, margin:"0 auto", padding:"28px 32px 0" }}>
+            <div style={{ padding:"28px 5vw 0" }}>
               <button onClick={()=>nav("homes")}
                 style={{ display:"inline-flex", alignItems:"center", gap:8, background:"none", border:`1px solid ${BOR}`, borderRadius:8, padding:"8px 16px", fontSize:12, fontWeight:700, color:MUT, cursor:"pointer", fontFamily:"inherit", transition:"all 0.15s" }}
                 onMouseEnter={e=>{e.currentTarget.style.borderColor=G; e.currentTarget.style.color=G;}}
@@ -749,7 +750,7 @@ export default function ApolloSite() {
             </div>
 
             {/* Opulent O-style: big address headline + price top-right */}
-            <div style={{ maxWidth:1160, margin:"0 auto", padding:"32px 32px 0" }}>
+            <div style={{ padding:"32px 5vw 0" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", flexWrap:"wrap", gap:16, marginBottom:8 }}>
                 <div>
                   <div style={{ fontSize:12, fontWeight:700, color:G, background:GL, display:"inline-block", padding:"4px 12px", borderRadius:6, marginBottom:12, letterSpacing:"0.06em", textTransform:"uppercase" }}>{selectedHome.tag}</div>
@@ -768,14 +769,14 @@ export default function ApolloSite() {
             </div>
 
             {/* Full-bleed hero image */}
-            <div style={{ maxWidth:1160, margin:"0 auto", padding:"24px 32px 0" }}>
+            <div style={{ padding:"24px 5vw 0" }}>
               <div style={{ borderRadius:20, overflow:"hidden", height:"clamp(320px,45vw,560px)", position:"relative" }}>
                 <img src={selectedHome.img} alt={selectedHome.title} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
               </div>
             </div>
 
             {/* Two-column: overview + sticky contact panel */}
-            <div style={{ maxWidth:1160, margin:"0 auto", padding:"48px 32px 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
+            <div style={{ padding:"48px 5vw 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
               {/* Left: overview + details + gallery + features */}
               <div>
                 {/* Overview */}
@@ -884,7 +885,7 @@ export default function ApolloSite() {
         {page==="lot-detail" && selectedLot && (
           <div style={{ background:"white", minHeight:"100%" }}>
             {/* Back button */}
-            <div style={{ maxWidth:1160, margin:"0 auto", padding:"28px 32px 0" }}>
+            <div style={{ padding:"28px 5vw 0" }}>
               <button onClick={()=>nav("lots")}
                 style={{ display:"inline-flex", alignItems:"center", gap:8, background:"none", border:`1px solid ${BOR}`, borderRadius:8, padding:"8px 16px", fontSize:12, fontWeight:700, color:MUT, cursor:"pointer", fontFamily:"inherit", transition:"all 0.15s" }}
                 onMouseEnter={e=>{e.currentTarget.style.borderColor=G; e.currentTarget.style.color=G;}}
@@ -894,7 +895,7 @@ export default function ApolloSite() {
             </div>
 
             {/* Big address headline */}
-            <div style={{ maxWidth:1160, margin:"0 auto", padding:"32px 32px 0" }}>
+            <div style={{ padding:"32px 5vw 0" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", flexWrap:"wrap", gap:16, marginBottom:8 }}>
                 <div>
                   <div style={{ fontSize:12, fontWeight:700, color:selectedLot.tag==="Available"?G:"#888", background:selectedLot.tag==="Available"?GL:"#f0f0f0", display:"inline-block", padding:"4px 12px", borderRadius:6, marginBottom:12, letterSpacing:"0.06em", textTransform:"uppercase" }}>{selectedLot.tag}</div>
@@ -920,7 +921,7 @@ export default function ApolloSite() {
             </div>
 
             {/* Two-column: overview + sticky contact panel */}
-            <div style={{ maxWidth:1160, margin:"0 auto", padding:"48px 32px 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
+            <div style={{ padding:"48px 5vw 64px", display:"grid", gridTemplateColumns:"1fr 340px", gap:48, alignItems:"start" }}>
               {/* Left */}
               <div>
                 {/* Overview */}
