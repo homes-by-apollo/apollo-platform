@@ -536,7 +536,7 @@ export default function ApolloSite() {
               {/* Search bar — floats above the image */}
               <div className="search-bar" style={{
                 display:"inline-flex", alignItems:"center",
-                background:"white", borderRadius:14,
+                background:"#e8eaed", borderRadius:14,
                 boxShadow:"0 4px 40px rgba(0,0,0,0.12)",
                 padding:"8px", gap:6,
                 position:"relative", zIndex:10,
@@ -557,17 +557,18 @@ export default function ApolloSite() {
                     cursor:"pointer", flex:1,
                   }}>
                     <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>{icon}</span>
-                    <div style={{ display:"flex", flexDirection:"column", textAlign:"left", flex:1 }}>
-                      <div style={{ fontSize:13, fontWeight:600, color:TXT, letterSpacing:"0.01em", lineHeight:1.2 }}>{label}</div>
-                      <div style={{ fontSize:12, color:"#aab", lineHeight:1.2 }}>Any ▾</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, flex:1, justifyContent:"space-between" }}>
+                      <div style={{ fontSize:15, fontWeight:600, color:TXT, letterSpacing:"0.01em" }}>{label}</div>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     </div>
                   </div>
                 ))}
                 <button className="search-bar-btn" onClick={()=>nav("homes")} style={{
-                  background:TXT, color:"white", border:"none",
-                  padding:"16px 34px", borderRadius:10,
-                  fontSize:14, fontWeight:700, cursor:"pointer",
-                  fontFamily:"inherit", letterSpacing:"0.01em",
+                  background:"#0f2044", color:"white", border:"none",
+                  padding:"16px 36px", borderRadius:10,
+                  fontSize:17, fontWeight:700, cursor:"pointer",
+                  fontFamily:"inherit", letterSpacing:"0.02em",
+                  whiteSpace:"nowrap",
                 }}>Search</button>
               </div>
 
