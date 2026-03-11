@@ -738,13 +738,12 @@ export default function ApolloSite() {
               <svg className="photo-clip-svg" viewBox="0 0 1690 175" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <pattern id="heroImg1" patternUnits="userSpaceOnUse" width="1690" height="175">
-                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="0" width="1690" height="175" preserveAspectRatio="xMidYMid slice"/>
+                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="-350" width="1690" height="875" preserveAspectRatio="xMidYMid slice"/>
                   </pattern>
                   <mask id="textMask1">
-                    <text x="845" y="148" textAnchor="middle" dominantBaseline="auto"
+                    <text x="845" y="155" textAnchor="middle" dominantBaseline="auto"
                       fontFamily="inherit" fontWeight="900" letterSpacing="0"
-                      textLength="1680" lengthAdjust="spacingAndGlyphs"
-                      fill="white" fontSize="168">Homes by Apollo</text>
+                      fill="white" fontSize="175">Homes by Apollo</text>
                   </mask>
                 </defs>
                 <rect x="0" y="0" width="1690" height="175" fill="url(#heroImg1)" mask="url(#textMask1)"/>
@@ -901,13 +900,12 @@ export default function ApolloSite() {
               <svg className="photo-clip-svg" viewBox="0 0 1690 175" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <pattern id="heroImg2" patternUnits="userSpaceOnUse" width="1690" height="175">
-                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="0" width="1690" height="175" preserveAspectRatio="xMidYMid slice"/>
+                    <image href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp" x="0" y="-350" width="1690" height="875" preserveAspectRatio="xMidYMid slice"/>
                   </pattern>
                   <mask id="textMask2">
-                    <text x="845" y="148" textAnchor="middle" dominantBaseline="auto"
+                    <text x="845" y="155" textAnchor="middle" dominantBaseline="auto"
                       fontFamily="inherit" fontWeight="900" letterSpacing="0"
-                      textLength="1680" lengthAdjust="spacingAndGlyphs"
-                      fill="white" fontSize="168">Homes by Apollo</text>
+                      fill="white" fontSize="175">Homes by Apollo</text>
                   </mask>
                 </defs>
                 <rect x="0" y="0" width="1690" height="175" fill="url(#heroImg2)" mask="url(#textMask2)"/>
