@@ -99,20 +99,25 @@ interface BtnProps {
   outline?: boolean;
   small?: boolean;
   full?: boolean;
+  carolina?: boolean;
   onClick?: () => void;
 }
 
-const Btn = ({ children, white, outline, small, full, onClick }: BtnProps) => {
+const Btn = ({ children, white, outline, small, full, carolina, onClick }: BtnProps) => {
   const [hov, setHov] = useState(false);
   const base: React.CSSProperties = {
     display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5,
     borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s",
-    border:"none", fontSize:small?14:15,
-    padding:small?"11px 22px":"14px 26px", fontFamily:"inherit",
-    width: full ? "100%" : undefined,
+    border:"none", fontFamily:"inherit",
+    // carolina blue section buttons: fixed 200×65px; otherwise use full/small sizing
+    ...(carolina
+      ? { width:200, height:65, fontSize:20, padding:0 }
+      : { width: full ? "100%" : undefined, fontSize:small?14:15, padding:small?"11px 22px":"14px 26px" }
+    ),
   };
   let style: React.CSSProperties;
-  if (white)        style = { ...base, background: hov?"#f0f0f0":"white", color:G };
+  if (carolina)     style = { ...base, background: hov?"#4fa8d5":"#5bb8f5", color:G };
+  else if (white)   style = { ...base, background: hov?"#f0f0f0":"white", color:G };
   else if (outline) style = { ...base, background: hov?GL:"transparent", color:G, border:`1.5px solid ${G}` };
   else              style = { ...base, background: hov?GM:G, color:"white" };
   return (
@@ -599,10 +604,9 @@ export default function ApolloSite() {
               </div>
               <button
                 onClick={()=>nav("homes")}
-                style={{ display:"flex", alignItems:"center", gap:8, background:"transparent", border:"1.5px solid rgba(255,255,255,0.35)", color:"white", borderRadius:8, padding:"12px 22px", fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit", letterSpacing:"0.01em", whiteSpace:"nowrap" }}
+                style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:8, background:"#5bb8f5", border:"none", color:G, borderRadius:8, width:200, height:65, fontSize:20, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}
               >
-                Explore More
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                Explore More ↗
               </button>
             </div>
 
@@ -796,7 +800,7 @@ export default function ApolloSite() {
                   <SectionLabel>Our approach</SectionLabel>
                   <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>How it works</h2>
                 </div>
-                <Btn small onClick={()=>nav("homes")}>Our Properties</Btn>
+                <Btn carolina onClick={()=>nav("homes")}>Our Properties</Btn>
               </div>
               <div className="how-it-works-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28 }}>
                 {[
@@ -924,7 +928,7 @@ export default function ApolloSite() {
             <SectionLabel>FAQ</SectionLabel>
             <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:24, marginBottom:40, flexWrap:"wrap" }}>
               <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, margin:0, maxWidth:520 }}>Feel free to ask any questions</h2>
-              <button onClick={()=>setPage("faq")} style={{ marginTop:8, padding:"14px 24px", background:"#0f2044", color:"white", border:"none", borderRadius:8, fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", display:"flex", alignItems:"center", gap:6 }}>View All FAQs ↗</button>
+              <button onClick={()=>setPage("faq")} style={{ marginTop:8, width:200, height:65, background:"#5bb8f5", color:G, border:"none", borderRadius:8, fontSize:20, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", display:"inline-flex", alignItems:"center", justifyContent:"center", gap:6 }}>View All FAQs ↗</button>
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
