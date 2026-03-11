@@ -199,3 +199,17 @@
 - [x] Add robots.txt
 - [x] Improve semantic HTML (aria-label on nav, descriptive alt text on gallery images)
 - [x] Add geo meta tags for Pahrump, NV local SEO
+
+## Session 44 — Mobile Layout Fixes
+- [x] Reduce nav height from 136px to 72px on mobile, scale logo (65→44px) and wordmark
+- [x] Reduce section vertical padding to 40px on mobile (section-pad class applied to all sections)
+- [x] Fix h1/h2/p typography scale on mobile (h1: clamp(28,8vw,42px), h2: clamp(24,7vw,34px), p: 16px)
+- [x] Stack About Us features vertically (why-apollo-icons: 1fr on mobile)
+- [x] Stack About Us grid (why-apollo-grid: 1fr on mobile)
+- [x] Fix container padding to 20px on mobile (site-container)
+- [x] Hide decorative photo-clip SVG headline on mobile
+- [x] Reduce blog section top padding (107px → 40px on mobile)
+- [x] Fix Featured Properties carousel cards to stack vertically on mobile
+- [x] Fix How It Works cards to full width with reduced image height (480→220px) on mobile
+- [x] Fix featured-props-section overlap padding on mobile
+- [x] Add section-pad class to Featured Homes, How It Works, Available Lots, Testimonials, Blog, FAQ sections

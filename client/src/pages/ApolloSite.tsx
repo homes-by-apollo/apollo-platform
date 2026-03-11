@@ -353,53 +353,90 @@ export default function ApolloSite() {
         }
 
         @media (max-width: 768px) {
+          /* ── Navigation ── */
           .hero-section { padding-top: 40px !important; }
           .desktop-nav-center { display: none !important; }
           .desktop-nav-ctas   { display: none !important; }
           .hamburger-btn      { display: flex !important; }
+          .nav-bar            { height: 72px !important; padding: 0 20px !important; align-items: center !important; }
+          .logo-img           { height: 44px !important; width: 44px !important; }
+          .logo-homes-by      { font-size: 12px !important; letter-spacing: 0.25em !important; }
+          .logo-apollo        { font-size: 22px !important; }
 
-          .hero-headline      { font-size: clamp(22px,7.5vw,56px) !important; }
-          .hero-subtitle      { font-size: 15px !important; }
-          .hero-image-wrap    { margin: 0 16px !important; height: 280px !important; border-radius: 16px 16px 0 0 !important; }
+          /* ── Typography ── */
+          h1, .hero-headline  { font-size: clamp(28px,8vw,42px) !important; line-height: 1.2 !important; white-space: normal !important; }
+          h2                  { font-size: clamp(24px,7vw,34px) !important; line-height: 1.25 !important; }
+          h3                  { font-size: clamp(18px,5vw,24px) !important; }
+          p, .hero-subtitle   { font-size: 16px !important; line-height: 1.65 !important; white-space: normal !important; }
 
+          /* ── Hero ── */
+          .hero-image-wrap    { margin: 0 16px !important; height: 220px !important; border-radius: 16px 16px 0 0 !important; }
+
+          /* ── Search bar ── */
           .search-bar         { flex-direction: column !important; border-radius: 16px !important; padding: 12px !important; gap: 8px !important; width: calc(100% - 32px) !important; box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important; }
           .search-bar-item    { border-right: none !important; border-bottom: none !important; border: 1px solid #dde3ef !important; border-radius: 10px !important; padding: 14px 18px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; }
           .search-bar-item-inner { flex: 1 !important; }
           .search-bar-chevron { display: flex !important; }
           .search-bar-btn     { width: 100% !important; border-radius: 10px !important; margin: 4px 0 0 !important; padding: 16px !important; font-size: 16px !important; }
 
+          /* ── Stat pills ── */
           .stat-pills         { gap: 8px !important; flex-wrap: wrap !important; justify-content: center !important; padding: 0 12px !important; }
           .stat-pill          { min-width: 80px !important; padding: 10px 14px !important; }
           .stat-pill-val      { font-size: 16px !important; }
 
-          .section-pad        { padding: 40px 16px !important; }
-          .section-pad-top    { padding-top: 40px !important; padding-left: 16px !important; padding-right: 16px !important; }
+          /* ── Section spacing: reduce vertical whitespace ── */
+          .section-pad        { padding: 40px 20px !important; }
+          .section-pad-top    { padding-top: 40px !important; padding-left: 20px !important; padding-right: 20px !important; }
 
+          /* ── Container padding ── */
+          .site-container     { padding-left: 20px !important; padding-right: 20px !important; }
+
+          /* ── Cards ── */
           .cards-grid         { grid-template-columns: 1fr !important; gap: 16px !important; }
           .cards-grid-2col    { grid-template-columns: 1fr !important; gap: 16px !important; }
 
+          /* ── How it works ── */
           .how-it-works-grid  { grid-template-columns: 1fr !important; gap: 20px !important; }
-          .why-apollo-grid    { grid-template-columns: 1fr !important; gap: 32px !important; }
-          .why-apollo-icons   { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+          .how-it-works-wrap  { margin-top: 0 !important; }
+          .how-it-works-card  { width: 100% !important; }
+          .how-it-works-img   { height: 220px !important; }
 
-          .testimonial-card   { padding: 28px 20px !important; }
+          /* ── About Us: stack left column then icons vertically ── */
+          .why-apollo-grid    { grid-template-columns: 1fr !important; gap: 28px !important; }
+          .why-apollo-icons   { grid-template-columns: 1fr !important; gap: 20px !important; }
+
+          /* ── Testimonials ── */
+          .testimonial-card   { padding: 24px 18px !important; }
           .testimonial-quote  { font-size: 15px !important; }
           .testimonial-bottom { flex-direction: column !important; gap: 16px !important; align-items: flex-start !important; }
 
+          /* ── Footer ── */
           .footer-grid        { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
           .footer-bottom      { flex-direction: column !important; gap: 8px !important; }
 
+          /* ── Section headers ── */
           .section-header-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
           .filter-row         { overflow-x: auto !important; padding-bottom: 4px !important; }
 
+          /* ── Contact ── */
           .contact-grid       { grid-template-columns: 1fr !important; gap: 28px !important; }
 
+          /* ── Photo-clip SVG headline ── */
+          .photo-clip-container { display: none !important; }
+          .blog-section         { padding-top: 40px !important; }
+
+          /* ── CTA banner ── */
           .cta-banner         { flex-direction: column !important; gap: 20px !important; text-align: center !important; }
 
+          /* ── Mobile CTAs ── */
           .mobile-full-cta    { width: 100% !important; justify-content: center !important; }
           .mobile-sticky-cta  { display: flex !important; }
 
-          .featured-props-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+          /* ── Featured properties ── */
+          .featured-props-grid   { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .featured-props-section { padding-top: calc(120px + 40px) !important; padding-bottom: 40px !important; padding-left: 20px !important; padding-right: 20px !important; margin-top: -120px !important; }
+          .feat-card             { width: calc(100vw - 40px) !important; flex-direction: column !important; min-height: unset !important; }
+          .feat-card-text        { flex: none !important; width: 100% !important; padding: 24px 20px !important; }
         }
 
         @media (min-width: 769px) {
@@ -410,7 +447,7 @@ export default function ApolloSite() {
 
       {/* ── NAV ─────────────────────────────────────────────────────────────── */}
       <div style={{ background:"#ffffff", boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none", transition:"box-shadow 0.2s", flexShrink:0, zIndex:200, position:"relative" }}>
-      <nav aria-label="Main navigation" style={{
+      <nav aria-label="Main navigation" className="nav-bar" style={{
         background: "transparent",
         padding: "40px var(--pad) 0" as React.CSSProperties["padding"],
         height: 136,
@@ -423,10 +460,10 @@ export default function ApolloSite() {
       }}>
         {/* Logo — owl icon + wordmark */}
         <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:65, width:65, objectFit:"contain", display:"block" }} />
-          <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:1 }}>
-            <span style={{ fontSize:17, fontWeight:700, letterSpacing:"0.32em", color:TXT, textTransform:"uppercase", opacity:1 }}>HOMES BY</span>
-            <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.07em", color:TXT, lineHeight:1 }}>APOLLO</span>
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" className="logo-img" style={{ height:65, width:65, objectFit:"contain", display:"block" }} />
+          <div className="logo-wordmark" style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:1 }}>
+            <span className="logo-homes-by" style={{ fontSize:17, fontWeight:700, letterSpacing:"0.32em", color:TXT, textTransform:"uppercase", opacity:1 }}>HOMES BY</span>
+            <span className="logo-apollo" style={{ fontSize:30, fontWeight:900, letterSpacing:"0.07em", color:TXT, lineHeight:1 }}>APOLLO</span>
           </div>
         </div>
 
@@ -589,7 +626,7 @@ export default function ApolloSite() {
           </div>
 
           {/* ══ FEATURED PROPERTIES ═══════════════════════════════════ */}
-          <div style={{ background:"#0f2044", paddingTop:"calc(280px + 72px)", paddingBottom:80, paddingLeft:"var(--pad)", paddingRight:"var(--pad)", position:"relative", zIndex:1, marginTop:-280 }}>
+          <div className="featured-props-section" style={{ background:"#0f2044", paddingTop:"calc(280px + 72px)", paddingBottom:80, paddingLeft:"var(--pad)", paddingRight:"var(--pad)", position:"relative", zIndex:1, marginTop:-280 }}>
             <div className="site-container">
             {/* Header row */}
             <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginBottom:40, flexWrap:"wrap", gap:16 }}>
@@ -650,7 +687,7 @@ export default function ApolloSite() {
                       willChange:"transform",
                     }}>
                       {featProps.map((p,i)=>(
-                        <div key={i} style={{
+                        <div key={i} className="feat-card" style={{
                           flexShrink:0,
                           width:cardW,
                           background:"white", borderRadius:18, overflow:"hidden",
@@ -659,7 +696,7 @@ export default function ApolloSite() {
                           minHeight:530,
                         }}>
                           {/* Text panel */}
-                          <div style={{ flex:"0 0 52%", padding:"36px 32px 36px", display:"flex", flexDirection:"column", justifyContent:"space-between" }}>
+                          <div className="feat-card-text" style={{ flex:"0 0 52%", padding:"36px 32px 36px", display:"flex", flexDirection:"column", justifyContent:"space-between" }}>
                             <div>
                               <h3 style={{ fontSize:26, fontWeight:900, color:TXT, letterSpacing:"-0.03em", lineHeight:1.15, margin:"0 0 6px" }}>{p.title}</h3>
                               <p style={{ fontSize:14, color:MUT, margin:"0 0 4px", fontWeight:500 }}>{p.sub}</p>
@@ -783,7 +820,7 @@ export default function ApolloSite() {
           </div>
 
           {/* FEATURED HOMES */}
-          <div style={{ padding:"64px var(--pad) 0" }}>
+          <div className="section-pad" style={{ padding:"64px var(--pad) 0" }}>
             <div className="site-container">
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
@@ -803,7 +840,7 @@ export default function ApolloSite() {
           </div>
 
           {/* HOW IT WORKS */}
-          <div style={{ background:"white", padding:"72px var(--pad)", marginTop:64 }}>
+          <div className="section-pad how-it-works-wrap" style={{ background:"white", padding:"72px var(--pad)", marginTop:64 }}>
             <div className="site-container">
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:48 }}>
                 <div>
@@ -818,8 +855,8 @@ export default function ApolloSite() {
                   { n:"02", title:"Schedule a Consultation", desc:"Sit down with Brandon and the Apollo team. We'll walk through your vision, timeline, and all-inclusive pricing.", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/consultation-step_ca878c80.jpg" },
                   { n:"03", title:"Sign & Start Building", desc:"One contract, one price. We break ground and keep you updated every step — from foundation to keys.", img:"https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80" },
                 ].map(step=>(
-                  <div key={step.n} style={{ background:"white", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 20px rgba(0,0,0,0.06)", width:515 }}>
-                    <div style={{ height:480, overflow:"hidden", position:"relative" }}>
+                  <div key={step.n} className="how-it-works-card" style={{ background:"white", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 20px rgba(0,0,0,0.06)", width:515 }}>
+                    <div className="how-it-works-img" style={{ height:480, overflow:"hidden", position:"relative" }}>
                       <img src={step.img} alt={step.title} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
                       <div style={{ position:"absolute", top:0, left:0, right:0, bottom:0, background:"linear-gradient(to top, rgba(8,12,28,0.45) 0%, transparent 60%)" }} />
                     <div style={{ position:"absolute", bottom:14, left:16, fontSize:52, fontWeight:900, color:"rgba(255,255,255,0.95)", letterSpacing:"-0.04em", lineHeight:1, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>{step.n}</div>
@@ -835,7 +872,7 @@ export default function ApolloSite() {
           </div>
 
           {/* AVAILABLE LOTS */}
-          <div style={{ padding:"72px var(--pad) 64px" }}>
+          <div className="section-pad" style={{ padding:"72px var(--pad) 64px" }}>
             <div className="site-container">
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
@@ -855,7 +892,7 @@ export default function ApolloSite() {
           </div>
 
           {/* TESTIMONIALS */}
-          <div style={{ background:"white", padding:"72px var(--pad)" }}>
+          <div className="section-pad" style={{ background:"white", padding:"72px var(--pad)" }}>
             <div className="site-container">
             <div>
               <div style={{ textAlign:"center", marginBottom:40 }}>
@@ -899,7 +936,7 @@ export default function ApolloSite() {
           </div>
 
           {/* BLOG PREVIEW */}
-          <div style={{ padding:"107px var(--pad) 35px" }}>
+          <div className="section-pad blog-section" style={{ padding:"107px var(--pad) 35px" }}>
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
             <div className="photo-clip-container" style={{ padding:0, margin:0, marginTop:"-40px", marginBottom:"60px", background:"transparent" }}>
@@ -946,7 +983,7 @@ export default function ApolloSite() {
           </div>
 
           {/* FAQ */}
-          <div style={{ background:"white", padding:"80px var(--pad) 80px" }}>
+          <div className="section-pad" style={{ background:"white", padding:"80px var(--pad) 80px" }}>
             <div className="site-container">
             <SectionLabel>FAQ</SectionLabel>
             <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:24, marginBottom:40, flexWrap:"wrap" }}>
