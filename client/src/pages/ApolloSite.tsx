@@ -825,8 +825,8 @@ export default function ApolloSite() {
                     <div style={{ position:"absolute", bottom:14, left:16, fontSize:52, fontWeight:900, color:"rgba(255,255,255,0.95)", letterSpacing:"-0.04em", lineHeight:1, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>{step.n}</div>
                     </div>
                     <div style={{ padding:"18px 20px 22px" }}>
-                      <div style={{ fontSize:15, fontWeight:800, color:TXT, marginBottom:8 }}>{step.title}</div>
-                      <div style={{ fontSize:13, color:MUT, lineHeight:1.7 }}>{step.desc}</div>
+<div style={{ fontSize:18.75, fontWeight:800, color:TXT, marginBottom:8 }}>{step.title}</div>
+                       <div style={{ fontSize:16.25, color:MUT, lineHeight:1.7 }}>{step.desc}</div>
                     </div>
                   </div>
                 ))}

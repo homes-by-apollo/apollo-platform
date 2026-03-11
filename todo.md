@@ -185,3 +185,6 @@
 - [x] Replace Mesquite floor plan image with Pahrump-style desert home photo
 - [x] Replace Sunrise floor plan image with Pahrump-style desert home photo
 - [x] Replace Ridgeline floor plan image with Pahrump-style desert home photo
+
+## Session 42
+- [x] Increase How It Works step title and description font sizes by 25%
