@@ -233,6 +233,13 @@ export default function CRMDashboard() {
           </button>
           <span className="text-white/30">|</span>
           <span className="font-bold tracking-tight">Apollo CRM</span>
+          <span className="text-white/30">|</span>
+          <button
+            onClick={() => window.location.href = "/crm/properties"}
+            className="text-white/60 hover:text-white text-sm transition-colors"
+          >
+            Properties
+          </button>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-white/60">{user.name}</span>

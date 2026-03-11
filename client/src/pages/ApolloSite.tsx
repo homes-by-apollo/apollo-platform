@@ -3,6 +3,12 @@ import type React from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
+// ── Plausible custom event helper ───────────────────────────────────────────
+declare global { interface Window { plausible?: (event: string, opts?: { props?: Record<string, string | number | boolean> }) => void; } }
+const track = (event: string, props?: Record<string, string | number | boolean>) => {
+  try { window.plausible?.(event, props ? { props } : undefined); } catch {}
+};
+
 // ── Navy theme ──────────────────────────────────────────────────────────────
 const G   = "#0f2044";
 const GM  = "#1a3366";
@@ -447,13 +453,13 @@ export default function ApolloSite() {
             </a>
           )}
           <button
-            onClick={()=>nav("contact")}
+            onClick={()=>{ track("Schedule Consultation", { location:"nav" }); nav("contact"); }}
             style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"none", fontSize:14, fontFamily:"inherit", background:G, color:"white", flexShrink:0 }}
             onMouseEnter={e=>{ e.currentTarget.style.background=GM; }}
             onMouseLeave={e=>{ e.currentTarget.style.background=G; }}
           >Schedule a Consultation ↗</button>
           <button
-            onClick={()=>nav("homes")}
+            onClick={()=>{ track("View Homes & Lots", { location:"nav" }); nav("homes"); }}
             style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:`1.5px solid ${G}`, fontSize:14, fontFamily:"inherit", background:"transparent", color:G, flexShrink:0 }}
             onMouseEnter={e=>{ e.currentTarget.style.background=GL; }}
             onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; }}
@@ -492,8 +498,8 @@ export default function ApolloSite() {
                 Admin
               </a>
             )}
-            <Btn full onClick={()=>nav("contact")}>Schedule a Consultation</Btn>
-            <Btn full outline onClick={()=>nav("homes")}>View Homes &amp; Lots</Btn>
+            <Btn full onClick={()=>{ track("Schedule Consultation", { location:"hero" }); nav("contact"); }}>Schedule a Consultation</Btn>
+            <Btn full outline onClick={()=>{ track("View Homes & Lots", { location:"hero" }); nav("homes"); }}>View Homes &amp; Lots</Btn>
           </div>
         </div>
       )}
@@ -560,7 +566,7 @@ export default function ApolloSite() {
                     </div>
                   </div>
                 ))}
-                <button className="search-bar-btn" onClick={()=>nav("homes")} style={{
+                <button className="search-bar-btn" onClick={()=>{ track("Search", { location:"hero" }); nav("homes"); }} style={{
                   background:"#0f2044", color:"white", border:"none",
                   padding:"0 36px", borderRadius:10,
                   fontSize:17, fontWeight:700, cursor:"pointer",
@@ -784,7 +790,7 @@ export default function ApolloSite() {
                 <SectionLabel>Featured Properties</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Homes for Sale</h2>
               </div>
-              <button onClick={()=>nav("homes")} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button onClick={()=>{ track("View All", { section:"Featured Properties" }); nav("homes"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {homes.map(h=>(
@@ -836,7 +842,7 @@ export default function ApolloSite() {
                 <SectionLabel>Land</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Available Lots</h2>
               </div>
-              <button onClick={()=>nav("lots")} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button onClick={()=>{ track("View All", { section:"Land" }); nav("lots"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {lots.map(l=>(
@@ -917,7 +923,7 @@ export default function ApolloSite() {
                 <SectionLabel>Latest Blog</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", marginBottom:8 }}>Stay updated with our latest articles</h2>
               </div>
-              <button onClick={()=>nav("blog")} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button onClick={()=>{ track("View All", { section:"Blog" }); nav("blog"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="blog-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,515px)", gap:28, justifyContent:"start" }}>
               {blogs.map(b=>(
@@ -1102,7 +1108,7 @@ export default function ApolloSite() {
                 <h3 style={{ fontSize:20, fontWeight:800, color:"white", marginBottom:6 }}>Don't see what you're looking for?</h3>
                 <p style={{ fontSize:13, color:"rgba(255,255,255,0.5)" }}>We build custom — tell us your vision and we'll make it happen.</p>
               </div>
-              <Btn white onClick={()=>nav("contact")}>Start a Custom Build</Btn>
+              <Btn white onClick={()=>{ track("Schedule Consultation", { location:"how-it-works" }); nav("contact"); }}>Start a Custom Build</Btn>
             </div>
           </div>
         )}
@@ -1263,7 +1269,7 @@ export default function ApolloSite() {
                         </div>
                       ))}
                     </div>
-                    <Btn full onClick={()=>nav("contact")}>Request a Call</Btn>
+                    <Btn full onClick={()=>{ track("Schedule Consultation", { location:"home-detail" }); nav("contact"); }}>Request a Call</Btn>
                     <div style={{ marginTop:12, textAlign:"center", fontSize:11, color:MUT }}>No obligation — just a conversation</div>
                   </div>
                 </div>
@@ -1272,7 +1278,7 @@ export default function ApolloSite() {
           </div>
         )}
 
-        {/* ══ LOT DETAIL PAGE ════════════════════════════════════════════════════════════ */}
+        {/* ── LAND SECTION DETAIL PAGE ════════════════════════════════════════════════════════════════════════════════════════ */}
         {page==="lot-detail" && selectedLot && (
           <div style={{ background:"white", minHeight:"100%" }}>
             {/* Back button */}
@@ -1384,7 +1390,7 @@ export default function ApolloSite() {
                         </div>
                       ))}
                     </div>
-                    <Btn full onClick={()=>nav("contact")}>Request a Call</Btn>
+                    <Btn full onClick={()=>{ track("Schedule Consultation", { location:"lot-detail" }); nav("contact"); }}>Request a Call</Btn>
                     <div style={{ marginTop:12, textAlign:"center", fontSize:11, color:MUT }}>No obligation — just a conversation</div>
                   </div>
                 </div>
@@ -1421,7 +1427,7 @@ export default function ApolloSite() {
                 <div style={{ fontSize:20, fontWeight:800, color:"white", marginBottom:6 }}>Still have questions?</div>
                 <div style={{ fontSize:14, color:"rgba(255,255,255,0.65)", lineHeight:1.6 }}>Schedule a free, no-pressure consultation with Brandon and the Apollo team.</div>
               </div>
-              <button onClick={()=>nav("contact")} style={{ background:ACC, color:G, border:"none", borderRadius:8, padding:"14px 28px", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>Schedule a Consultation ↗</button>
+              <button onClick={()=>{ track("Schedule Consultation", { location:"cta-banner" }); nav("contact"); }} style={{ background:ACC, color:G, border:"none", borderRadius:8, padding:"14px 28px", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>Schedule a Consultation ↗</button>
             </div>
           </div>
         )}

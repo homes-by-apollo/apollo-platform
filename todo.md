@@ -160,3 +160,10 @@
 - [x] Null-safe property detail rows (Garage/Area hidden when not set)
 - [x] Section labels font size increased to 19px (+45%)
 - [x] Nav logo marginBottom:7px added
+
+## Session 38
+- [x] Fix JSX syntax error in ApolloSite.tsx (missing closing paren on home-detail conditional block)
+- [x] Add Plausible custom event tracking to all key CTA buttons (Schedule Consultation, View Homes & Lots, Search, View All →, hero CTAs)
+- [x] Build /crm/properties admin page: full CRUD table, Featured toggle, add/edit/delete modals, KPI cards
+- [x] Register /crm/properties route in App.tsx
+- [x] Add "Properties" nav link to CRMDashboard header

@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ApolloSite from "./pages/ApolloSite";
 import CRMDashboard from "./pages/CRMDashboard";
+import CRMProperties from "./pages/CRMProperties";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -13,6 +14,7 @@ function Router() {
     <Switch>
       <Route path={"/"} component={ApolloSite} />
       <Route path={"/crm"} component={CRMDashboard} />
+      <Route path={"/crm/properties"} component={CRMProperties} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
