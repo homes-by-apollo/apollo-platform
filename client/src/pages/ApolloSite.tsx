@@ -1012,7 +1012,9 @@ export default function ApolloSite() {
 
             {/* MONOCHROMATIC WATERMARK */}
             <div style={{ overflow:"hidden", pointerEvents:"none", userSelect:"none", lineHeight:0.85, paddingTop:4 }}>
-              <div style={{ fontSize:"13.5vw", fontWeight:900, letterSpacing:"-0.04em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"left", paddingLeft:"1.5vw" }}>Homes by Apollo</div>
+              <div style={{ maxWidth:1650, margin:"0 auto", overflow:"visible" }}>
+                <div style={{ fontSize:"clamp(64px,8.8vw,145px)", fontWeight:900, letterSpacing:"-0.04em", whiteSpace:"nowrap", lineHeight:0.85, background:"linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", color:"transparent", display:"block", width:"100%", textAlign:"center" }}>Homes by Apollo</div>
+              </div>
             </div>
           </footer>
         </>}
