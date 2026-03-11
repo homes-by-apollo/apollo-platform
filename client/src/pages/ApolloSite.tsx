@@ -574,7 +574,7 @@ export default function ApolloSite() {
           </div>
 
           {/* ══ FEATURED PROPERTIES ═══════════════════════════════════ */}
-          <div style={{ background:"#0f2044", paddingTop:"calc(360px + 72px)", paddingBottom:80, paddingLeft:"var(--pad)", paddingRight:"var(--pad)", position:"relative", zIndex:1, marginTop:-360 }}>
+          <div style={{ background:"#0f2044", paddingTop:"calc(280px + 72px)", paddingBottom:80, paddingLeft:"var(--pad)", paddingRight:"var(--pad)", position:"relative", zIndex:1, marginTop:-280 }}>
             <div className="site-container">
             {/* Header row */}
             <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginBottom:40, flexWrap:"wrap", gap:16 }}>
