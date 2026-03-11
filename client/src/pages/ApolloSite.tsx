@@ -538,10 +538,10 @@ export default function ApolloSite() {
                 display:"inline-flex", alignItems:"center",
                 background:"#e8eaed", borderRadius:14,
                 boxShadow:"0 4px 40px rgba(0,0,0,0.12)",
-                padding:"8px", gap:6,
+                padding:"10px", gap:6,
                 position:"relative", zIndex:10,
-                width:790, maxWidth:"calc(100% - 32px)",
-                marginBottom:0,
+                width:790, height:100, maxWidth:"calc(100% - 32px)",
+                marginBottom:0, boxSizing:"border-box",
               }}>
                 {[
                   [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>, "Location"],
@@ -554,7 +554,7 @@ export default function ApolloSite() {
                     background:"white",
                     border:"1.5px solid #d8dde8",
                     borderRadius:10,
-                    cursor:"pointer", flex:1,
+                    cursor:"pointer", flex:1, alignSelf:"stretch",
                   }}>
                     <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>{icon}</span>
                     <div style={{ display:"flex", alignItems:"center", gap:8, flex:1, justifyContent:"space-between" }}>
@@ -565,10 +565,10 @@ export default function ApolloSite() {
                 ))}
                 <button className="search-bar-btn" onClick={()=>nav("homes")} style={{
                   background:"#0f2044", color:"white", border:"none",
-                  padding:"16px 36px", borderRadius:10,
+                  padding:"0 36px", borderRadius:10,
                   fontSize:17, fontWeight:700, cursor:"pointer",
                   fontFamily:"inherit", letterSpacing:"0.02em",
-                  whiteSpace:"nowrap",
+                  whiteSpace:"nowrap", alignSelf:"stretch",
                 }}>Search</button>
               </div>
 
