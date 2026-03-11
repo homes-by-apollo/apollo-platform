@@ -24,3 +24,7 @@
 - [ ] Replace detail page gallery images with Pahrump build photos
 - [ ] Update testimonial avatars with illustrated avatars
 - [ ] Fine-tune mobile search bar stacking
+
+## Layout Fixes (Mar 10)
+- [x] Remove "Contact" link from top nav
+- [x] Make all page sections full-width on desktop (remove narrow max-width containers, use consistent horizontal padding)

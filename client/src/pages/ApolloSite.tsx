@@ -312,17 +312,8 @@ export default function ApolloSite() {
           </div>
         </div>
 
-        {/* Desktop center nav */}
+        {/* Desktop center nav — no items currently; kept for future links */}
         <div className="desktop-nav-center" style={{ display:"flex", gap:28, alignItems:"center" }}>
-          {([["contact","Contact"]] as [string,string][]).map(([p,l])=>(
-            <button key={p} onClick={()=>nav(p)} style={{
-              background:"none", border:"none", cursor:"pointer",
-              fontSize:14, fontWeight:500,
-              color: page===p ? TXT : MUT,
-              borderBottom: `2px solid ${page===p ? ACC : "transparent"}`,
-              paddingBottom: 2, transition:"all 0.15s", fontFamily:"inherit",
-            }}>{l}</button>
-          ))}
         </div>
 
         {/* Desktop CTAs */}
@@ -347,15 +338,8 @@ export default function ApolloSite() {
           background:"white", borderBottom:`1px solid ${BOR}`,
           boxShadow:"0 8px 32px rgba(0,0,0,0.12)", padding:"16px 20px 20px",
         }}>
-          {([["contact","Contact"]] as [string,string][]).map(([p,l])=>(
-            <button key={p} onClick={()=>nav(p)} style={{
-              display:"block", width:"100%", textAlign:"left",
-              background:"none", border:"none", cursor:"pointer",
-              fontSize:16, fontWeight:600, color:page===p?G:TXT,
-              padding:"12px 0", borderBottom:`1px solid ${BOR}`, fontFamily:"inherit",
-            }}>{l}</button>
-          ))}
-          <div style={{ display:"flex", flexDirection:"column", gap:10, marginTop:16 }}>
+          {/* No text nav items in mobile menu; CTAs below serve as primary navigation */}
+          <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             <Btn full onClick={()=>nav("contact")}>Schedule a Consultation</Btn>
             <Btn full outline onClick={()=>nav("homes")}>View Homes & Lots</Btn>
           </div>
@@ -539,7 +523,7 @@ export default function ApolloSite() {
 
           {/* TESTIMONIALS */}
           <div style={{ background:GL, padding:"72px 5vw" }}>
-            <div style={{ maxWidth:860, margin:"0 auto" }}>
+            <div>
               <div style={{ textAlign:"center", marginBottom:40 }}>
                 <SectionLabel>Client Stories</SectionLabel>
                 <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em" }}>What our clients say</h2>
@@ -604,12 +588,10 @@ export default function ApolloSite() {
 
           {/* FAQ */}
           <div style={{ padding:"72px 5vw 0" }}>
-            <div style={{ maxWidth:760, margin:"0 auto" }}>
             <SectionLabel>FAQ</SectionLabel>
             <h2 style={{ fontSize:40, fontWeight:800, letterSpacing:"-0.03em", marginBottom:24 }}>Common Questions</h2>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
-            </div>
             </div>
           </div>
 
@@ -921,7 +903,7 @@ export default function ApolloSite() {
             </div>
 
             {/* Full-bleed hero image */}
-            <div style={{ maxWidth:1160, margin:"0 auto", padding:"24px 32px 0" }}>
+            <div style={{ padding:"24px 5vw 0" }}>
               <div style={{ borderRadius:20, overflow:"hidden", height:"clamp(280px,40vw,480px)", position:"relative" }}>
                 <img src={selectedLot.img} alt={selectedLot.addr} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
                 <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(8,12,28,0.3) 0%, transparent 60%)" }} />
@@ -1012,7 +994,7 @@ export default function ApolloSite() {
 
         {/* ══ BLOG ════════════════════════════════════════════════════════════ */}
         {page==="blog" && (
-          <div className="section-pad" style={{ maxWidth:1060, margin:"0 auto", padding:"40px 24px" }}>
+          <div className="section-pad" style={{ padding:"40px 5vw" }}>
             <SectionLabel>Insights</SectionLabel>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
               <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>From the Blog</h1>
@@ -1038,7 +1020,7 @@ export default function ApolloSite() {
 
         {/* ══ CONTACT ═════════════════════════════════════════════════════════ */}
         {page==="contact" && (
-          <div className="section-pad" style={{ maxWidth:900, margin:"0 auto", padding:"40px 24px" }}>
+          <div className="section-pad" style={{ padding:"40px 5vw" }}>
             <SectionLabel>Get in Touch</SectionLabel>
             <div className="contact-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:36 }}>
               <div>
