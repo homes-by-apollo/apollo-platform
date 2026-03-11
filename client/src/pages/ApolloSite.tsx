@@ -361,7 +361,7 @@ export default function ApolloSite() {
         {page==="home" && <>
 
           {/* HERO */}
-          <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", position:"relative" }}>
+          <div style={{ background:"white", paddingTop:40, paddingBottom:0, textAlign:"center", position:"relative" }}>
             <h1 className="hero-headline" style={{
               fontSize: "clamp(36px,5.8vw,92px)",
               fontWeight: 800, color: TXT, lineHeight: 1.05,
@@ -432,7 +432,7 @@ export default function ApolloSite() {
           </div>
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
-          <div style={{ background:"white", paddingTop:80, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
+          <div style={{ background:"white", paddingTop:40, paddingBottom:0, textAlign:"center", overflow:"hidden" }}>
             <span className="photo-clip-text">Homes by Apollo</span>
           </div>
           <div className="section-pad" style={{ background:"white", padding:"56px 32px 72px" }}>
