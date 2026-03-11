@@ -151,12 +151,23 @@ function LotCard({ l }: { l: typeof lots[0] }) {
 function FAQ({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div onClick={()=>setOpen(!open)} style={{ background:open?"white":BG, borderRadius:10, padding:"16px 20px", cursor:"pointer", border:`1px solid ${open?BOR:"transparent"}`, transition:"all 0.2s", boxShadow:open?"0 2px 16px rgba(0,0,0,0.05)":"none" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:16 }}>
-        <span style={{ fontSize:17, fontWeight:700, color:TXT, lineHeight:1.4 }}>{q}</span>
-        <span style={{ fontSize:18, color:G, fontWeight:300, flexShrink:0, transform:open?"rotate(45deg)":"rotate(0)", transition:"transform 0.2s", lineHeight:1 }}>+</span>
+    <div
+      onClick={()=>setOpen(!open)}
+      style={{
+        background: open ? "white" : "#f4f5f7",
+        borderRadius: 10,
+        padding: "22px 28px",
+        cursor: "pointer",
+        border: `1px solid ${open ? BOR : "transparent"}`,
+        transition: "background 0.2s, box-shadow 0.2s",
+        boxShadow: open ? "0 2px 16px rgba(0,0,0,0.06)" : "none",
+      }}
+    >
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:24 }}>
+        <span style={{ fontSize:18, fontWeight:700, color:TXT, lineHeight:1.4 }}>{q}</span>
+        <span style={{ fontSize:22, color: open ? G : MUT, fontWeight:300, flexShrink:0, transform:open?"rotate(45deg)":"rotate(0)", transition:"transform 0.2s, color 0.2s", lineHeight:1 }}>+</span>
       </div>
-      {open && <p style={{ marginTop:12, fontSize:15, color:MUT, lineHeight:1.75 }}>{a}</p>}
+      {open && <p style={{ marginTop:14, fontSize:15, color:MUT, lineHeight:1.8 }}>{a}</p>}
     </div>
   );
 }
@@ -612,10 +623,13 @@ export default function ApolloSite() {
           </div>
 
           {/* FAQ */}
-          <div style={{ padding:"72px 5vw 0" }}>
+          <div style={{ padding:"80px 5vw 80px" }}>
             <SectionLabel>FAQ</SectionLabel>
-            <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", marginBottom:24 }}>Common Questions</h2>
-            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+            <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:24, marginBottom:40, flexWrap:"wrap" }}>
+              <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, margin:0, maxWidth:520 }}>Feel free to ask any questions</h2>
+              <button onClick={()=>setPage("faq")} style={{ marginTop:8, padding:"14px 24px", background:"#0f2044", color:"white", border:"none", borderRadius:8, fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", display:"flex", alignItems:"center", gap:6 }}>View All FAQs ↗</button>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
             </div>
           </div>
@@ -638,7 +652,7 @@ export default function ApolloSite() {
                     />
                     <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:3 }}>
                       <span style={{ fontSize:12, fontWeight:700, letterSpacing:"0.32em", color:"rgba(255,255,255,0.55)", textTransform:"uppercase" }}>HOMES BY</span>
-                      <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.01em", color:"white", lineHeight:1 }}>APOLLO</span>
+                      <span style={{ fontSize:30, fontWeight:900, letterSpacing:"-0.045em", color:"white", lineHeight:1 }}>APOLLO</span>
                     </div>
                   </div>
                   {/* Tagline */}

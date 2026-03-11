@@ -78,3 +78,7 @@
 - [x] Update "About Us" footer link to scroll to the About section anchor
 - [x] Remove from footer nav: Updates, Warranty, Schedule, Homes for Sale, Available Lots, Floor Plans
 - [x] Restructure footer top band: logo+tagline+email form on left, Call Us Free + phone + address on right (matching reference image)
+
+## UI Polish (Session 9)
+- [x] Restyle FAQ section: full-width grey rows, + icon right, large heading left, dark green "View All FAQs" button top-right
+- [x] Tighten APOLLO letter-spacing in footer wordmark to form a justified lockup with HOMES BY
