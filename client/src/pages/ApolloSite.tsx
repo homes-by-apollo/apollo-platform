@@ -330,7 +330,7 @@ export default function ApolloSite() {
         }
 
         /* ── Mobile overrides ─────────────────────────────── */
-        .hero-section { padding-top: 168px; }
+        .hero-section { padding-top: 148px; }
 
         /* Blog cards: fixed 515px on desktop, fluid on smaller screens */
         .blog-cards-grid {
@@ -420,7 +420,7 @@ export default function ApolloSite() {
       }}>
         {/* Logo — owl icon + wordmark */}
         <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:56, width:56, objectFit:"contain", display:"block" }} />
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:65, width:65, objectFit:"contain", display:"block" }} />
           <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:1 }}>
             <span style={{ fontSize:17, fontWeight:700, letterSpacing:"0.32em", color:TXT, textTransform:"uppercase", opacity:1 }}>HOMES BY</span>
             <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.07em", color:TXT, lineHeight:1 }}>APOLLO</span>
@@ -511,7 +511,7 @@ export default function ApolloSite() {
           <div style={{ position:"relative", background:"white" }}>
 
           {/* HERO */}
-          <div className="hero-section" style={{ paddingTop:168, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
+          <div className="hero-section" style={{ paddingTop:148, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
             {/* White top band — covers headline + search bar area */}
             <div style={{ position:"absolute", inset:0, bottom:"50%", background:"white", zIndex:0 }} />
             {/* Navy bottom band — covers bottom 32.5% of hero section (50% × 0.65) */}
