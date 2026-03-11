@@ -180,3 +180,8 @@
 - [x] Add "Blog Posts" nav link to CRMDashboard header
 - [x] Register blog router in server/routers.ts
 - [x] Global footer added to all sub-pages (Homes, Lots, FAQ, Blog, Contact, Home Detail, Lot Detail)
+
+## Session 41
+- [x] Replace Mesquite floor plan image with Pahrump-style desert home photo
+- [x] Replace Sunrise floor plan image with Pahrump-style desert home photo
+- [x] Replace Ridgeline floor plan image with Pahrump-style desert home photo
