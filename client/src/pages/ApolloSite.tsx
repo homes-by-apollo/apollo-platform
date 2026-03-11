@@ -414,7 +414,7 @@ export default function ApolloSite() {
             {/* Hero image */}
             <div className="hero-image-wrap" style={{ margin:"0 24px", position:"relative", marginTop:-28, height:500, overflow:"hidden", borderRadius:"24px 24px 0 0" }}>
               <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=85"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
                 alt="Pahrump custom home"
                 style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 60%" }}
               />
