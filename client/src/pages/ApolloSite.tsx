@@ -293,10 +293,10 @@ export default function ApolloSite() {
         transition: "all 0.2s",
         position: "relative",
       }}>
-        {/* Logo */}
-        <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
-          <img src={LOGO} alt="Homes by Apollo" style={{ height:54, width:"auto", display:"block" }} />
-          <span style={{ fontWeight:800, fontSize:17, letterSpacing:"0.04em", color:TXT }}>HOMES BY APOLLO</span>
+        {/* Logo — wordmark only */}
+        <div style={{ display:"flex", flexDirection:"column", lineHeight:1, cursor:"pointer", gap:1 }} onClick={()=>nav("home")}>
+          <span style={{ fontSize:10, fontWeight:500, letterSpacing:"0.22em", color:MUT, textTransform:"uppercase" }}>HOMES BY</span>
+          <span style={{ fontSize:22, fontWeight:900, letterSpacing:"-0.03em", color:TXT, lineHeight:1 }}>APOLLO</span>
         </div>
 
         {/* Desktop center nav */}
