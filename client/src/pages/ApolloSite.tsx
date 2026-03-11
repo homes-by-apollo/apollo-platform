@@ -508,7 +508,7 @@ export default function ApolloSite() {
         {page==="home" && <>
 
           {/* HERO + FEATURED PROPERTIES OVERLAP WRAPPER */}
-          <div style={{ position:"relative" }}>
+          <div style={{ position:"relative", background:"white" }}>
 
           {/* HERO */}
           <div className="hero-section" style={{ paddingTop:188, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
@@ -592,7 +592,7 @@ export default function ApolloSite() {
               <div>
                 <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
                   <div style={{ width:40, height:2, background:"#4B9CD3" }} />
-                  <span style={{ fontSize:13, fontWeight:600, color:"#4B9CD3", letterSpacing:"0.08em", textTransform:"uppercase" }}>Exclusive property</span>
+                  <span style={{ fontSize:19, fontWeight:600, color:"#4B9CD3", letterSpacing:"0.08em", textTransform:"uppercase" }}>Exclusive property</span>
                 </div>
                 <h2 style={{ fontSize:"clamp(32px,4vw,52px)", fontWeight:800, color:"white", letterSpacing:"-0.03em", lineHeight:1.1, margin:0 }}>Featured Properties</h2>
               </div>
