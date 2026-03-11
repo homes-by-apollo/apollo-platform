@@ -13,15 +13,15 @@ const ACC = "#c8a96e";
 const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo_31888db6.webp";
 
 const homes = [
-  { id:1, tag:"For Sale", price:"$389,900", title:"3-Bed Ranch Home", addr:"480 E Arapahoe St", city:"Pahrump, NV 89048", sqft:"1,800", bed:3, bath:2.5, img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80" },
-  { id:2, tag:"For Sale", price:"$749,900", title:"12-Bed Investment Property", addr:"461 Comstock Ave", city:"Pahrump, NV 89048", sqft:"4,400", bed:12, bath:8, img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80" },
-  { id:3, tag:"For Sale", price:"$409,900", title:"All-Inclusive Dream Home", addr:"4081 Jessica St", city:"Pahrump, NV 89048", sqft:"1,800", bed:3, bath:2.5, img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80" },
+  { id:1, tag:"For Sale", price:"$389,900", title:"3-Bed Ranch Home", addr:"480 E Arapahoe St", city:"Pahrump, NV 89048", sqft:"1,800", bed:3, bath:2.5, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1-esiDT2wxav6EBQnFHtCgBX.webp" },
+  { id:2, tag:"For Sale", price:"$749,900", title:"12-Bed Investment Property", addr:"461 Comstock Ave", city:"Pahrump, NV 89048", sqft:"4,400", bed:12, bath:8, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-3-iGSesPKDzLQrVDfJwcyYWN.webp" },
+  { id:3, tag:"For Sale", price:"$409,900", title:"All-Inclusive Dream Home", addr:"4081 Jessica St", city:"Pahrump, NV 89048", sqft:"1,800", bed:3, bath:2.5, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-2-6CPy9723w6iJntcgGgyqZT.webp" },
 ];
 
 const lots = [
-  { id:1, tag:"Available", size:"0.25 Acres", price:"$45,000", addr:"Lot 14 – Basin Ave", city:"Pahrump, NV", utilities:"Water · Electric · Sewer", img:"https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&q=80" },
-  { id:2, tag:"Available", size:"0.50 Acres", price:"$72,000", addr:"Lot 22 – Desert Rose Dr", city:"Pahrump, NV", utilities:"Water · Electric", img:"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80" },
-  { id:3, tag:"Reserved", size:"1.0 Acre", price:"$115,000", addr:"Lot 7 – Mesquite Ln", city:"Pahrump, NV", utilities:"Water · Electric · Sewer · Gas", img:"https://images.unsplash.com/photo-1416169607655-0c2b3ce2e1cc?w=600&q=80" },
+  { id:1, tag:"Available", size:"0.25 Acres", price:"$45,000", addr:"Lot 14 – Basin Ave", city:"Pahrump, NV", utilities:"Water · Electric · Sewer", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" },
+  { id:2, tag:"Available", size:"0.50 Acres", price:"$72,000", addr:"Lot 22 – Desert Rose Dr", city:"Pahrump, NV", utilities:"Water · Electric", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-2-bHUiWvenUxSzpbYgPZpx6m.webp" },
+  { id:3, tag:"Reserved", size:"1.0 Acre", price:"$115,000", addr:"Lot 7 – Mesquite Ln", city:"Pahrump, NV", utilities:"Water · Electric · Sewer · Gas", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" },
 ];
 
 const blogs = [
@@ -306,7 +306,7 @@ export default function ApolloSite() {
 
         {/* Desktop center nav */}
         <div className="desktop-nav-center" style={{ display:"flex", gap:28, alignItems:"center" }}>
-          {([] as [string,string][]).map(([p,l])=>(
+          {([["contact","Contact"]] as [string,string][]).map(([p,l])=>(
             <button key={p} onClick={()=>nav(p)} style={{
               background:"none", border:"none", cursor:"pointer",
               fontSize:14, fontWeight:500,
@@ -416,7 +416,7 @@ export default function ApolloSite() {
               <img
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
                 alt="Pahrump custom home"
-                style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 60%" }}
+                style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 40%" }}
               />
               <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(8,12,28,0.55) 0%, transparent 50%)" }} />
               {/* Stat pills */}
