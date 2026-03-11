@@ -136,7 +136,10 @@ function LotCard({ l }: { l: typeof lots[0] }) {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           {l.city}
         </div>
-        <div style={{ fontSize:12, color:G, background:GL, padding:"7px 12px", borderRadius:8, fontWeight:600, display:"inline-block" }}>⚡ {l.utilities}</div>
+        <div style={{ fontSize:12, color:G, background:GL, padding:"7px 12px", borderRadius:8, fontWeight:600, display:"inline-flex", alignItems:"center", gap:6 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          {l.utilities}
+        </div>
       </div>
     </div>
   );
@@ -296,8 +299,8 @@ export default function ApolloSite() {
         <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>nav("home")}>
           <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo Owl" style={{ height:40, width:40, objectFit:"contain", display:"block" }} />
           <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:1 }}>
-            <span style={{ fontSize:10, fontWeight:500, letterSpacing:"0.22em", color:MUT, textTransform:"uppercase" }}>HOMES BY</span>
-            <span style={{ fontSize:22, fontWeight:900, letterSpacing:"-0.03em", color:TXT, lineHeight:1 }}>APOLLO</span>
+          <span style={{ fontSize:11, fontWeight:600, letterSpacing:"0.18em", color:TXT, textTransform:"uppercase", opacity:0.7 }}>HOMES BY</span>
+          <span style={{ fontSize:26, fontWeight:900, letterSpacing:"-0.04em", color:TXT, lineHeight:1 }}>APOLLO</span>
           </div>
         </div>
 
@@ -360,10 +363,10 @@ export default function ApolloSite() {
           {/* HERO */}
           <div style={{ background:"white", paddingTop:72, paddingBottom:0, textAlign:"center", position:"relative" }}>
             <h1 className="hero-headline" style={{
-              fontSize: "clamp(28px,4.8vw,76px)",
-              fontWeight: 800, color: TXT, lineHeight: 1.1,
+              fontSize: "clamp(36px,5.8vw,92px)",
+              fontWeight: 800, color: TXT, lineHeight: 1.05,
               letterSpacing: "-0.04em",
-              margin: "0 auto 20px", padding: "0 24px",
+              margin: "0 auto 24px", padding: "0 24px",
               whiteSpace: "normal",
             }}>
               <span style={{ display:"block", whiteSpace:"nowrap" }}>Find Your Dream Home</span>
@@ -438,13 +441,13 @@ export default function ApolloSite() {
                 </div>
                 <div className="why-apollo-icons" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32 }}>
                   {[
-                    ["🏗️","All-Inclusive Pricing","One contract, one price. Land prep to final finishes — no hidden costs, ever."],
-                    ["🗺️","Local Pahrump Expertise","We know Nye County inside out — permits, soil, HOAs, and the best lots in the valley."],
-                    ["🎨","Custom Floor Plans","Every build starts with your vision. We modify layouts and finishes to match your lifestyle."],
-                    ["🤝","Preferred Lenders","We connect you with Nevada construction loan specialists from day one."],
+                    [<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 7h.01M7 11h.01M11 7h6M11 11h6"/></svg>,"All-Inclusive Pricing","One contract, one price. Land prep to final finishes — no hidden costs, ever."],
+                    [<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,"Local Pahrump Expertise","We know Nye County inside out — permits, soil, HOAs, and the best lots in the valley."],
+                    [<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,"Custom Floor Plans","Every build starts with your vision. We modify layouts and finishes to match your lifestyle."],
+                    [<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>,"Preferred Lenders","We connect you with Nevada construction loan specialists from day one."],
                   ].map(([icon,title,desc])=>(
-                    <div key={title}>
-                      <div style={{ fontSize:26, marginBottom:10 }}>{icon}</div>
+                    <div key={title as string}>
+                      <div style={{ width:44, height:44, borderRadius:12, background:GL, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:14 }}>{icon}</div>
                       <div style={{ fontSize:14, fontWeight:700, color:TXT, marginBottom:6 }}>{title}</div>
                       <div style={{ fontSize:13, color:MUT, lineHeight:1.7 }}>{desc}</div>
                     </div>
