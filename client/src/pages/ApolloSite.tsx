@@ -717,8 +717,8 @@ export default function ApolloSite() {
                     </div>
                   </div>
                   {/* Tagline */}
-                  <p style={{ fontSize:19.5, color:"rgba(255,255,255,0.6)", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>
-                    Pahrump's premier custom home builder — all-inclusive builds, one price, no surprises.
+                  <p style={{ fontSize:19.5, color:"white", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>
+                    Pahrump's premier custom home builder. All-inclusive builds, one price, no surprises.
                   </p>
                   {/* Email form */}
                   {submitted ? (
@@ -740,8 +740,8 @@ export default function ApolloSite() {
                         <button
                           onClick={()=>{ if(email) newsletterMutation.mutate({ email }); }}
                           disabled={newsletterMutation.isPending || !email}
-                          style={{ background:"rgba(200,169,110,0.85)", color:"white", border:"none", padding:"14px 22px", borderRadius:"0 8px 8px 0", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", opacity: (!email || newsletterMutation.isPending) ? 0.5 : 1, transition:"opacity 0.15s" }}>
-                          {newsletterMutation.isPending ? "Saving…" : "Notify Me"}
+                          style={{ background:"#4B9CD3", color:"white", border:"none", padding:"14px 22px", borderRadius:"0 8px 8px 0", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", opacity: (!email || newsletterMutation.isPending) ? 0.5 : 1, transition:"opacity 0.15s" }}>
+                          {newsletterMutation.isPending ? "Saving…" : "Subscribe"}
                         </button>
                       </div>
                       {newsletterError && <p style={{ marginTop:8, fontSize:13, color:"#f87171" }}>{newsletterError}</p>}
@@ -1345,6 +1345,14 @@ export default function ApolloSite() {
         alignItems: "center",
         justifyContent: "stretch",
       }}>
+        {isAdmin && (
+          <a
+            href="/crm"
+            style={{ flexShrink:0, background:"white", color:"#e07b39", border:"2px solid #e07b39", borderRadius:10, padding:"14px 12px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", textDecoration:"none", letterSpacing:"0.01em", whiteSpace:"nowrap" }}
+          >
+            Admin
+          </a>
+        )}
         <button
           onClick={()=>nav("contact")}
           style={{ flex:1, background:G, color:"white", border:"none", borderRadius:10, padding:"14px 16px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", letterSpacing:"0.01em" }}>

@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   ActivityLog,
@@ -193,16 +193,25 @@ export async function getNewLeadsThisWeek() {
 
 // ─── Activity Log ─────────────────────────────────────────────────────────────
 
-export async function getSourceCounts() {
+export async function getSourceCounts(period?: "7d" | "30d" | "all") {
   const db = await getDb();
   if (!db) return [];
-  return db
+  const cutoff =
+    period === "7d"
+      ? new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      : period === "30d"
+        ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        : null;
+  const query = db
     .select({
       source: contacts.source,
       count: sql<number>`count(*)`.mapWith(Number),
     })
-    .from(contacts)
-    .groupBy(contacts.source);
+    .from(contacts);
+  if (cutoff) {
+    return query.where(gte(contacts.createdAt, cutoff)).groupBy(contacts.source);
+  }
+  return query.groupBy(contacts.source);
 }
 
 export async function logActivity(data: InsertActivityLog): Promise<void> {

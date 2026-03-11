@@ -107,3 +107,13 @@
 - [x] Increase footer tagline font size by 30% (15px → ~19.5px)
 - [x] Add Source breakdown bar chart to CRM dashboard showing leads by source
 - [x] Add getSourceCounts DB helper and dashboardStats procedure update
+
+## Session 15
+- [ ] Add time-period toggle (7d / 30d / all-time) to Lead Source chart in CRM
+- [ ] Update getSourceCounts DB helper to accept optional period filter
+- [ ] Add persistent Admin link to mobile site footer
+- [ ] Request Plausible API key secret
+
+## Session 16
+- [x] Change "Notify Me" button label to "Subscribe" and make it Carolina Blue (#4B9CD3)
+- [x] Make footer tagline white and remove the em dash

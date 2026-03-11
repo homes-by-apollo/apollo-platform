@@ -154,8 +154,9 @@ export default function CRMDashboard() {
   const [stageFilter, setStageFilter] = useState<string>("ALL");
   const [scoreFilter, setScoreFilter] = useState<string>("ALL");
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
+  const [sourcePeriod, setSourcePeriod] = useState<"7d" | "30d" | "all">("all");
 
-  const statsQuery = trpc.leads.dashboardStats.useQuery();
+  const statsQuery = trpc.leads.dashboardStats.useQuery({ sourcePeriod });
   const trafficQuery = trpc.analytics.trafficStats.useQuery();
   const contactsQuery = trpc.leads.list.useQuery({
     pipelineStage: stageFilter !== "ALL" ? stageFilter as any : undefined,
@@ -358,7 +359,24 @@ export default function CRMDashboard() {
 
           <Card className="lg:col-span-1 border-0 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">Lead Source</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">Lead Source</CardTitle>
+                <div className="flex gap-1">
+                  {(["7d", "30d", "all"] as const).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setSourcePeriod(p)}
+                      className={`text-[10px] px-2 py-0.5 rounded font-semibold transition-colors ${
+                        sourcePeriod === p
+                          ? "bg-[#0f2044] text-white"
+                          : "bg-slate-100 text-muted-foreground hover:bg-slate-200"
+                      }`}
+                    >
+                      {p === "all" ? "All" : p}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {statsQuery.isLoading ? (

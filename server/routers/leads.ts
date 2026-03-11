@@ -369,14 +369,16 @@ export const leadsRouter = router({
     }),
 
   /**
-   * Protected: dashboard stats — stage counts + new leads this week.
+   * Protected: dashboard stats — stage counts + new leads this week + source breakdown.
    */
-  dashboardStats: protectedProcedure.query(async () => {
-    const [stageCounts, newLeadsThisWeek, sourceCounts] = await Promise.all([
-      getStageCounts(),
-      getNewLeadsThisWeek(),
-      getSourceCounts(),
-    ]);
-    return { stageCounts, newLeadsThisWeek, sourceCounts };
-  }),
+  dashboardStats: protectedProcedure
+    .input(z.object({ sourcePeriod: z.enum(["7d", "30d", "all"]).optional().default("all") }))
+    .query(async ({ input }) => {
+      const [stageCounts, newLeadsThisWeek, sourceCounts] = await Promise.all([
+        getStageCounts(),
+        getNewLeadsThisWeek(),
+        getSourceCounts(input.sourcePeriod),
+      ]);
+      return { stageCounts, newLeadsThisWeek, sourceCounts };
+    }),
 });
