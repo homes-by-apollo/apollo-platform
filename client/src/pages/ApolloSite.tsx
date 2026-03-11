@@ -298,7 +298,7 @@ export default function ApolloSite() {
   const nextTestimonial = () => setTestimonialIdx(i => (i + 1) % testimonials.length);
 
   return (
-    <div style={{ fontFamily:"'Manrope',system-ui,sans-serif", background:BG, color:TXT, height:"100vh", display:"flex", flexDirection:"column", overflow:"hidden" }}>
+    <div role="document" style={{ fontFamily:"'Manrope',system-ui,sans-serif", background:BG, color:TXT, height:"100vh", display:"flex", flexDirection:"column", overflow:"hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
@@ -410,7 +410,7 @@ export default function ApolloSite() {
 
       {/* ── NAV ─────────────────────────────────────────────────────────────── */}
       <div style={{ background:"#ffffff", boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.07)" : "none", transition:"box-shadow 0.2s", flexShrink:0, zIndex:200, position:"relative" }}>
-      <nav style={{
+      <nav aria-label="Main navigation" style={{
         background: "transparent",
         padding: "40px var(--pad) 0" as React.CSSProperties["padding"],
         height: 136,
@@ -1343,7 +1343,7 @@ export default function ApolloSite() {
                       selectedHome.img,
                     ].map((src,i)=>(
                       <div key={i} style={{ borderRadius:12, overflow:"hidden", height:140 }}>
-                        <img src={src} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+                        <img src={src} alt={`${selectedHome.title} - photo ${i + 1}`} style={{ width:"100%", height:"100%", objectFit:"cover" }} />
                       </div>
                     ))}
                   </div>

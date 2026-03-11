@@ -1,0 +1,14 @@
+# Apollo Home Builders — robots.txt
+# https://apollohomebuilders.com
+
+User-agent: *
+Allow: /
+
+# Block admin and API routes from indexing
+Disallow: /crm/
+Disallow: /api/
+Disallow: /api/trpc/
+Disallow: /api/oauth/
+
+# Sitemap location
+Sitemap: https://apollohomebuilders.com/sitemap.xml
