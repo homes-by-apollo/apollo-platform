@@ -220,3 +220,10 @@
 - [x] Masked "Homes by Apollo" SVG headline: scale down to 60px height on mobile (shown, not hidden)
 - [x] Property card images: 220px height, object-fit cover on mobile
 - [x] CTA buttons: full-width on mobile (section View All, FAQ, CTA banner, contact submit, Explore More, Our Properties)
+
+## Session 46 — Mobile Hero & Search Improvements
+- [x] Stack hero content vertically with centered text on mobile
+- [x] Convert search bar to vertical stacked form on mobile (48px height, 16px font, 12px gap)
+- [x] Reduce hero image height to 320px on mobile (full-bleed, no border-radius)
+- [x] Scale masked "Homes by Apollo" SVG headline to 52px height on mobile with 20px/30px margins
+- [x] Improve nav CTA buttons: flex layout, smaller font/padding on mobile (via hamburger menu)

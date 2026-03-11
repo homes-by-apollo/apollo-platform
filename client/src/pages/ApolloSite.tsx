@@ -363,21 +363,37 @@ export default function ApolloSite() {
           .logo-homes-by      { font-size: 12px !important; letter-spacing: 0.25em !important; }
           .logo-apollo        { font-size: 22px !important; }
 
+          /* ── Hero content: stack vertically, center text ── */
+          .hero-content       { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 20px !important; text-align: center !important; padding: 0 20px 24px !important; }
+          .hero-content h1,
+          .hero-content .hero-headline { margin-bottom: 0 !important; padding: 0 !important; }
+          .hero-content p,
+          .hero-content .hero-subtitle { margin-bottom: 0 !important; padding: 0 !important; }
+          /* On mobile the image sits below the search bar, so white band fills the whole hero content area */
+          .hero-bg-white      { bottom: 0 !important; }
+          .hero-bg-navy       { display: none !important; }
+
+          /* ── Hero image: reduce height to 320px, full bleed ── */
+          .hero-image-wrap    { margin: 0 !important; padding: 0 !important; margin-top: 0 !important; }
+          .hero-image-inner   { height: 320px !important; border-radius: 0 !important; box-shadow: none !important; }
+
+          /* ── Photo-clip SVG headline: compact strip ── */
+          .photo-clip-svg     { height: 52px !important; }
+          .photo-clip-container { margin-top: 20px !important; margin-bottom: 30px !important; }
+
           /* ── Typography ── */
           h1, .hero-headline  { font-size: clamp(28px,8vw,42px) !important; line-height: 1.2 !important; white-space: normal !important; }
           h2                  { font-size: clamp(24px,7vw,34px) !important; line-height: 1.25 !important; }
           h3                  { font-size: clamp(18px,5vw,24px) !important; }
           p, .hero-subtitle   { font-size: 16px !important; line-height: 1.65 !important; white-space: normal !important; }
 
-          /* ── Hero ── */
-          .hero-image-wrap    { margin: 0 16px !important; height: 220px !important; border-radius: 16px 16px 0 0 !important; }
-
-          /* ── Search bar ── */
-          .search-bar         { flex-direction: column !important; border-radius: 16px !important; padding: 12px !important; gap: 8px !important; width: calc(100% - 32px) !important; box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important; }
-          .search-bar-item    { border-right: none !important; border-bottom: none !important; border: 1px solid #dde3ef !important; border-radius: 10px !important; padding: 14px 18px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; }
+          /* ── Search bar: vertical form on mobile ── */
+          .search-bar         { flex-direction: column !important; border-radius: 16px !important; padding: 12px !important; gap: 12px !important; width: 100% !important; max-width: 100% !important; box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important; display: flex !important; }
+          .search-bar-item    { border-right: none !important; border-bottom: none !important; border: 1px solid #dde3ef !important; border-radius: 10px !important; padding: 0 18px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; height: 48px !important; min-height: 48px !important; flex: none !important; align-self: auto !important; }
+          .search-bar-item div { font-size: 16px !important; }
           .search-bar-item-inner { flex: 1 !important; }
           .search-bar-chevron { display: flex !important; }
-          .search-bar-btn     { width: 100% !important; border-radius: 10px !important; margin: 4px 0 0 !important; padding: 16px !important; font-size: 16px !important; }
+          .search-bar-btn     { width: 100% !important; border-radius: 10px !important; margin: 0 !important; padding: 0 !important; height: 48px !important; font-size: 16px !important; align-self: auto !important; }
 
           /* ── Stat pills ── */
           .stat-pills         { gap: 8px !important; flex-wrap: wrap !important; justify-content: center !important; padding: 0 12px !important; }
@@ -444,7 +460,7 @@ export default function ApolloSite() {
 
           /* ── Featured properties ── */
           .featured-props-grid   { grid-template-columns: 1fr !important; gap: 16px !important; }
-          .featured-props-section { padding-top: calc(120px + 40px) !important; padding-bottom: 40px !important; padding-left: 20px !important; padding-right: 20px !important; margin-top: -120px !important; }
+          .featured-props-section { padding-top: 40px !important; padding-bottom: 40px !important; padding-left: 20px !important; padding-right: 20px !important; margin-top: 0 !important; }
           .feat-card             { width: calc(100vw - 40px) !important; flex-direction: column !important; min-height: unset !important; }
           .feat-card-text        { flex: none !important; width: 100% !important; padding: 24px 20px !important; }
         }
@@ -563,12 +579,12 @@ export default function ApolloSite() {
           {/* HERO */}
           <div className="hero-section" style={{ paddingTop:108, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
             {/* White top band — covers headline + search bar area */}
-            <div style={{ position:"absolute", inset:0, bottom:"50%", background:"white", zIndex:0 }} />
+            <div className="hero-bg-white" style={{ position:"absolute", inset:0, bottom:"50%", background:"white", zIndex:0 }} />
             {/* Navy bottom band — covers bottom 32.5% of hero section (50% × 0.65) */}
-            <div style={{ position:"absolute", inset:0, top:"67.5%", background:"#0f2044", zIndex:0 }} />
+            <div className="hero-bg-navy" style={{ position:"absolute", inset:0, top:"67.5%", background:"#0f2044", zIndex:0 }} />
 
             {/* Content sits above both bands */}
-            <div style={{ position:"relative", zIndex:2 }}>
+            <div className="hero-content" style={{ position:"relative", zIndex:2 }}>
               <h1 className="hero-headline" style={{
                 fontSize: "clamp(36px,5.8vw,92px)",
                 fontWeight: 800, color: TXT, lineHeight: 1.05,
@@ -624,7 +640,7 @@ export default function ApolloSite() {
 
               {/* Hero image — inset with horizontal padding, sits above both bg bands */}
               <div className="hero-image-wrap" style={{ margin:"0 auto", marginTop:-40, width:1680, maxWidth:"100%", padding:"0 16px", boxSizing:"border-box", position:"relative", zIndex:3 }}>
-                <div style={{ width:"100%", height:720, overflow:"hidden", borderRadius:16, boxShadow:"0 24px 80px rgba(8,12,28,0.38), 0 8px 24px rgba(8,12,28,0.22)", position:"relative" }}>
+                <div className="hero-image-inner" style={{ width:"100%", height:720, overflow:"hidden", borderRadius:16, boxShadow:"0 24px 80px rgba(8,12,28,0.38), 0 8px 24px rgba(8,12,28,0.22)", position:"relative" }}>
                   <img
                     src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
                     alt="Pahrump custom home"
