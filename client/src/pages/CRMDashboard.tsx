@@ -100,6 +100,7 @@ export default function CRMDashboard() {
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
 
   const statsQuery = trpc.leads.dashboardStats.useQuery();
+  const trafficQuery = trpc.analytics.trafficStats.useQuery();
   const contactsQuery = trpc.leads.list.useQuery({
     pipelineStage: stageFilter !== "ALL" ? stageFilter as any : undefined,
     contactType: typeFilter !== "ALL" ? typeFilter as any : undefined,
@@ -132,12 +133,19 @@ export default function CRMDashboard() {
   const stats = statsQuery.data;
   const stageCounts = stats?.stageCounts ?? [];
   const newLeadsThisWeek = stats?.newLeadsThisWeek ?? 0;
+  const traffic = trafficQuery.data;
 
   // Derived stats
   const totalActive = contacts.filter(c => !["LOST","CLOSED"].includes(c.pipelineStage)).length;
   const hotLeads = contacts.filter(c => c.leadScore === "HOT").length;
   const toursScheduled = contacts.filter(c => c.pipelineStage === "TOUR_SCHEDULED").length;
   const contractsSigned = contacts.filter(c => c.pipelineStage === "CONTRACT_SIGNED").length;
+
+  // Derived web KPIs
+  const formConversionRate =
+    traffic?.visitors7d && traffic.visitors7d > 0
+      ? ((newLeadsThisWeek / traffic.visitors7d) * 100).toFixed(1)
+      : null;
 
   // Search filter (client-side)
   const filtered = contacts.filter(c => {
@@ -177,22 +185,103 @@ export default function CRMDashboard() {
       </div>
 
       <div className="px-6 py-6 max-w-screen-2xl mx-auto space-y-6">
-        {/* KPI Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: "New This Week", value: newLeadsThisWeek, sub: "leads captured" },
-            { label: "Active Pipeline", value: totalActive, sub: "open contacts" },
-            { label: "Hot Leads", value: hotLeads, sub: "ASAP + pre-approved" },
-            { label: "Tours Scheduled", value: toursScheduled, sub: "upcoming visits" },
-          ].map(({ label, value, sub }) => (
-            <Card key={label} className="border-0 shadow-sm">
+        {/* CRM KPI Cards */}
+        <div>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Pipeline</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { label: "New This Week", value: newLeadsThisWeek, sub: "leads captured" },
+              { label: "Active Pipeline", value: totalActive, sub: "open contacts" },
+              { label: "Hot Leads", value: hotLeads, sub: "ASAP + pre-approved" },
+              { label: "Tours Scheduled", value: toursScheduled, sub: "upcoming visits" },
+            ].map(({ label, value, sub }) => (
+              <Card key={label} className="border-0 shadow-sm">
+                <CardContent className="pt-5 pb-4">
+                  <div className="text-3xl font-black text-[#0f2044]">{value}</div>
+                  <div className="text-sm font-semibold mt-1">{label}</div>
+                  <div className="text-xs text-muted-foreground">{sub}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Web Traffic KPI Cards */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Website Traffic (Last 7 Days)</p>
+            {traffic?.configured === false && (
+              <span className="text-xs text-amber-600 font-medium bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                Plausible API key not configured — add PLAUSIBLE_API_KEY to Secrets
+              </span>
+            )}
+            {traffic?.configured === true && (
+              <a
+                href="https://plausible.io/apollohomebuilders.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-[#0f2044] font-semibold hover:underline"
+              >
+                Open Plausible Dashboard ↗
+              </a>
+            )}
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="border-0 shadow-sm">
               <CardContent className="pt-5 pb-4">
-                <div className="text-3xl font-black text-[#0f2044]">{value}</div>
-                <div className="text-sm font-semibold mt-1">{label}</div>
-                <div className="text-xs text-muted-foreground">{sub}</div>
+                {trafficQuery.isLoading ? (
+                  <div className="text-2xl font-black text-slate-300 animate-pulse">—</div>
+                ) : (
+                  <div className="text-3xl font-black text-[#0f2044]">
+                    {traffic?.visitors7d != null ? traffic.visitors7d.toLocaleString() : "—"}
+                  </div>
+                )}
+                <div className="text-sm font-semibold mt-1">Unique Visitors</div>
+                <div className="text-xs text-muted-foreground">past 7 days</div>
               </CardContent>
             </Card>
-          ))}
+            <Card className="border-0 shadow-sm">
+              <CardContent className="pt-5 pb-4">
+                {trafficQuery.isLoading ? (
+                  <div className="text-2xl font-black text-slate-300 animate-pulse">—</div>
+                ) : (
+                  <div className="text-3xl font-black text-[#0f2044]">
+                    {traffic?.pageviews7d != null ? traffic.pageviews7d.toLocaleString() : "—"}
+                  </div>
+                )}
+                <div className="text-sm font-semibold mt-1">Pageviews</div>
+                <div className="text-xs text-muted-foreground">past 7 days</div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-sm">
+              <CardContent className="pt-5 pb-4">
+                {trafficQuery.isLoading ? (
+                  <div className="text-2xl font-black text-slate-300 animate-pulse">—</div>
+                ) : (
+                  <div className="text-3xl font-black text-[#0f2044]">
+                    {formConversionRate != null ? `${formConversionRate}%` : "—"}
+                  </div>
+                )}
+                <div className="text-sm font-semibold mt-1">Form Conversion</div>
+                <div className="text-xs text-muted-foreground">leads ÷ visitors</div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-sm">
+              <CardContent className="pt-5 pb-4">
+                {trafficQuery.isLoading ? (
+                  <div className="text-2xl font-black text-slate-300 animate-pulse">—</div>
+                ) : (
+                  <div className="text-3xl font-black text-[#0f2044] truncate" title={traffic?.topSource ?? undefined}>
+                    {traffic?.topSource ?? "—"}
+                  </div>
+                )}
+                <div className="text-sm font-semibold mt-1">Top Source</div>
+                <div className="text-xs text-muted-foreground">
+                  {traffic?.topSourceVisitors != null ? `${traffic.topSourceVisitors} visitors` : "past 7 days"}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Funnel + Contracts */}

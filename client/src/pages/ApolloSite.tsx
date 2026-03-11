@@ -33,12 +33,51 @@ const blogs = [
   { cat:"Investment", title:"The Case for Multi-Family Builds in Southern Nevada", date:"Jan 10, 2025", read:"6 min", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/blog-investment-8KFZKqzrwoZiwzAc7Cw3b4.webp" },
 ];
 
+// Home-page FAQ (5 featured questions)
 const faqs: [string, string][] = [
-  ["What's included in an all-inclusive build?","Our all-inclusive packages cover land prep, foundation, framing, electrical, plumbing, HVAC, insulation, drywall, flooring, cabinets, appliances, and landscaping. One price, no surprises."],
-  ["How long does it take to build a home in Pahrump?","Typical builds run 6–9 months from contract to keys, depending on plan complexity. We'll give you a firm timeline at contract signing."],
-  ["Do you offer financing assistance?","Yes — we work with preferred lenders familiar with Pahrump construction loans and can connect you with financing options at your consultation."],
-  ["Can I customize a floor plan?","Absolutely. Every floor plan is a starting point. Our team will adjust layouts, elevations, and finishes to match your vision and budget."],
-  ["What areas do you build in?","We primarily build in Pahrump, NV. Our office is in Las Vegas and we serve all of the Nye County area."],
+  ["How much does it cost to build a home with Apollo?","Our all-inclusive packages start in the low $300s and scale with lot size, floor plan, and finish selections. Every quote is fixed-price — what you sign is what you pay. No change-order surprises."],
+  ["How long does the build process take?","Most single-family homes take 6–9 months from signed contract to keys in hand. We provide a written construction schedule at contract signing and update you at every milestone."],
+  ["Do you help with financing?","Yes. We have relationships with Pahrump-area lenders who specialize in construction-to-permanent loans. We'll connect you at your first consultation so financing never holds up your timeline."],
+  ["What does Apollo's warranty cover?","Every Apollo home comes with a 1-year workmanship warranty, a 2-year mechanical warranty covering plumbing, electrical, and HVAC, and a 10-year structural warranty on the foundation and framing."],
+  ["Do you have lots available right now?","Yes — we currently have lots available in Pahrump ranging from 0.25 to 1+ acres, starting at $45,000. Lot inventory moves quickly; schedule a consultation to see what's available today."],
+];
+
+// Full FAQ page — 14 questions across 4 categories
+const allFaqs: { category: string; items: [string, string][] }[] = [
+  {
+    category: "Pricing & Financing",
+    items: [
+      ["How much does it cost to build a home with Apollo?","Our all-inclusive packages start in the low $300s for a standard 3-bedroom, 2-bath home on a standard lot. Pricing scales with lot size, square footage, and finish selections. Every quote is fixed-price — what you sign is what you pay, with no change-order surprises."],
+      ["What is included in the all-inclusive price?","The price covers everything: land preparation, foundation, framing, roofing, electrical, plumbing, HVAC, insulation, drywall, interior and exterior paint, flooring, cabinetry, countertops, appliances, fixtures, and front landscaping. One number, no hidden line items."],
+      ["Do you help buyers secure financing?","Yes. We work with a network of preferred lenders who specialize in Pahrump construction-to-permanent loans. We'll make introductions at your first consultation so you can get pre-approved before breaking ground."],
+      ["Can I use my own lender?","Absolutely. You are welcome to bring your own financing. We simply ask that your lender is familiar with construction draw schedules, as funds are released in stages tied to build milestones."],
+    ],
+  },
+  {
+    category: "The Build Process",
+    items: [
+      ["How long does the build process take from contract to keys?","Most single-family homes take 6–9 months from signed contract to certificate of occupancy. More complex plans or custom floor plans may run 9–12 months. You receive a written construction schedule at contract signing and milestone updates throughout."],
+      ["What happens after I sign a contract?","We begin with a design meeting to finalize your floor plan, elevations, and finish selections. Once permits are approved by Nye County — typically 4–8 weeks — ground breaks and your build schedule starts."],
+      ["Can I visit the site during construction?","Yes, and we encourage it. We schedule formal walkthroughs at the framing stage, pre-drywall stage, and final walk before closing. You can also request site visits at any time with 24-hour notice."],
+      ["What if I want to make changes mid-build?","Minor changes to finishes or fixtures can often be accommodated before the relevant trade is scheduled. Structural changes after permit approval require a change order and may affect the timeline. We are transparent about costs before any change is made."],
+    ],
+  },
+  {
+    category: "Lots & Location",
+    items: [
+      ["Do you have lots available right now?","Yes. We currently have lots available in Pahrump ranging from 0.25 to 1+ acres, starting at $45,000. Lot inventory moves quickly. Schedule a consultation to see current availability and pricing."],
+      ["Can I bring my own lot?","Yes. If you already own land in Pahrump or Nye County, we can build on it. We'll evaluate the lot for utility access, setback requirements, and soil conditions before providing a fixed-price quote."],
+      ["Why build in Pahrump, Nevada?","Pahrump offers no state income tax, no city tax, and significantly lower land costs than Las Vegas — while being just 60 miles from the Strip. The area is growing rapidly, making it attractive for both primary residences and investment properties."],
+    ],
+  },
+  {
+    category: "Warranty & After Move-In",
+    items: [
+      ["What warranty does Apollo provide?","Every Apollo home includes a 1-year workmanship warranty, a 2-year mechanical warranty covering plumbing, electrical, and HVAC systems, and a 10-year structural warranty on the foundation and load-bearing framing."],
+      ["How do I submit a warranty claim?","Contact us at hello@apollohomebuilders.com or call our office directly. We aim to respond to all warranty requests within 1 business day and schedule repairs within 5 business days for non-emergency items."],
+      ["Do you build investment properties and multi-family homes?","Yes. We have experience building multi-unit investment properties in Pahrump, including 8- and 12-unit configurations. Investment builds follow the same fixed-price, all-inclusive model. Contact us to discuss your investment goals."],
+    ],
+  },
 ];
 
 const testimonials = [
@@ -342,20 +381,29 @@ export default function ApolloSite() {
         </div>
 
         {/* Desktop center nav */}
-        <div className="desktop-nav-center" style={{ display:"flex", gap:28, alignItems:"center" }}>
-          {isAdmin && (
-            <a href="/crm" style={{ fontSize:14, fontWeight:700, color:G, textDecoration:"none", letterSpacing:"0.01em", opacity:0.7 }}
-              onMouseEnter={e=>(e.currentTarget.style.opacity="1")}
-              onMouseLeave={e=>(e.currentTarget.style.opacity="0.7")}>
-              Dashboard
-            </a>
-          )}
-        </div>
+        <div className="desktop-nav-center" style={{ display:"flex", gap:28, alignItems:"center" }} />
 
         {/* Desktop CTAs */}
         <div className="desktop-nav-ctas" style={{ display:"flex", gap:10, alignItems:"center" }}>
+          {isAdmin && (
+            <a
+              href="/crm"
+              style={{
+                fontSize:14, fontWeight:700, textDecoration:"none",
+                color:"#e07b39", background:"white",
+                border:"2px solid #e07b39", borderRadius:8,
+                padding:"8px 18px", letterSpacing:"0.01em",
+                lineHeight:1, display:"inline-flex", alignItems:"center",
+                transition:"background 0.15s, color 0.15s",
+              }}
+              onMouseEnter={e=>{ e.currentTarget.style.background="#e07b39"; e.currentTarget.style.color="white"; }}
+              onMouseLeave={e=>{ e.currentTarget.style.background="white"; e.currentTarget.style.color="#e07b39"; }}
+            >
+              Admin
+            </a>
+          )}
           <Btn small onClick={()=>nav("contact")}>Schedule a Consultation</Btn>
-          <Btn small outline onClick={()=>nav("homes")}>View Homes & Lots</Btn>
+          <Btn small outline onClick={()=>nav("homes")}>View Homes &amp; Lots</Btn>
         </div>
 
         {/* Hamburger */}
@@ -400,7 +448,7 @@ export default function ApolloSite() {
               <span style={{ display:"block", whiteSpace:"nowrap" }}>Find Your Dream Home</span>
               <span style={{ display:"block", whiteSpace:"nowrap" }}>in Pahrump</span>
             </h1>
-            <p className="hero-subtitle" style={{ fontSize:18, color:MUT, maxWidth:500, margin:"0 auto 40px", lineHeight:1.65, fontWeight:400, padding:"0 24px" }}>
+            <p className="hero-subtitle" style={{ fontSize:18, color:MUT, margin:"0 auto 40px", lineHeight:1.65, fontWeight:400, padding:"0 24px", whiteSpace:"nowrap" }}>
               Explore our listings to find the perfect place to call home.
             </p>
 
@@ -652,7 +700,7 @@ export default function ApolloSite() {
                     />
                     <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:3 }}>
                       <span style={{ fontSize:12, fontWeight:700, letterSpacing:"0.32em", color:"rgba(255,255,255,0.55)", textTransform:"uppercase" }}>HOMES BY</span>
-                      <span style={{ fontSize:30, fontWeight:900, letterSpacing:"-0.045em", color:"white", lineHeight:1 }}>APOLLO</span>
+                      <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.085em", color:"white", lineHeight:1 }}>APOLLO</span>
                     </div>
                   </div>
                   {/* Tagline */}
@@ -712,9 +760,9 @@ export default function ApolloSite() {
                     <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>
                     {links.map(([label, pg])=>(
                       <div key={label} onClick={()=>nav(pg)}
-                        style={{ fontSize:15, color:"rgba(255,255,255,0.45)", marginBottom:14, cursor:"pointer", transition:"color 0.15s" }}
-                        onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.9)"}}
-                        onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.45)"}}>
+                        style={{ fontSize:17, color:"rgba(255,255,255,0.55)", marginBottom:16, cursor:"pointer", transition:"color 0.15s", fontWeight:500 }}
+                        onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.95)"}}
+                        onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.55)"}}>
                         {label}
                       </div>
                     ))}
@@ -1050,6 +1098,39 @@ export default function ApolloSite() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ FAQ PAGE ═══════════════════════════════════════════════════════ */}
+        {page==="faq" && (
+          <div className="section-pad" style={{ padding:"60px 5vw 80px" }}>
+            <div style={{ marginBottom:8 }}>
+              <button onClick={()=>nav("home")} style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, fontWeight:700, color:MUT, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6, padding:0, marginBottom:28 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back to Home
+              </button>
+              <SectionLabel>FAQ</SectionLabel>
+              <h1 style={{ fontSize:"clamp(32px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:12, maxWidth:640 }}>Everything you need to know about building with Apollo</h1>
+              <p style={{ fontSize:16, color:MUT, lineHeight:1.75, maxWidth:560, marginBottom:52 }}>Can't find your answer here? Call us at (702) 588-9889 or schedule a free consultation — we're happy to walk you through anything.</p>
+            </div>
+            {allFaqs.map(({ category, items }) => (
+              <div key={category} style={{ marginBottom:52 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:16, display:"flex", alignItems:"center", gap:10 }}>
+                  <div style={{ width:32, height:1.5, background:ACC, borderRadius:2 }} />
+                  {category}
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                  {items.map(([q,a]) => <FAQ key={q} q={q} a={a} />)}
+                </div>
+              </div>
+            ))}
+            <div style={{ marginTop:48, background:G, borderRadius:16, padding:"36px 40px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:20 }}>
+              <div>
+                <div style={{ fontSize:20, fontWeight:800, color:"white", marginBottom:6 }}>Still have questions?</div>
+                <div style={{ fontSize:14, color:"rgba(255,255,255,0.65)", lineHeight:1.6 }}>Schedule a free, no-pressure consultation with Brandon and the Apollo team.</div>
+              </div>
+              <button onClick={()=>nav("contact")} style={{ background:ACC, color:G, border:"none", borderRadius:8, padding:"14px 28px", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>Schedule a Consultation ↗</button>
             </div>
           </div>
         )}

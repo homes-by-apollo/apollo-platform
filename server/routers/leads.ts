@@ -18,6 +18,49 @@ import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// ─── IP-based rate limiter ────────────────────────────────────────────────────
+// Allows at most MAX_SUBMISSIONS per IP within WINDOW_MS.
+// Uses an in-memory Map; resets on server restart (acceptable for this scale).
+
+const WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const MAX_SUBMISSIONS = 5;
+
+const ipSubmissions = new Map<string, number[]>();
+
+function getClientIp(req: { ip?: string; headers: Record<string, string | string[] | undefined> }): string {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (forwarded) {
+    const first = Array.isArray(forwarded) ? forwarded[0] : forwarded.split(",")[0];
+    return first.trim();
+  }
+  return req.ip ?? "unknown";
+}
+
+function checkRateLimit(ip: string): void {
+  const now = Date.now();
+  const windowStart = now - WINDOW_MS;
+  const timestamps = (ipSubmissions.get(ip) ?? []).filter(t => t > windowStart);
+
+  if (timestamps.length >= MAX_SUBMISSIONS) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: `Too many submissions. Please wait before submitting again.`,
+    });
+  }
+
+  timestamps.push(now);
+  ipSubmissions.set(ip, timestamps);
+
+  // Prune stale IPs every ~500 calls to prevent unbounded memory growth
+  if (Math.random() < 0.002) {
+    const keys = Array.from(ipSubmissions.keys());
+    for (const key of keys) {
+      const times = ipSubmissions.get(key)!;
+      if (times.every((t: number) => t <= windowStart)) ipSubmissions.delete(key);
+    }
+  }
+}
+
 // ─── Shared Zod schemas ───────────────────────────────────────────────────────
 
 const timelineEnum = z.enum(["ASAP", "1_3_MONTHS", "3_6_MONTHS", "6_12_MONTHS", "JUST_BROWSING"]);
@@ -136,7 +179,10 @@ export const leadsRouter = router({
         message: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Rate-limit: 5 submissions per IP per hour
+      const ip = getClientIp(ctx.req as any);
+      checkRateLimit(ip);
       const contactId = await createContact({
         contactType: input.contactType,
         firstName: input.firstName,
