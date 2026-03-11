@@ -509,67 +509,76 @@ export default function ApolloSite() {
           <div style={{ position:"relative" }}>
 
           {/* HERO */}
-          <div className="hero-section" style={{ background:"white", paddingTop:188, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
-            <h1 className="hero-headline" style={{
-              fontSize: "clamp(36px,5.8vw,92px)",
-              fontWeight: 800, color: TXT, lineHeight: 1.05,
-              letterSpacing: "-0.04em",
-              margin: "0 auto 24px", padding: "0 var(--pad)",
-              whiteSpace: "normal",
-            }}>
-              <span style={{ display:"block", whiteSpace:"nowrap" }}>Find Your Dream Home</span>
-              <span style={{ display:"block", whiteSpace:"nowrap" }}>in Pahrump</span>
-            </h1>
-            <p className="hero-subtitle" style={{ fontSize:23, color:"#4a5568", margin:"0 auto 40px", lineHeight:1.65, fontWeight:400, padding:"0 var(--pad)", whiteSpace:"nowrap" }}>
-              Explore our listings to find the perfect place to call home.
-            </p>
+          <div className="hero-section" style={{ paddingTop:188, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
+            {/* White top band — covers headline + search bar area */}
+            <div style={{ position:"absolute", inset:0, bottom:"50%", background:"white", zIndex:0 }} />
+            {/* Navy bottom band — covers bottom half of image area */}
+            <div style={{ position:"absolute", inset:0, top:"50%", background:"#0f2044", zIndex:0 }} />
 
-            {/* Search bar */}
-            <div className="search-bar" style={{
-              display:"inline-flex", alignItems:"center",
-              background:"white", borderRadius:14,
-              boxShadow:"0 4px 40px rgba(0,0,0,0.12)",
-              padding:"8px", gap:6,
-              position:"relative", zIndex:10,
-              maxWidth:"calc(100% - 32px)",
-            }}>
-              {[
-                [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>, "Location"],
-                [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, "Property"],
-                [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, "Budget"],
-              ].map(([icon,label],i)=>(
-                <div key={label as string} className="search-bar-item" style={{
-                  display:"flex", alignItems:"center", gap:10,
-                  padding:"14px 22px",
-                  background:"white",
-                  border:"1.5px solid #d8dde8",
-                  borderRadius:10,
-                  cursor:"pointer", minWidth:148,
-                }}>
-                  <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>{icon}</span>
-                  <div style={{ display:"flex", flexDirection:"column", textAlign:"left", flex:1 }}>
-                    <div style={{ fontSize:13, fontWeight:600, color:TXT, letterSpacing:"0.01em", lineHeight:1.2 }}>{label}</div>
-                    <div style={{ fontSize:12, color:"#aab", lineHeight:1.2 }}>Any ▾</div>
+            {/* Content sits above both bands */}
+            <div style={{ position:"relative", zIndex:2 }}>
+              <h1 className="hero-headline" style={{
+                fontSize: "clamp(36px,5.8vw,92px)",
+                fontWeight: 800, color: TXT, lineHeight: 1.05,
+                letterSpacing: "-0.04em",
+                margin: "0 auto 24px", padding: "0 var(--pad)",
+                whiteSpace: "normal",
+              }}>
+                <span style={{ display:"block", whiteSpace:"nowrap" }}>Find Your Dream Home</span>
+                <span style={{ display:"block", whiteSpace:"nowrap" }}>in Pahrump</span>
+              </h1>
+              <p className="hero-subtitle" style={{ fontSize:23, color:"#4a5568", margin:"0 auto 32px", lineHeight:1.65, fontWeight:400, padding:"0 var(--pad)", whiteSpace:"nowrap" }}>
+                Explore our listings to find the perfect place to call home.
+              </p>
+
+              {/* Search bar — floats above the image */}
+              <div className="search-bar" style={{
+                display:"inline-flex", alignItems:"center",
+                background:"white", borderRadius:14,
+                boxShadow:"0 4px 40px rgba(0,0,0,0.12)",
+                padding:"8px", gap:6,
+                position:"relative", zIndex:10,
+                maxWidth:"calc(100% - 32px)",
+                marginBottom:32,
+              }}>
+                {[
+                  [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>, "Location"],
+                  [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, "Property"],
+                  [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, "Budget"],
+                ].map(([icon,label],i)=>(
+                  <div key={label as string} className="search-bar-item" style={{
+                    display:"flex", alignItems:"center", gap:10,
+                    padding:"14px 22px",
+                    background:"white",
+                    border:"1.5px solid #d8dde8",
+                    borderRadius:10,
+                    cursor:"pointer", minWidth:148,
+                  }}>
+                    <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>{icon}</span>
+                    <div style={{ display:"flex", flexDirection:"column", textAlign:"left", flex:1 }}>
+                      <div style={{ fontSize:13, fontWeight:600, color:TXT, letterSpacing:"0.01em", lineHeight:1.2 }}>{label}</div>
+                      <div style={{ fontSize:12, color:"#aab", lineHeight:1.2 }}>Any ▾</div>
+                    </div>
                   </div>
+                ))}
+                <button className="search-bar-btn" onClick={()=>nav("homes")} style={{
+                  background:TXT, color:"white", border:"none",
+                  padding:"16px 34px", borderRadius:10,
+                  fontSize:14, fontWeight:700, cursor:"pointer",
+                  fontFamily:"inherit", letterSpacing:"0.01em",
+                }}>Search</button>
+              </div>
+
+              {/* Hero image — inset with horizontal padding, sits above both bg bands */}
+              <div className="hero-image-wrap" style={{ margin:"0 auto", width:"100%", maxWidth:1650, padding:"0 var(--pad)", boxSizing:"border-box", position:"relative", zIndex:3 }}>
+                <div style={{ width:"100%", height:720, overflow:"hidden", borderRadius:16, boxShadow:"0 24px 80px rgba(8,12,28,0.38), 0 8px 24px rgba(8,12,28,0.22)", position:"relative" }}>
+                  <img
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
+                    alt="Pahrump custom home"
+                    style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 40%" }}
+                  />
                 </div>
-              ))}
-              <button className="search-bar-btn" onClick={()=>nav("homes")} style={{
-                background:TXT, color:"white", border:"none",
-                padding:"16px 34px", borderRadius:10,
-                fontSize:14, fontWeight:700, cursor:"pointer",
-                fontFamily:"inherit", letterSpacing:"0.01em",
-              }}>Search</button>
-            </div>
-
-            {/* Hero image */}
-            <div className="hero-image-wrap" style={{ margin:"0 auto", width:"100%", maxWidth:1650, position:"relative", marginTop:-28, height:720, overflow:"hidden", borderRadius:"24px 24px 0 0", zIndex:2, boxShadow:"0 24px 80px rgba(8,12,28,0.38), 0 8px 24px rgba(8,12,28,0.22)" }}>
-              <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
-                alt="Pahrump custom home"
-                style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 40%" }}
-              />
-              <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(8,12,28,0.55) 0%, transparent 50%)" }} />
-
+              </div>
             </div>
           </div>
 
