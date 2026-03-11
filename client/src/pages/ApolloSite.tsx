@@ -484,8 +484,11 @@ export default function ApolloSite() {
         {/* ══ HOME PAGE ══════════════════════════════════════════════════════ */}
         {page==="home" && <>
 
+          {/* HERO + FEATURED PROPERTIES OVERLAP WRAPPER */}
+          <div style={{ position:"relative" }}>
+
           {/* HERO */}
-          <div className="hero-section" style={{ background:"white", paddingTop:188, paddingBottom:0, textAlign:"center", position:"relative" }}>
+          <div className="hero-section" style={{ background:"white", paddingTop:188, paddingBottom:0, textAlign:"center", position:"relative", zIndex:2 }}>
             <h1 className="hero-headline" style={{
               fontSize: "clamp(36px,5.8vw,92px)",
               fontWeight: 800, color: TXT, lineHeight: 1.05,
@@ -538,7 +541,7 @@ export default function ApolloSite() {
             </div>
 
             {/* Hero image */}
-            <div className="hero-image-wrap" style={{ margin:"0 auto", width:"100%", maxWidth:1650, position:"relative", marginTop:-28, height:720, overflow:"hidden", borderRadius:"24px 24px 0 0" }}>
+            <div className="hero-image-wrap" style={{ margin:"0 auto", width:"100%", maxWidth:1650, position:"relative", marginTop:-28, height:720, overflow:"hidden", borderRadius:"24px 24px 0 0", zIndex:2 }}>
               <img
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/hero-nevada-home-jLv3PVjtmSM8wPtXaTU7Jy.webp"
                 alt="Pahrump custom home"
@@ -549,8 +552,8 @@ export default function ApolloSite() {
             </div>
           </div>
 
-          {/* ══ FEATURED PROPERTIES ═══════════════════════════════════════════ */}
-          <div style={{ background:"#0f2044", padding:"72px var(--pad) 80px" }}>
+          {/* ══ FEATURED PROPERTIES ═══════════════════════════════════ */}
+          <div style={{ background:"#0f2044", paddingTop:"calc(360px + 72px)", paddingBottom:80, paddingLeft:"var(--pad)", paddingRight:"var(--pad)", position:"relative", zIndex:1, marginTop:-360 }}>
             <div className="site-container">
             {/* Header row */}
             <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginBottom:40, flexWrap:"wrap", gap:16 }}>
@@ -682,6 +685,7 @@ export default function ApolloSite() {
             })()}
             </div>
           </div>
+          </div>{/* end overlap wrapper */}
 
 
           {/* PHOTO-CLIP "HOMES BY APOLLO" + ABOUT US — moved ABOVE featured homes */}
