@@ -255,3 +255,6 @@
 - [x] Property meta: 15px / line-height 1.6 / opacity 0.75
 - [x] Property specs table: 15px / label font-weight 500
 - [x] Card content area: 20px top padding (open layout, no box)
+
+## Session 51 — Content Copy
+- [x] Change Homes for Sale section tag from "Featured Properties" to "Ready to move in"

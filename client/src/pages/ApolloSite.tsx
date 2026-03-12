@@ -879,7 +879,7 @@ export default function ApolloSite() {
             <div className="site-container">
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
               <div>
-                <SectionLabel>Featured Properties</SectionLabel>
+                <SectionLabel>Ready to move in</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Homes for Sale</h2>
               </div>
               <button className="section-view-all" onClick={()=>{ track("View All", { section:"Featured Properties" }); nav("homes"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
