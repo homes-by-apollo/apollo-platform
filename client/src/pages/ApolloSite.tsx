@@ -973,6 +973,83 @@ export default function ApolloSite() {
             </div>
           </div>
 
+          {/* NEWSLETTER SUBSCRIBE */}
+          <div className="section-pad" style={{ padding:"72px var(--pad)", background:"#f4f6fa" }}>
+            <div className="site-container">
+              {/* Card with grid-pattern background in Apollo navy */}
+              <div style={{
+                background:"#0f2044",
+                borderRadius:20,
+                padding:"64px 48px",
+                textAlign:"center",
+                position:"relative",
+                overflow:"hidden",
+                /* Subtle grid pattern overlay */
+                backgroundImage:"linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+                backgroundSize:"48px 48px",
+              }}>
+                {/* Decorative gold accent line */}
+                <div style={{ width:40, height:3, background:"#c9a84c", borderRadius:2, margin:"0 auto 20px" }} />
+                <h2 style={{ fontSize:"clamp(26px,3.5vw,40px)", fontWeight:800, color:"white", letterSpacing:"-0.02em", margin:"0 0 14px", lineHeight:1.2 }}>
+                  Stay Ahead of New Listings
+                </h2>
+                <p style={{ fontSize:17, color:"rgba(255,255,255,0.68)", margin:"0 auto 36px", maxWidth:520, lineHeight:1.65 }}>
+                  Be the first to know when new homes and lots become available in Pahrump. No spam — just the listings that matter.
+                </p>
+                {/* Email form */}
+                {(() => {
+                  const [nlEmail, setNlEmail] = useState("");
+                  const [nlStatus, setNlStatus] = useState<"idle"|"sending"|"done">("idle");
+                  const handleNlSubmit = (e: React.FormEvent) => {
+                    e.preventDefault();
+                    if (!nlEmail.trim()) return;
+                    setNlStatus("sending");
+                    setTimeout(() => { setNlStatus("done"); setNlEmail(""); }, 900);
+                  };
+                  return nlStatus === "done" ? (
+                    <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"16px 28px" }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4B9CD3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span style={{ fontSize:16, fontWeight:600, color:"white" }}>You’re on the list! We’ll be in touch.</span>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleNlSubmit} style={{ display:"flex", gap:0, maxWidth:560, margin:"0 auto", borderRadius:12, overflow:"hidden", boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
+                      <input
+                        type="email"
+                        required
+                        placeholder="Enter your email address"
+                        value={nlEmail}
+                        onChange={e=>setNlEmail(e.target.value)}
+                        style={{
+                          flex:1, border:"none", outline:"none",
+                          padding:"18px 22px", fontSize:16,
+                          fontFamily:"inherit", background:"white",
+                          color:"#0f2044",
+                        }}
+                      />
+                      <button
+                        type="submit"
+                        disabled={nlStatus==="sending"}
+                        style={{
+                          background:"#0f2044", color:"white",
+                          border:"2px solid rgba(255,255,255,0.25)",
+                          padding:"18px 32px", fontSize:16, fontWeight:700,
+                          cursor:"pointer", fontFamily:"inherit",
+                          whiteSpace:"nowrap", transition:"background 0.2s",
+                          letterSpacing:"0.01em",
+                        }}
+                        onMouseEnter={e=>(e.currentTarget.style.background="#1a3060")}
+                        onMouseLeave={e=>(e.currentTarget.style.background="#0f2044")}
+                      >
+                        {nlStatus==="sending" ? "Subscribing…" : "Subscribe Now"}
+                      </button>
+                    </form>
+                  );
+                })()}
+                <p style={{ fontSize:13, color:"rgba(255,255,255,0.4)", marginTop:16 }}>Unsubscribe anytime. We respect your privacy.</p>
+              </div>
+            </div>
+          </div>
+
           {/* TESTIMONIALS */}
           <div className="section-pad" style={{ background:"white", padding:"72px var(--pad)" }}>
             <div className="site-container">

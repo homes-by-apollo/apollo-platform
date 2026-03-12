@@ -268,3 +268,7 @@
 - [x] Replaced large floating arrow with compact 44px nav pills at bottom-right of image
 - [x] Entire card clickable with hover lift effect
 - [x] "View Details →" text CTA in blue below specs table
+
+## Session 53 — Newsletter Subscribe Section
+- [x] Insert newsletter section between Available Lots and Client Stories
+- [x] Style with Apollo navy/gold color scheme, grid-pattern background, rounded card, email input + Subscribe Now button
