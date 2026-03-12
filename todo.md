@@ -272,3 +272,9 @@
 ## Session 53 — Newsletter Subscribe Section
 - [x] Insert newsletter section between Available Lots and Client Stories
 - [x] Style with Apollo navy/gold color scheme, grid-pattern background, rounded card, email input + Subscribe Now button
+
+## Session 54 — Mobile Newsletter Fix
+- [x] newsletter-panel: full-width, 40px/24px padding, 16px border-radius on mobile
+- [x] newsletter h2/p: 26px/1.15 h2, 16px/1.6 p with 16px/20px margins on mobile
+- [x] Email input: full-width, 56px height, 14px radius, stacked above button on mobile
+- [x] nl-form button: full-width, 56px height, 14px radius on mobile

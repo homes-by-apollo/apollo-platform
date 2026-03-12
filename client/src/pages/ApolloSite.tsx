@@ -490,6 +490,15 @@ export default function ApolloSite() {
           .featured-props-section { padding-top: 40px !important; padding-bottom: 40px !important; padding-left: 20px !important; padding-right: 20px !important; margin-top: 0 !important; }
           .feat-card             { width: calc(100vw - 40px) !important; flex-direction: column !important; min-height: unset !important; }
           .feat-card-text        { flex: none !important; width: 100% !important; padding: 24px 20px !important; }
+
+          /* ── Newsletter section ── */
+          .newsletter-panel      { padding: 40px 24px !important; border-radius: 16px !important; width: 100% !important; box-sizing: border-box !important; }
+          .newsletter-panel h2   { font-size: 26px !important; line-height: 1.15 !important; margin-bottom: 16px !important; }
+          .newsletter-panel p    { font-size: 16px !important; line-height: 1.6 !important; margin-bottom: 20px !important; }
+          /* Stack email input above button on mobile */
+          .nl-form               { flex-direction: column !important; border-radius: 14px !important; overflow: visible !important; box-shadow: none !important; gap: 10px !important; }
+          .nl-form input[type="email"] { width: 100% !important; height: 56px !important; font-size: 16px !important; padding: 0 18px !important; border-radius: 14px !important; box-shadow: 0 4px 16px rgba(0,0,0,0.18) !important; box-sizing: border-box !important; }
+          .nl-form button        { width: 100% !important; height: 56px !important; border-radius: 14px !important; font-size: 16px !important; font-weight: 700 !important; border: none !important; }
         }
 
         @media (min-width: 769px) {
@@ -977,7 +986,7 @@ export default function ApolloSite() {
           <div className="section-pad" style={{ padding:"72px var(--pad)", background:"#f4f6fa" }}>
             <div className="site-container">
               {/* Card with grid-pattern background in Apollo navy */}
-              <div style={{
+              <div className="newsletter-panel" style={{
                 background:"#0f2044",
                 borderRadius:20,
                 padding:"64px 48px",
@@ -1012,7 +1021,7 @@ export default function ApolloSite() {
                       <span style={{ fontSize:16, fontWeight:600, color:"white" }}>You’re on the list! We’ll be in touch.</span>
                     </div>
                   ) : (
-                    <form onSubmit={handleNlSubmit} style={{ display:"flex", gap:0, maxWidth:560, margin:"0 auto", borderRadius:12, overflow:"hidden", boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
+                    <form className="nl-form" onSubmit={handleNlSubmit} style={{ display:"flex", gap:0, maxWidth:560, margin:"0 auto", borderRadius:12, overflow:"hidden", boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
                       <input
                         type="email"
                         required
