@@ -383,6 +383,9 @@ export default function ApolloSite() {
           h3                  { font-size: 22px !important; line-height: 1.3 !important; }
           p, li, .hero-subtitle, .card-meta { font-size: 16px !important; line-height: 1.6 !important; white-space: normal !important; }
 
+          /* ── Hero search: white card container above the hero image ── */
+          .hero-search        { background: #ffffff !important; padding: 16px !important; border-radius: 16px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important; margin-top: 20px !important; margin-bottom: 20px !important; position: relative !important; z-index: 2 !important; width: 100% !important; box-sizing: border-box !important; }
+
           /* ── Search bar: vertical form on mobile ── */
           .search-bar         { flex-direction: column !important; border-radius: 14px !important; padding: 16px !important; gap: 12px !important; width: 100% !important; max-width: 100% !important; box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important; display: flex !important; background: #fff !important; }
           .search-bar-item    { border-right: none !important; border-bottom: none !important; border: 1px solid #dde3ef !important; border-radius: 10px !important; padding: 0 18px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; height: 50px !important; min-height: 50px !important; flex: none !important; align-self: auto !important; }
@@ -624,6 +627,7 @@ export default function ApolloSite() {
               </p>
 
               {/* Search bar — floats above the image */}
+              <div className="hero-search">
               <div className="search-bar" style={{
                 display:"inline-flex", alignItems:"center",
                 background:"#e8eaed", borderRadius:14,
@@ -661,6 +665,7 @@ export default function ApolloSite() {
                   whiteSpace:"nowrap", alignSelf:"stretch",
                 }}>Search</button>
               </div>
+              </div>{/* /hero-search */}
 
               {/* Hero image — inset with horizontal padding, sits above both bg bands */}
               <div className="hero-image-wrap" style={{ margin:"0 auto", marginTop:-40, width:1680, maxWidth:"100%", padding:"0 16px", boxSizing:"border-box", position:"relative", zIndex:3 }}>

@@ -245,3 +245,6 @@
 - [x] Section headers: 22px margin-bottom, h2 8px margin-bottom
 - [x] Masked headline: 40px top and bottom margin on mobile, white background
 - [x] Footer subscribe: column flex, 10px gap, 48px input and button height
+
+## Session 49 — Mobile Hero Search Card
+- [x] Add hero-search class to search wrapper and style as white card (bg white, 16px padding, 16px radius, shadow, 20px margins, z-index 2) on mobile
