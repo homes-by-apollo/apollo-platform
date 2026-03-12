@@ -384,12 +384,12 @@ export default function ApolloSite() {
           p, li, .hero-subtitle, .card-meta { font-size: 16px !important; line-height: 1.6 !important; white-space: normal !important; }
 
           /* ── Search bar: vertical form on mobile ── */
-          .search-bar         { flex-direction: column !important; border-radius: 16px !important; padding: 12px !important; gap: 12px !important; width: 100% !important; max-width: 100% !important; box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important; display: flex !important; }
-          .search-bar-item    { border-right: none !important; border-bottom: none !important; border: 1px solid #dde3ef !important; border-radius: 10px !important; padding: 0 18px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; height: 48px !important; min-height: 48px !important; flex: none !important; align-self: auto !important; }
+          .search-bar         { flex-direction: column !important; border-radius: 14px !important; padding: 16px !important; gap: 12px !important; width: 100% !important; max-width: 100% !important; box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important; display: flex !important; background: #fff !important; }
+          .search-bar-item    { border-right: none !important; border-bottom: none !important; border: 1px solid #dde3ef !important; border-radius: 10px !important; padding: 0 18px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; height: 50px !important; min-height: 50px !important; flex: none !important; align-self: auto !important; }
           .search-bar-item div { font-size: 16px !important; }
           .search-bar-item-inner { flex: 1 !important; }
           .search-bar-chevron { display: flex !important; }
-          .search-bar-btn     { width: 100% !important; border-radius: 10px !important; margin: 0 !important; padding: 0 !important; height: 48px !important; font-size: 16px !important; align-self: auto !important; }
+          .search-bar-btn     { width: 100% !important; border-radius: 10px !important; margin: 0 !important; padding: 0 !important; height: 52px !important; font-size: 16px !important; font-weight: 600 !important; align-self: auto !important; }
 
           /* ── Stat pills ── */
           .stat-pills         { gap: 8px !important; flex-wrap: wrap !important; justify-content: center !important; padding: 0 12px !important; }
@@ -404,16 +404,20 @@ export default function ApolloSite() {
           /* ── Premium property / blog / lot cards ── */
           .cards-grid         { grid-template-columns: 1fr !important; gap: 24px !important; }
           .cards-grid-2col    { grid-template-columns: 1fr !important; gap: 24px !important; }
-          /* Card wrapper: rounded, overflow hidden */
-          .property-card-wrap { border-radius: 16px !important; overflow: hidden !important; }
+          /* Card wrapper: rounded, overflow hidden, shadow */
+          .property-card-wrap { border-radius: 16px !important; overflow: hidden !important; box-shadow: 0 8px 22px rgba(0,0,0,0.08) !important; }
           /* Card image */
           .property-card-img  { height: 220px !important; border-radius: 0 !important; }
           /* Card content area */
           .property-card-body { padding: 18px !important; }
-          /* Price */
-          .property-price     { font-size: 24px !important; font-weight: 700 !important; }
+          /* Price: prominent anchor */
+          .property-price     { font-size: 26px !important; font-weight: 700 !important; }
           /* Title */
           .property-title     { font-size: 20px !important; line-height: 1.3 !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+          /* Meta: address, specs — subtle */
+          .property-card-wrap .card-meta,
+          .property-card-wrap [style*="color:#6b7280"],
+          .property-card-wrap [style*="color:MUT"] { font-size: 14px !important; opacity: 0.75 !important; }
 
           /* ── How it works ── */
           .how-it-works-grid  { grid-template-columns: 1fr !important; gap: 20px !important; }
@@ -436,17 +440,25 @@ export default function ApolloSite() {
           /* ── Footer ── */
           .footer-grid        { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
           .footer-bottom      { flex-direction: column !important; gap: 8px !important; }
+          /* Footer subscribe: stack input + button vertically */
+          .footer-subscribe   { flex-direction: column !important; gap: 10px !important; max-width: 100% !important; }
+          .footer-subscribe input  { border-radius: 8px !important; border-right: 1px solid rgba(255,255,255,0.18) !important; height: 48px !important; min-height: 48px !important; }
+          .footer-subscribe button { border-radius: 8px !important; height: 48px !important; min-height: 48px !important; width: 100% !important; padding: 0 22px !important; }
 
           /* ── Section headers ── */
-          .section-header-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+          .section-header-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; margin-bottom: 22px !important; }
+          .section-header-row h2 { margin-bottom: 8px !important; }
           .filter-row         { overflow-x: auto !important; padding-bottom: 4px !important; }
 
           /* ── Contact ── */
           .contact-grid       { grid-template-columns: 1fr !important; gap: 28px !important; }
 
-          /* ── Photo-clip SVG headline: tasteful design element ── */
-          .photo-clip-container { display: block !important; overflow: hidden !important; margin-top: 16px !important; margin-bottom: 32px !important; text-align: center !important; }
+          /* ── Photo-clip SVG headline: white bg, tasteful design element ── */
+          .photo-clip-container { display: block !important; overflow: hidden !important; margin-top: 40px !important; margin-bottom: 40px !important; text-align: center !important; background: white !important; }
           .photo-clip-svg       { height: 46px !important; }
+          /* On mobile, replace the photo-clipped text with a plain white-bg text strip */
+          .photo-clip-svg text  { fill: #0f2044 !important; }
+          .photo-clip-svg rect  { fill: white !important; mask: none !important; }
           .blog-section         { padding-top: 48px !important; }
 
           /* ── CTA banner ── */
@@ -1068,7 +1080,7 @@ export default function ApolloSite() {
                     </div>
                   ) : (
                     <>
-                      <div style={{ display:"flex", gap:0, maxWidth:420 }}>
+                      <div className="footer-subscribe" style={{ display:"flex", gap:0, maxWidth:420 }}>
                         <input
                           type="email"
                           placeholder="Enter your email"
@@ -1193,7 +1205,7 @@ export default function ApolloSite() {
                     </div>
                   ) : (
                     <>
-                      <div style={{ display:"flex", gap:0, maxWidth:420 }}>
+                      <div className="footer-subscribe" style={{ display:"flex", gap:0, maxWidth:420 }}>
                         <input
                           type="email"
                           placeholder="Enter your email"

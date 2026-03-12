@@ -237,3 +237,11 @@
 - [x] Hero cleanup: hero-content gap 20px centered; hero image 320px full-bleed
 - [x] Masked headline: 46px height SVG strip, 16px top margin, 32px bottom margin, centered
 - [x] About features: 1-col grid, 20px gap; h4 18px; p 16px/1.6
+
+## Session 48 — Mobile Refinements Round 4
+- [x] Fix masked "Homes by Apollo" headline: white or transparent background (not photo-clipped on mobile)
+- [x] Search form: 16px padding, white bg, 14px radius, shadow, 50px inputs, 52px button
+- [x] Property cards: 26px/700 price, 14px/0.75 opacity meta, 0 8px 22px card shadow
+- [x] Section headers: 22px margin-bottom, h2 8px margin-bottom
+- [x] Masked headline: 40px top and bottom margin on mobile, white background
+- [x] Footer subscribe: column flex, 10px gap, 48px input and button height
