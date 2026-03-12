@@ -136,7 +136,7 @@ const Btn = ({ children, white, outline, small, full, carolina, onClick }: BtnPr
 function HomeCard({ h }: { h: typeof homes[0] }) {
   const [hov, setHov] = useState(false);
   return (
-    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+    <div className="property-card-wrap" onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
       {/* Image */}
       <div className="property-card-img" style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
@@ -144,9 +144,9 @@ function HomeCard({ h }: { h: typeof homes[0] }) {
         <span style={{ position:"absolute", top:14, left:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{h.tag}</span>
       </div>
       {/* Info below image — no card box */}
-      <div style={{ paddingBottom:8 }}>
-        <div style={{ fontSize:22, fontWeight:800, color:TXT, letterSpacing:"-0.03em", marginBottom:4 }}>{h.price}</div>
-        <div style={{ fontSize:15, fontWeight:700, color:TXT, marginBottom:5 }}>{h.title}</div>
+      <div className="property-card-body" style={{ paddingBottom:8 }}>
+        <div className="property-price" style={{ fontSize:22, fontWeight:800, color:TXT, letterSpacing:"-0.03em", marginBottom:4 }}>{h.price}</div>
+        <div className="property-title" style={{ fontSize:15, fontWeight:700, color:TXT, marginBottom:5 }}>{h.title}</div>
         <div style={{ fontSize:13, color:MUT, marginBottom:12, display:"flex", alignItems:"center", gap:4 }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           {h.addr}, {h.city}
@@ -173,7 +173,7 @@ function HomeCard({ h }: { h: typeof homes[0] }) {
 function LotCard({ l }: { l: typeof lots[0] }) {
   const [hov, setHov] = useState(false);
   return (
-    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+    <div className="property-card-wrap" onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
       {/* Image */}
       <div className="property-card-img" style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
@@ -182,9 +182,9 @@ function LotCard({ l }: { l: typeof lots[0] }) {
         <span style={{ position:"absolute", top:14, right:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{l.size}</span>
       </div>
       {/* Info below image — no card box */}
-      <div style={{ paddingBottom:8 }}>
-        <div style={{ fontSize:22, fontWeight:800, color:TXT, letterSpacing:"-0.03em", marginBottom:4 }}>{l.price}</div>
-        <div style={{ fontSize:15, fontWeight:700, color:TXT, marginBottom:5 }}>{l.addr}</div>
+      <div className="property-card-body" style={{ paddingBottom:8 }}>
+        <div className="property-price" style={{ fontSize:22, fontWeight:800, color:TXT, letterSpacing:"-0.03em", marginBottom:4 }}>{l.price}</div>
+        <div className="property-title" style={{ fontSize:15, fontWeight:700, color:TXT, marginBottom:5 }}>{l.addr}</div>
         <div style={{ fontSize:13, color:MUT, marginBottom:12, display:"flex", alignItems:"center", gap:4 }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           {l.city}
@@ -377,15 +377,11 @@ export default function ApolloSite() {
           .hero-image-wrap    { margin: 0 !important; padding: 0 !important; margin-top: 0 !important; }
           .hero-image-inner   { height: 320px !important; border-radius: 0 !important; box-shadow: none !important; }
 
-          /* ── Photo-clip SVG headline: compact strip ── */
-          .photo-clip-svg     { height: 52px !important; }
-          .photo-clip-container { margin-top: 20px !important; margin-bottom: 30px !important; }
-
-          /* ── Typography ── */
-          h1, .hero-headline  { font-size: clamp(28px,8vw,42px) !important; line-height: 1.2 !important; white-space: normal !important; }
-          h2                  { font-size: clamp(24px,7vw,34px) !important; line-height: 1.25 !important; }
-          h3                  { font-size: clamp(18px,5vw,24px) !important; }
-          p, .hero-subtitle   { font-size: 16px !important; line-height: 1.65 !important; white-space: normal !important; }
+          /* ── Typography rhythm ── */
+          h1, .hero-headline  { font-size: 34px !important; line-height: 1.15 !important; white-space: normal !important; }
+          h2                  { font-size: 28px !important; line-height: 1.2 !important; }
+          h3                  { font-size: 22px !important; line-height: 1.3 !important; }
+          p, li, .hero-subtitle, .card-meta { font-size: 16px !important; line-height: 1.6 !important; white-space: normal !important; }
 
           /* ── Search bar: vertical form on mobile ── */
           .search-bar         { flex-direction: column !important; border-radius: 16px !important; padding: 12px !important; gap: 12px !important; width: 100% !important; max-width: 100% !important; box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important; display: flex !important; }
@@ -400,17 +396,24 @@ export default function ApolloSite() {
           .stat-pill          { min-width: 80px !important; padding: 10px 14px !important; }
           .stat-pill-val      { font-size: 16px !important; }
 
-          /* ── Section spacing: reduce vertical whitespace ── */
-          .section-pad        { padding: 40px 20px !important; }
-          .section-pad-top    { padding-top: 40px !important; padding-left: 20px !important; padding-right: 20px !important; }
-
-          /* ── Container padding ── */
+          /* ── Global spacing rhythm ── */
+          .section-pad        { padding: 48px 20px !important; }
+          .section-pad-top    { padding-top: 48px !important; padding-left: 20px !important; padding-right: 20px !important; }
           .site-container     { padding-left: 20px !important; padding-right: 20px !important; }
 
-          /* ── Property & lot cards: 1-per-row, 24px gap ── */
+          /* ── Premium property / blog / lot cards ── */
           .cards-grid         { grid-template-columns: 1fr !important; gap: 24px !important; }
           .cards-grid-2col    { grid-template-columns: 1fr !important; gap: 24px !important; }
-          .property-card-img  { height: 220px !important; object-fit: cover !important; }
+          /* Card wrapper: rounded, overflow hidden */
+          .property-card-wrap { border-radius: 16px !important; overflow: hidden !important; }
+          /* Card image */
+          .property-card-img  { height: 220px !important; border-radius: 0 !important; }
+          /* Card content area */
+          .property-card-body { padding: 18px !important; }
+          /* Price */
+          .property-price     { font-size: 24px !important; font-weight: 700 !important; }
+          /* Title */
+          .property-title     { font-size: 20px !important; line-height: 1.3 !important; margin-top: 8px !important; margin-bottom: 8px !important; }
 
           /* ── How it works ── */
           .how-it-works-grid  { grid-template-columns: 1fr !important; gap: 20px !important; }
@@ -421,6 +424,9 @@ export default function ApolloSite() {
           /* ── About Us: stack left column then icons vertically ── */
           .why-apollo-grid    { grid-template-columns: 1fr !important; gap: 28px !important; }
           .why-apollo-icons   { grid-template-columns: 1fr !important; gap: 20px !important; }
+          /* About feature items: premium typography */
+          .why-apollo-icons h4 { font-size: 18px !important; margin-bottom: 6px !important; }
+          .why-apollo-icons p  { font-size: 16px !important; line-height: 1.6 !important; }
 
           /* ── Testimonials ── */
           .testimonial-card   { padding: 24px 18px !important; }
@@ -438,21 +444,27 @@ export default function ApolloSite() {
           /* ── Contact ── */
           .contact-grid       { grid-template-columns: 1fr !important; gap: 28px !important; }
 
-          /* ── Photo-clip SVG headline: scale down instead of hiding ── */
-          .photo-clip-container { display: block !important; overflow: hidden !important; }
-          .photo-clip-svg       { height: 60px !important; }
-          .blog-section         { padding-top: 40px !important; }
+          /* ── Photo-clip SVG headline: tasteful design element ── */
+          .photo-clip-container { display: block !important; overflow: hidden !important; margin-top: 16px !important; margin-bottom: 32px !important; text-align: center !important; }
+          .photo-clip-svg       { height: 46px !important; }
+          .blog-section         { padding-top: 48px !important; }
 
           /* ── CTA banner ── */
           .cta-banner         { flex-direction: column !important; gap: 20px !important; text-align: center !important; }
           .cta-banner-btn     { width: 100% !important; justify-content: center !important; }
 
+          /* ── Tap targets: min 52px, full-width, 12px radius ── */
+          button, .faq-item-trigger { min-height: 52px !important; }
+          .search-bar-btn     { min-height: 52px !important; height: 52px !important; }
+          .search-bar-item    { min-height: 52px !important; height: 52px !important; }
+
           /* ── Full-width section buttons ── */
           .section-view-all          { width: 100% !important; text-align: left !important; }
           .section-cta-btn           { width: 100% !important; justify-content: center !important; }
-          .section-cta-btn > button  { width: 100% !important; }
-          .faq-view-all-btn          { width: 100% !important; margin-top: 0 !important; }
-          .contact-submit-btn        { width: 100% !important; }
+          .section-cta-btn > button  { width: 100% !important; border-radius: 12px !important; font-size: 16px !important; }
+          .faq-view-all-btn          { width: 100% !important; margin-top: 0 !important; border-radius: 12px !important; font-size: 16px !important; }
+          .contact-submit-btn        { width: 100% !important; border-radius: 12px !important; font-size: 16px !important; }
+          .cta-banner-btn            { border-radius: 12px !important; font-size: 16px !important; }
 
           /* ── Mobile CTAs ── */
           .mobile-full-cta    { width: 100% !important; justify-content: center !important; }
@@ -990,17 +1002,17 @@ export default function ApolloSite() {
             </div>
             <div className="blog-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,515px)", gap:28, justifyContent:"start" }}>
               {blogs.map(b=>(
-                <div key={b.title} style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer", border:`1px solid ${BOR}` }}>
+                <div className="property-card-wrap" key={b.title} style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer", border:`1px solid ${BOR}` }}>
                   {/* Fixed 515×336 image container */}
                   <div className="blog-card-img" style={{ overflow:"hidden", flexShrink:0 }}>
                     <img src={b.img} alt={b.title} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
                   </div>
-                  <div style={{ padding:"18px 20px 22px" }}>
+                  <div className="property-card-body" style={{ padding:"18px 20px 22px" }}>
                     <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
                       <span style={{ fontSize:10, fontWeight:700, color:G, background:GL, padding:"3px 9px", borderRadius:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>{b.cat}</span>
                       <span style={{ fontSize:11, color:MUT }}>{b.date} · {b.read} read</span>
                     </div>
-                    <div style={{ fontSize:15, fontWeight:700, color:TXT, lineHeight:1.45 }}>{b.title}</div>
+                    <div className="property-title" style={{ fontSize:15, fontWeight:700, color:TXT, lineHeight:1.45 }}>{b.title}</div>
                   </div>
                 </div>
               ))}

@@ -227,3 +227,13 @@
 - [x] Reduce hero image height to 320px on mobile (full-bleed, no border-radius)
 - [x] Scale masked "Homes by Apollo" SVG headline to 52px height on mobile with 20px/30px margins
 - [x] Improve nav CTA buttons: flex layout, smaller font/padding on mobile (via hamburger menu)
+
+## Session 47 — Mobile Premium Polish
+- [x] Global mobile spacing: section 48px top/bottom, container 20px sides
+- [x] Typography rhythm: h1 34px/1.15, h2 28px/1.2, h3 22px/1.3, p/li 16px/1.6
+- [x] Premium property/blog/lot cards: 16px border-radius, 220px images, 18px content padding
+- [x] Property price: 24px/700 on mobile; title/blog-title/lot-title: 20px/1.3
+- [x] Better tap targets: min-height 52px on buttons, FAQ rows; btn full-width, 12px radius, 16px font
+- [x] Hero cleanup: hero-content gap 20px centered; hero image 320px full-bleed
+- [x] Masked headline: 46px height SVG strip, 16px top margin, 32px bottom margin, centered
+- [x] About features: 1-col grid, 20px gap; h4 18px; p 16px/1.6
