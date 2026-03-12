@@ -269,6 +269,10 @@ export default function ApolloSite() {
   const [homeFilter, setHomeFilter] = useState("All");
   const [lotFilter, setLotFilter] = useState("All");
   const [blogFilter, setBlogFilter] = useState("All");
+  // Hero search bar state
+  const [searchLocation, setSearchLocation] = useState("");
+  const [searchType, setSearchType] = useState("");
+  const [searchBudget, setSearchBudget] = useState("");
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [featCarouselIdx, setFeatCarouselIdx] = useState(0);
 
@@ -650,27 +654,70 @@ export default function ApolloSite() {
                 width:790, height:100, maxWidth:"calc(100% - 32px)",
                 marginBottom:0, boxSizing:"border-box",
               }}>
-                {[
-                  [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>, "Location"],
-                  [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, "Property"],
-                  [<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, "Budget"],
-                ].map(([icon,label],i)=>(
-                  <div key={label as string} className="search-bar-item" style={{
-                    display:"flex", alignItems:"center", gap:10,
-                    padding:"14px 22px",
-                    background:"white",
-                    border:"1.5px solid #d8dde8",
-                    borderRadius:10,
-                    cursor:"pointer", flex:1, alignSelf:"stretch",
-                  }}>
-                    <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>{icon}</span>
-                    <div style={{ display:"flex", alignItems:"center", gap:8, flex:1, justifyContent:"space-between" }}>
-                      <div style={{ fontSize:18, fontWeight:600, color:TXT, letterSpacing:"0.01em" }}>{label}</div>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                    </div>
-                  </div>
-                ))}
-                <button className="search-bar-btn" onClick={()=>{ track("Search", { location:"hero" }); nav("homes"); }} style={{
+                {/* Location dropdown */}
+                <div className="search-bar-item" style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 22px", background:"white", border:"1.5px solid #d8dde8", borderRadius:10, flex:1, alignSelf:"stretch", position:"relative" }}>
+                  <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  </span>
+                  <select
+                    value={searchLocation}
+                    onChange={e => setSearchLocation(e.target.value)}
+                    style={{ flex:1, border:"none", outline:"none", background:"transparent", fontSize:18, fontWeight:600, color: searchLocation ? TXT : MUT, fontFamily:"inherit", cursor:"pointer", appearance:"none", WebkitAppearance:"none" }}
+                  >
+                    <option value="">Location</option>
+                    <option value="pahrump">Pahrump, NV</option>
+                    <option value="nye-county">Nye County, NV</option>
+                    <option value="las-vegas">Las Vegas Area</option>
+                  </select>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+
+                {/* Property type dropdown */}
+                <div className="search-bar-item" style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 22px", background:"white", border:"1.5px solid #d8dde8", borderRadius:10, flex:1, alignSelf:"stretch", position:"relative" }}>
+                  <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  </span>
+                  <select
+                    value={searchType}
+                    onChange={e => setSearchType(e.target.value)}
+                    style={{ flex:1, border:"none", outline:"none", background:"transparent", fontSize:18, fontWeight:600, color: searchType ? TXT : MUT, fontFamily:"inherit", cursor:"pointer", appearance:"none", WebkitAppearance:"none" }}
+                  >
+                    <option value="">Property</option>
+                    <option value="home">Home</option>
+                    <option value="lot">Lot / Land</option>
+                    <option value="custom">Custom Build</option>
+                  </select>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+
+                {/* Budget dropdown */}
+                <div className="search-bar-item" style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 22px", background:"white", border:"1.5px solid #d8dde8", borderRadius:10, flex:1, alignSelf:"stretch", position:"relative" }}>
+                  <span style={{ display:"flex", alignItems:"center", flexShrink:0 }}>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  </span>
+                  <select
+                    value={searchBudget}
+                    onChange={e => setSearchBudget(e.target.value)}
+                    style={{ flex:1, border:"none", outline:"none", background:"transparent", fontSize:18, fontWeight:600, color: searchBudget ? TXT : MUT, fontFamily:"inherit", cursor:"pointer", appearance:"none", WebkitAppearance:"none" }}
+                  >
+                    <option value="">Budget</option>
+                    <option value="under-300k">Under $300k</option>
+                    <option value="300-400k">$300k – $400k</option>
+                    <option value="400-500k">$400k – $500k</option>
+                    <option value="500k-plus">$500k+</option>
+                  </select>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+
+                <button className="search-bar-btn" onClick={()=>{
+                  track("Search", { location:"hero", searchType, searchLocation, searchBudget });
+                  // Navigate to the right page based on property type selection
+                  if (searchType === "lot") {
+                    nav("lots");
+                  } else {
+                    nav("homes");
+                  }
+                }} style={{
                   background:"#0f2044", color:"white", border:"none",
                   padding:"0 36px", borderRadius:10,
                   fontSize:17, fontWeight:700, cursor:"pointer",
@@ -1421,21 +1468,49 @@ export default function ApolloSite() {
         )}
 
         {/* ══ HOMES FOR SALE ══════════════════════════════════════════════════ */}
-        {page==="homes" && (
+        {page==="homes" && (() => {
+            // Apply budget filter from hero search
+            const parsePriceNum = (p: string) => parseInt(p.replace(/[^0-9]/g,""), 10);
+            const filteredHomes = homes.filter(h => {
+              const price = parsePriceNum(h.price);
+              if (searchBudget === "under-300k") return price < 300000;
+              if (searchBudget === "300-400k")  return price >= 300000 && price < 400000;
+              if (searchBudget === "400-500k")  return price >= 400000 && price < 500000;
+              if (searchBudget === "500k-plus") return price >= 500000;
+              return true; // no filter
+            });
+            return (
           <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>All Properties</SectionLabel>
-            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom: (searchBudget || searchLocation) ? 12 : 24 }}>
               <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h1>
               <div className="filter-row" style={{ display:"flex", gap:8 }}>
                 {["All","Available","Sold"].map(f=><FilterBtn key={f} active={homeFilter===f} onClick={()=>setHomeFilter(f)}>{f}</FilterBtn>)}
               </div>
             </div>
+            {/* Active search filters summary */}
+            {(searchBudget || searchLocation || searchType) && (
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:20, flexWrap:"wrap" }}>
+                <span style={{ fontSize:13, color:MUT, fontWeight:600 }}>Filtered by:</span>
+                {searchLocation && <span style={{ fontSize:13, background:GL, color:G, borderRadius:20, padding:"4px 12px", fontWeight:600 }}>📍 {searchLocation === "pahrump" ? "Pahrump, NV" : searchLocation === "nye-county" ? "Nye County, NV" : "Las Vegas Area"}</span>}
+                {searchType && searchType !== "lot" && <span style={{ fontSize:13, background:GL, color:G, borderRadius:20, padding:"4px 12px", fontWeight:600 }}>🏠 {searchType === "home" ? "Home" : searchType === "custom" ? "Custom Build" : searchType}</span>}
+                {searchBudget && <span style={{ fontSize:13, background:GL, color:G, borderRadius:20, padding:"4px 12px", fontWeight:600 }}>💰 {searchBudget === "under-300k" ? "Under $300k" : searchBudget === "300-400k" ? "$300k–$400k" : searchBudget === "400-500k" ? "$400k–$500k" : "$500k+"}</span>}
+                <button onClick={()=>{ setSearchBudget(""); setSearchLocation(""); setSearchType(""); }} style={{ fontSize:12, color:MUT, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", textDecoration:"underline" }}>Clear filters</button>
+              </div>
+            )}
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
-              {homes.map(h=>(
+              {filteredHomes.length > 0 ? filteredHomes.map(h=>(
                 <div key={h.id} onClick={()=>{ setSelectedHome(h); nav("home-detail"); }}>
                   <HomeCard h={h}/>
                 </div>
-              ))}
+              )) : (
+                <div style={{ gridColumn:"1/-1", textAlign:"center", padding:"60px 0", color:MUT }}>
+                  <div style={{ fontSize:40, marginBottom:16 }}>🏠</div>
+                  <p style={{ fontSize:18, fontWeight:600, marginBottom:8 }}>No homes match your search</p>
+                  <p style={{ fontSize:14, marginBottom:20 }}>Try adjusting your budget or location filters.</p>
+                  <button onClick={()=>{ setSearchBudget(""); setSearchLocation(""); setSearchType(""); }} style={{ background:G, color:"white", border:"none", borderRadius:8, padding:"12px 24px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>Clear Filters</button>
+                </div>
+              )}
             </div>
             <div className="cta-banner" style={{ background:G, borderRadius:14, padding:"32px 36px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
@@ -1445,7 +1520,8 @@ export default function ApolloSite() {
               <Btn white onClick={()=>{ track("Schedule Consultation", { location:"how-it-works" }); nav("contact"); }}>Start a Custom Build</Btn>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* ══ AVAILABLE LOTS ══════════════════════════════════════════════════ */}
         {page==="lots" && (

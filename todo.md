@@ -281,3 +281,17 @@
 
 ## Session 55 — Mobile Search Card Position Fix
 - [x] Move search card above hero image on mobile — CSS order: headline(1), subtitle(2), search(3), image(4)
+
+## Session 56 — Wire Hero Search Bar
+- [ ] Add real dropdown options to Location, Property type, and Budget fields
+- [ ] Wire dropdown state with useState hooks
+- [ ] Pass filter values as URL query params on Search click (?location=&type=&budget=)
+- [ ] Read query params on homes/listings page and apply as filters to displayed listings
+
+## Session 56 — Wire Hero Search Bar
+- [x] Add searchLocation, searchType, searchBudget state variables
+- [x] Replace static label divs with real select dropdowns (Location: Pahrump/Nye County/Las Vegas; Property: Home/Lot/Custom; Budget: Under $300k/$300-400k/$400-500k/$500k+)
+- [x] Wire Search button: navigate to "lots" if type=lot, else "homes"
+- [x] Apply budget filter on homes page (filter homes array by price range)
+- [x] Show active filter pills on homes page with Clear filters button
+- [x] Show empty state with Clear Filters CTA when no homes match
