@@ -278,3 +278,6 @@
 - [x] newsletter h2/p: 26px/1.15 h2, 16px/1.6 p with 16px/20px margins on mobile
 - [x] Email input: full-width, 56px height, 14px radius, stacked above button on mobile
 - [x] nl-form button: full-width, 56px height, 14px radius on mobile
+
+## Session 55 — Mobile Search Card Position Fix
+- [x] Move search card above hero image on mobile — CSS order: headline(1), subtitle(2), search(3), image(4)

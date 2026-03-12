@@ -384,7 +384,11 @@ export default function ApolloSite() {
           p, li, .hero-subtitle, .card-meta { font-size: 16px !important; line-height: 1.6 !important; white-space: normal !important; }
 
           /* ── Hero search: white card container above the hero image ── */
-          .hero-search        { background: #ffffff !important; padding: 16px !important; border-radius: 16px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important; margin-top: 20px !important; margin-bottom: 20px !important; position: relative !important; z-index: 2 !important; width: 100% !important; box-sizing: border-box !important; }
+          .hero-search        { background: #ffffff !important; padding: 16px !important; border-radius: 16px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important; margin-top: 20px !important; margin-bottom: 0 !important; position: relative !important; z-index: 2 !important; width: 100% !important; box-sizing: border-box !important; order: 3 !important; }
+          /* Hero content flex reorder: headline(1) → subtitle(2) → search(3) → image(4) */
+          .hero-headline      { order: 1 !important; }
+          .hero-subtitle      { order: 2 !important; }
+          .hero-image-wrap    { order: 4 !important; margin-top: 0 !important; }
 
           /* ── Search bar: vertical form on mobile ── */
           .search-bar         { flex-direction: column !important; border-radius: 14px !important; padding: 16px !important; gap: 12px !important; width: 100% !important; max-width: 100% !important; box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important; display: flex !important; background: #fff !important; }
@@ -621,7 +625,7 @@ export default function ApolloSite() {
 
             {/* Content sits above both bands */}
             <div className="hero-content" style={{ position:"relative", zIndex:2 }}>
-              <h1 className="hero-headline" style={{
+              <h1 className="hero-headline" style={{ /* order:1 on mobile via CSS */
                 fontSize: "clamp(36px,5.8vw,92px)",
                 fontWeight: 800, color: TXT, lineHeight: 1.05,
                 letterSpacing: "-0.04em",
