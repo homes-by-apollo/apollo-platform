@@ -144,23 +144,23 @@ function HomeCard({ h }: { h: typeof homes[0] }) {
         <span style={{ position:"absolute", top:14, left:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{h.tag}</span>
       </div>
       {/* Info below image — no card box */}
-      <div className="property-card-body" style={{ paddingBottom:8 }}>
-        <div className="property-price" style={{ fontSize:22, fontWeight:800, color:TXT, letterSpacing:"-0.03em", marginBottom:4 }}>{h.price}</div>
-        <div className="property-title" style={{ fontSize:15, fontWeight:700, color:TXT, marginBottom:5 }}>{h.title}</div>
-        <div style={{ fontSize:13, color:MUT, marginBottom:12, display:"flex", alignItems:"center", gap:4 }}>
+      <div className="property-card-body" style={{ padding:"20px 4px 8px" }}>
+        <div className="property-price" style={{ fontSize:30, fontWeight:700, color:TXT, letterSpacing:"-0.3px", marginBottom:14 }}>{h.price}</div>
+        <div className="property-title" style={{ fontSize:22, fontWeight:600, color:TXT, lineHeight:1.3, marginBottom:6 }}>{h.title}</div>
+        <div className="property-meta" style={{ fontSize:15, color:MUT, lineHeight:1.6, marginBottom:12, display:"flex", alignItems:"center", gap:4, opacity:0.75 }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           {h.addr}, {h.city}
         </div>
-        <div style={{ display:"flex", gap:18, fontSize:13, color:MUT }}>
-          <span style={{ display:"flex", alignItems:"center", gap:5 }}>
+        <div className="property-specs" style={{ display:"flex", gap:18, fontSize:15, color:MUT }}>
+          <span style={{ display:"flex", alignItems:"center", gap:5, fontWeight:500 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             {h.bed}
           </span>
-          <span style={{ display:"flex", alignItems:"center", gap:5 }}>
+          <span style={{ display:"flex", alignItems:"center", gap:5, fontWeight:500 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12h16M4 12a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></svg>
             {h.bath}
           </span>
-          <span style={{ display:"flex", alignItems:"center", gap:5 }}>
+          <span style={{ display:"flex", alignItems:"center", gap:5, fontWeight:500 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
             {h.sqft} sqft
           </span>
@@ -182,10 +182,10 @@ function LotCard({ l }: { l: typeof lots[0] }) {
         <span style={{ position:"absolute", top:14, right:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{l.size}</span>
       </div>
       {/* Info below image — no card box */}
-      <div className="property-card-body" style={{ paddingBottom:8 }}>
-        <div className="property-price" style={{ fontSize:22, fontWeight:800, color:TXT, letterSpacing:"-0.03em", marginBottom:4 }}>{l.price}</div>
-        <div className="property-title" style={{ fontSize:15, fontWeight:700, color:TXT, marginBottom:5 }}>{l.addr}</div>
-        <div style={{ fontSize:13, color:MUT, marginBottom:12, display:"flex", alignItems:"center", gap:4 }}>
+      <div className="property-card-body" style={{ padding:"20px 4px 8px" }}>
+        <div className="property-price" style={{ fontSize:30, fontWeight:700, color:TXT, letterSpacing:"-0.3px", marginBottom:14 }}>{l.price}</div>
+        <div className="property-title" style={{ fontSize:22, fontWeight:600, color:TXT, lineHeight:1.3, marginBottom:6 }}>{l.addr}</div>
+        <div className="property-meta" style={{ fontSize:15, color:MUT, lineHeight:1.6, marginBottom:12, display:"flex", alignItems:"center", gap:4, opacity:0.75 }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           {l.city}
         </div>

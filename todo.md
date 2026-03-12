@@ -248,3 +248,10 @@
 
 ## Session 49 — Mobile Hero Search Card
 - [x] Add hero-search class to search wrapper and style as white card (bg white, 16px padding, 16px radius, shadow, 20px margins, z-index 2) on mobile
+
+## Session 50 — Desktop Property Card Typography
+- [x] Property title: 22px / font-weight 600 / line-height 1.3 / margin-bottom 6px
+- [x] Property price: 30px / font-weight 700 / letter-spacing -0.3px / margin-bottom 14px
+- [x] Property meta: 15px / line-height 1.6 / opacity 0.75
+- [x] Property specs table: 15px / label font-weight 500
+- [x] Card content area: 20px top padding (open layout, no box)
