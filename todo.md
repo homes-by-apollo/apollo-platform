@@ -258,3 +258,13 @@
 
 ## Session 51 — Content Copy
 - [x] Change Homes for Sale section tag from "Featured Properties" to "Ready to move in"
+
+## Session 52 — Featured Properties Card Restyle
+- [x] 2-column split card: left panel (details) + right panel (full-height image)
+- [x] Left panel: title 24px/700 wrapping, address below title, price 34px/700
+- [x] Specs table: icon + label left, value right, horizontal dividers between rows
+- [x] Icons for Bedrooms, Bathrooms, Garage, Area
+- [x] Right panel: full-height image, object-fit cover, status tag top-left (white pill)
+- [x] Replaced large floating arrow with compact 44px nav pills at bottom-right of image
+- [x] Entire card clickable with hover lift effect
+- [x] "View Details →" text CTA in blue below specs table

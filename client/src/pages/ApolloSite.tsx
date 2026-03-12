@@ -741,79 +741,106 @@ export default function ApolloSite() {
                       transition:"transform 0.45s cubic-bezier(0.4,0,0.2,1)",
                       willChange:"transform",
                     }}>
-                      {featProps.map((p,i)=>(
-                        <div key={i} className="feat-card" style={{
-                          flexShrink:0,
-                          width:cardW,
-                          background:"white", borderRadius:18, overflow:"hidden",
-                          display:"flex", flexDirection:"row",
-                          boxShadow:"0 12px 48px rgba(0,0,0,0.22)",
-                          minHeight:530,
-                        }}>
-                          {/* Text panel */}
-                          <div className="feat-card-text" style={{ flex:"0 0 52%", padding:"36px 32px 36px", display:"flex", flexDirection:"column", justifyContent:"space-between" }}>
-                            <div>
-                              <h3 style={{ fontSize:26, fontWeight:900, color:TXT, letterSpacing:"-0.03em", lineHeight:1.15, margin:"0 0 6px" }}>{p.title}</h3>
-                              <p style={{ fontSize:14, color:MUT, margin:"0 0 4px", fontWeight:500 }}>{p.sub}</p>
-                              <p style={{ fontSize:12, color:"#bbb", margin:"0 0 20px", lineHeight:1.4 }}>{p.address}</p>
-                              <div style={{ fontSize:34, fontWeight:900, color:TXT, letterSpacing:"-0.04em", margin:"0 0 24px" }}>{p.price}</div>
-                            </div>
-                            <div style={{ borderTop:`1px solid ${BOR}`, paddingTop:20, display:"flex", flexDirection:"column", gap:12 }}>
-                              {([["Bedrooms",p.beds],["Bathrooms",p.baths],["Garage",p.garage],["Area",p.sqft ? `${p.sqft} sqft` : null]] as [string, string|number|null|undefined][]).filter(([,val])=>val!=null).map(([label,val])=>(
-                                <div key={label as string} style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                                  <span style={{ fontSize:14, color:MUT }}>{label}</span>
-                                  <span style={{ fontSize:14, fontWeight:700, color:TXT }}>{val}</span>
+                      {featProps.map((p,i)=>{
+                        // Spec rows with icons matching the reference design
+                        const specRows: { icon: React.ReactNode; label: string; value: string|number|null|undefined }[] = [
+                          {
+                            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+                            label: "Bedrooms", value: p.beds,
+                          },
+                          {
+                            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12h16M4 12a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></svg>,
+                            label: "Bathrooms", value: p.baths,
+                          },
+                          {
+                            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+                            label: "Garage", value: p.garage ?? 2,
+                          },
+                          {
+                            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>,
+                            label: "Area", value: p.sqft ? `${p.sqft} sqft` : null,
+                          },
+                        ].filter(r => r.value != null);
+                        return (
+                        <div
+                          key={i}
+                          className="feat-card"
+                          onClick={()=>{ setSelectedHome(homes[i] ?? homes[0]); nav("home-detail"); }}
+                          style={{
+                            flexShrink:0,
+                            width:cardW,
+                            background:"white", borderRadius:20, overflow:"hidden",
+                            display:"flex", flexDirection:"row",
+                            boxShadow:"0 16px 56px rgba(0,0,0,0.28)",
+                            minHeight:560,
+                            cursor:"pointer",
+                            transition:"box-shadow 0.25s, transform 0.25s",
+                          }}
+                          onMouseEnter={e=>{ e.currentTarget.style.boxShadow="0 24px 72px rgba(0,0,0,0.38)"; e.currentTarget.style.transform="translateY(-2px)"; }}
+                          onMouseLeave={e=>{ e.currentTarget.style.boxShadow="0 16px 56px rgba(0,0,0,0.28)"; e.currentTarget.style.transform="translateY(0)"; }}
+                        >
+                          {/* Left: content panel */}
+                          <div className="feat-card-text" style={{ flex:"0 0 48%", padding:"40px 36px 36px", display:"flex", flexDirection:"column", justifyContent:"flex-start", gap:0 }}>
+                            {/* Title */}
+                            <h3 style={{ fontSize:24, fontWeight:700, color:TXT, lineHeight:1.3, margin:"0 0 10px", letterSpacing:"-0.01em" }}>{p.title}</h3>
+                            {/* Address */}
+                            <p style={{ fontSize:15, color:MUT, margin:"0 0 24px", lineHeight:1.5, fontWeight:400 }}>{p.address}</p>
+                            {/* Price */}
+                            <div style={{ fontSize:34, fontWeight:700, color:TXT, letterSpacing:"-0.02em", margin:"0 0 28px", lineHeight:1 }}>{p.price}</div>
+                            {/* Specs table with icons + dividers */}
+                            <div style={{ display:"flex", flexDirection:"column" }}>
+                              {specRows.map((row, ri)=>(
+                                <div key={row.label}>
+                                  {ri > 0 && <div style={{ height:1, background:BOR, margin:"0" }} />}
+                                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 0" }}>
+                                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                                      {row.icon}
+                                      <span style={{ fontSize:15, color:MUT, fontWeight:500 }}>{row.label}</span>
+                                    </div>
+                                    <span style={{ fontSize:15, fontWeight:700, color:TXT }}>{row.value}</span>
+                                  </div>
                                 </div>
                               ))}
                             </div>
+                            {/* View Details CTA */}
+                            <div style={{ marginTop:"auto", paddingTop:24 }}>
+                              <span style={{ fontSize:15, fontWeight:700, color:"#4B9CD3", letterSpacing:"0.01em" }}>View Details →</span>
+                            </div>
                           </div>
-                          {/* Photo panel */}
-                          <div style={{ flex:"0 0 48%", position:"relative", overflow:"hidden" }}>
+                          {/* Right: full-height image panel */}
+                          <div style={{ flex:"0 0 52%", position:"relative", overflow:"hidden" }}>
                             <img src={p.img} alt={p.title} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
-                            <div style={{ position:"absolute", top:16, right:16, background:p.tag==="Coming Soon" ? "#e07b39" : "#0f2044", color:"white", fontSize:11, fontWeight:700, padding:"6px 14px", borderRadius:6, letterSpacing:"0.04em", textTransform:"uppercase" }}>{p.tag}</div>
-                            {/* Advance button — sits on the right edge of the photo */}
-                            {i === featCarouselIdx && canAdvance && (
-                              <button
-                                onClick={()=>setFeatCarouselIdx(idx=>idx+1)}
-                                style={{
-                                  position:"absolute", bottom:24, right:24,
-                                  width:56, height:56, borderRadius:"50%",
-                                  background:"rgba(75,156,211,0.92)", backdropFilter:"blur(6px)",
-                                  border:"none", cursor:"pointer",
-                                  display:"flex", alignItems:"center", justifyContent:"center",
-                                  boxShadow:"0 4px 20px rgba(0,0,0,0.25)",
-                                  transition:"transform 0.2s, background 0.2s",
-                                }}
-                                onMouseEnter={e=>(e.currentTarget.style.transform="scale(1.08)")}
-                                onMouseLeave={e=>(e.currentTarget.style.transform="scale(1)")}
-                                aria-label="Next property"
-                              >
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                              </button>
-                            )}
-                            {/* Back button */}
-                            {i === featCarouselIdx && canBack && (
-                              <button
-                                onClick={()=>setFeatCarouselIdx(idx=>idx-1)}
-                                style={{
-                                  position:"absolute", bottom:24, right:92,
-                                  width:56, height:56, borderRadius:"50%",
-                                  background:"rgba(255,255,255,0.25)", backdropFilter:"blur(6px)",
-                                  border:"1.5px solid rgba(255,255,255,0.5)", cursor:"pointer",
-                                  display:"flex", alignItems:"center", justifyContent:"center",
-                                  boxShadow:"0 4px 20px rgba(0,0,0,0.15)",
-                                  transition:"transform 0.2s",
-                                }}
-                                onMouseEnter={e=>(e.currentTarget.style.transform="scale(1.08)")}
-                                onMouseLeave={e=>(e.currentTarget.style.transform="scale(1)")}
-                                aria-label="Previous property"
-                              >
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                              </button>
-                            )}
+                            {/* Status tag — top-left per reference */}
+                            <div style={{ position:"absolute", top:16, left:16, background:"white", color:TXT, fontSize:13, fontWeight:700, padding:"7px 16px", borderRadius:8, boxShadow:"0 2px 12px rgba(0,0,0,0.14)", letterSpacing:"0.01em" }}>{p.tag}</div>
+                            {/* Carousel nav buttons — bottom-right of image, kept as small pills */}
+                            <div style={{ position:"absolute", bottom:20, right:20, display:"flex", gap:8 }}>
+                              {i === featCarouselIdx && canBack && (
+                                <button
+                                  onClick={e=>{ e.stopPropagation(); setFeatCarouselIdx(idx=>idx-1); }}
+                                  style={{ width:44, height:44, borderRadius:"50%", background:"rgba(255,255,255,0.25)", backdropFilter:"blur(6px)", border:"1.5px solid rgba(255,255,255,0.5)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"transform 0.2s" }}
+                                  onMouseEnter={e=>e.currentTarget.style.transform="scale(1.1)"}
+                                  onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}
+                                  aria-label="Previous property"
+                                >
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                                </button>
+                              )}
+                              {i === featCarouselIdx && canAdvance && (
+                                <button
+                                  onClick={e=>{ e.stopPropagation(); setFeatCarouselIdx(idx=>idx+1); }}
+                                  style={{ width:44, height:44, borderRadius:"50%", background:"rgba(75,156,211,0.92)", backdropFilter:"blur(6px)", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 4px 20px rgba(0,0,0,0.25)", transition:"transform 0.2s" }}
+                                  onMouseEnter={e=>e.currentTarget.style.transform="scale(1.1)"}
+                                  onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}
+                                  aria-label="Next property"
+                                >
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                   {/* Dot indicators */}
