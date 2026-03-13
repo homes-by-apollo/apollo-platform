@@ -1,0 +1,31 @@
+{
+  "query": "SELECT id, address, propertyType, featured, sortOrder FROM properties WHERE featured = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4ZmCLDe5kjC12Ki.a08ad336f6b8 --database mwVy9Am3ywXkRkqF68TJjK --execute SELECT id, address, propertyType, featured, sortOrder FROM properties WHERE featured = 1;",
+  "rows": [
+    {
+      "id": "1",
+      "address": "480 E Arapahoe St, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "featured": "1",
+      "sortOrder": "1"
+    },
+    {
+      "id": "2",
+      "address": "461 Comstock Ave, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "featured": "1",
+      "sortOrder": "2"
+    },
+    {
+      "id": "3",
+      "address": "4081 Jessica St, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "featured": "1",
+      "sortOrder": "3"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tpropertyType\tfeatured\tsortOrder\n1\t480 E Arapahoe St, Pahrump, NV 89048\tHOME\t1\t1\n2\t461 Comstock Ave, Pahrump, NV 89048\tHOME\t1\t2\n3\t4081 Jessica St, Pahrump, NV 89048\tHOME\t1\t3\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

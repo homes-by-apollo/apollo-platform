@@ -1,0 +1,325 @@
+{
+  "query": "SELECT id, address, propertyType, tag, price, featured, sortOrder FROM properties ORDER BY propertyType, sortOrder LIMIT 40;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4ZmCLDe5kjC12Ki.a08ad336f6b8 --database mwVy9Am3ywXkRkqF68TJjK --execute SELECT id, address, propertyType, tag, price, featured, sortOrder FROM properties ORDER BY propertyType, sortOrder LIMIT 40;",
+  "rows": [
+    {
+      "id": "1",
+      "address": "480 E Arapahoe St, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$389,900",
+      "featured": "1",
+      "sortOrder": "1"
+    },
+    {
+      "id": "2",
+      "address": "461 Comstock Ave, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$749,900",
+      "featured": "1",
+      "sortOrder": "2"
+    },
+    {
+      "id": "3",
+      "address": "4081 Jessica St, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$409,900",
+      "featured": "1",
+      "sortOrder": "3"
+    },
+    {
+      "id": "4",
+      "address": "5691 N Alderwood Place, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$329,900",
+      "featured": "0",
+      "sortOrder": "4"
+    },
+    {
+      "id": "5",
+      "address": "1100 Hall Ave, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$749,900",
+      "featured": "0",
+      "sortOrder": "5"
+    },
+    {
+      "id": "6",
+      "address": "1060 Hall Ave, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$749,900",
+      "featured": "0",
+      "sortOrder": "6"
+    },
+    {
+      "id": "7",
+      "address": "5681 Alderwood Place, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$369,900",
+      "featured": "0",
+      "sortOrder": "7"
+    },
+    {
+      "id": "8",
+      "address": "4951 W Windsong Lane, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$429,900",
+      "featured": "0",
+      "sortOrder": "8"
+    },
+    {
+      "id": "9",
+      "address": "4670 Medicine Man, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$369,900",
+      "featured": "0",
+      "sortOrder": "9"
+    },
+    {
+      "id": "10",
+      "address": "1370 Tiptop Trail, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$479,900",
+      "featured": "0",
+      "sortOrder": "10"
+    },
+    {
+      "id": "11",
+      "address": "281 Chevron St, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$389,900",
+      "featured": "0",
+      "sortOrder": "11"
+    },
+    {
+      "id": "12",
+      "address": "2886 Mount Charleston Dr, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$329,900",
+      "featured": "0",
+      "sortOrder": "12"
+    },
+    {
+      "id": "13",
+      "address": "3300 W Wilson Rd, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$359,900",
+      "featured": "0",
+      "sortOrder": "13"
+    },
+    {
+      "id": "14",
+      "address": "3824 Mount Charleston Dr, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Under Contract",
+      "price": "$329,900",
+      "featured": "0",
+      "sortOrder": "14"
+    },
+    {
+      "id": "15",
+      "address": "3201 Prospector Ln, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$349,900",
+      "featured": "0",
+      "sortOrder": "15"
+    },
+    {
+      "id": "16",
+      "address": "181 Comstock Ave, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$369,900",
+      "featured": "0",
+      "sortOrder": "16"
+    },
+    {
+      "id": "17",
+      "address": "730 W Kimberly Ave, Pahrump, NV 89060",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$419,900",
+      "featured": "0",
+      "sortOrder": "17"
+    },
+    {
+      "id": "18",
+      "address": "3750 S Pahrump Valley Blvd, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Available",
+      "price": "$489,900",
+      "featured": "0",
+      "sortOrder": "18"
+    },
+    {
+      "id": "19",
+      "address": "1531 W Lost Creek Dr, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Under Contract",
+      "price": "$429,900",
+      "featured": "0",
+      "sortOrder": "19"
+    },
+    {
+      "id": "20",
+      "address": "991 E Enchanted Mesa St, Pahrump, NV 89048",
+      "propertyType": "HOME",
+      "tag": "Under Contract",
+      "price": "$359,900",
+      "featured": "0",
+      "sortOrder": "20"
+    },
+    {
+      "id": "21",
+      "address": "1130 Annie Ave, Pahrump, NV 89060",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "1"
+    },
+    {
+      "id": "22",
+      "address": "5380 N Fleetwood Place, Pahrump, NV 89060",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "2"
+    },
+    {
+      "id": "23",
+      "address": "3941 S Money St, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "3"
+    },
+    {
+      "id": "24",
+      "address": "1451 Pioche St, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "4"
+    },
+    {
+      "id": "25",
+      "address": "3720 Tahachapi Ave, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "5"
+    },
+    {
+      "id": "26",
+      "address": "3860 Seneca Ave, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "6"
+    },
+    {
+      "id": "27",
+      "address": "2831 E Deerskin St, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "7"
+    },
+    {
+      "id": "28",
+      "address": "3110 Tahachapi Ave, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "8"
+    },
+    {
+      "id": "29",
+      "address": "1330 Silver Peak Ave, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "9"
+    },
+    {
+      "id": "30",
+      "address": "3270 Ness St, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "10"
+    },
+    {
+      "id": "31",
+      "address": "2651 Quinta Ave, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "11"
+    },
+    {
+      "id": "32",
+      "address": "1991 S Highland Ave, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "12"
+    },
+    {
+      "id": "33",
+      "address": "3260 Shadow Mountain St, Pahrump, NV 89060",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "13"
+    },
+    {
+      "id": "34",
+      "address": "3420 Pueblo Rd, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "14"
+    },
+    {
+      "id": "35",
+      "address": "111 Fairway St, Pahrump, NV 89048",
+      "propertyType": "LOT",
+      "tag": "Available",
+      "price": "Inquire",
+      "featured": "0",
+      "sortOrder": "15"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tpropertyType\ttag\tprice\tfeatured\tsortOrder\n1\t480 E Arapahoe St, Pahrump, NV 89048\tHOME\tAvailable\t$389,900\t1\t1\n2\t461 Comstock Ave, Pahrump, NV 89048\tHOME\tAvailable\t$749,900\t1\t2\n3\t4081 Jessica St, Pahrump, NV 89048\tHOME\tAvailable\t$409,900\t1\t3\n4\t5691 N Alderwood Place, Pahrump, NV 89048\tHOME\tAvailable\t$329,900\t0\t4\n5\t1100 Hall Ave, Pahrump, NV 89048\tHOME\tAvailable\t$749,900\t0\t5\n6\t1060 Hall Ave, Pahrump, NV 89048\tHOME\tAvailable\t$749,900\t0\t6\n7\t5681 Alderwood Place, Pahrump, NV 89048\tHOME\tAvailable\t$369,900\t0\t7\n8\t4951 W Windsong Lane, Pahrump, NV 89048\tHOME\tAvailable\t$429,900\t0\t8\n9\t4670 Medicine Man, Pahrump, NV 89048\tHOME\tAvailable\t$369,900\t0\t9\n10\t1370 Tiptop Trail, Pahrump, NV 89048\tHOME\tAvailable\t$479,900\t0\t10\n11\t281 Chevron St, Pahrump, NV 89048\tHOME\tAvailable\t$389,900\t0\t11\n12\t2886 Mount Charleston Dr, Pahrump, NV 89048\tHOME\tAvailable\t$329,900\t0\t12\n13\t3300 W Wilson Rd, Pahrump, NV 89048\tHOME\tAvailable\t$359,900\t0\t13\n14\t3824 Mount Charleston Dr, Pahrump, NV 89048\tHOME\tUnder Contract\t$329,900\t0\t14\n15\t3201 Prospector Ln, Pahrump, NV 89048\tHOME\tAvailable\t$349,900\t0\t15\n16\t181 Comstock Ave, Pahrump, NV 89048\tHOME\tAvailable\t$369,900\t0\t16\n17\t730 W Kimberly Ave, Pahrump, NV 89060\tHOME\tAvailable\t$419,900\t0\t17\n18\t3750 S Pahrump Valley Blvd, Pahrump, NV 89048\tHOME\tAvailable\t$489,900\t0\t18\n19\t1531 W Lost Creek Dr, Pahrump, NV 89048\tHOME\tUnder Contract\t$429,900\t0\t19\n20\t991 E Enchanted Mesa St, Pahrump, NV 89048\tHOME\tUnder Contract\t$359,900\t0\t20\n21\t1130 Annie Ave, Pahrump, NV 89060\tLOT\tAvailable\tInquire\t0\t1\n22\t5380 N Fleetwood Place, Pahrump, NV 89060\tLOT\tAvailable\tInquire\t0\t2\n23\t3941 S Money St, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t3\n24\t1451 Pioche St, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t4\n25\t3720 Tahachapi Ave, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t5\n26\t3860 Seneca Ave, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t6\n27\t2831 E Deerskin St, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t7\n28\t3110 Tahachapi Ave, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t8\n29\t1330 Silver Peak Ave, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t9\n30\t3270 Ness St, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t10\n31\t2651 Quinta Ave, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t11\n32\t1991 S Highland Ave, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t12\n33\t3260 Shadow Mountain St, Pahrump, NV 89060\tLOT\tAvailable\tInquire\t0\t13\n34\t3420 Pueblo Rd, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t14\n35\t111 Fairway St, Pahrump, NV 89048\tLOT\tAvailable\tInquire\t0\t15\n",
+  "stderr": "",
+  "execution_time_ms": 422
+}

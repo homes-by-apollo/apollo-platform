@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE properties SET featured = 1 WHERE propertyType = 'HOME' AND sortOrder IN (1, 2, 3);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4ZmCLDe5kjC12Ki.a08ad336f6b8 --database mwVy9Am3ywXkRkqF68TJjK --execute UPDATE properties SET featured = 1 WHERE propertyType = 'HOME' AND sortOrder IN (1, 2, 3);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 56
+}

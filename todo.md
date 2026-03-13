@@ -295,3 +295,13 @@
 - [x] Apply budget filter on homes page (filter homes array by price range)
 - [x] Show active filter pills on homes page with Clear filters button
 - [x] Show empty state with Clear Filters CTA when no homes match
+
+## Session 57 — Bulk Insert Live Listings from pahrumpbuilder.com
+- [x] Scraped all 20 home listings and 15 lot listings from pahrumpbuilder.com
+- [x] Bulk-inserted all 35 listings into the database via seed-properties.mjs
+- [x] Marked first 3 homes as featured for the carousel
+- [x] Wired Homes page to read from DB (dbHomes via trpc.properties.getAll)
+- [x] Wired Lots page to read from DB (dbLots via trpc.properties.getAll)
+- [x] Wired homepage Available Lots section to use DB data (first 3 lots)
+- [x] Budget and tag filters applied to DB data on Homes page
+- [x] Loading states added to Homes and Lots pages

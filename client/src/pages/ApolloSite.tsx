@@ -278,6 +278,9 @@ export default function ApolloSite() {
 
   // Live featured properties from database
   const { data: dbFeaturedProps, isLoading: featPropsLoading } = trpc.properties.getFeatured.useQuery();
+  // Live homes and lots from database
+  const { data: dbHomes, isLoading: dbHomesLoading } = trpc.properties.getAll.useQuery({ propertyType: "HOME" });
+  const { data: dbLots, isLoading: dbLotsLoading } = trpc.properties.getAll.useQuery({ propertyType: "LOT" });
   const [selectedHome, setSelectedHome] = useState<typeof homes[0] | null>(null);
   const [selectedLot, setSelectedLot] = useState<typeof lots[0] | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
@@ -1024,15 +1027,17 @@ export default function ApolloSite() {
               <button className="section-view-all" onClick={()=>{ track("View All", { section:"Land" }); nav("lots"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-              {lots.map(l=>(
-                <div key={l.id} onClick={()=>{ setSelectedLot(l); nav("lot-detail"); }}>
-                  <LotCard l={l}/>
+              {(dbLots ?? lots).slice(0,3).map(l=>{
+                const isDb = 'address' in l;
+                const mapped = isDb ? { id:(l as any).id, tag:(l as any).tag, size:(l as any).sqft ? `${(l as any).sqft} sqft` : "Inquire", price:(l as any).price, addr:(l as any).address, city:`${(l as any).city}, ${(l as any).state}`, utilities:(l as any).description ?? "Water · Electric", img:(l as any).imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" } : l as typeof lots[0];
+                return (
+                <div key={mapped.id} onClick={()=>{ setSelectedLot(mapped); nav("lot-detail"); }}>
+                  <LotCard l={mapped}/>
                 </div>
-              ))}
+              )})}
             </div>
             </div>
           </div>
-
           {/* NEWSLETTER SUBSCRIBE */}
           <div className="section-pad" style={{ padding:"72px var(--pad)", background:"#f4f6fa" }}>
             <div className="site-container">
@@ -1469,15 +1474,18 @@ export default function ApolloSite() {
 
         {/* ══ HOMES FOR SALE ══════════════════════════════════════════════════ */}
         {page==="homes" && (() => {
-            // Apply budget filter from hero search
+            // Use DB homes, fall back to static if loading
             const parsePriceNum = (p: string) => parseInt(p.replace(/[^0-9]/g,""), 10);
-            const filteredHomes = homes.filter(h => {
-              const price = parsePriceNum(h.price);
+            const allHomes = dbHomes ?? [];
+            const filteredHomes = allHomes.filter(h => {
+              const price = h.priceValue ?? parsePriceNum(h.price);
+              if (homeFilter === "Available" && h.tag !== "Available") return false;
+              if (homeFilter === "Sold" && h.tag !== "Sold") return false;
               if (searchBudget === "under-300k") return price < 300000;
               if (searchBudget === "300-400k")  return price >= 300000 && price < 400000;
               if (searchBudget === "400-500k")  return price >= 400000 && price < 500000;
               if (searchBudget === "500k-plus") return price >= 500000;
-              return true; // no filter
+              return true;
             });
             return (
           <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
@@ -1485,7 +1493,7 @@ export default function ApolloSite() {
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom: (searchBudget || searchLocation) ? 12 : 24 }}>
               <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h1>
               <div className="filter-row" style={{ display:"flex", gap:8 }}>
-                {["All","Available","Sold"].map(f=><FilterBtn key={f} active={homeFilter===f} onClick={()=>setHomeFilter(f)}>{f}</FilterBtn>)}
+                {["All","Available","Sold","Under Contract"].map(f=><FilterBtn key={f} active={homeFilter===f} onClick={()=>setHomeFilter(f)}>{f}</FilterBtn>)}
               </div>
             </div>
             {/* Active search filters summary */}
@@ -1498,12 +1506,15 @@ export default function ApolloSite() {
                 <button onClick={()=>{ setSearchBudget(""); setSearchLocation(""); setSearchType(""); }} style={{ fontSize:12, color:MUT, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", textDecoration:"underline" }}>Clear filters</button>
               </div>
             )}
+            {dbHomesLoading && (
+              <div style={{ textAlign:"center", padding:"40px 0", color:MUT, fontSize:15 }}>Loading listings…</div>
+            )}
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
-              {filteredHomes.length > 0 ? filteredHomes.map(h=>(
-                <div key={h.id} onClick={()=>{ setSelectedHome(h); nav("home-detail"); }}>
-                  <HomeCard h={h}/>
+              {!dbHomesLoading && filteredHomes.length > 0 ? filteredHomes.map(h=>(
+                <div key={h.id} onClick={()=>{ setSelectedHome({ id:h.id, tag:h.tag, price:h.price, title:h.address, addr:h.address, city:`${h.city}, ${h.state}`, sqft:h.sqft??"—", bed:h.beds??0, bath:h.baths??0, img:h.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg" }); nav("home-detail"); }}>
+                  <HomeCard h={{ id:h.id, tag:h.tag, price:h.price, title:h.address, addr:h.address, city:`${h.city}, ${h.state}`, sqft:h.sqft??"—", bed:h.beds??0, bath:h.baths??0, img:h.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg" }}/>
                 </div>
-              )) : (
+              )) : !dbHomesLoading && (
                 <div style={{ gridColumn:"1/-1", textAlign:"center", padding:"60px 0", color:MUT }}>
                   <div style={{ fontSize:40, marginBottom:16 }}>🏠</div>
                   <p style={{ fontSize:18, fontWeight:600, marginBottom:8 }}>No homes match your search</p>
@@ -1533,10 +1544,17 @@ export default function ApolloSite() {
                 {["All","Available","Reserved"].map(f=><FilterBtn key={f} active={lotFilter===f} onClick={()=>setLotFilter(f)}>{f}</FilterBtn>)}
               </div>
             </div>
+            {dbLotsLoading && (
+              <div style={{ textAlign:"center", padding:"40px 0", color:MUT, fontSize:15 }}>Loading lots…</div>
+            )}
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-              {lots.map(l=>(
-                <div key={l.id} onClick={()=>{ setSelectedLot(l); nav("lot-detail"); }}>
-                  <LotCard l={l}/>
+              {!dbLotsLoading && (dbLots ?? []).filter(l => {
+                if (lotFilter === "Available") return l.tag === "Available";
+                if (lotFilter === "Reserved") return l.tag === "Under Contract";
+                return true;
+              }).map(l=>(
+                <div key={l.id} onClick={()=>{ setSelectedLot({ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water · Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }); nav("lot-detail"); }}>
+                  <LotCard l={{ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water · Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }}/>
                 </div>
               ))}
             </div>
