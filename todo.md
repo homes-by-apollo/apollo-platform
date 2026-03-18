@@ -305,3 +305,45 @@
 - [x] Wired homepage Available Lots section to use DB data (first 3 lots)
 - [x] Budget and tag filters applied to DB data on Homes page
 - [x] Loading states added to Homes and Lots pages
+
+## Session 58 — Finish the Website
+- [ ] Pull property photos from pahrumpbuilder.com and upload to CDN
+- [ ] Update property DB records with CDN image URLs
+- [ ] Set up consultation scheduling (booking form with DB + confirmation email)
+- [ ] Wire welcome/confirmation email for contact form submissions
+- [ ] Wire welcome/confirmation email for consultation bookings
+- [ ] Wire confirmation email for newsletter signups
+- [ ] Checkpoint and publish to apollohomebuilders.com custom domain
+- [ ] Test authentication for Kyle and Brandon
+- [ ] Verify admin access for both users
+
+## Session 59 — Finish the Website
+
+### Photos
+- [ ] Scrape all property images from pahrumpbuilder.com (homes + lots)
+- [ ] Upload images to CDN via manus-upload-file --webdev
+- [ ] Update DB property records with CDN image URLs
+
+### Auth (Email/Password replacing Manus OAuth)
+- [ ] Build email/password login page at /login
+- [ ] Add localUsers table to schema (email, passwordHash, role, name)
+- [ ] Wire login/logout tRPC procedures with JWT session cookie
+- [ ] Create admin accounts for kyle@apollohomebuilders.com and brandon@apollohomebuilders.com
+- [ ] Protect /crm/* routes with email/password auth
+- [ ] Keep public site (homepage, homes, lots, contact) fully public
+
+### Calendly Scheduling
+- [ ] Add Schedule a Consultation page with Calendly inline widget
+- [ ] Wire "Schedule a Consultation" nav/CTA buttons to the scheduling page
+- [ ] Embed: https://calendly.com/kyle-apollohomebuilders/30min
+
+### Resend Emails
+- [ ] Verify hello@apollohomebuilders.com domain in Resend
+- [ ] Send welcome/confirmation email on contact form submission
+- [ ] Send confirmation email on newsletter signup
+- [ ] Send admin notification email when new inquiry arrives
+
+### Publishing
+- [ ] Checkpoint before publish
+- [ ] Guide Namecheap DNS setup for apollohomebuilders.com
+- [ ] Publish to apollohomebuilders.com
