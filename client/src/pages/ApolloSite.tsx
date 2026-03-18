@@ -232,6 +232,46 @@ function FilterBtn({ children, active, onClick }: { children: React.ReactNode; a
   );
 }
 
+function NewsletterForm() {
+  const [nlEmail, setNlEmail] = useState("");
+  const [nlStatus, setNlStatus] = useState<"idle"|"sending"|"done">("idle");
+  const handleNlSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nlEmail.trim()) return;
+    setNlStatus("sending");
+    setTimeout(() => { setNlStatus("done"); setNlEmail(""); }, 900);
+  };
+  if (nlStatus === "done") {
+    return (
+      <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"16px 28px" }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4B9CD3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style={{ fontSize:16, fontWeight:600, color:"white" }}>You're on the list! We'll be in touch.</span>
+      </div>
+    );
+  }
+  return (
+    <form className="nl-form" onSubmit={handleNlSubmit} style={{ display:"flex", gap:0, maxWidth:560, margin:"0 auto", borderRadius:12, overflow:"hidden", boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
+      <input
+        type="email"
+        required
+        placeholder="Enter your email address"
+        value={nlEmail}
+        onChange={e=>setNlEmail(e.target.value)}
+        style={{ flex:1, border:"none", outline:"none", padding:"18px 22px", fontSize:16, fontFamily:"inherit", background:"white", color:"#0f2044" }}
+      />
+      <button
+        type="submit"
+        disabled={nlStatus==="sending"}
+        style={{ background:"#0f2044", color:"white", border:"2px solid rgba(255,255,255,0.25)", padding:"18px 32px", fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", transition:"background 0.2s", letterSpacing:"0.01em" }}
+        onMouseEnter={e=>(e.currentTarget.style.background="#1a3060")}
+        onMouseLeave={e=>(e.currentTarget.style.background="#0f2044")}
+      >
+        {nlStatus==="sending" ? "Subscribing…" : "Subscribe Now"}
+      </button>
+    </form>
+  );
+}
+
 interface FormState {
   name: string;
   email: string;
@@ -1062,54 +1102,7 @@ export default function ApolloSite() {
                   Be the first to know when new homes and lots become available in Pahrump. No spam — just the listings that matter.
                 </p>
                 {/* Email form */}
-                {(() => {
-                  const [nlEmail, setNlEmail] = useState("");
-                  const [nlStatus, setNlStatus] = useState<"idle"|"sending"|"done">("idle");
-                  const handleNlSubmit = (e: React.FormEvent) => {
-                    e.preventDefault();
-                    if (!nlEmail.trim()) return;
-                    setNlStatus("sending");
-                    setTimeout(() => { setNlStatus("done"); setNlEmail(""); }, 900);
-                  };
-                  return nlStatus === "done" ? (
-                    <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"16px 28px" }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4B9CD3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span style={{ fontSize:16, fontWeight:600, color:"white" }}>You’re on the list! We’ll be in touch.</span>
-                    </div>
-                  ) : (
-                    <form className="nl-form" onSubmit={handleNlSubmit} style={{ display:"flex", gap:0, maxWidth:560, margin:"0 auto", borderRadius:12, overflow:"hidden", boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
-                      <input
-                        type="email"
-                        required
-                        placeholder="Enter your email address"
-                        value={nlEmail}
-                        onChange={e=>setNlEmail(e.target.value)}
-                        style={{
-                          flex:1, border:"none", outline:"none",
-                          padding:"18px 22px", fontSize:16,
-                          fontFamily:"inherit", background:"white",
-                          color:"#0f2044",
-                        }}
-                      />
-                      <button
-                        type="submit"
-                        disabled={nlStatus==="sending"}
-                        style={{
-                          background:"#0f2044", color:"white",
-                          border:"2px solid rgba(255,255,255,0.25)",
-                          padding:"18px 32px", fontSize:16, fontWeight:700,
-                          cursor:"pointer", fontFamily:"inherit",
-                          whiteSpace:"nowrap", transition:"background 0.2s",
-                          letterSpacing:"0.01em",
-                        }}
-                        onMouseEnter={e=>(e.currentTarget.style.background="#1a3060")}
-                        onMouseLeave={e=>(e.currentTarget.style.background="#0f2044")}
-                      >
-                        {nlStatus==="sending" ? "Subscribing…" : "Subscribe Now"}
-                      </button>
-                    </form>
-                  );
-                })()}
+                <NewsletterForm />
                 <p style={{ fontSize:13, color:"rgba(255,255,255,0.4)", marginTop:16 }}>Unsubscribe anytime. We respect your privacy.</p>
               </div>
             </div>
