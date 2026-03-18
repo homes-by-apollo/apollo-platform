@@ -1465,29 +1465,55 @@ export default function ApolloSite() {
           </footer>
         )}
 
-        {/* ══ HOMES FOR SALE ══════════════════════════════════════════════════ */}
+        {/* ══ HOMES & LOTS INVENTORY ══════════════════════════════════════════════════ */}
         {page==="homes" && (() => {
             // Use DB homes, fall back to static if loading
             const parsePriceNum = (p: string) => parseInt(p.replace(/[^0-9]/g,""), 10);
             const allHomes = dbHomes ?? [];
+            const allLots = dbLots ?? [];
             const filteredHomes = allHomes.filter(h => {
               const price = h.priceValue ?? parsePriceNum(h.price);
               if (homeFilter === "Available" && h.tag !== "Available") return false;
               if (homeFilter === "Sold" && h.tag !== "Sold") return false;
+              if (homeFilter === "Under Contract" && h.tag !== "Under Contract") return false;
               if (searchBudget === "under-300k") return price < 300000;
               if (searchBudget === "300-400k")  return price >= 300000 && price < 400000;
               if (searchBudget === "400-500k")  return price >= 400000 && price < 500000;
               if (searchBudget === "500k-plus") return price >= 500000;
               return true;
             });
+            const filteredLots = allLots.filter(l => {
+              if (lotFilter === "Available") return l.tag === "Available";
+              if (lotFilter === "Reserved") return l.tag === "Under Contract";
+              return true;
+            });
+            // inventoryTab: "homes" | "lots"
+            const inventoryTab = searchType === "lot" ? "lots" : (searchType === "home" || searchType === "custom" ? "homes" : homeFilter === "All" && lotFilter !== "All" ? "lots" : "homes");
             return (
           <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>All Properties</SectionLabel>
-            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom: (searchBudget || searchLocation) ? 12 : 24 }}>
-              <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Homes for Sale</h1>
-              <div className="filter-row" style={{ display:"flex", gap:8 }}>
-                {["All","Available","Sold","Under Contract"].map(f=><FilterBtn key={f} active={homeFilter===f} onClick={()=>setHomeFilter(f)}>{f}</FilterBtn>)}
-              </div>
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:20 }}>
+              <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Homes &amp; Lots</h1>
+              <div style={{ fontSize:13, color:MUT, fontWeight:500 }}>{allHomes.length + allLots.length} total listings</div>
+            </div>
+            {/* Tab switcher */}
+            <div style={{ display:"flex", gap:0, marginBottom:24, borderBottom:`2px solid ${BOR}` }}>
+              {(["homes","lots"] as const).map(tab => (
+                <button key={tab} onClick={()=>{ if(tab==="lots") { setSearchType("lot"); } else { setSearchType("home"); } }}
+                  style={{ padding:"10px 28px", fontSize:14, fontWeight:700, cursor:"pointer", border:"none", background:"transparent", fontFamily:"inherit", color: inventoryTab===tab ? G : MUT, borderBottom: inventoryTab===tab ? `3px solid ${G}` : "3px solid transparent", marginBottom:"-2px", transition:"all 0.15s", textTransform:"capitalize" }}>
+                  {tab === "homes" ? `Homes (${allHomes.length})` : `Lots (${allLots.length})`}
+                </button>
+              ))}
+              <div style={{ flex:1 }} />
+              {inventoryTab === "homes" ? (
+                <div className="filter-row" style={{ display:"flex", gap:8, alignItems:"center" }}>
+                  {["All","Available","Sold","Under Contract"].map(f=><FilterBtn key={f} active={homeFilter===f} onClick={()=>setHomeFilter(f)}>{f}</FilterBtn>)}
+                </div>
+              ) : (
+                <div className="filter-row" style={{ display:"flex", gap:8, alignItems:"center" }}>
+                  {["All","Available","Reserved"].map(f=><FilterBtn key={f} active={lotFilter===f} onClick={()=>setLotFilter(f)}>{f}</FilterBtn>)}
+                </div>
+              )}
             </div>
             {/* Active search filters summary */}
             {(searchBudget || searchLocation || searchType) && (
@@ -1499,9 +1525,11 @@ export default function ApolloSite() {
                 <button onClick={()=>{ setSearchBudget(""); setSearchLocation(""); setSearchType(""); }} style={{ fontSize:12, color:MUT, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", textDecoration:"underline" }}>Clear filters</button>
               </div>
             )}
-            {dbHomesLoading && (
+            {(dbHomesLoading || dbLotsLoading) && (
               <div style={{ textAlign:"center", padding:"40px 0", color:MUT, fontSize:15 }}>Loading listings…</div>
             )}
+            {/* HOMES TAB */}
+            {inventoryTab === "homes" && (
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
               {!dbHomesLoading && filteredHomes.length > 0 ? filteredHomes.map(h=>(
                 <div key={h.id} onClick={()=>{ setSelectedHome({ id:h.id, tag:h.tag, price:h.price, title:h.address, addr:h.address, city:`${h.city}, ${h.state}`, sqft:h.sqft??"—", bed:h.beds??0, bath:h.baths??0, img:h.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg" }); nav("home-detail"); }}>
@@ -1516,6 +1544,23 @@ export default function ApolloSite() {
                 </div>
               )}
             </div>
+            )}
+            {/* LOTS TAB */}
+            {inventoryTab === "lots" && (
+            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
+              {!dbLotsLoading && filteredLots.length > 0 ? filteredLots.map(l=>(
+                <div key={l.id} onClick={()=>{ setSelectedLot({ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water · Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }); nav("lot-detail"); }}>
+                  <LotCard l={{ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water · Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }}/>
+                </div>
+              )) : !dbLotsLoading && (
+                <div style={{ gridColumn:"1/-1", textAlign:"center", padding:"60px 0", color:MUT }}>
+                  <div style={{ fontSize:40, marginBottom:16 }}>🌱</div>
+                  <p style={{ fontSize:18, fontWeight:600, marginBottom:8 }}>No lots match your filters</p>
+                  <button onClick={()=>{ setLotFilter("All"); }} style={{ background:G, color:"white", border:"none", borderRadius:8, padding:"12px 24px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>Show All Lots</button>
+                </div>
+              )}
+            </div>
+            )}
             <div className="cta-banner" style={{ background:G, borderRadius:14, padding:"32px 36px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
                 <h3 style={{ fontSize:20, fontWeight:800, color:"white", marginBottom:6 }}>Don't see what you're looking for?</h3>
@@ -1883,9 +1928,22 @@ export default function ApolloSite() {
         {page==="contact" && (
           <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>Get in Touch</SectionLabel>
+            <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:8 }}>Schedule a Free Consultation</h1>
+            <p style={{ fontSize:15, color:MUT, marginBottom:32 }}>Pick a time that works for you — Brandon will walk you through your vision, timeline, and pricing.</p>
+            {/* Calendly inline embed */}
+            <div style={{ background:"white", borderRadius:14, border:`1px solid ${BOR}`, overflow:"hidden", marginBottom:40, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
+              <iframe
+                src="https://calendly.com/brandon-apollohomebuilders/30min"
+                width="100%"
+                height="700"
+                frameBorder="0"
+                title="Schedule a Consultation with Apollo Home Builders"
+                style={{ display:"block", border:"none" }}
+              />
+            </div>
             <div className="contact-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:36 }}>
               <div>
-                <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:16 }}>Schedule a<br/>Free Consultation</h1>
+                <h2 style={{ fontSize:22, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:16 }}>Or send us a message</h2>
                 <p style={{ fontSize:14, color:MUT, lineHeight:1.85, marginBottom:28 }}>Ready to build? Have questions? Brandon and the Apollo team are here to help. No pressure — just a real conversation about your vision.</p>
                 <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                   {([

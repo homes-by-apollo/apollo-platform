@@ -1,0 +1,21 @@
+{
+  "query": "SELECT propertyType, COUNT(*) as count FROM properties GROUP BY propertyType; SELECT COUNT(*) as total FROM properties;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4ZmCLDe5kjC12Ki.a08ad336f6b8 --database mwVy9Am3ywXkRkqF68TJjK --execute SELECT propertyType, COUNT(*) as count FROM properties GROUP BY propertyType; SELECT COUNT(*) as total FROM properties;",
+  "rows": [
+    {
+      "propertyType": "LOT",
+      "count": "15"
+    },
+    {
+      "propertyType": "HOME",
+      "count": "20"
+    }
+  ],
+  "messages": [
+    "total",
+    "35"
+  ],
+  "stdout": "propertyType\tcount\nLOT\t15\nHOME\t20\ntotal\n35\n",
+  "stderr": "",
+  "execution_time_ms": 120
+}
