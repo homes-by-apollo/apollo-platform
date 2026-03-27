@@ -135,33 +135,34 @@ const Btn = ({ children, white, outline, small, full, carolina, onClick }: BtnPr
 
 function HomeCard({ h }: { h: typeof homes[0] }) {
   const [hov, setHov] = useState(false);
+  const statusColor = h.tag === "Available" ? G : h.tag === "Sold" ? "#e53e3e" : "#d97706";
   return (
     <div className="property-card-wrap" onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
+      style={{ cursor:"pointer", transition:"all 0.28s ease", borderRadius:16, overflow:"hidden", boxShadow: hov ? "0 8px 32px rgba(0,0,0,0.13)" : "0 2px 12px rgba(0,0,0,0.07)", background:"white", border:`1px solid ${BOR}` }}>
       {/* Image */}
-      <div className="property-card-img" style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
+      <div style={{ position:"relative", height:220, overflow:"hidden" }}>
         <img src={h.img} alt={h.title} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.04)":"scale(1)", transition:"transform 0.5s ease" }} />
-        <span style={{ position:"absolute", top:14, left:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{h.tag}</span>
+        <span style={{ position:"absolute", top:12, left:12, background:statusColor, color:"white", fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6, letterSpacing:"0.04em", textTransform:"uppercase" }}>{h.tag}</span>
       </div>
-      {/* Info below image — no card box */}
-      <div className="property-card-body" style={{ padding:"20px 4px 8px" }}>
-        <div className="property-price" style={{ fontSize:30, fontWeight:700, color:TXT, letterSpacing:"-0.3px", marginBottom:14 }}>{h.price}</div>
-        <div className="property-title" style={{ fontSize:22, fontWeight:600, color:TXT, lineHeight:1.3, marginBottom:6 }}>{h.title}</div>
-        <div className="property-meta" style={{ fontSize:15, color:MUT, lineHeight:1.6, marginBottom:12, display:"flex", alignItems:"center", gap:4, opacity:0.75 }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          {h.addr}, {h.city}
+      {/* Info */}
+      <div style={{ padding:"16px 18px 18px" }}>
+        <div style={{ fontSize:24, fontWeight:800, color:TXT, letterSpacing:"-0.3px", marginBottom:6 }}>{h.price}</div>
+        <div style={{ fontSize:15, fontWeight:600, color:TXT, lineHeight:1.4, marginBottom:4 }}>{h.title}</div>
+        <div style={{ fontSize:13, color:MUT, marginBottom:12, display:"flex", alignItems:"center", gap:4 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {h.city}
         </div>
-        <div className="property-specs" style={{ display:"flex", gap:18, fontSize:15, color:MUT }}>
-          <span style={{ display:"flex", alignItems:"center", gap:5, fontWeight:500 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            {h.bed}
+        <div style={{ display:"flex", gap:16, fontSize:13, color:MUT, borderTop:`1px solid ${BOR}`, paddingTop:10 }}>
+          <span style={{ display:"flex", alignItems:"center", gap:4, fontWeight:600 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            {h.bed} bd
           </span>
-          <span style={{ display:"flex", alignItems:"center", gap:5, fontWeight:500 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12h16M4 12a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></svg>
-            {h.bath}
+          <span style={{ display:"flex", alignItems:"center", gap:4, fontWeight:600 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12h16M4 12a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></svg>
+            {h.bath} ba
           </span>
-          <span style={{ display:"flex", alignItems:"center", gap:5, fontWeight:500 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          <span style={{ display:"flex", alignItems:"center", gap:4, fontWeight:600 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
             {h.sqft} sqft
           </span>
         </div>
@@ -170,26 +171,32 @@ function HomeCard({ h }: { h: typeof homes[0] }) {
   );
 }
 
+const LOT_FALLBACK_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pasted_file_Q3Yk8O_image_f31967a7.png";
+
 function LotCard({ l }: { l: typeof lots[0] }) {
   const [hov, setHov] = useState(false);
+  const imgSrc = l.img && !l.img.includes("unsplash") ? l.img : LOT_FALLBACK_IMG;
+  const statusColor = l.tag === "Available" ? G : "#d97706";
   return (
     <div className="property-card-wrap" onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{ cursor:"pointer", transition:"all 0.28s ease" }}>
+      style={{ cursor:"pointer", transition:"all 0.28s ease", borderRadius:16, overflow:"hidden", boxShadow: hov ? "0 8px 32px rgba(0,0,0,0.13)" : "0 2px 12px rgba(0,0,0,0.07)", background:"white", border:`1px solid ${BOR}` }}>
       {/* Image */}
-      <div className="property-card-img" style={{ position:"relative", height:430, overflow:"hidden", borderRadius:16, marginBottom:16 }}>
-        <img src={l.img} alt={l.addr} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.04)":"scale(1)", transition:"transform 0.5s ease" }} />
-        <span style={{ position:"absolute", top:14, left:14, background:l.tag==="Available"?G:"#888", color:"white", fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8 }}>{l.tag}</span>
-        <span style={{ position:"absolute", top:14, right:14, background:"white", color:TXT, fontSize:12, fontWeight:700, padding:"5px 12px", borderRadius:8, boxShadow:"0 2px 10px rgba(0,0,0,0.14)" }}>{l.size}</span>
+      <div style={{ position:"relative", height:220, overflow:"hidden" }}>
+        <img src={imgSrc} alt={l.addr} style={{ width:"100%", height:"100%", objectFit:"cover", transform:hov?"scale(1.04)":"scale(1)", transition:"transform 0.5s ease" }} />
+        <span style={{ position:"absolute", top:12, left:12, background:statusColor, color:"white", fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6, letterSpacing:"0.04em", textTransform:"uppercase" }}>{l.tag}</span>
+        {l.size && l.size !== "Inquire" && (
+          <span style={{ position:"absolute", top:12, right:12, background:"rgba(0,0,0,0.55)", color:"white", fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6 }}>{l.size}</span>
+        )}
       </div>
-      {/* Info below image — no card box */}
-      <div className="property-card-body" style={{ padding:"20px 4px 8px" }}>
-        <div className="property-price" style={{ fontSize:30, fontWeight:700, color:TXT, letterSpacing:"-0.3px", marginBottom:14 }}>{l.price}</div>
-        <div className="property-title" style={{ fontSize:22, fontWeight:600, color:TXT, lineHeight:1.3, marginBottom:6 }}>{l.addr}</div>
-        <div className="property-meta" style={{ fontSize:15, color:MUT, lineHeight:1.6, marginBottom:12, display:"flex", alignItems:"center", gap:4, opacity:0.75 }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      {/* Info */}
+      <div style={{ padding:"16px 18px 18px" }}>
+        <div style={{ fontSize:24, fontWeight:800, color:TXT, letterSpacing:"-0.3px", marginBottom:6 }}>{l.price}</div>
+        <div style={{ fontSize:15, fontWeight:600, color:TXT, lineHeight:1.4, marginBottom:4 }}>{l.addr}</div>
+        <div style={{ fontSize:13, color:MUT, marginBottom:12, display:"flex", alignItems:"center", gap:4 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           {l.city}
         </div>
-        <div style={{ fontSize:12, color:G, background:GL, padding:"7px 12px", borderRadius:8, fontWeight:600, display:"inline-flex", alignItems:"center", gap:6 }}>
+        <div style={{ fontSize:12, color:G, background:GL, padding:"6px 12px", borderRadius:8, fontWeight:600, display:"inline-flex", alignItems:"center", gap:6 }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           {l.utilities}
         </div>
@@ -1342,8 +1349,8 @@ export default function ApolloSite() {
           </footer>
         </>}
 
-        {/* ══ GLOBAL FOOTER — shown on all sub-pages except contact (contact renders its own footer after content) ══ */}
-        {page !== "home" && page !== "contact" && (
+        {/* ══ GLOBAL FOOTER — shown on all sub-pages except home, contact, homes, lots (those render their own footer after content) ══ */}
+        {page !== "home" && page !== "contact" && page !== "homes" && page !== "lots" && (
           <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit" }}>
 
             {/* ── Top band: Brand + Contact info ──────────────────────────────── */}
@@ -1498,6 +1505,7 @@ export default function ApolloSite() {
             // inventoryTab: "homes" | "lots"
             const inventoryTab = searchType === "lot" ? "lots" : (searchType === "home" || searchType === "custom" ? "homes" : homeFilter === "All" && lotFilter !== "All" ? "lots" : "homes");
             return (
+          <>
           <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>All Properties</SectionLabel>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:20 }}>
@@ -1577,11 +1585,56 @@ export default function ApolloSite() {
               <Btn white onClick={()=>{ track("Schedule Consultation", { location:"how-it-works" }); nav("contact"); }}>Start a Custom Build</Btn>
             </div>
           </div>
+          <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit", marginTop:0 }}>
+            <div style={{ padding:"52px var(--pad) 48px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ maxWidth:1650, margin:"0 auto" }}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:64, alignItems:"flex-start" }}>
+                <div>
+                  <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
+                    <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png" alt="Homes by Apollo" style={{ height:52, width:52, objectFit:"contain", flexShrink:0 }} />
+                    <div style={{ fontSize:22, fontWeight:800, color:"white", letterSpacing:"-0.01em" }}>Homes by Apollo</div>
+                  </div>
+                  <p style={{ fontSize:16, color:"rgba(255,255,255,0.45)", lineHeight:1.8, maxWidth:420, marginBottom:28 }}>Building custom homes and developing premium lots in Pahrump, NV. Local expertise, all-inclusive pricing.</p>
+                </div>
+                <div>
+                  <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.3)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14 }}>Call Us Free</div>
+                  <a href="tel:7753631616" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>(775) 363-1616</a>
+                  <div style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.7 }}>4081 Jessica St<br/>Pahrump, NV 89048</div>
+                </div>
+              </div>
+              </div>
+            </div>
+            <div style={{ padding:"52px var(--pad) 40px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+              <div style={{ maxWidth:1650, margin:"0 auto" }}>
+              <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:32 }}>
+                {(["Company","Properties","Resources"] as string[]).map((heading, i)=>(
+                  <div key={heading}>
+                    <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>
+                     {([["Home","home"],["Homes","homes"],["Lots","lots"],["Contact","contact"]] as [string,string][])[i] && ([["Home","home"],["Homes","homes"],["Lots","lots"],["Contact","contact"]] as [string,string][])[i] && ([["Home","home"],["Homes","homes"],["Lots","lots"],["Contact","contact"]] as [string,string][]).slice(i,i+1).map(([label,pg])=>(
+                      <div key={label} onClick={()=>nav(pg)} style={{ fontSize:17, color:"rgba(255,255,255,0.55)", marginBottom:16, cursor:"pointer", transition:"color 0.15s", fontWeight:500 }} onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.95)"}} onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,0.55)"}}>{label}</div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              </div>
+            </div>
+            <div style={{ padding:"22px var(--pad)" }}>
+              <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+              <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
+              <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                {isAdmin && (<a href="/crm" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px" }}>Admin</a>)}
+                {["Privacy Policy","Terms"].map(i=>(<span key={i} style={{ fontSize:13, color:"rgba(255,255,255,0.22)", cursor:"pointer" }}>{i}</span>))}
+              </div>
+              </div>
+            </div>
+          </footer>
+          </>
           );
         })()}
 
         {/* ══ AVAILABLE LOTS ══════════════════════════════════════════════════ */}
         {page==="lots" && (
+          <>
           <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>Land</SectionLabel>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
@@ -1593,18 +1646,46 @@ export default function ApolloSite() {
             {dbLotsLoading && (
               <div style={{ textAlign:"center", padding:"40px 0", color:MUT, fontSize:15 }}>Loading lots…</div>
             )}
-            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:48 }}>
               {!dbLotsLoading && (dbLots ?? []).filter(l => {
                 if (lotFilter === "Available") return l.tag === "Available";
                 if (lotFilter === "Reserved") return l.tag === "Under Contract";
                 return true;
               }).map(l=>(
-                <div key={l.id} onClick={()=>{ setSelectedLot({ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water · Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }); nav("lot-detail"); }}>
-                  <LotCard l={{ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water · Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }}/>
+                <div key={l.id} onClick={()=>{ setSelectedLot({ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water \u00b7 Electric", img:l.imageUrl??LOT_FALLBACK_IMG }); nav("lot-detail"); }}>
+                  <LotCard l={{ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water \u00b7 Electric", img:l.imageUrl??LOT_FALLBACK_IMG }}/>
                 </div>
               ))}
             </div>
           </div>
+          <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit" }}>
+            <div style={{ padding:"52px var(--pad) 48px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ maxWidth:1650, margin:"0 auto", display:"grid", gridTemplateColumns:"1fr 1fr", gap:64, alignItems:"flex-start" }}>
+                <div>
+                  <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
+                    <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png" alt="Homes by Apollo" style={{ height:52, width:52, objectFit:"contain", flexShrink:0 }} />
+                    <div style={{ fontSize:22, fontWeight:800, color:"white", letterSpacing:"-0.01em" }}>Homes by Apollo</div>
+                  </div>
+                  <p style={{ fontSize:16, color:"rgba(255,255,255,0.45)", lineHeight:1.8, maxWidth:420 }}>Building custom homes and developing premium lots in Pahrump, NV.</p>
+                </div>
+                <div>
+                  <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.3)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14 }}>Call Us Free</div>
+                  <a href="tel:7753631616" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>(775) 363-1616</a>
+                  <div style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.7 }}>4081 Jessica St<br/>Pahrump, NV 89048</div>
+                </div>
+              </div>
+            </div>
+            <div style={{ padding:"22px var(--pad)" }}>
+              <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+                <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
+                <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                  {isAdmin && (<a href="/crm" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px" }}>Admin</a>)}
+                  {["Privacy Policy","Terms"].map(i=>(<span key={i} style={{ fontSize:13, color:"rgba(255,255,255,0.22)", cursor:"pointer" }}>{i}</span>))}
+                </div>
+              </div>
+            </div>
+          </footer>
+          </>
         )}
 
         {/* ══ HOME DETAIL PAGE ════════════════════════════════════════════════════════ */}
