@@ -273,36 +273,28 @@ function NewsletterForm() {
 }
 
 function CalendlyWidget({ url }: { url: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!ref.current) return;
-    // Clear any previous widget
-    ref.current.innerHTML = "";
-    const div = document.createElement("div");
-    div.className = "calendly-inline-widget";
-    div.setAttribute("data-url", url);
-    div.style.minWidth = "320px";
-    div.style.height = "700px";
-    ref.current.appendChild(div);
-    // Re-init Calendly widget
-    const w = window as unknown as { Calendly?: { initInlineWidgets: () => void } };
-    if (w.Calendly?.initInlineWidgets) {
-      w.Calendly.initInlineWidgets();
-    } else {
-      // Script not yet loaded — load it dynamically
-      const existing = document.querySelector('script[src*="calendly.com"]');
-      if (!existing) {
-        const s = document.createElement("script");
-        s.src = "https://assets.calendly.com/assets/external/widget.js";
-        s.async = true;
-        s.onload = () => w.Calendly?.initInlineWidgets?.();
-        document.head.appendChild(s);
-      } else {
-        setTimeout(() => w.Calendly?.initInlineWidgets?.(), 500);
-      }
-    }
+    const container = containerRef.current;
+    if (!container) return;
+    // Remove any previously injected script to force a clean reload
+    const old = document.getElementById("calendly-script");
+    if (old) old.remove();
+    // Set the widget div
+    container.innerHTML = `<div class="calendly-inline-widget" data-url="${url}" style="min-width:320px;height:700px;"></div>`;
+    // Inject the Calendly script fresh
+    const script = document.createElement("script");
+    script.id = "calendly-script";
+    script.src = "https://assets.calendly.com/assets/external/widget.js";
+    script.type = "text/javascript";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      const s = document.getElementById("calendly-script");
+      if (s) s.remove();
+    };
   }, [url]);
-  return <div ref={ref} />;
+  return <div ref={containerRef} />;
 }
 
 interface FormState {
@@ -1948,7 +1940,7 @@ export default function ApolloSite() {
             <p style={{ fontSize:15, color:MUT, marginBottom:32 }}>Pick a time that works for you — Brandon will walk you through your vision, timeline, and pricing.</p>
             {/* Calendly inline embed — uses script already loaded in index.html */}
             <div style={{ background:"white", borderRadius:14, border:`1px solid ${BOR}`, overflow:"hidden", marginBottom:40, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
-              <CalendlyWidget url="https://calendly.com/kyle-apollohomebuilders/30min?hide_event_type_details=1&hide_gdpr_banner=1" />
+              <CalendlyWidget url="https://calendly.com/kyle-apollohomebuilders/30min" />
             </div>
             <div className="contact-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:36 }}>
               <div>
