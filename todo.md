@@ -373,3 +373,11 @@
 ## Homepage Inventory Fixes
 - [x] Replace stock photo home cards on homepage with real CRM inventory data and images
 - [x] Move Available Lots section to appear directly after Homes for Sale on homepage
+
+## Admin Login Page
+- [x] Create /admin-login page with Apollo branding and email/password sign-in
+- [x] Update footer Admin link to point to /admin-login instead of /crm directly
+- [x] Add adminCredentials table to schema (email, passwordHash, name)
+- [x] Build adminAuth tRPC router (login, logout, me) with bcrypt + JWT cookie
+- [x] Protect /crm, /crm/properties, /crm/blog with adminAuth session check
+- [x] Set ADMIN_KYLE_HASH and ADMIN_BRANDON_HASH secrets

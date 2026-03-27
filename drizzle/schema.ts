@@ -259,3 +259,21 @@ export const newsletterSubscribers = mysqlTable("newsletterSubscribers", {
 
 export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 export type InsertNewsletterSubscriber = typeof newsletterSubscribers.$inferInsert;
+
+// ─── Admin Credentials ────────────────────────────────────────────────────────
+/**
+ * Email + bcrypt-hashed password for CRM admin access.
+ * Passwords are set via environment variables (ADMIN_KYLE_PASSWORD_HASH,
+ * ADMIN_BRANDON_PASSWORD_HASH) and seeded on first login attempt.
+ */
+export const adminCredentials = mysqlTable("adminCredentials", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  passwordHash: varchar("passwordHash", { length: 256 }).notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AdminCredential = typeof adminCredentials.$inferSelect;
+export type InsertAdminCredential = typeof adminCredentials.$inferInsert;

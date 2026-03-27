@@ -262,7 +262,9 @@ function DeleteModal({ address, onCancel, onConfirm, deleting }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CRMProperties() {
-  const { user, loading } = useAuth();
+  const adminMeQuery = trpc.adminAuth.me.useQuery();
+  const adminUser = adminMeQuery.data;
+  const loading = adminMeQuery.isLoading;
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [tagFilter, setTagFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
@@ -306,16 +308,9 @@ export default function CRMProperties() {
     return <div className="flex items-center justify-center min-h-screen bg-slate-50"><div className="text-sm text-muted-foreground">Loading…</div></div>;
   }
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="flex flex-col items-center gap-6 p-8 max-w-sm w-full text-center">
-          <h1 className="text-xl font-bold text-[#0f2044]">Apollo CRM</h1>
-          <p className="text-sm text-muted-foreground">Sign in to access the properties manager.</p>
-          <Button onClick={() => { window.location.href = getLoginUrl(); }} className="w-full bg-[#0f2044] hover:bg-[#1a3366]">Sign In</Button>
-        </div>
-      </div>
-    );
+  if (!adminUser) {
+    window.location.href = "/admin-login";
+    return <div className="flex items-center justify-center min-h-screen bg-slate-50"><div className="text-sm text-muted-foreground">Redirecting to login…</div></div>;
   }
 
   const properties = propertiesQuery.data ?? [];
@@ -398,9 +393,9 @@ export default function CRMProperties() {
           <span className="font-bold tracking-tight">Properties</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-white/60">{user.name}</span>
+          <span className="text-sm text-white/60">{adminUser.name}</span>
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-            {user.name?.charAt(0).toUpperCase()}
+            {adminUser.name?.charAt(0).toUpperCase()}
           </div>
         </div>
       </div>

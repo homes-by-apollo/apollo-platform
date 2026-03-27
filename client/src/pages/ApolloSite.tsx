@@ -323,7 +323,8 @@ export default function ApolloSite() {
   const [formSent, setFormSent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const adminMeQuery = trpc.adminAuth.me.useQuery();
+  const isAdmin = user?.role === "admin" || !!adminMeQuery.data;
 
   const contactMutation = trpc.leads.submit.useMutation({
     onSuccess: () => { setFormSent(true); setFormError(null); },
@@ -1336,7 +1337,7 @@ export default function ApolloSite() {
               <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
               <div style={{ display:"flex", gap:20, alignItems:"center" }}>
                 {isAdmin && (
-                  <a href="/crm" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px", letterSpacing:"0.01em", transition:"background 0.15s, color 0.15s" }}
+                  <a href="/admin-login" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px", letterSpacing:"0.01em", transition:"background 0.15s, color 0.15s" }}
                     onMouseEnter={e=>{ e.currentTarget.style.background="#e07b39"; e.currentTarget.style.color="white"; }}
                     onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#e07b39"; }}
                   >Admin</a>
@@ -1467,7 +1468,7 @@ export default function ApolloSite() {
               <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
               <div style={{ display:"flex", gap:20, alignItems:"center" }}>
                 {isAdmin && (
-                  <a href="/crm" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px", letterSpacing:"0.01em", transition:"background 0.15s, color 0.15s" }}
+                  <a href="/admin-login" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px", letterSpacing:"0.01em", transition:"background 0.15s, color 0.15s" }}
                     onMouseEnter={e=>{ e.currentTarget.style.background="#e07b39"; e.currentTarget.style.color="white"; }}
                     onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#e07b39"; }}
                   >Admin</a>
@@ -1643,7 +1644,7 @@ export default function ApolloSite() {
               <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
               <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
               <div style={{ display:"flex", gap:20, alignItems:"center" }}>
-                {isAdmin && (<a href="/crm" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px" }}>Admin</a>)}
+                {isAdmin && (<a href="/admin-login" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px" }}>Admin</a>)}
                 {["Privacy Policy","Terms"].map(i=>(<span key={i} style={{ fontSize:13, color:"rgba(255,255,255,0.22)", cursor:"pointer" }}>{i}</span>))}
               </div>
               </div>
@@ -1700,7 +1701,7 @@ export default function ApolloSite() {
               <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
                 <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
                 <div style={{ display:"flex", gap:20, alignItems:"center" }}>
-                  {isAdmin && (<a href="/crm" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px" }}>Admin</a>)}
+                  {isAdmin && (<a href="/admin-login" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px" }}>Admin</a>)}
                   {["Privacy Policy","Terms"].map(i=>(<span key={i} style={{ fontSize:13, color:"rgba(255,255,255,0.22)", cursor:"pointer" }}>{i}</span>))}
                 </div>
               </div>
@@ -2213,7 +2214,7 @@ export default function ApolloSite() {
       }}>
         {isAdmin && (
           <a
-            href="/crm"
+            href="/admin-login"
             style={{ flexShrink:0, background:"white", color:"#e07b39", border:"2px solid #e07b39", borderRadius:10, padding:"14px 12px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", textDecoration:"none", letterSpacing:"0.01em", whiteSpace:"nowrap" }}
           >
             Admin

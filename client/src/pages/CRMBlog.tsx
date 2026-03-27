@@ -195,7 +195,9 @@ function DeleteModal({ title, onCancel, onConfirm, deleting }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CRMBlog() {
-  const { user, loading } = useAuth();
+  const adminMeQuery = trpc.adminAuth.me.useQuery();
+  const adminUser = adminMeQuery.data;
+  const loading = adminMeQuery.isLoading;
   const [showModal, setShowModal] = useState(false);
   const [editPost, setEditPost] = useState<{ id: number; form: BlogForm } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; title: string } | null>(null);
@@ -261,19 +263,9 @@ export default function CRMBlog() {
       </div>
     );
   }
-  if (!user) {
-    window.location.href = getLoginUrl();
+  if (!adminUser) {
+    window.location.href = "/admin-login";
     return null;
-  }
-  if (user.role !== "admin") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f7f8fb]">
-        <div className="text-center">
-          <p className="text-2xl font-bold text-[#0f2044] mb-2">Access Denied</p>
-          <p className="text-[#6b7a99]">Admin access required.</p>
-        </div>
-      </div>
-    );
   }
 
   const handleSaveNew = (form: BlogForm) => {

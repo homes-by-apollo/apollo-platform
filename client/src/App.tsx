@@ -8,12 +8,14 @@ import ApolloSite from "./pages/ApolloSite";
 import CRMDashboard from "./pages/CRMDashboard";
 import CRMProperties from "./pages/CRMProperties";
 import CRMBlog from "./pages/CRMBlog";
+import AdminLogin from "./pages/AdminLogin";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={ApolloSite} />
+      <Route path={"/admin-login"} component={AdminLogin} />
       <Route path={"/crm"} component={CRMDashboard} />
       <Route path={"/crm/properties"} component={CRMProperties} />
       <Route path={"/crm/blog"} component={CRMBlog} />

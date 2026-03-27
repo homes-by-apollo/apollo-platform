@@ -1,4 +1,3 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -148,7 +147,9 @@ function FunnelChart({ stageCounts }: { stageCounts: { stage: string; count: num
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export default function CRMDashboard() {
-  const { user, loading } = useAuth();
+  const adminMeQuery = trpc.adminAuth.me.useQuery();
+  const adminUser = adminMeQuery.data;
+  const loading = adminMeQuery.isLoading;
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("ALL");
@@ -172,16 +173,12 @@ export default function CRMDashboard() {
     );
   }
 
-  if (!user) {
+  if (!adminUser) {
+    // Redirect to admin login
+    window.location.href = "/admin-login";
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="flex flex-col items-center gap-6 p-8 max-w-sm w-full text-center">
-          <h1 className="text-xl font-bold text-[#0f2044]">Apollo CRM</h1>
-          <p className="text-sm text-muted-foreground">Sign in to access the marketing dashboard.</p>
-          <Button onClick={() => { window.location.href = getLoginUrl(); }} className="w-full bg-[#0f2044] hover:bg-[#1a3366]">
-            Sign In
-          </Button>
-        </div>
+        <div className="text-sm text-muted-foreground">Redirecting to login…</div>
       </div>
     );
   }
@@ -249,9 +246,9 @@ export default function CRMDashboard() {
           </button>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-white/60">{user.name}</span>
+          <span className="text-sm text-white/60">{adminUser.name}</span>
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-            {user.name?.charAt(0).toUpperCase()}
+            {adminUser.name?.charAt(0).toUpperCase()}
           </div>
         </div>
       </div>
