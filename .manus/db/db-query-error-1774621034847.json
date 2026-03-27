@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, address, price, beds, baths, sqft, property_type FROM properties WHERE (image_url IS NULL OR image_url = '') AND property_type = 'HOME' ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4ZmCLDe5kjC12Ki.a08ad336f6b8 --database mwVy9Am3ywXkRkqF68TJjK --execute SELECT id, address, price, beds, baths, sqft, property_type FROM properties WHERE (image_url IS NULL OR image_url = '') AND property_type = 'HOME' ORDER BY id;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'image_url' in 'where clause'"
+  ]
+}

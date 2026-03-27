@@ -1,0 +1,55 @@
+{
+  "query": "SELECT id, address, imageUrl FROM properties WHERE address LIKE '%Jessica%' OR address LIKE '%Alderwood%' OR address LIKE '%Hall%' OR address LIKE '%Windsong%' OR address LIKE '%Chevron%' OR address LIKE '%Prospector%' OR address LIKE '%Enchanted%' ORDER BY address;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4ZmCLDe5kjC12Ki.a08ad336f6b8 --database mwVy9Am3ywXkRkqF68TJjK --execute SELECT id, address, imageUrl FROM properties WHERE address LIKE '%Jessica%' OR address LIKE '%Alderwood%' OR address LIKE '%Hall%' OR address LIKE '%Windsong%' OR address LIKE '%Chevron%' OR address LIKE '%Prospector%' OR address LIKE '%Enchanted%' ORDER BY address;",
+  "rows": [
+    {
+      "id": "6",
+      "address": "1060 Hall Ave, Pahrump, NV 89048",
+      "imageUrl": "https://apollo-homes-images.s3.us-east-1.amazonaws.com/1060_Hall.jpg"
+    },
+    {
+      "id": "5",
+      "address": "1100 Hall Ave, Pahrump, NV 89048",
+      "imageUrl": "https://apollo-homes-images.s3.us-east-1.amazonaws.com/1100_Hall.jpg"
+    },
+    {
+      "id": "11",
+      "address": "281 Chevron St, Pahrump, NV 89048",
+      "imageUrl": "https://apollo-homes-images.s3.us-east-1.amazonaws.com/66761f69919987addb7f46905c1ebcfa.webp"
+    },
+    {
+      "id": "15",
+      "address": "3201 Prospector Ln, Pahrump, NV 89048",
+      "imageUrl": "https://apollo-homes-images.s3.us-east-1.amazonaws.com/323f175272aa9408c5966b6f5caafa73.webp"
+    },
+    {
+      "id": "3",
+      "address": "4081 Jessica St, Pahrump, NV 89048",
+      "imageUrl": "https://apollo-homes-images.s3.us-east-1.amazonaws.com/4081_Jessica.jpg"
+    },
+    {
+      "id": "8",
+      "address": "4951 W Windsong Lane, Pahrump, NV 89048",
+      "imageUrl": "https://apollo-homes-images.s3.us-east-1.amazonaws.com/4951_Windsong.jpg"
+    },
+    {
+      "id": "7",
+      "address": "5681 Alderwood Place, Pahrump, NV 89048",
+      "imageUrl": "https://apollo-homes-images.s3.us-east-1.amazonaws.com/5681_alderwood.jpg"
+    },
+    {
+      "id": "4",
+      "address": "5691 N Alderwood Place, Pahrump, NV 89048",
+      "imageUrl": "https://apollo-homes-images.s3.us-east-1.amazonaws.com/5691_alderwood.jpg"
+    },
+    {
+      "id": "20",
+      "address": "991 E Enchanted Mesa St, Pahrump, NV 89048",
+      "imageUrl": "https://apollo-homes-images.s3.us-east-1.amazonaws.com/297536afe6ced73224ae4d8feee672ba.webp"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\timageUrl\n6\t1060 Hall Ave, Pahrump, NV 89048\thttps://apollo-homes-images.s3.us-east-1.amazonaws.com/1060_Hall.jpg\n5\t1100 Hall Ave, Pahrump, NV 89048\thttps://apollo-homes-images.s3.us-east-1.amazonaws.com/1100_Hall.jpg\n11\t281 Chevron St, Pahrump, NV 89048\thttps://apollo-homes-images.s3.us-east-1.amazonaws.com/66761f69919987addb7f46905c1ebcfa.webp\n15\t3201 Prospector Ln, Pahrump, NV 89048\thttps://apollo-homes-images.s3.us-east-1.amazonaws.com/323f175272aa9408c5966b6f5caafa73.webp\n3\t4081 Jessica St, Pahrump, NV 89048\thttps://apollo-homes-images.s3.us-east-1.amazonaws.com/4081_Jessica.jpg\n8\t4951 W Windsong Lane, Pahrump, NV 89048\thttps://apollo-homes-images.s3.us-east-1.amazonaws.com/4951_Windsong.jpg\n7\t5681 Alderwood Place, Pahrump, NV 89048\thttps://apollo-homes-images.s3.us-east-1.amazonaws.com/5681_alderwood.jpg\n4\t5691 N Alderwood Place, Pahrump, NV 89048\thttps://apollo-homes-images.s3.us-east-1.amazonaws.com/5691_alderwood.jpg\n20\t991 E Enchanted Mesa St, Pahrump, NV 89048\thttps://apollo-homes-images.s3.us-east-1.amazonaws.com/297536afe6ced73224ae4d8feee672ba.webp\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

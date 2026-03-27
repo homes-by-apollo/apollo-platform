@@ -1,0 +1,46 @@
+{
+  "query": "SELECT address, SUBSTRING(imageUrl, 1, 60) as imageUrl_preview FROM properties WHERE address LIKE '%Jessica%' OR address LIKE '%Alderwood%' OR address LIKE '%Hall%' OR address LIKE '%Windsong%' OR address LIKE '%Chevron%' OR address LIKE '%Prospector%' OR address LIKE '%Enchanted%' ORDER BY address;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4ZmCLDe5kjC12Ki.a08ad336f6b8 --database mwVy9Am3ywXkRkqF68TJjK --execute SELECT address, SUBSTRING(imageUrl, 1, 60) as imageUrl_preview FROM properties WHERE address LIKE '%Jessica%' OR address LIKE '%Alderwood%' OR address LIKE '%Hall%' OR address LIKE '%Windsong%' OR address LIKE '%Chevron%' OR address LIKE '%Prospector%' OR address LIKE '%Enchanted%' ORDER BY address;",
+  "rows": [
+    {
+      "address": "1060 Hall Ave, Pahrump, NV 89048",
+      "imageUrl_preview": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV"
+    },
+    {
+      "address": "1100 Hall Ave, Pahrump, NV 89048",
+      "imageUrl_preview": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV"
+    },
+    {
+      "address": "281 Chevron St, Pahrump, NV 89048",
+      "imageUrl_preview": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV"
+    },
+    {
+      "address": "3201 Prospector Ln, Pahrump, NV 89048",
+      "imageUrl_preview": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV"
+    },
+    {
+      "address": "4081 Jessica St, Pahrump, NV 89048",
+      "imageUrl_preview": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV"
+    },
+    {
+      "address": "4951 W Windsong Lane, Pahrump, NV 89048",
+      "imageUrl_preview": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV"
+    },
+    {
+      "address": "5681 Alderwood Place, Pahrump, NV 89048",
+      "imageUrl_preview": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV"
+    },
+    {
+      "address": "5691 N Alderwood Place, Pahrump, NV 89048",
+      "imageUrl_preview": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV"
+    },
+    {
+      "address": "991 E Enchanted Mesa St, Pahrump, NV 89048",
+      "imageUrl_preview": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\timageUrl_preview\n1060 Hall Ave, Pahrump, NV 89048\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV\n1100 Hall Ave, Pahrump, NV 89048\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV\n281 Chevron St, Pahrump, NV 89048\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV\n3201 Prospector Ln, Pahrump, NV 89048\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV\n4081 Jessica St, Pahrump, NV 89048\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV\n4951 W Windsong Lane, Pahrump, NV 89048\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV\n5681 Alderwood Place, Pahrump, NV 89048\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV\n5691 N Alderwood Place, Pahrump, NV 89048\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV\n991 E Enchanted Mesa St, Pahrump, NV 89048\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwV\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}
