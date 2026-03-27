@@ -281,7 +281,7 @@ function CalendlyWidget({ url }: { url: string }) {
     const old = document.getElementById("calendly-script");
     if (old) old.remove();
     // Set the widget div
-    container.innerHTML = `<div class="calendly-inline-widget" data-url="${url}" style="min-width:320px;height:700px;"></div>`;
+    container.innerHTML = `<div class="calendly-inline-widget" data-url="${url}" style="min-width:320px;height:1050px;"></div>`;
     // Inject the Calendly script fresh
     const script = document.createElement("script");
     script.id = "calendly-script";
@@ -1939,7 +1939,7 @@ export default function ApolloSite() {
             <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:8 }}>Schedule a Free Consultation</h1>
             <p style={{ fontSize:15, color:MUT, marginBottom:32 }}>Pick a time that works for you!</p>
             {/* Calendly inline embed — uses script already loaded in index.html */}
-            <div style={{ background:"white", borderRadius:14, border:`1px solid ${BOR}`, overflow:"hidden", marginBottom:40, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
+            <div style={{ background:"white", borderRadius:14, border:`1px solid ${BOR}`, marginBottom:40, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
               <CalendlyWidget url="https://calendly.com/kyle-apollohomebuilders/30min" />
             </div>
             <div className="contact-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:36 }}>
