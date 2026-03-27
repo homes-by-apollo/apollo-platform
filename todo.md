@@ -366,3 +366,6 @@
 - [ ] Upload images to CDN
 - [ ] Insert all properties into CRM database
 - [ ] Verify migration in CRM
+- [ ] Fix property card images to use CRM imageUrl (preserve hero image)
+- [ ] Fix Schedule a Consultation page: Calendly renders above footer
+- [ ] Fix Homes & Lots page: show all listings in one combined view (no tabs)

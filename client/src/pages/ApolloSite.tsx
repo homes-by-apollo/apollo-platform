@@ -272,6 +272,39 @@ function NewsletterForm() {
   );
 }
 
+function CalendlyWidget({ url }: { url: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    // Clear any previous widget
+    ref.current.innerHTML = "";
+    const div = document.createElement("div");
+    div.className = "calendly-inline-widget";
+    div.setAttribute("data-url", url);
+    div.style.minWidth = "320px";
+    div.style.height = "700px";
+    ref.current.appendChild(div);
+    // Re-init Calendly widget
+    const w = window as unknown as { Calendly?: { initInlineWidgets: () => void } };
+    if (w.Calendly?.initInlineWidgets) {
+      w.Calendly.initInlineWidgets();
+    } else {
+      // Script not yet loaded — load it dynamically
+      const existing = document.querySelector('script[src*="calendly.com"]');
+      if (!existing) {
+        const s = document.createElement("script");
+        s.src = "https://assets.calendly.com/assets/external/widget.js";
+        s.async = true;
+        s.onload = () => w.Calendly?.initInlineWidgets?.();
+        document.head.appendChild(s);
+      } else {
+        setTimeout(() => w.Calendly?.initInlineWidgets?.(), 500);
+      }
+    }
+  }, [url]);
+  return <div ref={ref} />;
+}
+
 interface FormState {
   name: string;
   email: string;
@@ -1317,8 +1350,8 @@ export default function ApolloSite() {
           </footer>
         </>}
 
-        {/* ══ GLOBAL FOOTER — shown on all sub-pages ══════════════════════════ */}
-        {page !== "home" && (
+        {/* ══ GLOBAL FOOTER — shown on all sub-pages except contact (contact renders its own footer after content) ══ */}
+        {page !== "home" && page !== "contact" && (
           <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit" }}>
 
             {/* ── Top band: Brand + Contact info ──────────────────────────────── */}
@@ -1479,70 +1512,70 @@ export default function ApolloSite() {
               <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>Homes &amp; Lots</h1>
               <div style={{ fontSize:13, color:MUT, fontWeight:500 }}>{allHomes.length + allLots.length} total listings</div>
             </div>
-            {/* Tab switcher */}
-            <div style={{ display:"flex", gap:0, marginBottom:24, borderBottom:`2px solid ${BOR}` }}>
-              {(["homes","lots"] as const).map(tab => (
-                <button key={tab} onClick={()=>{ if(tab==="lots") { setSearchType("lot"); } else { setSearchType("home"); } }}
-                  style={{ padding:"10px 28px", fontSize:14, fontWeight:700, cursor:"pointer", border:"none", background:"transparent", fontFamily:"inherit", color: inventoryTab===tab ? G : MUT, borderBottom: inventoryTab===tab ? `3px solid ${G}` : "3px solid transparent", marginBottom:"-2px", transition:"all 0.15s", textTransform:"capitalize" }}>
-                  {tab === "homes" ? `Homes (${allHomes.length})` : `Lots (${allLots.length})`}
-                </button>
+            {/* Budget filter row */}
+            <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap", alignItems:"center" }}>
+              <span style={{ fontSize:12, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.06em" }}>Budget:</span>
+              {[["all","All"],["under-300k","Under $300k"],["300-400k","$300k\u2013$400k"],["400-500k","$400k\u2013$500k"],["500k-plus","$500k+"]].map(([v,l])=>(
+                <FilterBtn key={v} active={searchBudget===v||(v==="all"&&!searchBudget)} onClick={()=>setSearchBudget(v==="all"?"":v)}>{l}</FilterBtn>
               ))}
-              <div style={{ flex:1 }} />
-              {inventoryTab === "homes" ? (
-                <div className="filter-row" style={{ display:"flex", gap:8, alignItems:"center" }}>
-                  {["All","Available","Sold","Under Contract"].map(f=><FilterBtn key={f} active={homeFilter===f} onClick={()=>setHomeFilter(f)}>{f}</FilterBtn>)}
-                </div>
-              ) : (
-                <div className="filter-row" style={{ display:"flex", gap:8, alignItems:"center" }}>
-                  {["All","Available","Reserved"].map(f=><FilterBtn key={f} active={lotFilter===f} onClick={()=>setLotFilter(f)}>{f}</FilterBtn>)}
-                </div>
-              )}
+              {searchBudget && <button onClick={()=>{ setSearchBudget(""); setSearchLocation(""); setSearchType(""); }} style={{ fontSize:12, color:MUT, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", textDecoration:"underline", marginLeft:4 }}>Clear</button>}
             </div>
-            {/* Active search filters summary */}
-            {(searchBudget || searchLocation || searchType) && (
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:20, flexWrap:"wrap" }}>
-                <span style={{ fontSize:13, color:MUT, fontWeight:600 }}>Filtered by:</span>
-                {searchLocation && <span style={{ fontSize:13, background:GL, color:G, borderRadius:20, padding:"4px 12px", fontWeight:600 }}>📍 {searchLocation === "pahrump" ? "Pahrump, NV" : searchLocation === "nye-county" ? "Nye County, NV" : "Las Vegas Area"}</span>}
-                {searchType && searchType !== "lot" && <span style={{ fontSize:13, background:GL, color:G, borderRadius:20, padding:"4px 12px", fontWeight:600 }}>🏠 {searchType === "home" ? "Home" : searchType === "custom" ? "Custom Build" : searchType}</span>}
-                {searchBudget && <span style={{ fontSize:13, background:GL, color:G, borderRadius:20, padding:"4px 12px", fontWeight:600 }}>💰 {searchBudget === "under-300k" ? "Under $300k" : searchBudget === "300-400k" ? "$300k–$400k" : searchBudget === "400-500k" ? "$400k–$500k" : "$500k+"}</span>}
-                <button onClick={()=>{ setSearchBudget(""); setSearchLocation(""); setSearchType(""); }} style={{ fontSize:12, color:MUT, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", textDecoration:"underline" }}>Clear filters</button>
-              </div>
-            )}
             {(dbHomesLoading || dbLotsLoading) && (
               <div style={{ textAlign:"center", padding:"40px 0", color:MUT, fontSize:15 }}>Loading listings…</div>
             )}
-            {/* HOMES TAB */}
-            {inventoryTab === "homes" && (
-            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
-              {!dbHomesLoading && filteredHomes.length > 0 ? filteredHomes.map(h=>(
-                <div key={h.id} onClick={()=>{ setSelectedHome({ id:h.id, tag:h.tag, price:h.price, title:h.address, addr:h.address, city:`${h.city}, ${h.state}`, sqft:h.sqft??"—", bed:h.beds??0, bath:h.baths??0, img:h.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg" }); nav("home-detail"); }}>
-                  <HomeCard h={{ id:h.id, tag:h.tag, price:h.price, title:h.address, addr:h.address, city:`${h.city}, ${h.state}`, sqft:h.sqft??"—", bed:h.beds??0, bath:h.baths??0, img:h.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg" }}/>
+            {/* HOMES SECTION */}
+            {!dbHomesLoading && (
+              <>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, marginTop:8 }}>
+                  <h2 style={{ fontSize:22, fontWeight:800, color:TXT, margin:0 }}>Homes <span style={{ fontSize:15, fontWeight:500, color:MUT }}>({filteredHomes.length})</span></h2>
+                  <div className="filter-row" style={{ display:"flex", gap:8 }}>
+                    {["All","Available","Sold","Under Contract"].map(f=><FilterBtn key={f} active={homeFilter===f} onClick={()=>setHomeFilter(f)}>{f}</FilterBtn>)}
+                  </div>
                 </div>
-              )) : !dbHomesLoading && (
-                <div style={{ gridColumn:"1/-1", textAlign:"center", padding:"60px 0", color:MUT }}>
-                  <div style={{ fontSize:40, marginBottom:16 }}>🏠</div>
-                  <p style={{ fontSize:18, fontWeight:600, marginBottom:8 }}>No homes match your search</p>
-                  <p style={{ fontSize:14, marginBottom:20 }}>Try adjusting your budget or location filters.</p>
-                  <button onClick={()=>{ setSearchBudget(""); setSearchLocation(""); setSearchType(""); }} style={{ background:G, color:"white", border:"none", borderRadius:8, padding:"12px 24px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>Clear Filters</button>
-                </div>
-              )}
-            </div>
+                {filteredHomes.length > 0 ? (
+                  <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:48 }}>
+                    {filteredHomes.map(h=>(
+                      <div key={h.id} onClick={()=>{ setSelectedHome({ id:h.id, tag:h.tag, price:h.price, title:h.address, addr:h.address, city:`${h.city}, ${h.state}`, sqft:h.sqft??"\u2014", bed:h.beds??0, bath:h.baths??0, img:h.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg" }); nav("home-detail"); }}>
+                        <HomeCard h={{ id:h.id, tag:h.tag, price:h.price, title:h.address, addr:h.address, city:`${h.city}, ${h.state}`, sqft:h.sqft??"\u2014", bed:h.beds??0, bath:h.baths??0, img:h.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg" }}/>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign:"center", padding:"40px 0", color:MUT, marginBottom:48 }}>
+                    <p style={{ fontSize:16, fontWeight:600, marginBottom:8 }}>No homes match your filters</p>
+                    <button onClick={()=>{ setHomeFilter("All"); setSearchBudget(""); }} style={{ background:G, color:"white", border:"none", borderRadius:8, padding:"10px 20px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>Clear Filters</button>
+                  </div>
+                )}
+              </>
             )}
-            {/* LOTS TAB */}
-            {inventoryTab === "lots" && (
-            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
-              {!dbLotsLoading && filteredLots.length > 0 ? filteredLots.map(l=>(
-                <div key={l.id} onClick={()=>{ setSelectedLot({ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water · Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }); nav("lot-detail"); }}>
-                  <LotCard l={{ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water · Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }}/>
+            {/* DIVIDER */}
+            {!dbHomesLoading && !dbLotsLoading && (
+              <div style={{ borderTop:`2px solid ${BOR}`, marginBottom:40 }} />
+            )}
+            {/* LOTS SECTION */}
+            {!dbLotsLoading && (
+              <>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+                  <h2 style={{ fontSize:22, fontWeight:800, color:TXT, margin:0 }}>Available Lots <span style={{ fontSize:15, fontWeight:500, color:MUT }}>({filteredLots.length})</span></h2>
+                  <div className="filter-row" style={{ display:"flex", gap:8 }}>
+                    {["All","Available","Reserved"].map(f=><FilterBtn key={f} active={lotFilter===f} onClick={()=>setLotFilter(f)}>{f}</FilterBtn>)}
+                  </div>
                 </div>
-              )) : !dbLotsLoading && (
-                <div style={{ gridColumn:"1/-1", textAlign:"center", padding:"60px 0", color:MUT }}>
-                  <div style={{ fontSize:40, marginBottom:16 }}>🌱</div>
-                  <p style={{ fontSize:18, fontWeight:600, marginBottom:8 }}>No lots match your filters</p>
-                  <button onClick={()=>{ setLotFilter("All"); }} style={{ background:G, color:"white", border:"none", borderRadius:8, padding:"12px 24px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>Show All Lots</button>
-                </div>
-              )}
-            </div>
+                {filteredLots.length > 0 ? (
+                  <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
+                    {filteredLots.map(l=>(
+                      <div key={l.id} onClick={()=>{ setSelectedLot({ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water \u00b7 Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }); nav("lot-detail"); }}>
+                        <LotCard l={{ id:l.id, tag:l.tag, size:l.sqft ? `${l.sqft} sqft` : "Inquire", price:l.price, addr:l.address, city:`${l.city}, ${l.state}`, utilities:l.description ?? "Water \u00b7 Electric", img:l.imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" }}/>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign:"center", padding:"40px 0", color:MUT, marginBottom:40 }}>
+                    <p style={{ fontSize:16, fontWeight:600, marginBottom:8 }}>No lots match your filters</p>
+                    <button onClick={()=>setLotFilter("All")} style={{ background:G, color:"white", border:"none", borderRadius:8, padding:"10px 20px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>Show All Lots</button>
+                  </div>
+                )}
+              </>
             )}
             <div className="cta-banner" style={{ background:G, borderRadius:14, padding:"32px 36px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
@@ -1913,13 +1946,9 @@ export default function ApolloSite() {
             <SectionLabel>Get in Touch</SectionLabel>
             <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:8 }}>Schedule a Free Consultation</h1>
             <p style={{ fontSize:15, color:MUT, marginBottom:32 }}>Pick a time that works for you — Brandon will walk you through your vision, timeline, and pricing.</p>
-            {/* Calendly inline embed */}
+            {/* Calendly inline embed — uses script already loaded in index.html */}
             <div style={{ background:"white", borderRadius:14, border:`1px solid ${BOR}`, overflow:"hidden", marginBottom:40, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
-              <div
-                className="calendly-inline-widget"
-                data-url="https://calendly.com/kyle-apollohomebuilders/30min?hide_event_type_details=1&hide_gdpr_banner=1"
-                style={{ minWidth:320, height:700 }}
-              />
+              <CalendlyWidget url="https://calendly.com/kyle-apollohomebuilders/30min?hide_event_type_details=1&hide_gdpr_banner=1" />
             </div>
             <div className="contact-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:36 }}>
               <div>
