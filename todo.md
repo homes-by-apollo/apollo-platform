@@ -369,3 +369,7 @@
 - [ ] Fix property card images to use CRM imageUrl (preserve hero image)
 - [ ] Fix Schedule a Consultation page: Calendly renders above footer
 - [ ] Fix Homes & Lots page: show all listings in one combined view (no tabs)
+
+## Homepage Inventory Fixes
+- [x] Replace stock photo home cards on homepage with real CRM inventory data and images
+- [x] Move Available Lots section to appear directly after Homes for Sale on homepage

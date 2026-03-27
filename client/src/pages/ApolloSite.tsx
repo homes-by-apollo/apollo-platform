@@ -21,11 +21,7 @@ const ACC = "#c8a96e";
 
 const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo_31888db6.webp";
 
-const homes = [
-  { id:1, tag:"For Sale", price:"$389,900", title:"3-Bed Desert Ranch Home", addr:"480 E Arapahoe St", city:"Pahrump, NV 89048", sqft:"1,800", bed:3, bath:2.5, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg" },
-  { id:2, tag:"For Sale", price:"$459,900", title:"4-Bed Stucco Home w/ Mountain Views", addr:"1204 W Calvada Blvd", city:"Pahrump, NV 89048", sqft:"2,240", bed:4, bath:3, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-2_558bc368.jpg" },
-  { id:3, tag:"For Sale", price:"$409,900", title:"3-Bed New Build — Desert Modern", addr:"4081 Jessica St", city:"Pahrump, NV 89048", sqft:"1,950", bed:3, bath:2.5, img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-4_84756e7b.jpg" },
-];
+// Static homes array removed — homepage now pulls first 3 available homes from CRM database
 
 const lots = [
   { id:1, tag:"Available", size:"0.25 Acres", price:"$45,000", addr:"Lot 14 – Basin Ave", city:"Pahrump, NV", utilities:"Water · Electric · Sewer", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" },
@@ -133,7 +129,8 @@ const Btn = ({ children, white, outline, small, full, carolina, onClick }: BtnPr
   );
 };
 
-function HomeCard({ h }: { h: typeof homes[0] }) {
+type HomeCardItem = { id: number; tag: string; price: string; title: string; addr: string; city: string; sqft: string; bed: number; bath: number; img: string; };
+function HomeCard({ h }: { h: HomeCardItem }) {
   const [hov, setHov] = useState(false);
   const statusColor = h.tag === "Available" ? G : h.tag === "Sold" ? "#e53e3e" : "#d97706";
   return (
@@ -353,7 +350,7 @@ export default function ApolloSite() {
   // Live homes and lots from database
   const { data: dbHomes, isLoading: dbHomesLoading } = trpc.properties.getAll.useQuery({ propertyType: "HOME" });
   const { data: dbLots, isLoading: dbLotsLoading } = trpc.properties.getAll.useQuery({ propertyType: "LOT" });
-  const [selectedHome, setSelectedHome] = useState<typeof homes[0] | null>(null);
+  const [selectedHome, setSelectedHome] = useState<HomeCardItem | null>(null);
   const [selectedLot, setSelectedLot] = useState<typeof lots[0] | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
@@ -871,7 +868,7 @@ export default function ApolloSite() {
                         <div
                           key={i}
                           className="feat-card"
-                          onClick={()=>{ setSelectedHome(homes[i] ?? homes[0]); nav("home-detail"); }}
+                          onClick={()=>{ nav("homes"); }}
                           style={{
                             flexShrink:0,
                             width:cardW,
@@ -1007,7 +1004,7 @@ export default function ApolloSite() {
             </div>
           </div>
 
-          {/* FEATURED HOMES */}
+          {/* FEATURED HOMES — real CRM data */}
           <div className="section-pad" style={{ padding:"64px var(--pad) 0" }}>
             <div className="site-container">
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
@@ -1018,11 +1015,57 @@ export default function ApolloSite() {
               <button className="section-view-all" onClick={()=>{ track("View All", { section:"Featured Properties" }); nav("homes"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-              {homes.map(h=>(
-                <div key={h.id} onClick={()=>{ setSelectedHome(h); nav("home-detail"); }}>
-                  <HomeCard h={h}/>
-                </div>
-              ))}
+              {dbHomesLoading ? (
+                [1,2,3].map(i => (
+                  <div key={i} style={{ background:"#f4f6fa", borderRadius:16, height:380, animation:"pulse 1.5s ease-in-out infinite" }} />
+                ))
+              ) : (
+                (dbHomes ?? []).filter(h => h.tag === "Available").slice(0,3).map(h=>(
+                  <div key={h.id} onClick={()=>{ setSelectedHome(h as any); nav("home-detail"); }}>
+                    <HomeCard h={{
+                      id: h.id,
+                      tag: h.tag === "Available" ? "For Sale" : h.tag,
+                      price: h.price ?? "Inquire",
+                      title: h.address,
+                      addr: h.address,
+                      city: `${h.city}, ${h.state}`,
+                      sqft: h.sqft ? h.sqft.toString() : "",
+                      bed: h.beds ?? 0,
+                      bath: h.baths ?? 0,
+                      img: h.imageUrl ?? "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home-1_27807d49.jpg",
+                    }}/>
+                  </div>
+                ))
+              )}
+            </div>
+            </div>
+          </div>
+
+          {/* AVAILABLE LOTS — moved directly after Homes for Sale */}
+          <div className="section-pad" style={{ padding:"72px var(--pad) 64px" }}>
+            <div className="site-container">
+            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
+              <div>
+                <SectionLabel>Land</SectionLabel>
+                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Available Lots</h2>
+              </div>
+              <button className="section-view-all" onClick={()=>{ track("View All", { section:"Land" }); nav("lots"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+            </div>
+            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+              {dbLotsLoading ? (
+                [1,2,3].map(i => (
+                  <div key={i} style={{ background:"#f4f6fa", borderRadius:16, height:340, animation:"pulse 1.5s ease-in-out infinite" }} />
+                ))
+              ) : (
+                (dbLots ?? lots).slice(0,3).map(l=>{
+                  const isDb = 'address' in l;
+                  const mapped = isDb ? { id:(l as any).id, tag:(l as any).tag, size:(l as any).sqft ? `${(l as any).sqft} sqft` : "Inquire", price:(l as any).price, addr:(l as any).address, city:`${(l as any).city}, ${(l as any).state}`, utilities:(l as any).description ?? "Water · Electric", img:(l as any).imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" } : l as typeof lots[0];
+                  return (
+                  <div key={mapped.id} onClick={()=>{ setSelectedLot(mapped); nav("lot-detail"); }}>
+                    <LotCard l={mapped}/>
+                  </div>
+                )})
+              )}
             </div>
             </div>
           </div>
@@ -1059,28 +1102,6 @@ export default function ApolloSite() {
             </div>
           </div>
 
-          {/* AVAILABLE LOTS */}
-          <div className="section-pad" style={{ padding:"72px var(--pad) 64px" }}>
-            <div className="site-container">
-            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28 }}>
-              <div>
-                <SectionLabel>Land</SectionLabel>
-                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em" }}>Available Lots</h2>
-              </div>
-              <button className="section-view-all" onClick={()=>{ track("View All", { section:"Land" }); nav("lots"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
-            </div>
-            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-              {(dbLots ?? lots).slice(0,3).map(l=>{
-                const isDb = 'address' in l;
-                const mapped = isDb ? { id:(l as any).id, tag:(l as any).tag, size:(l as any).sqft ? `${(l as any).sqft} sqft` : "Inquire", price:(l as any).price, addr:(l as any).address, city:`${(l as any).city}, ${(l as any).state}`, utilities:(l as any).description ?? "Water · Electric", img:(l as any).imageUrl??"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-lot-1-LPkvwaegUz9KxvnbjdxWHo.webp" } : l as typeof lots[0];
-                return (
-                <div key={mapped.id} onClick={()=>{ setSelectedLot(mapped); nav("lot-detail"); }}>
-                  <LotCard l={mapped}/>
-                </div>
-              )})}
-            </div>
-            </div>
-          </div>
           {/* NEWSLETTER SUBSCRIBE */}
           <div className="section-pad" style={{ padding:"72px var(--pad)", background:"#f4f6fa" }}>
             <div className="site-container">
