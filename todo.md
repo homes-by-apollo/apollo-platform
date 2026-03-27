@@ -359,3 +359,10 @@
 - [x] Move Admin button from top nav to footer (visible to logged-in admins only)
 - [x] Remove Admin button from top nav
 - [x] Confirm brandon@apollohomebuilders.com and kyle@apollohomebuilders.com are in admin auto-promote list
+
+## Property Migration from pahrumpbuilder.com
+- [ ] Scrape all property listings from pahrumpbuilder.com
+- [ ] Download all property images
+- [ ] Upload images to CDN
+- [ ] Insert all properties into CRM database
+- [ ] Verify migration in CRM

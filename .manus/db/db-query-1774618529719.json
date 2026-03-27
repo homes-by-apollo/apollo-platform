@@ -1,0 +1,30 @@
+{
+  "query": "SELECT propertyType, tag, COUNT(*) as count FROM properties GROUP BY propertyType, tag ORDER BY propertyType, tag;\nSELECT COUNT(*) as total_with_images FROM properties WHERE imageUrl IS NOT NULL AND imageUrl != '';\nSELECT COUNT(*) as total FROM properties;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4ZmCLDe5kjC12Ki.a08ad336f6b8 --database mwVy9Am3ywXkRkqF68TJjK --execute SELECT propertyType, tag, COUNT(*) as count FROM properties GROUP BY propertyType, tag ORDER BY propertyType, tag;\nSELECT COUNT(*) as total_with_images FROM properties WHERE imageUrl IS NOT NULL AND imageUrl != '';\nSELECT COUNT(*) as total FROM properties;",
+  "rows": [
+    {
+      "propertyType": "HOME",
+      "tag": "Available",
+      "count": "22"
+    },
+    {
+      "propertyType": "HOME",
+      "tag": "Under Contract",
+      "count": "5"
+    },
+    {
+      "propertyType": "LOT",
+      "tag": "Available",
+      "count": "15"
+    }
+  ],
+  "messages": [
+    "total_with_images",
+    "38",
+    "total",
+    "42"
+  ],
+  "stdout": "propertyType\ttag\tcount\nHOME\tAvailable\t22\nHOME\tUnder Contract\t5\nLOT\tAvailable\t15\ntotal_with_images\n38\ntotal\n42\n",
+  "stderr": "",
+  "execution_time_ms": 82
+}

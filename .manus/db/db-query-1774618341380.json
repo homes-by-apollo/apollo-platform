@@ -1,0 +1,25 @@
+{
+  "query": "SELECT propertyType, tag, COUNT(*) as count FROM properties GROUP BY propertyType, tag ORDER BY propertyType, tag;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4ZmCLDe5kjC12Ki.a08ad336f6b8 --database mwVy9Am3ywXkRkqF68TJjK --execute SELECT propertyType, tag, COUNT(*) as count FROM properties GROUP BY propertyType, tag ORDER BY propertyType, tag;",
+  "rows": [
+    {
+      "propertyType": "HOME",
+      "tag": "Available",
+      "count": "17"
+    },
+    {
+      "propertyType": "HOME",
+      "tag": "Under Contract",
+      "count": "3"
+    },
+    {
+      "propertyType": "LOT",
+      "tag": "Available",
+      "count": "15"
+    }
+  ],
+  "messages": [],
+  "stdout": "propertyType\ttag\tcount\nHOME\tAvailable\t17\nHOME\tUnder Contract\t3\nLOT\tAvailable\t15\n",
+  "stderr": "",
+  "execution_time_ms": 84
+}
