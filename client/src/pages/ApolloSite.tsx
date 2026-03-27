@@ -585,23 +585,7 @@ export default function ApolloSite() {
 
         {/* Desktop CTAs */}
         <div className="desktop-nav-ctas" style={{ display:"flex", gap:10, alignItems:"center" }}>
-          {isAdmin && (
-            <a
-              href="/crm"
-              style={{
-                fontSize:14, fontWeight:700, textDecoration:"none",
-                color:"#e07b39", background:"white",
-                border:"2px solid #e07b39", borderRadius:8,
-                padding:"0 18px", height:70, letterSpacing:"0.01em",
-                lineHeight:1, display:"inline-flex", alignItems:"center",
-                transition:"background 0.15s, color 0.15s",
-              }}
-              onMouseEnter={e=>{ e.currentTarget.style.background="#e07b39"; e.currentTarget.style.color="white"; }}
-              onMouseLeave={e=>{ e.currentTarget.style.background="white"; e.currentTarget.style.color="#e07b39"; }}
-            >
-              Admin
-            </a>
-          )}
+
           <button
             onClick={()=>{ track("Schedule Consultation", { location:"nav" }); nav("contact"); }}
             style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"none", fontSize:14, fontFamily:"inherit", background:G, color:"white", flexShrink:0 }}
@@ -634,20 +618,7 @@ export default function ApolloSite() {
           boxShadow:"0 8px 32px rgba(0,0,0,0.12)", padding:"16px 20px 20px",
         }}>
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-            {isAdmin && (
-              <a
-                href="/crm"
-                style={{
-                  display:"block", textAlign:"center", padding:"12px 16px",
-                  fontSize:14, fontWeight:700, textDecoration:"none",
-                  color:"#e07b39", background:"white",
-                  border:"2px solid #e07b39", borderRadius:8,
-                  letterSpacing:"0.01em",
-                }}
-              >
-                Admin
-              </a>
-            )}
+
             <Btn full onClick={()=>{ track("Schedule Consultation", { location:"hero" }); nav("contact"); }}>Schedule a Consultation</Btn>
             <Btn full outline onClick={()=>{ track("View Homes & Lots", { location:"hero" }); nav("homes"); }}>View Homes &amp; Lots</Btn>
           </div>
@@ -1271,7 +1242,7 @@ export default function ApolloSite() {
                 {/* RIGHT: Call Us Free + phone + address */}
                 <div style={{ paddingTop:4 }}>
                   <div style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:10, letterSpacing:"0.02em" }}>Call Us Free</div>
-                  <a href="tel:9107771" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>910-777-1</a>
+                  <a href="tel:7753631616" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>(775) 363-1616</a>
                   <div style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.7 }}>
                     4081 Jessica St<br/>
                     Pahrump, NV 89048
@@ -1310,7 +1281,13 @@ export default function ApolloSite() {
             <div style={{ padding:"22px var(--pad)" }}>
               <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
               <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
-              <div style={{ display:"flex", gap:20 }}>
+              <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                {isAdmin && (
+                  <a href="/crm" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px", letterSpacing:"0.01em", transition:"background 0.15s, color 0.15s" }}
+                    onMouseEnter={e=>{ e.currentTarget.style.background="#e07b39"; e.currentTarget.style.color="white"; }}
+                    onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#e07b39"; }}
+                  >Admin</a>
+                )}
                 {["Privacy Policy","Terms"].map(i=>(
                   <span key={i} style={{ fontSize:13, color:"rgba(255,255,255,0.22)", cursor:"pointer", transition:"color 0.15s" }}
                     onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.6)"}}
@@ -1396,7 +1373,7 @@ export default function ApolloSite() {
                 {/* RIGHT: Call Us Free + phone + address */}
                 <div style={{ paddingTop:4 }}>
                   <div style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:10, letterSpacing:"0.02em" }}>Call Us Free</div>
-                  <a href="tel:9107771" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>910-777-1</a>
+                  <a href="tel:7753631616" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>(775) 363-1616</a>
                   <div style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.7 }}>
                     4081 Jessica St<br/>
                     Pahrump, NV 89048
@@ -1435,7 +1412,13 @@ export default function ApolloSite() {
             <div style={{ padding:"22px var(--pad)" }}>
               <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
               <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
-              <div style={{ display:"flex", gap:20 }}>
+              <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                {isAdmin && (
+                  <a href="/crm" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px", letterSpacing:"0.01em", transition:"background 0.15s, color 0.15s" }}
+                    onMouseEnter={e=>{ e.currentTarget.style.background="#e07b39"; e.currentTarget.style.color="white"; }}
+                    onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#e07b39"; }}
+                  >Admin</a>
+                )}
                 {["Privacy Policy","Terms"].map(i=>(
                   <span key={i} style={{ fontSize:13, color:"rgba(255,255,255,0.22)", cursor:"pointer", transition:"color 0.15s" }}
                     onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,0.6)"}}
@@ -1875,7 +1858,7 @@ export default function ApolloSite() {
               </button>
               <SectionLabel>FAQ</SectionLabel>
               <h1 style={{ fontSize:"clamp(32px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:12, maxWidth:640 }}>Everything you need to know about building with Apollo</h1>
-              <p style={{ fontSize:16, color:MUT, lineHeight:1.75, maxWidth:560, marginBottom:52 }}>Can't find your answer here? Call us at (702) 588-9889 or schedule a free consultation — we're happy to walk you through anything.</p>
+              <p style={{ fontSize:16, color:MUT, lineHeight:1.75, maxWidth:560, marginBottom:52 }}>Can't find your answer here? Call us at (775) 363-1616 or schedule a free consultation — we're happy to walk you through anything.</p>
             </div>
             {allFaqs.map(({ category, items }) => (
               <div key={category} style={{ marginBottom:52 }}>
@@ -1932,13 +1915,10 @@ export default function ApolloSite() {
             <p style={{ fontSize:15, color:MUT, marginBottom:32 }}>Pick a time that works for you — Brandon will walk you through your vision, timeline, and pricing.</p>
             {/* Calendly inline embed */}
             <div style={{ background:"white", borderRadius:14, border:`1px solid ${BOR}`, overflow:"hidden", marginBottom:40, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
-              <iframe
-                src="https://calendly.com/brandon-apollohomebuilders/30min"
-                width="100%"
-                height="700"
-                frameBorder="0"
-                title="Schedule a Consultation with Apollo Home Builders"
-                style={{ display:"block", border:"none" }}
+              <div
+                className="calendly-inline-widget"
+                data-url="https://calendly.com/kyle-apollohomebuilders/30min?hide_event_type_details=1&hide_gdpr_banner=1"
+                style={{ minWidth:320, height:700 }}
               />
             </div>
             <div className="contact-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:36 }}>
@@ -1948,7 +1928,7 @@ export default function ApolloSite() {
                 <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                   {([
                     [<svg key="pin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,"Office","5158 Arville St, Las Vegas, NV 89118"],
-                    [<svg key="phone" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,"Phone","(702) 588-9889"],
+                    [<svg key="phone" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,"Phone","(775) 363-1616"],
                     [<svg key="mail" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,"Email","brandon@apollohomebuilders.com"],
                     [<svg key="lic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>,"License","NV No. 0077907"],
                   ] as [React.ReactNode,string,string][]).map(([icon,label,val])=>(

@@ -347,3 +347,15 @@
 - [ ] Checkpoint before publish
 - [ ] Guide Namecheap DNS setup for apollohomebuilders.com
 - [ ] Publish to apollohomebuilders.com
+
+## Session Current
+- [ ] Update footer phone number to (775) 363-1616
+- [ ] Fix Calendly URL to kyle-apollohomebuilders/30min and add Calendly JS widget script
+- [ ] Verify Homes & Lots inventory tab switcher is working
+- [ ] Connect Resend API key and build real newsletter subscription + welcome email
+- [ ] Scrape property photos from pahrumpbuilders.com and upload to CRM
+
+## Session Current — Admin Button & User Accounts
+- [x] Move Admin button from top nav to footer (visible to logged-in admins only)
+- [x] Remove Admin button from top nav
+- [x] Confirm brandon@apollohomebuilders.com and kyle@apollohomebuilders.com are in admin auto-promote list
