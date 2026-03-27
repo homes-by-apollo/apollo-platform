@@ -1937,7 +1937,7 @@ export default function ApolloSite() {
           <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
             <SectionLabel>Get in Touch</SectionLabel>
             <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:8 }}>Schedule a Free Consultation</h1>
-            <p style={{ fontSize:15, color:MUT, marginBottom:32 }}>Pick a time that works for you — Brandon will walk you through your vision, timeline, and pricing.</p>
+            <p style={{ fontSize:15, color:MUT, marginBottom:32 }}>Pick a time that works for you!</p>
             {/* Calendly inline embed — uses script already loaded in index.html */}
             <div style={{ background:"white", borderRadius:14, border:`1px solid ${BOR}`, overflow:"hidden", marginBottom:40, boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
               <CalendlyWidget url="https://calendly.com/kyle-apollohomebuilders/30min" />
