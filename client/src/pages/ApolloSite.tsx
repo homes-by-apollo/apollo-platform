@@ -461,19 +461,21 @@ export default function ApolloSite() {
           p, li, .hero-subtitle, .card-meta { font-size: 16px !important; line-height: 1.6 !important; white-space: normal !important; }
 
           /* ── Hero search: white card container above the hero image ── */
-          .hero-search        { background: #ffffff !important; padding: 16px !important; border-radius: 16px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important; margin-top: 20px !important; margin-bottom: 0 !important; position: relative !important; z-index: 2 !important; width: 100% !important; box-sizing: border-box !important; order: 3 !important; }
+          .hero-search        { background: transparent !important; padding: 16px 0 !important; border-radius: 0 !important; box-shadow: none !important; margin-top: 20px !important; margin-bottom: 0 !important; position: relative !important; z-index: 2 !important; width: 100% !important; box-sizing: border-box !important; order: 3 !important; }
           /* Hero content flex reorder: headline(1) → subtitle(2) → search(3) → image(4) */
           .hero-headline      { order: 1 !important; }
           .hero-subtitle      { order: 2 !important; }
           .hero-image-wrap    { order: 4 !important; margin-top: 0 !important; }
 
           /* ── Search bar: vertical form on mobile ── */
-          .search-bar         { flex-direction: column !important; border-radius: 14px !important; padding: 16px !important; gap: 12px !important; width: 100% !important; max-width: 100% !important; box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important; display: flex !important; background: #fff !important; }
-          .search-bar-item    { border-right: none !important; border-bottom: none !important; border: 1px solid #dde3ef !important; border-radius: 10px !important; padding: 0 18px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; height: 50px !important; min-height: 50px !important; flex: none !important; align-self: auto !important; }
-          .search-bar-item div { font-size: 16px !important; }
+          /* ── Search bar: clean vertical stack on mobile ── */
+          .search-bar         { flex-direction: column !important; border-radius: 0 !important; padding: 0 !important; gap: 0 !important; width: 100% !important; max-width: 100% !important; box-shadow: none !important; display: flex !important; background: transparent !important; height: auto !important; }
+          .search-bar-item    { border: 1px solid #dde3ef !important; border-radius: 12px !important; padding: 0 16px !important; width: 100% !important; min-width: unset !important; background: white !important; justify-content: space-between !important; height: 54px !important; min-height: 54px !important; flex: none !important; align-self: stretch !important; box-sizing: border-box !important; margin-bottom: 10px !important; }
+          .search-bar-item select { font-size: 15px !important; width: 100% !important; min-width: 0 !important; }
+          .search-bar-item div { font-size: 15px !important; }
           .search-bar-item-inner { flex: 1 !important; }
           .search-bar-chevron { display: flex !important; }
-          .search-bar-btn     { width: 100% !important; border-radius: 10px !important; margin: 0 !important; padding: 0 !important; height: 52px !important; font-size: 16px !important; font-weight: 600 !important; align-self: auto !important; }
+          .search-bar-btn     { width: 100% !important; border-radius: 12px !important; margin: 0 !important; padding: 0 !important; height: 54px !important; font-size: 16px !important; font-weight: 700 !important; align-self: stretch !important; box-sizing: border-box !important; }
 
           /* ── Stat pills ── */
           .stat-pills         { gap: 8px !important; flex-wrap: wrap !important; justify-content: center !important; padding: 0 12px !important; }
@@ -551,8 +553,8 @@ export default function ApolloSite() {
 
           /* ── Tap targets: min 52px, full-width, 12px radius ── */
           button, .faq-item-trigger { min-height: 52px !important; }
-          .search-bar-btn     { min-height: 52px !important; height: 52px !important; }
-          .search-bar-item    { min-height: 52px !important; height: 52px !important; }
+          .search-bar-btn     { min-height: 54px !important; height: 54px !important; }
+          .search-bar-item    { min-height: 54px !important; height: 54px !important; }
 
           /* ── Full-width section buttons ── */
           .section-view-all          { width: 100% !important; text-align: left !important; }

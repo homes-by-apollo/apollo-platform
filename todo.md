@@ -403,3 +403,7 @@
 - [x] Fix Admin button in footer — make it always visible (not gated on isAdmin)
 - [x] Remove subtitle text "Sign in to manage listings, leads, and site content." from /admin-login
 - [x] Increase logo size by 50% on /admin-login page
+
+## UI Polish
+- [x] Reverted testimonial avatars back to original photos (illustrated avatars cancelled per user request)
+- [x] Fix mobile search bar stacking (filters should stack cleanly on small screens)
