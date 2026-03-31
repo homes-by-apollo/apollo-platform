@@ -418,3 +418,9 @@
 - [x] Build /reset-password page (token validation, new password form)
 - [x] Add "Forgot Password?" link on /admin-login page
 - [x] Wire both pages into App.tsx router
+
+## Search Bar & Nav Button Fixes
+- [x] Set Pahrump, NV as default location in search bar
+- [x] Fix search bar container sizing (too small, Search button overlaps)
+- [x] Fix search filter logic to correctly surface matching properties
+- [x] Increase nav button font size by 20% on desktop (GET IN TOUCH, FIND YOUR HOME)

@@ -340,7 +340,7 @@ export default function ApolloSite() {
   const [lotFilter, setLotFilter] = useState("All");
   const [blogFilter, setBlogFilter] = useState("All");
   // Hero search bar state
-  const [searchLocation, setSearchLocation] = useState("");
+  const [searchLocation, setSearchLocation] = useState("pahrump");
   const [searchType, setSearchType] = useState("");
   const [searchBudget, setSearchBudget] = useState("");
   const [testimonialIdx, setTestimonialIdx] = useState(0);
@@ -620,13 +620,13 @@ export default function ApolloSite() {
 
           <button
             onClick={()=>{ track("Schedule Consultation", { location:"nav" }); nav("contact"); }}
-            style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"1.5px solid #4B9CD3", fontSize:13, fontFamily:"inherit", background:"transparent", color:"#4B9CD3", flexShrink:0, letterSpacing:"0.04em" }}
+            style={{ width:220, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"1.5px solid #4B9CD3", fontSize:16, fontFamily:"inherit", background:"transparent", color:"#4B9CD3", flexShrink:0, letterSpacing:"0.04em" }}
             onMouseEnter={e=>{ e.currentTarget.style.background="rgba(75,156,211,0.1)"; }}
             onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; }}
           >GET IN TOUCH ↗</button>
           <button
             onClick={()=>{ track("Find Your Home", { location:"nav" }); nav("homes"); }}
-            style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"none", fontSize:13, fontFamily:"inherit", background:G, color:"white", flexShrink:0, letterSpacing:"0.04em" }}
+            style={{ width:220, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"none", fontSize:16, fontFamily:"inherit", background:G, color:"white", flexShrink:0, letterSpacing:"0.04em" }}
             onMouseEnter={e=>{ e.currentTarget.style.background=GM; }}
             onMouseLeave={e=>{ e.currentTarget.style.background=G; }}
           >FIND YOUR HOME ↗</button>
@@ -695,9 +695,9 @@ export default function ApolloSite() {
                 display:"inline-flex", alignItems:"center",
                 background:"#e8eaed", borderRadius:14,
                 boxShadow:"0 4px 40px rgba(0,0,0,0.12)",
-                padding:"10px", gap:6,
+                padding:"12px", gap:8,
                 position:"relative", zIndex:10,
-                width:790, height:100, maxWidth:"calc(100% - 32px)",
+                width:920, height:"auto", minHeight:88, maxWidth:"calc(100% - 32px)",
                 marginBottom:0, boxSizing:"border-box",
               }}>
                 {/* Location dropdown */}
@@ -1512,18 +1512,27 @@ export default function ApolloSite() {
             const allLots = dbLots ?? [];
             const filteredHomes = allHomes.filter(h => {
               const price = h.priceValue ?? parsePriceNum(h.price);
+              // Tag filter
               if (homeFilter === "Available" && h.tag !== "Available") return false;
               if (homeFilter === "Sold" && h.tag !== "Sold") return false;
               if (homeFilter === "Under Contract" && h.tag !== "Under Contract") return false;
-              if (searchBudget === "under-300k") return price < 300000;
-              if (searchBudget === "300-400k")  return price >= 300000 && price < 400000;
-              if (searchBudget === "400-500k")  return price >= 400000 && price < 500000;
-              if (searchBudget === "500k-plus") return price >= 500000;
+              // Budget filter (additive, not short-circuit)
+              if (searchBudget === "under-300k" && !(price < 300000)) return false;
+              if (searchBudget === "300-400k"  && !(price >= 300000 && price < 400000)) return false;
+              if (searchBudget === "400-500k"  && !(price >= 400000 && price < 500000)) return false;
+              if (searchBudget === "500k-plus" && !(price >= 500000)) return false;
               return true;
             });
             const filteredLots = allLots.filter(l => {
-              if (lotFilter === "Available") return l.tag === "Available";
-              if (lotFilter === "Reserved") return l.tag === "Under Contract";
+              // Tag filter
+              if (lotFilter === "Available" && l.tag !== "Available") return false;
+              if (lotFilter === "Reserved" && l.tag !== "Under Contract") return false;
+              // Budget filter for lots
+              const lotPrice = l.priceValue ?? parsePriceNum(l.price);
+              if (searchBudget === "under-300k" && !(lotPrice < 300000)) return false;
+              if (searchBudget === "300-400k"  && !(lotPrice >= 300000 && lotPrice < 400000)) return false;
+              if (searchBudget === "400-500k"  && !(lotPrice >= 400000 && lotPrice < 500000)) return false;
+              if (searchBudget === "500k-plus" && !(lotPrice >= 500000)) return false;
               return true;
             });
             // inventoryTab: "homes" | "lots"
