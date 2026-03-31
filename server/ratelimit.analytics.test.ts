@@ -132,12 +132,12 @@ describe("analytics.trafficStats", () => {
     delete process.env.PLAUSIBLE_API_KEY;
 
     const caller = appRouter.createCaller(makeAdminCtx());
-    const result = await caller.analytics.trafficStats();
+    const result = await caller.analytics.trafficStats({ period: "30d" });
 
     expect(result.configured).toBe(false);
-    expect(result.visitors7d).toBeNull();
-    expect(result.pageviews7d).toBeNull();
-    expect(result.topSource).toBeNull();
+    expect(result.visitors).toBeNull();
+    expect(result.pageviews).toBeNull();
+    expect(result.topSources).toBeNull();
 
     if (originalKey !== undefined) process.env.PLAUSIBLE_API_KEY = originalKey;
   });
@@ -148,13 +148,13 @@ describe("analytics.trafficStats", () => {
     // fetch is not available in the Node test environment by default; the procedure
     // catches errors and returns null values, so we just verify the shape.
     const caller = appRouter.createCaller(makeAdminCtx());
-    const result = await caller.analytics.trafficStats();
+    const result = await caller.analytics.trafficStats({ period: "30d" });
 
     expect(result.configured).toBe(true);
     // Values may be null (fetch fails in test env) or numbers (if fetch is polyfilled)
-    expect(result).toHaveProperty("visitors7d");
-    expect(result).toHaveProperty("pageviews7d");
-    expect(result).toHaveProperty("topSource");
+    expect(result).toHaveProperty("visitors");
+    expect(result).toHaveProperty("pageviews");
+    expect(result).toHaveProperty("topSources");
 
     delete process.env.PLAUSIBLE_API_KEY;
   });

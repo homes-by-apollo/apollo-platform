@@ -1,7 +1,7 @@
 /**
- * Analytics router — fetches website traffic stats from Plausible Analytics API.
+ * Analytics router — fetches website traffic stats from Plausible Analytics API v1.
  *
- * Plausible Stats API v2 docs: https://plausible.io/docs/stats-api
+ * Plausible Stats API v1 docs: https://plausible.io/docs/stats-api
  *
  * Required env var: PLAUSIBLE_API_KEY (Bearer token from plausible.io/settings/api-keys)
  * Site domain:      apollohomebuilders.com
@@ -10,27 +10,11 @@
  * CRM dashboard can render a "Connect Plausible" placeholder instead of crashing.
  */
 
+import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 
-const PLAUSIBLE_BASE = "https://plausible.io/api/v2";
+const PLAUSIBLE_BASE = "https://plausible.io/api/v1";
 const SITE_ID = "apollohomebuilders.com";
-
-interface PlausibleTimeseries {
-  results: { date: string; visitors: number; pageviews: number }[];
-}
-
-interface PlausibleBreakdown {
-  results: { source: string; visitors: number }[];
-}
-
-interface PlausibleAggregate {
-  results: {
-    visitors: { value: number };
-    pageviews: { value: number };
-    bounce_rate: { value: number };
-    visit_duration: { value: number };
-  };
-}
 
 async function plausibleFetch<T>(path: string, apiKey: string): Promise<T> {
   const url = `${PLAUSIBLE_BASE}${path}`;
@@ -44,65 +28,90 @@ async function plausibleFetch<T>(path: string, apiKey: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+interface AggregateResult {
+  results: {
+    visitors: { value: number };
+    pageviews: { value: number };
+    bounce_rate: { value: number };
+    visit_duration: { value: number };
+  };
+}
+
+interface BreakdownResult {
+  results: { page?: string; source?: string; visitors: number }[];
+}
+
+interface TimeseriesResult {
+  results: { date: string; visitors: number; pageviews: number }[];
+}
+
 export const analyticsRouter = router({
   /**
-   * Protected: fetch last-7-day website traffic stats from Plausible.
-   * Returns null fields when the API key is not configured.
+   * Protected: fetch website traffic stats from Plausible.
+   * Supports period: "7d" | "30d" | "month" | "6mo" | "12mo"
    */
-  trafficStats: protectedProcedure.query(async () => {
-    const apiKey = process.env.PLAUSIBLE_API_KEY;
+  trafficStats: protectedProcedure
+    .input(z.object({ period: z.enum(["7d", "30d", "month", "6mo", "12mo"]).default("30d") }))
+    .query(async ({ input }) => {
+      const apiKey = process.env.PLAUSIBLE_API_KEY;
 
-    if (!apiKey) {
-      return {
-        configured: false,
-        visitors7d: null,
-        pageviews7d: null,
-        bounceRate: null,
-        avgVisitDuration: null,
-        topSource: null,
-        topSourceVisitors: null,
-        dailyTimeseries: null,
-      };
-    }
+      if (!apiKey) {
+        return {
+          configured: false,
+          visitors: null,
+          pageviews: null,
+          bounceRate: null,
+          avgVisitDuration: null,
+          topPages: null,
+          topSources: null,
+          timeseries: null,
+        };
+      }
 
-    try {
-      const period = "7d";
+      try {
+        const { period } = input;
 
-      const [aggregate, breakdown] = await Promise.all([
-        plausibleFetch<PlausibleAggregate>(
-          `/stats/aggregate?site_id=${SITE_ID}&period=${period}&metrics=visitors,pageviews,bounce_rate,visit_duration`,
-          apiKey
-        ),
-        plausibleFetch<PlausibleBreakdown>(
-          `/stats/breakdown?site_id=${SITE_ID}&period=${period}&property=visit:source&metrics=visitors&limit=1`,
-          apiKey
-        ),
-      ]);
+        const [aggregate, topPages, topSources, timeseries] = await Promise.all([
+          plausibleFetch<AggregateResult>(
+            `/stats/aggregate?site_id=${SITE_ID}&period=${period}&metrics=visitors,pageviews,bounce_rate,visit_duration`,
+            apiKey
+          ),
+          plausibleFetch<BreakdownResult>(
+            `/stats/breakdown?site_id=${SITE_ID}&period=${period}&property=event:page&metrics=visitors&limit=10`,
+            apiKey
+          ),
+          plausibleFetch<BreakdownResult>(
+            `/stats/breakdown?site_id=${SITE_ID}&period=${period}&property=visit:source&metrics=visitors&limit=10`,
+            apiKey
+          ),
+          plausibleFetch<TimeseriesResult>(
+            `/stats/timeseries?site_id=${SITE_ID}&period=${period}&metrics=visitors,pageviews`,
+            apiKey
+          ),
+        ]);
 
-      const top = breakdown.results[0] ?? null;
-
-      return {
-        configured: true,
-        visitors7d: aggregate.results.visitors.value,
-        pageviews7d: aggregate.results.pageviews.value,
-        bounceRate: aggregate.results.bounce_rate.value,
-        avgVisitDuration: aggregate.results.visit_duration.value,
-        topSource: top?.source ?? null,
-        topSourceVisitors: top?.visitors ?? null,
-        dailyTimeseries: null, // timeseries endpoint requires paid plan; reserved for future use
-      };
-    } catch (err) {
-      console.error("[analyticsRouter] Plausible fetch failed:", err);
-      return {
-        configured: true,
-        visitors7d: null,
-        pageviews7d: null,
-        bounceRate: null,
-        avgVisitDuration: null,
-        topSource: null,
-        topSourceVisitors: null,
-        dailyTimeseries: null,
-      };
-    }
-  }),
+        return {
+          configured: true,
+          visitors: aggregate.results.visitors.value,
+          pageviews: aggregate.results.pageviews.value,
+          bounceRate: aggregate.results.bounce_rate.value,
+          avgVisitDuration: aggregate.results.visit_duration.value,
+          topPages: topPages.results.map(r => ({ page: r.page ?? "", visitors: r.visitors })),
+          topSources: topSources.results.map(r => ({ source: r.source ?? "Direct", visitors: r.visitors })),
+          timeseries: timeseries.results,
+        };
+      } catch (err) {
+        console.error("[analyticsRouter] Plausible fetch failed:", err);
+        return {
+          configured: true,
+          visitors: null,
+          pageviews: null,
+          bounceRate: null,
+          avgVisitDuration: null,
+          topPages: null,
+          topSources: null,
+          timeseries: null,
+        };
+      }
+    }),
 });

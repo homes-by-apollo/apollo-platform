@@ -424,3 +424,9 @@
 - [x] Fix search bar container sizing (too small, Search button overlaps)
 - [x] Fix search filter logic to correctly surface matching properties
 - [x] Increase nav button font size by 20% on desktop (GET IN TOUCH, FIND YOUR HOME)
+
+## Plausible Analytics Integration
+- [x] Store PLAUSIBLE_API_KEY as secret
+- [x] Build server-side tRPC endpoint to proxy Plausible Stats API v1 (visitors, pageviews, bounce rate, avg visit, top pages, top sources, timeseries)
+- [x] Add Analytics section to CRM Dashboard with live Plausible data, period selector (7d/30d/Mo/6mo/12mo), daily sparkline, top pages table, top sources bar chart
+- [x] Fix existing analytics tests to match new field names (visitors7d→visitors, topSource→topSources)

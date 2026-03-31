@@ -159,9 +159,10 @@ export default function CRMDashboard() {
   const [scoreFilter, setScoreFilter] = useState<string>("ALL");
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [sourcePeriod, setSourcePeriod] = useState<"7d" | "30d" | "all">("all");
+  const [trafficPeriod, setTrafficPeriod] = useState<"7d" | "30d" | "month" | "6mo" | "12mo">("30d");
 
   const statsQuery = trpc.leads.dashboardStats.useQuery({ sourcePeriod });
-  const trafficQuery = trpc.analytics.trafficStats.useQuery();
+  const trafficQuery = trpc.analytics.trafficStats.useQuery({ period: trafficPeriod });
   const contactsQuery = trpc.leads.list.useQuery({
     pipelineStage: stageFilter !== "ALL" ? stageFilter as any : undefined,
     contactType: typeFilter !== "ALL" ? typeFilter as any : undefined,
@@ -201,9 +202,17 @@ export default function CRMDashboard() {
 
   // Derived web KPIs
   const formConversionRate =
-    traffic?.visitors7d && traffic.visitors7d > 0
-      ? ((newLeadsThisWeek / traffic.visitors7d) * 100).toFixed(1)
+    traffic?.visitors && traffic.visitors > 0
+      ? ((newLeadsThisWeek / traffic.visitors) * 100).toFixed(1)
       : null;
+
+  // Format avg visit duration (seconds → m:ss)
+  function fmtDuration(secs: number | null | undefined) {
+    if (secs == null) return "—";
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}m ${s}s`;
+  }
 
   // Search filter (client-side)
   const filtered = contacts.filter(c => {
@@ -285,79 +294,152 @@ export default function CRMDashboard() {
           </div>
         </div>
 
-        {/* Web Traffic KPI Cards */}
+        {/* Web Traffic Section */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Website Traffic (Last 7 Days)</p>
-            {traffic?.configured === false && (
-              <span className="text-xs text-amber-600 font-medium bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                Plausible API key not configured — add PLAUSIBLE_API_KEY to Secrets
-              </span>
-            )}
-            {traffic?.configured === true && (
-              <a
-                href="https://plausible.io/apollohomebuilders.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-[#0f2044] font-semibold hover:underline"
-              >
-                Open Plausible Dashboard ↗
-              </a>
-            )}
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Website Traffic</p>
+            <div className="flex items-center gap-2">
+              {traffic?.configured === false && (
+                <span className="text-xs text-amber-600 font-medium bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                  Plausible API key not configured
+                </span>
+              )}
+              {traffic?.configured === true && (
+                <a
+                  href="https://plausible.io/apollohomebuilders.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#0f2044] font-semibold hover:underline"
+                >
+                  Open Plausible ↗
+                </a>
+              )}
+              <div className="flex gap-1">
+                {(["7d", "30d", "month", "6mo", "12mo"] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setTrafficPeriod(p)}
+                    className={`text-[10px] px-2 py-0.5 rounded font-semibold transition-colors ${
+                      trafficPeriod === p
+                        ? "bg-[#0f2044] text-white"
+                        : "bg-slate-100 text-muted-foreground hover:bg-slate-200"
+                    }`}
+                  >
+                    {p === "month" ? "Mo" : p}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="border-0 shadow-sm">
-              <CardContent className="pt-5 pb-4">
+
+          {/* KPI Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
+            {[
+              { label: "Unique Visitors", value: traffic?.visitors, fmt: (v: number) => v.toLocaleString() },
+              { label: "Pageviews", value: traffic?.pageviews, fmt: (v: number) => v.toLocaleString() },
+              { label: "Bounce Rate", value: traffic?.bounceRate, fmt: (v: number) => `${v}%` },
+              { label: "Avg Visit", value: traffic?.avgVisitDuration, fmt: (v: number) => fmtDuration(v) },
+              { label: "Form Conversion", value: formConversionRate != null ? parseFloat(formConversionRate) : null, fmt: (v: number) => `${v}%` },
+            ].map(({ label, value, fmt }) => (
+              <Card key={label} className="border-0 shadow-sm">
+                <CardContent className="pt-4 pb-3">
+                  {trafficQuery.isLoading ? (
+                    <div className="text-2xl font-black text-slate-200 animate-pulse">—</div>
+                  ) : (
+                    <div className="text-2xl font-black text-[#0f2044]">
+                      {value != null ? fmt(value as number) : "—"}
+                    </div>
+                  )}
+                  <div className="text-xs font-semibold mt-1">{label}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Timeseries sparkline + Top Pages + Top Sources */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Timeseries */}
+            <Card className="lg:col-span-1 border-0 shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Daily Visitors</CardTitle>
+              </CardHeader>
+              <CardContent>
                 {trafficQuery.isLoading ? (
-                  <div className="text-2xl font-black text-slate-300 animate-pulse">—</div>
+                  <div className="text-xs text-muted-foreground py-4">Loading…</div>
+                ) : !traffic?.timeseries?.length ? (
+                  <div className="text-xs text-muted-foreground py-4">No data</div>
                 ) : (
-                  <div className="text-3xl font-black text-[#0f2044]">
-                    {traffic?.visitors7d != null ? traffic.visitors7d.toLocaleString() : "—"}
+                  <div className="flex items-end gap-0.5 h-24">
+                    {traffic.timeseries.map((d) => {
+                      const max = Math.max(...traffic.timeseries!.map(x => x.visitors), 1);
+                      const pct = Math.max((d.visitors / max) * 100, 2);
+                      return (
+                        <div key={d.date} className="flex-1 flex flex-col items-center gap-0.5" title={`${d.date}: ${d.visitors} visitors`}>
+                          <div
+                            className="w-full rounded-sm bg-[#0f2044] opacity-80 hover:opacity-100 transition-opacity"
+                            style={{ height: `${pct}%` }}
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
-                <div className="text-sm font-semibold mt-1">Unique Visitors</div>
-                <div className="text-xs text-muted-foreground">past 7 days</div>
               </CardContent>
             </Card>
+
+            {/* Top Pages */}
             <Card className="border-0 shadow-sm">
-              <CardContent className="pt-5 pb-4">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Top Pages</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1.5">
                 {trafficQuery.isLoading ? (
-                  <div className="text-2xl font-black text-slate-300 animate-pulse">—</div>
+                  <div className="text-xs text-muted-foreground py-4">Loading…</div>
+                ) : !traffic?.topPages?.length ? (
+                  <div className="text-xs text-muted-foreground py-4">No data</div>
                 ) : (
-                  <div className="text-3xl font-black text-[#0f2044]">
-                    {traffic?.pageviews7d != null ? traffic.pageviews7d.toLocaleString() : "—"}
-                  </div>
+                  traffic.topPages.slice(0, 8).map((p) => (
+                    <div key={p.page} className="flex items-center justify-between gap-2">
+                      <span className="text-xs text-muted-foreground truncate flex-1" title={p.page}>
+                        {p.page === "/" ? "Home" : p.page.replace(/^\//,"")}
+                      </span>
+                      <span className="text-xs font-bold text-[#0f2044] shrink-0">{p.visitors.toLocaleString()}</span>
+                    </div>
+                  ))
                 )}
-                <div className="text-sm font-semibold mt-1">Pageviews</div>
-                <div className="text-xs text-muted-foreground">past 7 days</div>
               </CardContent>
             </Card>
+
+            {/* Top Sources */}
             <Card className="border-0 shadow-sm">
-              <CardContent className="pt-5 pb-4">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Top Sources</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1.5">
                 {trafficQuery.isLoading ? (
-                  <div className="text-2xl font-black text-slate-300 animate-pulse">—</div>
+                  <div className="text-xs text-muted-foreground py-4">Loading…</div>
+                ) : !traffic?.topSources?.length ? (
+                  <div className="text-xs text-muted-foreground py-4">No data</div>
                 ) : (
-                  <div className="text-3xl font-black text-[#0f2044]">
-                    {formConversionRate != null ? `${formConversionRate}%` : "—"}
-                  </div>
+                  (() => {
+                    const total = traffic.topSources.reduce((s, x) => s + x.visitors, 0);
+                    return traffic.topSources.slice(0, 8).map((s) => {
+                      const pct = total > 0 ? Math.round((s.visitors / total) * 100) : 0;
+                      return (
+                        <div key={s.source} className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground w-24 truncate shrink-0">{s.source || "Direct"}</span>
+                          <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[#0f2044] rounded-full"
+                              style={{ width: `${Math.max(pct, 2)}%` }}
+                            />
+                          </div>
+                          <span className="text-xs font-bold text-[#0f2044] w-8 text-right shrink-0">{s.visitors}</span>
+                        </div>
+                      );
+                    });
+                  })()
                 )}
-                <div className="text-sm font-semibold mt-1">Form Conversion</div>
-                <div className="text-xs text-muted-foreground">leads ÷ visitors</div>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="pt-5 pb-4">
-                {trafficQuery.isLoading ? (
-                  <div className="text-2xl font-black text-slate-300 animate-pulse">—</div>
-                ) : (
-                  <div className="text-3xl font-black text-[#0f2044] truncate" title={traffic?.topSource ?? undefined}>
-                    {traffic?.topSource ?? "—"}
-                  </div>
-                )}
-                <div className="text-sm font-semibold mt-1">Top Source</div>
-                <div className="text-xs text-muted-foreground">
-                  {traffic?.topSourceVisitors != null ? `${traffic.topSourceVisitors} visitors` : "past 7 days"}
-                </div>
               </CardContent>
             </Card>
           </div>
