@@ -187,6 +187,18 @@ export default function AdminLogin() {
           >
             {loginMutation.isPending ? "Signing in…" : "Sign In"}
           </button>
+
+          {/* Forgot password link */}
+          <div style={{ textAlign: "center", marginTop: 12 }}>
+            <a
+              href="/forgot-password"
+              style={{ fontSize: 13, color: MUT, textDecoration: "none", fontWeight: 500 }}
+              onMouseEnter={e => (e.currentTarget.style.color = NAVY)}
+              onMouseLeave={e => (e.currentTarget.style.color = MUT)}
+            >
+              Forgot your password?
+            </a>
+          </div>
         </form>
       </div>
 

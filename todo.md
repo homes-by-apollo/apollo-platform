@@ -410,3 +410,11 @@
 
 ## Bug Fixes
 - [x] Fix footer appearing at top of individual home/lot detail pages instead of bottom
+
+## Nav & Auth Updates
+- [x] Update nav button: "View Homes & Lots" → "FIND YOUR HOME" (all caps)
+- [x] Update nav button: "Schedule a Consultation" → "GET IN TOUCH" (all caps, light blue font)
+- [x] Build /forgot-password page (email input, sends reset link via Resend)
+- [x] Build /reset-password page (token validation, new password form)
+- [x] Add "Forgot Password?" link on /admin-login page
+- [x] Wire both pages into App.tsx router

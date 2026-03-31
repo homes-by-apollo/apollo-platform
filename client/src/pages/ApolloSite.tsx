@@ -620,16 +620,16 @@ export default function ApolloSite() {
 
           <button
             onClick={()=>{ track("Schedule Consultation", { location:"nav" }); nav("contact"); }}
-            style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"none", fontSize:14, fontFamily:"inherit", background:G, color:"white", flexShrink:0 }}
+            style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"1.5px solid #4B9CD3", fontSize:13, fontFamily:"inherit", background:"transparent", color:"#4B9CD3", flexShrink:0, letterSpacing:"0.04em" }}
+            onMouseEnter={e=>{ e.currentTarget.style.background="rgba(75,156,211,0.1)"; }}
+            onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; }}
+          >GET IN TOUCH ↗</button>
+          <button
+            onClick={()=>{ track("Find Your Home", { location:"nav" }); nav("homes"); }}
+            style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:"none", fontSize:13, fontFamily:"inherit", background:G, color:"white", flexShrink:0, letterSpacing:"0.04em" }}
             onMouseEnter={e=>{ e.currentTarget.style.background=GM; }}
             onMouseLeave={e=>{ e.currentTarget.style.background=G; }}
-          >Schedule a Consultation ↗</button>
-          <button
-            onClick={()=>{ track("View Homes & Lots", { location:"nav" }); nav("homes"); }}
-            style={{ width:200, height:70, display:"inline-flex", alignItems:"center", justifyContent:"center", gap:5, borderRadius:8, fontWeight:700, cursor:"pointer", transition:"all 0.18s", border:`1.5px solid ${G}`, fontSize:14, fontFamily:"inherit", background:"transparent", color:G, flexShrink:0 }}
-            onMouseEnter={e=>{ e.currentTarget.style.background=GL; }}
-            onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; }}
-          >View Homes &amp; Lots ↗</button>
+          >FIND YOUR HOME ↗</button>
         </div>
 
         {/* Hamburger */}
