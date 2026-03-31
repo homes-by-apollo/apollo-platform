@@ -388,4 +388,18 @@
 - [x] Add logout button to CRM Dashboard header
 - [x] Add logout button to CRM Properties header
 - [x] Add logout button to CRM Blog header
-- [ ] Save checkpoint and publish to apollohomebuilders.com
+- [x] Save checkpoint and publish to apollohomebuilders.com
+
+## Forgot Password Flow
+- [ ] Add passwordResetTokens table to schema (token, email, expiresAt, usedAt)
+- [ ] Build adminAuth.requestReset tRPC endpoint (generates token, sends Resend email)
+- [ ] Build adminAuth.resetPassword tRPC endpoint (validates token, updates hash, marks used)
+- [ ] Build /forgot-password page (email input form)
+- [ ] Build /reset-password page (new password + confirm form, reads ?token= from URL)
+- [ ] Add "Forgot password?" link to /admin-login page
+- [ ] Register new routes in App.tsx
+
+## Admin Button & Login Page Fixes
+- [x] Fix Admin button in footer — make it always visible (not gated on isAdmin)
+- [x] Remove subtitle text "Sign in to manage listings, leads, and site content." from /admin-login
+- [x] Increase logo size by 50% on /admin-login page

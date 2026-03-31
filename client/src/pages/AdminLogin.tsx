@@ -55,17 +55,15 @@ export default function AdminLogin() {
       }}>
         {/* Logo */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 32 }}>
-          <img src={LOGO} alt="Homes by Apollo" style={{ height: 56, maxWidth: 240, objectFit: "contain" }} />
+          <img src={LOGO} alt="Homes by Apollo" style={{ height: 84, maxWidth: 360, objectFit: "contain" }} />
           <div style={{ width: 40, height: 2, background: GOLD, borderRadius: 2, marginTop: 16 }} />
         </div>
 
         {/* Heading */}
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: NAVY, textAlign: "center", margin: "0 0 6px" }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: NAVY, textAlign: "center", margin: "0 0 28px" }}>
           Admin Access
         </h1>
-        <p style={{ fontSize: 14, color: MUT, textAlign: "center", margin: "0 0 32px", lineHeight: 1.5 }}>
-          Sign in to manage listings, leads, and site content.
-        </p>
+
 
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
