@@ -520,7 +520,7 @@ export default function ApolloSite() {
 
           /* ── Testimonials ── */
           .testimonial-card   { padding: 24px 18px !important; }
-          .testimonial-quote  { font-size: 15px !important; }
+          .testimonial-quote  { font-size: 19px !important; }
           .testimonial-bottom { flex-direction: column !important; gap: 16px !important; align-items: flex-start !important; }
 
           /* ── Footer ── */
@@ -1146,7 +1146,7 @@ export default function ApolloSite() {
               </div>
               <div className="testimonial-card" style={{ background:"white", borderRadius:20, padding:"36px 44px", boxShadow:"0 4px 32px rgba(0,0,0,0.06)" }}>
                 <div style={{ fontSize:72, color:GL, fontWeight:900, lineHeight:0.6, marginBottom:20, fontFamily:"Georgia,serif" }}>"</div>
-                <p className="testimonial-quote" style={{ fontSize:17, color:TXT, lineHeight:1.75, fontWeight:500, marginBottom:28, fontStyle:"italic" }}>
+                <p className="testimonial-quote" style={{ fontSize:21, color:TXT, lineHeight:1.75, fontWeight:500, marginBottom:28, fontStyle:"italic" }}>
                   {testimonials[testimonialIdx].quote}
                 </p>
                 <div className="testimonial-bottom" style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -1154,8 +1154,8 @@ export default function ApolloSite() {
                     <img src={testimonials[testimonialIdx].img} alt={testimonials[testimonialIdx].name}
                       style={{ width:46, height:46, borderRadius:"50%", objectFit:"cover", border:`2px solid ${BOR}` }} />
                     <div>
-                      <div style={{ fontSize:14, fontWeight:700, color:TXT }}>{testimonials[testimonialIdx].name}</div>
-                      <div style={{ fontSize:12, color:MUT }}>{testimonials[testimonialIdx].role}</div>
+                      <div style={{ fontSize:17.5, fontWeight:700, color:TXT }}>{testimonials[testimonialIdx].name}</div>
+                      <div style={{ fontSize:15, color:MUT }}>{testimonials[testimonialIdx].role}</div>
                     </div>
                   </div>
                   <div style={{ display:"flex", gap:10 }}>
