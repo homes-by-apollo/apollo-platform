@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type React from "react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -313,8 +314,9 @@ interface FormState {
   message: string;
 }
 
-export default function ApolloSite() {
-  const [page, setPage] = useState("home");
+export default function ApolloSite({ initialPage = "home" }: { initialPage?: string }) {
+  const [, setLocation] = useLocation();
+  const [page, setPage] = useState(initialPage);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -364,6 +366,9 @@ export default function ApolloSite() {
   }, []);
 
   const nav = (p: string) => {
+    // Push real URL for ad-trackable pages
+    if (p === "contact") { setLocation("/get-in-touch"); return; }
+    if (p === "homes" || p === "lots") { setLocation("/find-your-home"); return; }
     setPage(p);
     setMenuOpen(false);
     setTimeout(()=>topRef.current?.scrollTo({top:0,behavior:"smooth"}),0);
@@ -731,7 +736,6 @@ export default function ApolloSite() {
                     <option value="">Property</option>
                     <option value="home">Home</option>
                     <option value="lot">Lot / Land</option>
-                    <option value="custom">Custom Build</option>
                   </select>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
@@ -993,7 +997,7 @@ export default function ApolloSite() {
                   {[
                     [<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 7h.01M7 11h.01M11 7h6M11 11h6"/></svg>,"All-Inclusive Pricing","One contract, one price. Land prep to final finishes — no hidden costs, ever."],
                     [<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,"Local Pahrump Expertise","We know Nye County inside out — permits, soil, HOAs, and the best lots in the valley."],
-                    [<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,"Custom Floor Plans","Every build starts with your vision. We modify layouts and finishes to match your lifestyle."],
+                    [<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,"Flexible Floor Plans","Choose from our selection of move-in ready plans. We offer a range of layouts and finishes to match your lifestyle."],
                     [<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>,"Preferred Lenders","We connect you with Nevada construction loan specialists from day one."],
                   ].map(([icon,title,desc])=>(
                     <div key={title as string}>
@@ -1264,7 +1268,7 @@ export default function ApolloSite() {
                   </div>
                   {/* Tagline */}
                   <p style={{ fontSize:19.5, color:"white", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>
-                    Pahrump's premier custom home builder. All-inclusive builds, one price, no surprises.
+                    Pahrump's premier new home builder. All-inclusive builds, one price, no surprises.
                   </p>
                   {/* Email form */}
                   {submitted ? (
@@ -1396,7 +1400,7 @@ export default function ApolloSite() {
                     </div>
                   </div>
                   <p style={{ fontSize:19.5, color:"white", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>
-                    Pahrump's premier custom home builder. All-inclusive builds, one price, no surprises.
+                    Pahrump's premier new home builder. All-inclusive builds, one price, no surprises.
                   </p>
                   {submitted ? (
                     <div style={{ display:"flex", alignItems:"center", gap:10, background:"rgba(255,255,255,0.07)", borderRadius:8, padding:"14px 20px", maxWidth:420 }}>
@@ -1536,7 +1540,7 @@ export default function ApolloSite() {
               return true;
             });
             // inventoryTab: "homes" | "lots"
-            const inventoryTab = searchType === "lot" ? "lots" : (searchType === "home" || searchType === "custom" ? "homes" : homeFilter === "All" && lotFilter !== "All" ? "lots" : "homes");
+            const inventoryTab = searchType === "lot" ? "lots" : (searchType === "home" ? "homes" : homeFilter === "All" && lotFilter !== "All" ? "lots" : "homes");
             return (
           <>
           <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
@@ -1612,10 +1616,10 @@ export default function ApolloSite() {
             )}
             <div className="cta-banner" style={{ background:G, borderRadius:14, padding:"32px 36px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
-                <h3 style={{ fontSize:20, fontWeight:800, color:"white", marginBottom:6 }}>Don't see what you're looking for?</h3>
-                <p style={{ fontSize:13, color:"rgba(255,255,255,0.5)" }}>We build custom — tell us your vision and we'll make it happen.</p>
+                <h3 style={{ fontSize:20, fontWeight:800, color:"white", marginBottom:6 }}>Ready to get started?</h3>
+                <p style={{ fontSize:13, color:"rgba(255,255,255,0.5)" }}>Schedule a free consultation with Brandon and the Apollo team.</p>
               </div>
-              <Btn white onClick={()=>{ track("Schedule Consultation", { location:"how-it-works" }); nav("contact"); }}>Start a Custom Build</Btn>
+              <Btn white onClick={()=>{ track("Schedule Consultation", { location:"how-it-works" }); nav("contact"); }}>Schedule a Consultation</Btn>
             </div>
           </div>
           <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit", marginTop:0 }}>
@@ -1627,7 +1631,7 @@ export default function ApolloSite() {
                     <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png" alt="Homes by Apollo" style={{ height:52, width:52, objectFit:"contain", flexShrink:0 }} />
                     <div style={{ fontSize:22, fontWeight:800, color:"white", letterSpacing:"-0.01em" }}>Homes by Apollo</div>
                   </div>
-                  <p style={{ fontSize:16, color:"rgba(255,255,255,0.45)", lineHeight:1.8, maxWidth:420, marginBottom:28 }}>Building custom homes and developing premium lots in Pahrump, NV. Local expertise, all-inclusive pricing.</p>
+                  <p style={{ fontSize:16, color:"rgba(255,255,255,0.45)", lineHeight:1.8, maxWidth:420, marginBottom:28 }}>Building new homes and developing premium lots in Pahrump, NV. Local expertise, all-inclusive pricing.</p>
                 </div>
                 <div>
                   <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.3)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14 }}>Call Us Free</div>
@@ -1700,7 +1704,7 @@ export default function ApolloSite() {
                     <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png" alt="Homes by Apollo" style={{ height:52, width:52, objectFit:"contain", flexShrink:0 }} />
                     <div style={{ fontSize:22, fontWeight:800, color:"white", letterSpacing:"-0.01em" }}>Homes by Apollo</div>
                   </div>
-                  <p style={{ fontSize:16, color:"rgba(255,255,255,0.45)", lineHeight:1.8, maxWidth:420 }}>Building custom homes and developing premium lots in Pahrump, NV.</p>
+                  <p style={{ fontSize:16, color:"rgba(255,255,255,0.45)", lineHeight:1.8, maxWidth:420 }}>Building new homes and developing premium lots in Pahrump, NV.</p>
                 </div>
                 <div>
                   <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.3)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14 }}>Call Us Free</div>
@@ -1769,7 +1773,7 @@ export default function ApolloSite() {
                 {/* Overview */}
                 <div style={{ marginBottom:40 }}>
                   <h2 style={{ fontSize:20, fontWeight:800, color:TXT, marginBottom:16, paddingBottom:12, borderBottom:`1px solid ${BOR}` }}>Overview</h2>
-                  <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>Experience the warmth and comfort of a brand-new Apollo home in Pahrump, Nevada. Built all-inclusive — land prep, foundation, framing, finishes, and landscaping — one price, no surprises. This {selectedHome.bed}-bedroom, {selectedHome.bath}-bath home is designed for Nevada living with energy-efficient construction and custom finish options.</p>
+                  <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>Experience the warmth and comfort of a brand-new Apollo home in Pahrump, Nevada. Built all-inclusive — land prep, foundation, framing, finishes, and landscaping — one price, no surprises. This {selectedHome.bed}-bedroom, {selectedHome.bath}-bath home is designed for Nevada living with energy-efficient construction and quality finish selections.</p>
                 </div>
 
                 {/* Details table */}
@@ -1879,7 +1883,7 @@ export default function ApolloSite() {
                         <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.085em", color:"white", lineHeight:1 }}>APOLLO</span>
                       </div>
                     </div>
-                    <p style={{ fontSize:19.5, color:"white", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>Pahrump's premier custom home builder. All-inclusive builds, one price, no surprises.</p>
+                    <p style={{ fontSize:19.5, color:"white", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>Pahrump's premier new home builder. All-inclusive builds, one price, no surprises.</p>
                   </div>
                   <div style={{ paddingTop:4 }}>
                     <div style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:10, letterSpacing:"0.02em" }}>Call Us Free</div>
@@ -1966,7 +1970,7 @@ export default function ApolloSite() {
                 {/* Overview */}
                 <div style={{ marginBottom:40 }}>
                   <h2 style={{ fontSize:20, fontWeight:800, color:TXT, marginBottom:16, paddingBottom:12, borderBottom:`1px solid ${BOR}` }}>Overview</h2>
-                  <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>A {selectedLot.size} lot in Pahrump, Nevada — ready for your Apollo custom build. Utilities are already stubbed to the lot line: {selectedLot.utilities}. Pahrump offers no state income tax, low property taxes, and wide-open desert views just 60 miles from Las Vegas.</p>
+                  <p style={{ fontSize:14, color:MUT, lineHeight:1.85 }}>A {selectedLot.size} lot in Pahrump, Nevada — ready for your new Apollo home. Utilities are already stubbed to the lot line: {selectedLot.utilities}. Pahrump offers no state income tax, low property taxes, and wide-open desert views just 60 miles from Las Vegas.</p>
                 </div>
 
                 {/* Details */}
@@ -2052,7 +2056,7 @@ export default function ApolloSite() {
                         <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.085em", color:"white", lineHeight:1 }}>APOLLO</span>
                       </div>
                     </div>
-                    <p style={{ fontSize:19.5, color:"white", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>Pahrump's premier custom home builder. All-inclusive builds, one price, no surprises.</p>
+                    <p style={{ fontSize:19.5, color:"white", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>Pahrump's premier new home builder. All-inclusive builds, one price, no surprises.</p>
                   </div>
                   <div style={{ paddingTop:4 }}>
                     <div style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:10, letterSpacing:"0.02em" }}>Call Us Free</div>

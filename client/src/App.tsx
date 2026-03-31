@@ -5,6 +5,8 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ApolloSite from "./pages/ApolloSite";
+import GetInTouch from "./pages/GetInTouch";
+import FindYourHome from "./pages/FindYourHome";
 import CRMDashboard from "./pages/CRMDashboard";
 import CRMProperties from "./pages/CRMProperties";
 import CRMBlog from "./pages/CRMBlog";
@@ -16,7 +18,9 @@ function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={ApolloSite} />
+      <Route path="/">{() => <ApolloSite initialPage="home" />}</Route>
+      <Route path="/get-in-touch">{() => <GetInTouch />}</Route>
+      <Route path="/find-your-home">{() => <FindYourHome />}</Route>
       <Route path={"/admin-login"} component={AdminLogin} />
       <Route path={"/forgot-password"} component={ForgotPassword} />
       <Route path={"/reset-password"} component={ResetPassword} />

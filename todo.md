@@ -440,3 +440,15 @@
 ## Mobile Fixed Bar Updates
 - [x] Update mobile fixed bottom CTA buttons: "Schedule a Free Consultation" → "GET IN TOUCH" (light blue), "View Homes" → "FIND YOUR HOME" (navy)
 - [x] Remove Admin button from mobile fixed bottom bar (keep only in footer)
+
+## YouTube Channel Assets & Navigation Pages
+- [x] Remove "Custom Build" option from homepage search bar property type dropdown
+- [x] Remove/update "custom homes" language across site (taglines, descriptions, footers)
+- [x] Generate YouTube channel banner (2048x1152) — revised without Custom Homes
+- [x] Generate YouTube profile picture (800x800)
+- [x] Generate YouTube video watermark (150x150)
+- [x] Create /get-in-touch page (dedicated contact/schedule page)
+- [x] Create /find-your-home page (dedicated homes & lots browsing page)
+- [x] Wire GET IN TOUCH button (desktop + mobile) to navigate to /get-in-touch URL
+- [x] Wire FIND YOUR HOME button (desktop + mobile) to navigate to /find-your-home URL
+- [x] Register /get-in-touch and /find-your-home routes in App.tsx
