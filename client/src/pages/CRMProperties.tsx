@@ -265,6 +265,9 @@ export default function CRMProperties() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
   const loading = adminMeQuery.isLoading;
+  const logoutMutation = trpc.adminAuth.logout.useMutation({
+    onSuccess: () => { window.location.href = "/admin-login"; },
+  });
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [tagFilter, setTagFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
@@ -397,6 +400,13 @@ export default function CRMProperties() {
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
             {adminUser.name?.charAt(0).toUpperCase()}
           </div>
+          <button
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+            className="text-xs text-white/50 hover:text-white border border-white/20 hover:border-white/50 rounded px-2 py-1 transition-colors"
+          >
+            {logoutMutation.isPending ? "…" : "Sign Out"}
+          </button>
         </div>
       </div>
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 
-const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo_31888db6.webp";
+const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-horizontal_578ef147.png";
 const NAVY = "#0f2044";
 const GOLD = "#c8a96e";
 const MUT = "#6b7280";
@@ -53,14 +53,10 @@ export default function AdminLogin() {
         width: "100%",
         maxWidth: 420,
       }}>
-        {/* Logo + wordmark */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 36 }}>
-          <img src={LOGO} alt="Homes by Apollo" style={{ width: 56, height: 56, marginBottom: 12 }} />
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", color: MUT, textTransform: "uppercase" }}>Homes by</div>
-            <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "0.08em", color: NAVY, textTransform: "uppercase", lineHeight: 1 }}>Apollo</div>
-          </div>
-          <div style={{ width: 40, height: 2, background: GOLD, borderRadius: 2, marginTop: 14 }} />
+        {/* Logo */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 32 }}>
+          <img src={LOGO} alt="Homes by Apollo" style={{ height: 56, maxWidth: 240, objectFit: "contain" }} />
+          <div style={{ width: 40, height: 2, background: GOLD, borderRadius: 2, marginTop: 16 }} />
         </div>
 
         {/* Heading */}

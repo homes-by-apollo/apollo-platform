@@ -381,3 +381,11 @@
 - [x] Build adminAuth tRPC router (login, logout, me) with bcrypt + JWT cookie
 - [x] Protect /crm, /crm/properties, /crm/blog with adminAuth session check
 - [x] Set ADMIN_KYLE_HASH and ADMIN_BRANDON_HASH secrets
+
+## Session Current — Logo, Logout, Publish
+- [x] Upload new Apollo horizontal logo to CDN
+- [x] Replace old logo on /admin-login page with new horizontal logo
+- [x] Add logout button to CRM Dashboard header
+- [x] Add logout button to CRM Properties header
+- [x] Add logout button to CRM Blog header
+- [ ] Save checkpoint and publish to apollohomebuilders.com

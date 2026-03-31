@@ -198,6 +198,9 @@ export default function CRMBlog() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
   const loading = adminMeQuery.isLoading;
+  const logoutMutation = trpc.adminAuth.logout.useMutation({
+    onSuccess: () => { window.location.href = "/admin-login"; },
+  });
   const [showModal, setShowModal] = useState(false);
   const [editPost, setEditPost] = useState<{ id: number; form: BlogForm } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; title: string } | null>(null);
@@ -316,12 +319,21 @@ export default function CRMBlog() {
             <span className="text-[#dde3ef]">|</span>
             <span className="text-[#0f2044] text-sm font-semibold">Blog Posts</span>
           </div>
-          <Button
-            onClick={() => setShowModal(true)}
-            className="bg-[#0f2044] hover:bg-[#1a3366] text-white"
-          >
-            + Add Post
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setShowModal(true)}
+              className="bg-[#0f2044] hover:bg-[#1a3366] text-white"
+            >
+              + Add Post
+            </Button>
+            <button
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+              className="text-xs text-[#6b7a99] hover:text-[#0f2044] border border-[#dde3ef] hover:border-[#0f2044] rounded px-2 py-1 transition-colors"
+            >
+              {logoutMutation.isPending ? "…" : "Sign Out"}
+            </button>
+          </div>
         </div>
       </div>
 
