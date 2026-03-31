@@ -1374,7 +1374,7 @@ export default function ApolloSite() {
         </>}
 
         {/* ══ GLOBAL FOOTER — shown on all sub-pages except home, contact, homes, lots (those render their own footer after content) ══ */}
-        {page !== "home" && page !== "contact" && page !== "homes" && page !== "lots" && (
+        {page !== "home" && page !== "contact" && page !== "homes" && page !== "lots" && page !== "home-detail" && page !== "lot-detail" && (
           <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit" }}>
 
             {/* ── Top band: Brand + Contact info ──────────────────────────────── */}
@@ -1856,6 +1856,58 @@ export default function ApolloSite() {
                 </div>
               </div>
             </div>
+
+            {/* Footer */}
+            <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit", marginTop:64 }}>
+              <div style={{ padding:"52px var(--pad) 48px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ maxWidth:1650, margin:"0 auto" }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:64, alignItems:"flex-start" }}>
+                  <div>
+                    <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
+                      <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png" alt="Homes by Apollo" style={{ height:52, width:52, objectFit:"contain", flexShrink:0 }} />
+                      <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:3 }}>
+                        <span style={{ fontSize:16, fontWeight:700, letterSpacing:"0.52em", color:"white", textTransform:"uppercase" }}>HOMES BY</span>
+                        <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.085em", color:"white", lineHeight:1 }}>APOLLO</span>
+                      </div>
+                    </div>
+                    <p style={{ fontSize:19.5, color:"white", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>Pahrump's premier custom home builder. All-inclusive builds, one price, no surprises.</p>
+                  </div>
+                  <div style={{ paddingTop:4 }}>
+                    <div style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:10, letterSpacing:"0.02em" }}>Call Us Free</div>
+                    <a href="tel:7753631616" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>(775) 363-1616</a>
+                    <div style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.7 }}>4081 Jessica St<br/>Pahrump, NV 89048</div>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div style={{ padding:"52px var(--pad) 40px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ maxWidth:1650, margin:"0 auto" }}>
+                <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:32 }}>
+                  {([
+                    ["Company",  [["Home","home"],["About Us","about"],["Contact","contact"]]],
+                    ["Properties",[["Homes","homes"],["Lots","lots"]]],
+                    ["Resources", [["Blog","blog"],["FAQ","home"]]],
+                  ] as [string, [string,string][]][]).map(([heading, links]) => (
+                    <div key={heading}>
+                      <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>
+                      {links.map(([label,pg])=>(
+                        <div key={label} onClick={()=>nav(pg)} style={{ fontSize:17, color:"rgba(255,255,255,0.55)", marginBottom:16, cursor:"pointer", fontWeight:500 }}>{label}</div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                </div>
+              </div>
+              <div style={{ padding:"22px var(--pad)" }}>
+                <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+                  <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
+                  <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                    <a href="/admin-login" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px" }}>Admin</a>
+                    {["Privacy Policy","Terms"].map(i=>(<span key={i} style={{ fontSize:13, color:"rgba(255,255,255,0.22)", cursor:"pointer" }}>{i}</span>))}
+                  </div>
+                </div>
+              </div>
+            </footer>
           </div>
         )}
 
@@ -1977,6 +2029,58 @@ export default function ApolloSite() {
                 </div>
               </div>
             </div>
+
+            {/* Footer */}
+            <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit", marginTop:64 }}>
+              <div style={{ padding:"52px var(--pad) 48px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ maxWidth:1650, margin:"0 auto" }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:64, alignItems:"flex-start" }}>
+                  <div>
+                    <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
+                      <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png" alt="Homes by Apollo" style={{ height:52, width:52, objectFit:"contain", flexShrink:0 }} />
+                      <div style={{ display:"flex", flexDirection:"column", lineHeight:1, gap:3 }}>
+                        <span style={{ fontSize:16, fontWeight:700, letterSpacing:"0.52em", color:"white", textTransform:"uppercase" }}>HOMES BY</span>
+                        <span style={{ fontSize:30, fontWeight:900, letterSpacing:"0.085em", color:"white", lineHeight:1 }}>APOLLO</span>
+                      </div>
+                    </div>
+                    <p style={{ fontSize:19.5, color:"white", lineHeight:1.65, maxWidth:400, marginBottom:28 }}>Pahrump's premier custom home builder. All-inclusive builds, one price, no surprises.</p>
+                  </div>
+                  <div style={{ paddingTop:4 }}>
+                    <div style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:10, letterSpacing:"0.02em" }}>Call Us Free</div>
+                    <a href="tel:7753631616" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>(775) 363-1616</a>
+                    <div style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.7 }}>4081 Jessica St<br/>Pahrump, NV 89048</div>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div style={{ padding:"52px var(--pad) 40px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ maxWidth:1650, margin:"0 auto" }}>
+                <div className="footer-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:32 }}>
+                  {([
+                    ["Company",  [["Home","home"],["About Us","about"],["Contact","contact"]]],
+                    ["Properties",[["Homes","homes"],["Lots","lots"]]],
+                    ["Resources", [["Blog","blog"],["FAQ","home"]]],
+                  ] as [string, [string,string][]][]).map(([heading, links]) => (
+                    <div key={heading}>
+                      <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>
+                      {links.map(([label,pg])=>(
+                        <div key={label} onClick={()=>nav(pg)} style={{ fontSize:17, color:"rgba(255,255,255,0.55)", marginBottom:16, cursor:"pointer", fontWeight:500 }}>{label}</div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                </div>
+              </div>
+              <div style={{ padding:"22px var(--pad)" }}>
+                <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+                  <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
+                  <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                    <a href="/admin-login" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px" }}>Admin</a>
+                    {["Privacy Policy","Terms"].map(i=>(<span key={i} style={{ fontSize:13, color:"rgba(255,255,255,0.22)", cursor:"pointer" }}>{i}</span>))}
+                  </div>
+                </div>
+              </div>
+            </footer>
           </div>
         )}
 

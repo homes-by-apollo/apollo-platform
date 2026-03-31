@@ -407,3 +407,6 @@
 ## UI Polish
 - [x] Reverted testimonial avatars back to original photos (illustrated avatars cancelled per user request)
 - [x] Fix mobile search bar stacking (filters should stack cleanly on small screens)
+
+## Bug Fixes
+- [x] Fix footer appearing at top of individual home/lot detail pages instead of bottom
