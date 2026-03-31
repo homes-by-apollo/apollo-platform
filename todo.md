@@ -452,3 +452,14 @@
 - [x] Wire GET IN TOUCH button (desktop + mobile) to navigate to /get-in-touch URL
 - [x] Wire FIND YOUR HOME button (desktop + mobile) to navigate to /find-your-home URL
 - [x] Register /get-in-touch and /find-your-home routes in App.tsx
+
+## YouTube Channel Assets & Navigation (Current Session)
+- [x] Generate YouTube channel banner (2048x1152) consistent with Homes by Apollo brand owl logo
+- [x] Generate YouTube profile picture (800x800) with owl on navy circle
+- [x] Generate YouTube video watermark (150x150) with owl on navy
+- [x] Remove "Custom Build" option from homepage search bar property type dropdown
+- [x] Remove all "custom home builder" / "custom build" copy from site (replaced with "new home builder")
+- [x] Create /get-in-touch dedicated page (renders ApolloSite with contact section pre-selected)
+- [x] Create /find-your-home dedicated page (renders ApolloSite with homes section pre-selected)
+- [x] Update all nav buttons (desktop, mobile menu, mobile sticky bar) to push real URLs via wouter
+- [x] Register /get-in-touch and /find-your-home routes in App.tsx
