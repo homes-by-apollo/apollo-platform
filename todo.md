@@ -433,3 +433,10 @@
 
 ## Testimonial Font Size
 - [x] Increase all testimonial text by 25% (quote text, name, role/label)
+
+## Mobile Fixed Button Update
+- [ ] Update mobile fixed bottom CTA buttons: "Schedule a Free Consultation" → "GET IN TOUCH" (light blue), "View Homes" → "FIND YOUR HOME" (navy)
+
+## Mobile Fixed Bar Updates
+- [x] Update mobile fixed bottom CTA buttons: "Schedule a Free Consultation" → "GET IN TOUCH" (light blue), "View Homes" → "FIND YOUR HOME" (navy)
+- [x] Remove Admin button from mobile fixed bottom bar (keep only in footer)

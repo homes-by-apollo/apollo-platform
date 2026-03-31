@@ -2329,23 +2329,15 @@ export default function ApolloSite() {
         alignItems: "center",
         justifyContent: "stretch",
       }}>
-        {true && (
-          <a
-            href="/admin-login"
-            style={{ flexShrink:0, background:"white", color:"#e07b39", border:"2px solid #e07b39", borderRadius:10, padding:"14px 12px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", textDecoration:"none", letterSpacing:"0.01em", whiteSpace:"nowrap" }}
-          >
-            Admin
-          </a>
-        )}
         <button
           onClick={()=>nav("contact")}
-          style={{ flex:1, background:G, color:"white", border:"none", borderRadius:10, padding:"14px 16px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", letterSpacing:"0.01em" }}>
-          Schedule a Free Consultation
+          style={{ flex:1, background:"#5bb8f5", color:G, border:"none", borderRadius:10, padding:"14px 16px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", letterSpacing:"0.05em", textTransform:"uppercase" }}>
+          GET IN TOUCH
         </button>
         <button
           onClick={()=>nav("homes")}
-          style={{ flexShrink:0, background:"white", color:G, border:`1.5px solid ${G}`, borderRadius:10, padding:"14px 16px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
-          View Homes
+          style={{ flex:1, background:G, color:"white", border:"none", borderRadius:10, padding:"14px 16px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit", letterSpacing:"0.05em", textTransform:"uppercase" }}>
+          FIND YOUR HOME
         </button>
       </div>
     </div>
