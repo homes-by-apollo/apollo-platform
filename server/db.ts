@@ -351,6 +351,34 @@ export async function getBlogPostById(id: number): Promise<BlogPost | undefined>
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(blogPosts)
+    .where(and(eq(blogPosts.slug, slug), eq(blogPosts.status, "published")))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getRelatedBlogPosts(category: string, excludeId: number): Promise<BlogPost[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(blogPosts)
+    .where(
+      and(
+        eq(blogPosts.status, "published"),
+        eq(blogPosts.category, category),
+        sql`${blogPosts.id} != ${excludeId}`
+      )
+    )
+    .orderBy(desc(blogPosts.publishedAt))
+    .limit(3);
+}
+
 export async function createBlogPost(data: InsertBlogPost): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

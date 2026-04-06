@@ -38,6 +38,8 @@ export default function PublicBlog() {
         read: p.readTime ?? "5 min",
         img: p.imageUrl ?? STATIC_POSTS[0].img,
         excerpt: p.excerpt,
+        slug: p.slug,
+        id: p.id,
       }))
     : STATIC_POSTS;
 
@@ -142,7 +144,7 @@ export default function PublicBlog() {
           ) : (
             <div className="blog-grid">
               {filtered.map((b, idx) => (
-                <div key={idx} className="blog-card" style={{ background: "white", borderRadius: 14, overflow: "hidden", cursor: "pointer", border: `1px solid ${BOR}`, boxShadow: "0 2px 16px rgba(0,0,0,0.05)" }}>
+                <div key={idx} className="blog-card" onClick={() => { const bp = b as { slug?: string; id?: number }; if (bp.slug) setLocation(`/blog/${bp.slug}`); else if (bp.id) setLocation(`/blog/${bp.id}`); }} style={{ background: "white", borderRadius: 14, overflow: "hidden", cursor: "pointer", border: `1px solid ${BOR}`, boxShadow: "0 2px 16px rgba(0,0,0,0.05)" }}>
                   <div style={{ position: "relative", height: 220, overflow: "hidden" }}>
                     <img src={b.img} alt={b.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
                       onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.04)")}

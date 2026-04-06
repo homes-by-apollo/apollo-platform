@@ -6,9 +6,22 @@ import {
   getAllBlogPosts,
   getAllBlogPostsAdmin,
   getBlogPostById,
+  getBlogPostBySlug,
+  getRelatedBlogPosts,
   getFeaturedBlogPosts,
   updateBlogPost,
 } from "../db";
+
+/** Generate a URL-safe slug from a title */
+function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 100);
+}
 
 export const blogRouter = router({
   // Public: homepage preview cards (published only)
@@ -20,6 +33,20 @@ export const blogRouter = router({
   getPublished: publicProcedure.query(async () => {
     return getAllBlogPosts();
   }),
+
+  // Public: single post by slug
+  getBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      return getBlogPostBySlug(input.slug);
+    }),
+
+  // Public: related posts by category (excluding current post)
+  getRelated: publicProcedure
+    .input(z.object({ category: z.string(), excludeId: z.number() }))
+    .query(async ({ input }) => {
+      return getRelatedBlogPosts(input.category, input.excludeId);
+    }),
 
   // Admin: full list including drafts
   getAll: adminProcedure.query(async () => {
@@ -36,6 +63,8 @@ export const blogRouter = router({
     .input(
       z.object({
         title: z.string().min(1),
+        slug: z.string().optional(),
+        author: z.string().optional(),
         category: z.string().default("Tips"),
         excerpt: z.string().optional(),
         body: z.string().optional(),
@@ -48,11 +77,14 @@ export const blogRouter = router({
       })
     )
     .mutation(async ({ input }) => {
+      const slug = input.slug?.trim() || slugify(input.title);
       const id = await createBlogPost({
         ...input,
+        slug,
+        author: input.author || "Apollo Home Builders",
         publishedAt: input.publishedAt ?? new Date(),
       });
-      return { id };
+      return { id, slug };
     }),
 
   update: adminProcedure
@@ -60,6 +92,8 @@ export const blogRouter = router({
       z.object({
         id: z.number(),
         title: z.string().min(1).optional(),
+        slug: z.string().optional(),
+        author: z.string().optional(),
         category: z.string().optional(),
         excerpt: z.string().optional(),
         body: z.string().optional(),
@@ -73,6 +107,10 @@ export const blogRouter = router({
     )
     .mutation(async ({ input }) => {
       const { id, ...data } = input;
+      // Auto-generate slug from title if title changed but no slug provided
+      if (data.title && !data.slug) {
+        data.slug = slugify(data.title);
+      }
       await updateBlogPost(id, data);
       return { success: true };
     }),

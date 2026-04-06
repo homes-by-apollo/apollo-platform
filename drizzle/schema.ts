@@ -234,6 +234,8 @@ export const blogPosts = mysqlTable("blogPosts", {
 
   // Content
   title: varchar("title", { length: 256 }).notNull(),
+  slug: varchar("slug", { length: 320 }).unique(),
+  author: varchar("author", { length: 128 }).default("Apollo Home Builders"),
   category: varchar("category", { length: 64 }).notNull().default("Tips"),
   excerpt: text("excerpt"),
   body: text("body"),

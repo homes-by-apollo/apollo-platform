@@ -565,3 +565,14 @@
 - [x] Add status (draft/published) column to blogPosts schema + migration
 - [x] Add Publish/Unpublish button to SCOPS Blog table
 - [x] Public blog queries now filter to published-only; admin sees all
+
+## Blog Enhancements (Apr 6 2026 — Session 2)
+- [x] Add slug field to blogPosts schema + migration
+- [x] Add author field to blogPosts schema + migration
+- [x] Update db helpers and router for slug-based lookup + author
+- [x] Remove em dashes from all three blog post bodies
+- [x] Update public /blog/:slug route (clean URLs)
+- [x] Add related posts widget to blog post detail page
+- [x] Add slug + author fields to SCOPS Blog form
+- [x] Add blog post preview modal in SCOPS Blog
+- [x] Publish all three blog posts
