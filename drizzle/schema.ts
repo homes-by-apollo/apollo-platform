@@ -243,6 +243,7 @@ export const blogPosts = mysqlTable("blogPosts", {
   // Flags
   featured: int("featured").notNull().default(1),  // 1 = show on homepage
   sortOrder: int("sortOrder").notNull().default(0),
+  status: mysqlEnum("status", ["draft", "published"]).notNull().default("draft"),
 
   // Metadata
   publishedAt: timestamp("publishedAt").defaultNow().notNull(),

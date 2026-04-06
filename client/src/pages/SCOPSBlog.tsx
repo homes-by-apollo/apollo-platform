@@ -231,6 +231,27 @@ export default function SCOPSBlog() {
     onError: (e) => toast.error(e.message),
   });
 
+  const setStatusMutation = trpc.blog.setStatus.useMutation({
+    onMutate: async ({ id, status }) => {
+      await utils.blog.getAll.cancel();
+      const prev = utils.blog.getAll.getData();
+      utils.blog.getAll.setData(undefined, old =>
+        old?.map(p => p.id === id ? { ...p, status } : p)
+      );
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) utils.blog.getAll.setData(undefined, ctx.prev);
+      toast.error("Failed to update status");
+    },
+    onSettled: () => {
+      utils.blog.getAll.invalidate();
+      utils.blog.getFeatured.invalidate();
+    },
+    onSuccess: (_d, vars) => {
+      toast.success(vars.status === "published" ? "Post published" : "Post moved to draft");
+    },
+  });
   const toggleMutation = trpc.blog.toggleFeatured.useMutation({
     onMutate: async ({ id, featured }) => {
       await utils.blog.getAll.cancel();
@@ -361,6 +382,7 @@ export default function SCOPSBlog() {
                       <th className="text-left px-5 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Post</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Category</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Read Time</th>
+                      <th className="text-center px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Status</th>
                       <th className="text-center px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Featured</th>
                       <th className="text-right px-5 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Actions</th>
                     </tr>
@@ -394,6 +416,19 @@ export default function SCOPSBlog() {
                           </div>
                         </td>
 
+                        {/* Status */}
+                        <td className="px-4 py-4 text-center">
+                          <Badge
+                            className={`text-xs border ${
+                              post.status === "published"
+                                ? "bg-green-100 text-green-700 border-green-200"
+                                : "bg-amber-100 text-amber-700 border-amber-200"
+                            }`}
+                            variant="outline"
+                          >
+                            {post.status === "published" ? "Published" : "Draft"}
+                          </Badge>
+                        </td>
                         {/* Category */}
                         <td className="px-4 py-4">
                           <Badge className={`text-xs border ${CAT_COLORS[post.category] ?? "bg-gray-100 text-gray-600 border-gray-200"}`} variant="outline">
@@ -437,6 +472,22 @@ export default function SCOPSBlog() {
                               })}
                             >
                               Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className={`text-xs h-8 ${
+                                post.status === "published"
+                                  ? "border-amber-200 text-amber-700 hover:bg-amber-50"
+                                  : "border-green-200 text-green-700 hover:bg-green-50"
+                              }`}
+                              onClick={() => setStatusMutation.mutate({
+                                id: post.id,
+                                status: post.status === "published" ? "draft" : "published",
+                              })}
+                              disabled={setStatusMutation.isPending}
+                            >
+                              {post.status === "published" ? "Unpublish" : "Publish"}
                             </Button>
                             <Button
                               size="sm"

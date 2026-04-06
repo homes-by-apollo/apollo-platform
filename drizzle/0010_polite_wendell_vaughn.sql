@@ -1,0 +1,1 @@
+ALTER TABLE `blogPosts` ADD `status` enum('draft','published') DEFAULT 'draft' NOT NULL;

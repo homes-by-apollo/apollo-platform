@@ -554,3 +554,14 @@
 
 ## Session Apr 6 — SCOPS Nav Logo
 - [x] Add Apollo owl logo to SCOPS DashboardLayout nav top left
+
+## Blog Content — Three Posts (Apr 6 2026)
+- [x] Research Pahrump real estate data, Nevada housing stats, multi-family investment trends
+- [x] Generate charts: Pahrump median home price trend, cost-of-living comparison, multi-family cap rate data
+- [x] Write Blog 1: "Why Pahrump is Nevada's Best-Kept Secret for New Home Buyers" (943 words)
+- [x] Write Blog 2: "What to Expect During Your Apollo Home Build" (911 words)
+- [x] Write Blog 3: "The Case for Multi-Family Builds in Southern Nevada" (904 words)
+- [x] Save all three as drafts in SCOPS blog CMS (not published)
+- [x] Add status (draft/published) column to blogPosts schema + migration
+- [x] Add Publish/Unpublish button to SCOPS Blog table
+- [x] Public blog queries now filter to published-only; admin sees all

@@ -318,12 +318,24 @@ export async function getFeaturedBlogPosts(): Promise<BlogPost[]> {
   return db
     .select()
     .from(blogPosts)
-    .where(eq(blogPosts.featured, 1))
+    .where(and(eq(blogPosts.featured, 1), eq(blogPosts.status, "published")))
     .orderBy(blogPosts.sortOrder, desc(blogPosts.publishedAt))
     .limit(3);
 }
 
+/** Public: only published posts */
 export async function getAllBlogPosts(): Promise<BlogPost[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.status, "published"))
+    .orderBy(blogPosts.sortOrder, desc(blogPosts.publishedAt));
+}
+
+/** Admin: all posts including drafts */
+export async function getAllBlogPostsAdmin(): Promise<BlogPost[]> {
   const db = await getDb();
   if (!db) return [];
   return db
