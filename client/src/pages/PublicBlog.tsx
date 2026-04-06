@@ -8,6 +8,7 @@ const MUT = "#6b7a99";
 const BOR = "#e8edf5";
 const BG = "#f7f9fc";
 const GL = "rgba(27,58,107,0.07)";
+const NAVY = "#0f2044";
 
 const STATIC_POSTS = [
   { cat: "Tips", title: "Why Pahrump is Nevada's Best-Kept Secret for New Home Buyers", date: "Feb 12, 2025", read: "5 min", img: "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/blog-nevada-homebuying-7NoddsjLZqhAmdfd2knfqU.webp" },
@@ -20,7 +21,13 @@ const CATEGORIES = ["All", "Tips", "Construction", "Investment", "Market", "Comm
 export default function PublicBlog() {
   const [, setLocation] = useLocation();
   const [activeFilter, setActiveFilter] = useState("All");
+  const [footerEmail, setFooterEmail] = useState("");
+  const [footerSubmitted, setFooterSubmitted] = useState(false);
   const { data: dbPosts, isLoading } = trpc.blog.getPublished.useQuery();
+
+  const newsletterMutation = trpc.newsletter.subscribe.useMutation({
+    onSuccess: () => setFooterSubmitted(true),
+  });
 
   // Merge DB posts with static fallback posts
   const allPosts = dbPosts && dbPosts.length > 0
@@ -54,6 +61,8 @@ export default function PublicBlog() {
         .filter-btn.active { background: ${G}; color: white; border-color: ${G}; }
         .footer-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; }
         @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; } }
+        .footer-subscribe { display: flex; gap: 0; max-width: 420px; }
+        @media (max-width: 640px) { .footer-subscribe { flex-direction: column; } .footer-subscribe input { border-radius: 8px 8px 0 0 !important; border-right: 1px solid rgba(255,255,255,0.18) !important; } .footer-subscribe button { border-radius: 0 0 8px 8px !important; } }
       `}</style>
 
       {/* ── NAV ── */}
@@ -82,7 +91,7 @@ export default function PublicBlog() {
       </div>
 
       {/* ── HERO ── */}
-      <div style={{ background: G, padding: "64px var(--pad) 56px", color: "white" }}>
+      <div style={{ background: NAVY, padding: "64px var(--pad) 56px", color: "white" }}>
         <div style={{ maxWidth: "var(--container)", margin: "0 auto" }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", marginBottom: 14 }}>Insights & Resources</div>
           <h1 className="blog-hero-title" style={{ fontSize: 52, fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 16 }}>From the Blog</h1>
@@ -159,37 +168,79 @@ export default function PublicBlog() {
         </div>
       </div>
 
-      {/* ── FOOTER ── */}
-      <footer style={{ background: "#0f2044", overflow: "hidden", position: "relative", fontFamily: "inherit" }}>
+      {/* ── FOOTER (exact match to homepage footer) ── */}
+      <footer style={{ background: NAVY, overflow: "hidden", position: "relative", fontFamily: "inherit" }}>
+
+        {/* Top band: Brand + Contact info */}
         <div style={{ padding: "52px var(--pad) 48px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div style={{ maxWidth: 1650, margin: "0 auto" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "flex-start" }}>
+
+              {/* LEFT: Logo + tagline + email form */}
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
-                  <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png" alt="Apollo" style={{ height: 52, width: 52, objectFit: "contain" }} />
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.32em", color: "rgba(255,255,255,0.45)", textTransform: "uppercase" }}>HOMES BY</div>
-                    <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "0.07em", color: "white", lineHeight: 1 }}>APOLLO</div>
+                  <img
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png"
+                    alt="Homes by Apollo"
+                    style={{ height: 52, width: 52, objectFit: "contain", flexShrink: 0 }}
+                  />
+                  <div style={{ display: "flex", flexDirection: "column", lineHeight: 1, gap: 3 }}>
+                    <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "0.52em", color: "white", textTransform: "uppercase" }}>HOMES BY</span>
+                    <span style={{ fontSize: 30, fontWeight: 900, letterSpacing: "0.085em", color: "white", lineHeight: 1 }}>APOLLO</span>
                   </div>
                 </div>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.8, maxWidth: 380, marginBottom: 28 }}>
-                  Building quality new homes in Pahrump, Nevada. Your vision, our craftsmanship.
+                <p style={{ fontSize: 19.5, color: "white", lineHeight: 1.65, maxWidth: 400, marginBottom: 28 }}>
+                  Pahrump's premier new home builder. All-inclusive builds, one price, no surprises.
                 </p>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.28)", textTransform: "uppercase", marginBottom: 8 }}>Call Us Free</div>
-                <a href="tel:7753631616" style={{ display: "block", fontSize: 32, fontWeight: 800, color: "rgba(255,255,255,0.85)", textDecoration: "none", letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 24 }}>(775) 363-1616</a>
-                <div style={{ fontSize: 15, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>4081 Jessica St<br />Pahrump, NV 89048</div>
+                {footerSubmitted ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.07)", borderRadius: 8, padding: "14px 20px", maxWidth: 420 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6ee7a0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                    <span style={{ color: "rgba(255,255,255,0.75)", fontSize: 14, fontWeight: 600 }}>You're on the list.</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="footer-subscribe">
+                      <input
+                        type="email"
+                        placeholder="Enter your email"
+                        value={footerEmail}
+                        onChange={e => setFooterEmail(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter" && footerEmail) newsletterMutation.mutate({ email: footerEmail }); }}
+                        style={{ flex: 1, padding: "14px 18px", borderRadius: "8px 0 0 8px", border: "1px solid rgba(255,255,255,0.18)", borderRight: "none", fontSize: 14, outline: "none", background: "rgba(255,255,255,0.08)", color: "white", fontFamily: "inherit" }}
+                      />
+                      <button
+                        onClick={() => { if (footerEmail) newsletterMutation.mutate({ email: footerEmail }); }}
+                        disabled={newsletterMutation.isPending || !footerEmail}
+                        style={{ background: "#4B9CD3", color: "white", border: "none", padding: "14px 22px", borderRadius: "0 8px 8px 0", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap", opacity: (!footerEmail || newsletterMutation.isPending) ? 0.5 : 1, transition: "opacity 0.15s" }}>
+                        {newsletterMutation.isPending ? "Saving…" : "Subscribe"}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* RIGHT: Call Us Free + phone + address */}
+              <div style={{ paddingTop: 4 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.4)", marginBottom: 10, letterSpacing: "0.02em" }}>Call Us Free</div>
+                <a href="tel:7753631616" style={{ display: "block", fontSize: "clamp(28px,3.5vw,42px)", fontWeight: 800, color: "rgba(255,255,255,0.85)", textDecoration: "none", letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 24 }}>(775) 363-1616</a>
+                <div style={{ fontSize: 15, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>
+                  4081 Jessica St<br />
+                  Pahrump, NV 89048
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Middle band: Nav columns */}
         <div style={{ padding: "52px var(--pad) 40px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div style={{ maxWidth: 1650, margin: "0 auto" }}>
             <div className="footer-grid">
               {([
-                ["Company", [["Home", "/"], ["Contact", "/get-in-touch"]]] as [string, [string, string][]],
-                ["Properties", [["Find Your Home", "/find-your-home"]]] as [string, [string, string][]],
-                ["Resources", [["Blog", "/blog"]]] as [string, [string, string][]],
-              ]).map(([heading, links]) => (
+                ["Company", [["Home", "/"], ["Contact", "/get-in-touch"]]],
+                ["Properties", [["Find Your Home", "/find-your-home"]]],
+                ["Resources", [["Blog", "/blog"]]],
+              ] as [string, [string, string][]][]).map(([heading, links]) => (
                 <div key={heading}>
                   <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 18 }}>{heading}</p>
                   {links.map(([label, href]) => (
@@ -205,18 +256,32 @@ export default function PublicBlog() {
             </div>
           </div>
         </div>
+
+        {/* Bottom bar */}
         <div style={{ padding: "22px var(--pad)" }}>
           <div style={{ maxWidth: 1650, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
             <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
-              <a href="/admin-login" style={{ fontSize: 13, fontWeight: 700, color: "#e07b39", textDecoration: "none", border: "1.5px solid #e07b39", borderRadius: 6, padding: "4px 12px", letterSpacing: "0.01em" }}>Admin</a>
+              <a href="/admin-login"
+                style={{ fontSize: 13, fontWeight: 700, color: "#e07b39", textDecoration: "none", border: "1.5px solid #e07b39", borderRadius: 6, padding: "4px 12px", letterSpacing: "0.01em", transition: "background 0.15s, color 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "#e07b39"; e.currentTarget.style.color = "white"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#e07b39"; }}>
+                Admin
+              </a>
               {["Privacy Policy", "Terms"].map(i => (
-                <span key={i} style={{ fontSize: 13, color: "rgba(255,255,255,0.22)", cursor: "pointer" }}>{i}</span>
+                <span key={i}
+                  style={{ fontSize: 13, color: "rgba(255,255,255,0.22)", cursor: "pointer", transition: "color 0.15s" }}
+                  onMouseEnter={e => { e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.22)"; }}>
+                  {i}
+                </span>
               ))}
             </div>
           </div>
         </div>
-        <div style={{ overflow: "hidden", pointerEvents: "none", userSelect: "none", width: "100%", maxWidth: 1690, margin: "0 auto" }}>
+
+        {/* Monochromatic watermark */}
+        <div style={{ overflow: "hidden", pointerEvents: "none", userSelect: "none", width: "100%", maxWidth: 1690, margin: "0 auto", padding: 0, boxSizing: "border-box" }}>
           <svg viewBox="0 0 1690 200" preserveAspectRatio="xMidYMid meet" style={{ display: "block", width: "100%", height: "auto" }} xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="footerGradBlog" x1="0" y1="0" x2="0" y2="1">

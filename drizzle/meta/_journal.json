@@ -64,6 +64,13 @@
       "when": 1775508243406,
       "tag": "0008_mature_betty_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1775511692320,
+      "tag": "0009_minor_wasp",
+      "breakpoints": true
     }
   ]
 }

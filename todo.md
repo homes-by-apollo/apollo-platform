@@ -531,3 +531,23 @@
 - [ ] Add CALENDLY_API_KEY secret and auto-register Calendly webhook
 - [ ] Build /blog as standalone public page (not homepage state)
 - [ ] Fix footer position (not anchored to bottom of page)
+
+## Blog + Digest + Tour Linking (Apr 6 2026)
+- [ ] Fix /blog footer to match homepage footer exactly
+- [ ] Set navy blue (#0f2044) background on "From the Blog" section in ApolloSite homepage
+- [ ] Build weekly tour digest email (Sunday evenings) to SCOPS team
+- [ ] Add SCOPS team management (Kyle super admin, Brandon, Jonathan) for digest recipients
+- [ ] Send Kyle a test tour digest email
+- [ ] Add Schedule Tour button to lead detail page pre-filled with contact info
+
+## Session Apr 6 — Blog Footer + Digest + Tour Linking (COMPLETED)
+- [x] Fix /blog footer to match homepage footer exactly
+- [x] Set navy blue (#0f2044) background on "From the Blog" section in ApolloSite homepage
+- [x] Build weekly tour digest email (Sunday evenings, 6pm PT) to SCOPS team
+- [x] SCOPS team configured: Kyle, Brandon, Jonathan (from scopsTeam table)
+- [x] Send Kyle a test tour digest email — confirmed delivered
+- [x] Add Schedule Tour button to lead detail page pre-filled with contact info
+- [x] Register Calendly webhook at apollohomebuilders.com/api/webhooks/calendly
+- [x] Add Send Weekly Digest button to SCOPS Scheduling page header
+- [x] Fix context.ts to authenticate apollo_admin_session cookie for adminProcedure
+- [x] All 36 tests passing

@@ -137,7 +137,22 @@ export default function LeadDetail({ id, onBack }: Props) {
             {contact.leadScore}
           </span>
         )}
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => {
+              const params = new URLSearchParams();
+              if (contact.firstName || contact.lastName) {
+                params.set("name", `${contact.firstName ?? ""} ${contact.lastName ?? ""}`.trim());
+              }
+              if (contact.email) params.set("email", contact.email);
+              if (contact.phone) params.set("phone", contact.phone);
+              params.set("leadId", String(id));
+              window.location.href = `/scops/scheduling?${params.toString()}`;
+            }}
+            className="text-xs bg-sky-500 hover:bg-sky-400 text-white rounded px-3 py-1.5 transition-colors font-semibold flex items-center gap-1.5"
+          >
+            📅 Schedule Tour
+          </button>
           <button
             onClick={() => resendWelcome.mutate({ id })}
             disabled={resendWelcome.isPending}

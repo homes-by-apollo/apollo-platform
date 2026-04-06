@@ -88,8 +88,22 @@ export default function SCOPSScheduling() {
   const adminUser = adminMeQuery.data;
   const loading = adminMeQuery.isLoading;
 
-  const [showManualModal, setShowManualModal] = useState(false);
-  const [form, setForm] = useState<ManualTourForm>(emptyForm);
+  // Pre-fill form from query params (e.g. from "Schedule Tour" button on lead detail)
+  const prefillForm = React.useMemo((): ManualTourForm => {
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("name") ?? "";
+    const email = params.get("email") ?? "";
+    const phone = params.get("phone") ?? "";
+    if (name || email) {
+      return { ...emptyForm, inviteeName: name, inviteeEmail: email, inviteePhone: phone };
+    }
+    return emptyForm;
+  }, []);
+
+  const hasPrefill = prefillForm.inviteeName !== "" || prefillForm.inviteeEmail !== "";
+
+  const [showManualModal, setShowManualModal] = useState(hasPrefill);
+  const [form, setForm] = useState<ManualTourForm>(prefillForm);
   const [cancelTarget, setCancelTarget] = useState<{ id: number; name: string } | null>(null);
   const [cancelReason, setCancelReason] = useState("");
   const [filter, setFilter] = useState<"all" | "upcoming" | "cancelled">("upcoming");
@@ -113,6 +127,13 @@ export default function SCOPSScheduling() {
       utils.scheduling.stats.invalidate();
     },
     onError: (e) => toast.error(e.message),
+  });
+
+  const digestMutation = trpc.scheduling.sendWeeklyDigest.useMutation({
+    onSuccess: (result) => {
+      toast.success(`Weekly digest sent to ${result.sent} recipient${result.sent !== 1 ? "s" : ""}`);
+    },
+    onError: (e) => toast.error(`Digest failed: ${e.message}`),
   });
 
   const cancelMutation = trpc.scheduling.cancel.useMutation({
@@ -155,6 +176,9 @@ export default function SCOPSScheduling() {
       toast.error("End time must be after start time");
       return;
     }
+    // Pass leadId from query params if present (links tour to CRM lead)
+    const leadIdParam = new URLSearchParams(window.location.search).get("leadId");
+    const contactId = leadIdParam ? parseInt(leadIdParam, 10) : undefined;
     createMutation.mutate({
       inviteeName: form.inviteeName,
       inviteeEmail: form.inviteeEmail,
@@ -163,6 +187,7 @@ export default function SCOPSScheduling() {
       startTime,
       endTime,
       location: form.location || undefined,
+      contactId: contactId && !isNaN(contactId) ? contactId : undefined,
     });
   }
 
@@ -181,12 +206,22 @@ export default function SCOPSScheduling() {
               Manage home tour appointments — synced from Calendly or added manually.
             </p>
           </div>
-          <Button
-            onClick={() => setShowManualModal(true)}
-            className="bg-[#0f2044] hover:bg-[#1a3366] text-white"
-          >
-            + Schedule Tour
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => digestMutation.mutate()}
+              disabled={digestMutation.isPending}
+              className="text-sm border-slate-300 text-slate-600 hover:bg-slate-100"
+            >
+              {digestMutation.isPending ? "⧗ Sending…" : "🦉 Send Weekly Digest"}
+            </Button>
+            <Button
+              onClick={() => setShowManualModal(true)}
+              className="bg-[#0f2044] hover:bg-[#1a3366] text-white"
+            >
+              + Schedule Tour
+            </Button>
+          </div>
         </div>
 
         {/* Stats row */}

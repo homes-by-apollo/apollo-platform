@@ -5,10 +5,11 @@
 import { z } from "zod";
 import { eq, desc, gte, and } from "drizzle-orm";
 import { getDb } from "../db";
-import { scheduledTours, activityLog } from "../../drizzle/schema";
+import { scheduledTours, activityLog, scopsTeam } from "../../drizzle/schema";
 import { adminProcedure, router } from "../_core/trpc";
 import { ENV } from "../_core/env";
 import { TRPCError } from "@trpc/server";
+import { sendWeeklyTourDigest } from "../weeklyTourDigest";
 
 // ─── Calendly API helpers ─────────────────────────────────────────────────────
 
@@ -199,5 +200,51 @@ export const schedulingRouter = router({
       const cancelled = all.filter(t => t.status === "CANCELLED").length;
 
       return { upcoming, thisWeek, cancelled, total: all.length };
+    }),
+
+  /** Send the weekly tour digest immediately (manual trigger / test) */
+  sendWeeklyDigest: adminProcedure
+    .mutation(async () => {
+      const result = await sendWeeklyTourDigest();
+      return result;
+    }),
+
+  /** Get all SCOPS team members */
+  getTeam: adminProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(scopsTeam).orderBy(scopsTeam.id);
+    }),
+
+  /** Add a team member */
+  addTeamMember: adminProcedure
+    .input(z.object({
+      name: z.string().min(1),
+      email: z.string().email(),
+      role: z.enum(["super_admin", "admin", "member"]).default("member"),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      await db.insert(scopsTeam).values({
+        name: input.name,
+        email: input.email,
+        role: input.role,
+        active: 1,
+      });
+      return { success: true };
+    }),
+
+  /** Toggle a team member active/inactive */
+  toggleTeamMember: adminProcedure
+    .input(z.object({ id: z.number(), active: z.boolean() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      await db.update(scopsTeam)
+        .set({ active: input.active ? 1 : 0 })
+        .where(eq(scopsTeam.id, input.id));
+      return { success: true };
     }),
 });

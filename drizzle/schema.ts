@@ -344,3 +344,22 @@ export const scheduledTours = mysqlTable("scheduledTours", {
 
 export type ScheduledTour = typeof scheduledTours.$inferSelect;
 export type InsertScheduledTour = typeof scheduledTours.$inferInsert;
+
+// ─── SCOPS Team Members ───────────────────────────────────────────────────────
+
+/**
+ * SCOPS team members who receive digest emails and operational alerts.
+ * Kyle is the super admin and can add/remove members over time.
+ */
+export const scopsTeam = mysqlTable("scopsTeam", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 128 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  role: mysqlEnum("role", ["super_admin", "admin", "member"]).notNull().default("member"),
+  active: int("active").notNull().default(1),  // 1 = receives digests
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ScopsTeamMember = typeof scopsTeam.$inferSelect;
+export type InsertScopsTeamMember = typeof scopsTeam.$inferInsert;

@@ -1213,7 +1213,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
           </div>
 
           {/* BLOG PREVIEW */}
-          <div className="section-pad blog-section" style={{ padding:"107px var(--pad) 35px" }}>
+          <div className="section-pad blog-section" style={{ padding:"107px var(--pad) 35px", background:"#0f2044" }}>
             <div className="site-container">
             {/* "Homes by Apollo" photo-clip header — Blog section */}
             <div className="photo-clip-container" style={{ padding:0, margin:0, marginTop:"-40px", marginBottom:"60px", background:"transparent" }}>
@@ -1234,10 +1234,10 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
             </div>
             <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:36 }}>
               <div>
-                <SectionLabel>Latest Blog</SectionLabel>
-                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", marginBottom:8 }}>Stay updated with our latest articles</h2>
+                <div style={{ fontSize:11, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"rgba(255,255,255,0.5)", marginBottom:10 }}>Latest Blog</div>
+                <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", marginBottom:8, color:"white" }}>Stay updated with our latest articles</h2>
               </div>
-              <button className="section-view-all" onClick={()=>{ track("View All", { section:"Blog" }); setLocation("/blog"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button className="section-view-all" onClick={()=>{ track("View All", { section:"Blog" }); setLocation("/blog"); }} style={{ fontSize:22.5, fontWeight:700, color:"rgba(255,255,255,0.75)", background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="blog-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,515px)", gap:28, justifyContent:"start" }}>
               {blogs.map(b=>(
