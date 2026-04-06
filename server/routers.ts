@@ -4,6 +4,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { adminAuthRouter } from "./routers/adminAuth";
+import { dashboardRouter } from "./routers/dashboard";
 import { analyticsRouter } from "./routers/analytics";
 import { blogRouter } from "./routers/blog";
 import { leadsRouter } from "./routers/leads";
@@ -23,6 +24,7 @@ export const appRouter = router({
   }),
 
   adminAuth: adminAuthRouter,
+  dashboard: dashboardRouter,
   analytics: analyticsRouter,
   blog: blogRouter,
   leads: leadsRouter,

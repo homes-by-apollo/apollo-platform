@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, gte, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   ActivityLog,
@@ -14,8 +14,11 @@ import {
   activityLog,
   blogPosts,
   contacts,
+  deals,
   emailLog,
+  leadPropertyInterest,
   properties,
+  scheduledTours,
   users,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -423,4 +426,270 @@ export async function getUtmSourceCounts(period?: "7d" | "30d" | "all") {
     .where(conditions)
     .groupBy(contacts.utmSource, contacts.utmMedium, contacts.utmCampaign)
     .orderBy(desc(sql<number>`count(*)`));
+}
+
+// ─── Dashboard: Inventory Stats ───────────────────────────────────────────────
+
+export async function getInventoryStats() {
+  const db = await getDb();
+  if (!db) return { available: 0, underContract: 0, soldLast30: 0, revenueMtd: 0 };
+
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [available, underContract, soldLast30, revenueMtd] = await Promise.all([
+    db.select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(properties)
+      .where(eq(properties.tag, "Available")),
+    db.select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(properties)
+      .where(eq(properties.tag, "Under Contract")),
+    db.select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(deals)
+      .where(and(eq(deals.stage, "CLOSED"), gte(deals.actualCloseDate, thirtyDaysAgo))),
+    db.select({ total: sql<number>`coalesce(sum(amount), 0)`.mapWith(Number) })
+      .from(deals)
+      .where(and(eq(deals.stage, "CLOSED"), gte(deals.actualCloseDate, startOfMonth))),
+  ]);
+
+  return {
+    available: available[0]?.count ?? 0,
+    underContract: underContract[0]?.count ?? 0,
+    soldLast30: soldLast30[0]?.count ?? 0,
+    revenueMtd: revenueMtd[0]?.total ?? 0,
+  };
+}
+
+// ─── Dashboard: Tours This Week ───────────────────────────────────────────────
+
+export async function getToursThisWeek() {
+  const db = await getDb();
+  if (!db) return 0;
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+  startOfWeek.setHours(0, 0, 0, 0);
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+  const result = await db
+    .select({ count: sql<number>`count(*)`.mapWith(Number) })
+    .from(scheduledTours)
+    .where(
+      and(
+        eq(scheduledTours.status, "ACTIVE"),
+        gte(scheduledTours.startTime, startOfWeek),
+        sql`${scheduledTours.startTime} < ${endOfWeek}`
+      )
+    );
+  return result[0]?.count ?? 0;
+}
+
+// ─── Dashboard: Absorption Rate ───────────────────────────────────────────────
+
+export async function getAbsorptionRate() {
+  const db = await getDb();
+  if (!db) return null;
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+  const [soldResult, totalResult] = await Promise.all([
+    db.select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(deals)
+      .where(and(eq(deals.stage, "CLOSED"), gte(deals.actualCloseDate, thirtyDaysAgo))),
+    db.select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(properties)
+      .where(sql`${properties.tag} != 'Sold'`),
+  ]);
+
+  const sold = soldResult[0]?.count ?? 0;
+  const total = totalResult[0]?.count ?? 0;
+  if (total === 0) return null;
+  return Math.round((sold / total) * 100);
+}
+
+// ─── Dashboard: Revenue Forecast ─────────────────────────────────────────────
+
+export async function getRevenueForecast() {
+  const db = await getDb();
+  if (!db) return { days30: 0, days60: 0, days90: 0 };
+
+  const now = new Date();
+  const d30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const d60 = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+  const d90 = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+
+  const rows = await db
+    .select({ amount: deals.amount, expectedCloseDate: deals.expectedCloseDate })
+    .from(deals)
+    .where(
+      and(
+        sql`${deals.stage} IN ('OFFER_SUBMITTED', 'UNDER_CONTRACT')`,
+        isNotNull(deals.expectedCloseDate),
+        isNotNull(deals.amount)
+      )
+    );
+
+  let days30 = 0, days60 = 0, days90 = 0;
+  for (const row of rows) {
+    if (!row.expectedCloseDate || !row.amount) continue;
+    const closeDate = new Date(row.expectedCloseDate);
+    if (closeDate <= d30) days30 += row.amount;
+    else if (closeDate <= d60) days60 += row.amount;
+    else if (closeDate <= d90) days90 += row.amount;
+  }
+
+  return { days30, days60, days90 };
+}
+
+// ─── Dashboard: Deals At Risk ─────────────────────────────────────────────────
+
+export async function getDealsAtRisk() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+  // Leads not contacted in 48+ hours (active, not lost/closed)
+  const notContacted = await db
+    .select({
+      id: contacts.id,
+      firstName: contacts.firstName,
+      lastName: contacts.lastName,
+      pipelineStage: contacts.pipelineStage,
+      lastContactedAt: contacts.lastContactedAt,
+      primaryPropertyId: contacts.primaryPropertyId,
+    })
+    .from(contacts)
+    .where(
+      and(
+        sql`${contacts.pipelineStage} NOT IN ('CLOSED', 'LOST')`,
+        or(
+          isNull(contacts.lastContactedAt),
+          sql`${contacts.lastContactedAt} < ${fortyEightHoursAgo}`
+        )
+      )
+    )
+    .orderBy(contacts.lastContactedAt)
+    .limit(10);
+
+  return notContacted.map(c => ({
+    id: c.id,
+    name: `${c.firstName} ${c.lastName}`,
+    stage: c.pipelineStage,
+    issue: c.lastContactedAt
+      ? `No contact in ${Math.floor((Date.now() - new Date(c.lastContactedAt).getTime()) / (1000 * 60 * 60))}h`
+      : "Never contacted",
+    lastContactedAt: c.lastContactedAt,
+    primaryPropertyId: c.primaryPropertyId,
+  }));
+}
+
+// ─── Dashboard: Inventory Health ─────────────────────────────────────────────
+
+export async function getInventoryHealth() {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all available properties with lead interest counts
+  const props = await db
+    .select()
+    .from(properties)
+    .where(eq(properties.tag, "Available"))
+    .orderBy(desc(properties.createdAt));
+
+  // Get lead counts per property
+  const leadCounts = await db
+    .select({
+      propertyId: contacts.primaryPropertyId,
+      count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(contacts)
+    .where(isNotNull(contacts.primaryPropertyId))
+    .groupBy(contacts.primaryPropertyId);
+
+  const leadMap = Object.fromEntries(leadCounts.map(r => [r.propertyId, r.count]));
+
+  return props.map(p => {
+    const createdDate = new Date(p.createdAt);
+    const dom = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+    return {
+      id: p.id,
+      address: p.address,
+      price: p.price,
+      priceValue: p.priceValue,
+      dom,
+      leadCount: leadMap[p.id] ?? 0,
+    };
+  });
+}
+
+// ─── Dashboard: Source Performance ───────────────────────────────────────────
+
+export async function getSourcePerformance() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const sources = ["WEBSITE", "ZILLOW", "REFERRAL", "AGENT", "OTHER"] as const;
+
+  const [leadRows, tourRows, contractRows] = await Promise.all([
+    db.select({
+      source: contacts.source,
+      count: sql<number>`count(*)`.mapWith(Number),
+    }).from(contacts).groupBy(contacts.source),
+
+    db.select({
+      source: contacts.source,
+      count: sql<number>`count(*)`.mapWith(Number),
+    }).from(contacts)
+      .where(sql`${contacts.pipelineStage} IN ('TOUR_SCHEDULED', 'TOURED', 'OFFER_SUBMITTED', 'UNDER_CONTRACT', 'CLOSED')`)
+      .groupBy(contacts.source),
+
+    db.select({
+      source: contacts.source,
+      count: sql<number>`count(*)`.mapWith(Number),
+    }).from(contacts)
+      .where(sql`${contacts.pipelineStage} IN ('UNDER_CONTRACT', 'CLOSED')`)
+      .groupBy(contacts.source),
+  ]);
+
+  const leadMap = Object.fromEntries(leadRows.map(r => [r.source, r.count]));
+  const tourMap = Object.fromEntries(tourRows.map(r => [r.source, r.count]));
+  const contractMap = Object.fromEntries(contractRows.map(r => [r.source, r.count]));
+
+  const SOURCE_LABELS: Record<string, string> = {
+    WEBSITE: "Website", ZILLOW: "Zillow", REFERRAL: "Referral",
+    AGENT: "Agent", BILLBOARD: "Billboard", WALK_IN: "Walk-In",
+    MLS: "MLS", OTHER: "Other",
+  };
+
+  return sources.map(src => ({
+    source: src,
+    label: SOURCE_LABELS[src] ?? src,
+    leads: leadMap[src] ?? 0,
+    tours: tourMap[src] ?? 0,
+    contracts: contractMap[src] ?? 0,
+  }));
+}
+
+// ─── Dashboard: Recent Activity Feed ─────────────────────────────────────────
+
+export async function getRecentActivity(limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select({
+      id: activityLog.id,
+      contactId: activityLog.contactId,
+      activityType: activityLog.activityType,
+      description: activityLog.description,
+      createdAt: activityLog.createdAt,
+      firstName: contacts.firstName,
+      lastName: contacts.lastName,
+    })
+    .from(activityLog)
+    .leftJoin(contacts, eq(activityLog.contactId, contacts.id))
+    .orderBy(desc(activityLog.createdAt))
+    .limit(limit);
 }

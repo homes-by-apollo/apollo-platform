@@ -615,3 +615,37 @@
 - [x] Generate 2026 Pahrump Home Buyer's Guide as a polished multi-page PDF (11 pages, 6 chapters)
 - [x] Upload PDF to S3 CDN
 - [x] Attach PDF download link (gold button) to Resend confirmation email
+
+## SCOPS Dashboard Redesign — Apple macOS Tahoe (Apr 6 2026)
+- [ ] Add deals table to schema (stage, expected_close_date, amount, property_id, lead_id)
+- [ ] Add lead_property_interest table (lead_id, property_id, interest_level, view_count)
+- [ ] Update contact pipeline stages to: New Inquiry, Qualified, Tour Scheduled, Toured, Offer Submitted, Under Contract, Closed
+- [ ] Run db:push migration
+- [ ] Add db helpers: getDashboardKPIs, getPipelineFunnel, getRevenueForecast, getInventoryHealth, getDemandSignals, getDealsAtRisk, getSourcePerformance, getActivityFeed, getActivePipeline
+- [ ] Add tRPC procedures for all new dashboard queries
+- [ ] Redesign SCOPSDashboard.tsx: Apple white/minimal design system
+- [ ] KPI row: Units Available, Under Contract, Units Sold (30d), Revenue Closed MTD, Tours This Week, Absorption Rate
+- [ ] Pipeline funnel: new stages with count + conversion %
+- [ ] Revenue Forecast panel: 30/60/90 day from deals.expected_close_date
+- [ ] Inventory Health section: slow-moving, recently reduced, low activity
+- [ ] Demand Signals section: most viewed/toured/saved properties
+- [ ] Deals at Risk section: 48h no contact, no follow-up, stalled offers
+- [ ] Source Performance table: Source | Leads | Tours | Contracts | Revenue
+- [ ] Activity Feed: new lead, tour scheduled, deal created, property updated
+- [ ] Active Pipeline table: name, stage, score, primary property, last activity, next action
+- [ ] Remove website analytics (traffic) from dashboard (move to Marketing)
+
+## SCOPS Dashboard Redesign — Apple macOS Tahoe (Apr 6 2026 — COMPLETED)
+- [x] Add dashboard tRPC router with overview query (inventory stats, tours, absorption, forecast, at-risk, inventory health, source perf, activity)
+- [x] Add DB helpers: getInventoryStats, getToursThisWeek, getAbsorptionRate, getRevenueForecast, getDealsAtRisk, getInventoryHealth, getSourcePerformance, getRecentActivity
+- [x] Redesign SCOPSDashboard.tsx: Apple white/minimal design system (solid white bg, rounded-2xl cards, thin borders, no shadows)
+- [x] KPI row: Units Available, Under Contract, Units Sold (30d), Revenue Closed MTD, Tours This Week, Absorption Rate
+- [x] Quick Actions row: New Blog Post, Add Lead, Schedule Tour, View Properties, UTM Builder
+- [x] Deals at Risk section: 48h no-contact leads with inline View action
+- [x] Pipeline funnel: stages with count bars + conversion %
+- [x] Revenue Forecast panel: 30/60/90 day bar chart from deals.expected_close_date
+- [x] Source Performance table: Source | Leads | Tours | Contracts
+- [x] Activity Feed: recent activity log with contact names and timestamps
+- [x] Inventory Health: Slow Moving (60+ DOM) and Low Activity Listings panels
+- [x] Active Pipeline table: name, stage, score, property, timeline, last activity, next action
+- [x] All 35 tests passing

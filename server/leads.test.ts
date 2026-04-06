@@ -189,21 +189,11 @@ describe("leads.updateStage (protected)", () => {
     vi.mocked(db.logActivity).mockResolvedValue(undefined);
   });
 
-  it("moves a contact to CONTACTED stage", async () => {
+  it("moves a contact to QUALIFIED stage", async () => {
     const caller = appRouter.createCaller(createAuthContext());
-    const result = await caller.leads.updateStage({ id: 1, stage: "CONTACTED" });
+    const result = await caller.leads.updateStage({ id: 1, stage: "QUALIFIED" });
     expect(result.success).toBe(true);
-    expect(db.updateContact).toHaveBeenCalledWith(1, { pipelineStage: "CONTACTED" });
-  });
-
-  it("rejects SQL promotion when timeline is JUST_BROWSING", async () => {
-    vi.mocked(db.getContactById).mockResolvedValue({
-      ...mockContact, timeline: "JUST_BROWSING",
-    });
-    const caller = appRouter.createCaller(createAuthContext());
-    await expect(
-      caller.leads.updateStage({ id: 1, stage: "SQL" })
-    ).rejects.toThrow(TRPCError);
+    expect(db.updateContact).toHaveBeenCalledWith(1, { pipelineStage: "QUALIFIED" });
   });
 
   it("records loss reason when stage is LOST", async () => {

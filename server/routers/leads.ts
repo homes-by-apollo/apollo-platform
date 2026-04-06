@@ -68,9 +68,9 @@ function checkRateLimit(ip: string): void {
 const timelineEnum = z.enum(["ASAP", "1_3_MONTHS", "3_6_MONTHS", "6_12_MONTHS", "JUST_BROWSING"]);
 const financingEnum = z.enum(["PRE_APPROVED", "IN_PROCESS", "NOT_STARTED", "CASH_BUYER"]);
 const pipelineStageEnum = z.enum([
-  "NEW_LEAD", "CONTACTED", "NURTURE", "SQL",
-  "TOUR_SCHEDULED", "TOUR_COMPLETED", "PROPOSAL_SENT",
-  "CONTRACT_SIGNED", "IN_CONSTRUCTION", "CLOSED", "LOST",
+  "NEW_INQUIRY", "QUALIFIED",
+  "TOUR_SCHEDULED", "TOURED",
+  "OFFER_SUBMITTED", "UNDER_CONTRACT", "CLOSED", "LOST",
 ]);
 const lossReasonEnum = z.enum([
   "BOUGHT_ELSEWHERE", "FINANCING_FAILED", "TIMELINE_CHANGED",
@@ -205,7 +205,7 @@ export const leadsRouter = router({
         brokerageName: input.brokerageName,
         licenseNumber: input.licenseNumber,
         source: "WEBSITE",
-        pipelineStage: "NEW_LEAD",
+        pipelineStage: "NEW_INQUIRY",
         // UTM attribution
         utmSource: input.utmSource ?? null,
         utmMedium: input.utmMedium ?? null,
@@ -288,19 +288,12 @@ export const leadsRouter = router({
       const existing = await getContactById(input.id);
       if (!existing) throw new TRPCError({ code: "NOT_FOUND" });
 
-      // SQL stage validation: require verified contact info
-      if (input.stage === "SQL") {
+      // QUALIFIED stage validation: require verified contact info
+      if (input.stage === "QUALIFIED") {
         if (!existing.email && !existing.phone) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "A verified contact (email or phone) must be present before converting to SQL.",
-          });
-        }
-        const validTimelines = ["ASAP", "1_3_MONTHS", "3_6_MONTHS"];
-        if (!existing.timeline || !validTimelines.includes(existing.timeline)) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Lead timeline must be ASAP, 1–3 months, or 3–6 months to qualify as SQL.",
+            message: "A verified contact (email or phone) must be present before qualifying a lead.",
           });
         }
       }

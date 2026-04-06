@@ -82,18 +82,20 @@ export const contacts = mysqlTable("contacts", {
   leadScore: mysqlEnum("leadScore", ["HOT", "WARM", "COLD"]),
 
   pipelineStage: mysqlEnum("pipelineStage", [
-    "NEW_LEAD",
-    "CONTACTED",
-    "NURTURE",
-    "SQL",
+    "NEW_INQUIRY",
+    "QUALIFIED",
     "TOUR_SCHEDULED",
-    "TOUR_COMPLETED",
-    "PROPOSAL_SENT",
-    "CONTRACT_SIGNED",
-    "IN_CONSTRUCTION",
+    "TOURED",
+    "OFFER_SUBMITTED",
+    "UNDER_CONTRACT",
     "CLOSED",
     "LOST",
-  ]).notNull().default("NEW_LEAD"),
+  ]).notNull().default("NEW_INQUIRY"),
+
+  // Primary property of interest
+  primaryPropertyId: int("primaryPropertyId"),
+  lastContactedAt: timestamp("lastContactedAt"),
+  nextAction: varchar("nextAction", { length: 256 }),
 
   lossReason: mysqlEnum("lossReason", [
     "BOUGHT_ELSEWHERE",
@@ -373,3 +375,58 @@ export const scopsTeam = mysqlTable("scopsTeam", {
 
 export type ScopsTeamMember = typeof scopsTeam.$inferSelect;
 export type InsertScopsTeamMember = typeof scopsTeam.$inferInsert;
+
+// ─── Deals ────────────────────────────────────────────────────────────────────
+
+/**
+ * A deal represents a formal offer or contract between a contact and a property.
+ * Used for revenue forecasting and pipeline tracking.
+ */
+export const deals = mysqlTable("deals", {
+  id: int("id").autoincrement().primaryKey(),
+
+  contactId: int("contactId").notNull(),
+  propertyId: int("propertyId"),
+
+  stage: mysqlEnum("stage", [
+    "OFFER_SUBMITTED",
+    "UNDER_CONTRACT",
+    "CLOSED",
+    "LOST",
+  ]).notNull().default("OFFER_SUBMITTED"),
+
+  amount: int("amount"),
+  expectedCloseDate: timestamp("expectedCloseDate"),
+  actualCloseDate: timestamp("actualCloseDate"),
+
+  notes: text("notes"),
+  assignedTo: int("assignedTo"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Deal = typeof deals.$inferSelect;
+export type InsertDeal = typeof deals.$inferInsert;
+
+// ─── Lead Property Interest ───────────────────────────────────────────────────
+
+/**
+ * Tracks which properties a lead has shown interest in (views, saves, tours).
+ * Powers the Demand Signals section on the dashboard.
+ */
+export const leadPropertyInterest = mysqlTable("leadPropertyInterest", {
+  id: int("id").autoincrement().primaryKey(),
+
+  leadId: int("leadId").notNull(),
+  propertyId: int("propertyId").notNull(),
+
+  interestLevel: mysqlEnum("interestLevel", ["VIEWED", "SAVED", "TOURED"]).notNull().default("VIEWED"),
+  viewCount: int("viewCount").notNull().default(1),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LeadPropertyInterest = typeof leadPropertyInterest.$inferSelect;
+export type InsertLeadPropertyInterest = typeof leadPropertyInterest.$inferInsert;

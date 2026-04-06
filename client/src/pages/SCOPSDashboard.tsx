@@ -1,56 +1,77 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { getLoginUrl } from "@/const";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import LeadDetail from "./LeadDetail";
 import SCOPSNav from "@/components/SCOPSNav";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Pipeline Stages (new enum) ───────────────────────────────────────────────
 
-const STAGE_ORDER = [
-  "NEW_LEAD", "CONTACTED", "NURTURE", "SQL",
-  "TOUR_SCHEDULED", "TOUR_COMPLETED", "PROPOSAL_SENT",
-  "CONTRACT_SIGNED", "IN_CONSTRUCTION", "CLOSED", "LOST",
+const PIPELINE_STAGES = [
+  "NEW_INQUIRY",
+  "QUALIFIED",
+  "TOUR_SCHEDULED",
+  "TOURED",
+  "OFFER_SUBMITTED",
+  "UNDER_CONTRACT",
+  "CLOSED",
+  "LOST",
 ] as const;
 
 const STAGE_LABELS: Record<string, string> = {
-  NEW_LEAD: "New Lead", CONTACTED: "Contacted", NURTURE: "Nurturing",
-  SQL: "SQL", TOUR_SCHEDULED: "Tour Scheduled", TOUR_COMPLETED: "Tour Completed",
-  PROPOSAL_SENT: "Proposal Sent", CONTRACT_SIGNED: "Contract Signed",
-  IN_CONSTRUCTION: "In Construction", CLOSED: "Closed", LOST: "Lost",
-};
-
-const SCORE_COLORS: Record<string, string> = {
-  HOT: "bg-red-100 text-red-700 border-red-200",
-  WARM: "bg-amber-100 text-amber-700 border-amber-200",
-  COLD: "bg-blue-100 text-blue-700 border-blue-200",
+  NEW_INQUIRY: "New Inquiry",
+  QUALIFIED: "Qualified",
+  TOUR_SCHEDULED: "Tour Scheduled",
+  TOURED: "Toured",
+  OFFER_SUBMITTED: "Offer Submitted",
+  UNDER_CONTRACT: "Under Contract",
+  CLOSED: "Closed",
+  LOST: "Lost",
 };
 
 const STAGE_COLORS: Record<string, string> = {
-  NEW_LEAD: "bg-slate-100 text-slate-700",
-  CONTACTED: "bg-blue-100 text-blue-700",
-  NURTURE: "bg-purple-100 text-purple-700",
-  SQL: "bg-green-100 text-green-700",
-  TOUR_SCHEDULED: "bg-teal-100 text-teal-700",
-  TOUR_COMPLETED: "bg-emerald-100 text-emerald-700",
-  PROPOSAL_SENT: "bg-orange-100 text-orange-700",
-  CONTRACT_SIGNED: "bg-green-200 text-green-800",
-  IN_CONSTRUCTION: "bg-yellow-100 text-yellow-700",
-  CLOSED: "bg-gray-100 text-gray-700",
-  LOST: "bg-red-100 text-red-600",
+  NEW_INQUIRY: "bg-slate-100 text-slate-700",
+  QUALIFIED: "bg-blue-50 text-blue-700",
+  TOUR_SCHEDULED: "bg-teal-50 text-teal-700",
+  TOURED: "bg-emerald-50 text-emerald-700",
+  OFFER_SUBMITTED: "bg-amber-50 text-amber-700",
+  UNDER_CONTRACT: "bg-orange-50 text-orange-700",
+  CLOSED: "bg-green-50 text-green-700",
+  LOST: "bg-red-50 text-red-600",
 };
 
-function formatDate(d: Date | string | null | undefined) {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const SCORE_COLORS: Record<string, string> = {
+  HOT: "bg-red-50 text-red-700 border-red-200",
+  WARM: "bg-amber-50 text-amber-700 border-amber-200",
+  COLD: "bg-blue-50 text-blue-700 border-blue-200",
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatCurrency(n: number): string {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
+  return `$${n.toLocaleString()}`;
 }
 
-function formatTimeline(t: string | null | undefined) {
+function formatDate(d: Date | string | null | undefined): string {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function timeAgo(d: Date | string | null | undefined): string {
+  if (!d) return "never";
+  const ms = Date.now() - new Date(d).getTime();
+  const h = Math.floor(ms / 3_600_000);
+  if (h < 1) return "just now";
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+function formatTimeline(t: string | null | undefined): string {
   const map: Record<string, string> = {
     ASAP: "ASAP", "1_3_MONTHS": "1–3 mo", "3_6_MONTHS": "3–6 mo",
     "6_12_MONTHS": "6–12 mo", JUST_BROWSING: "Browsing",
@@ -58,135 +79,114 @@ function formatTimeline(t: string | null | undefined) {
   return t ? (map[t] ?? t) : "—";
 }
 
-// ─── Source Breakdown Chart ──────────────────────────────────────────────────
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
-const SOURCE_LABELS: Record<string, string> = {
-  WEBSITE: "Website",
-  ZILLOW: "Zillow",
-  MLS: "MLS",
-  REFERRAL: "Referral",
-  AGENT: "Agent",
-  BILLBOARD: "Billboard",
-  WALK_IN: "Walk-In",
-  OTHER: "Other",
-};
-
-const SOURCE_COLORS: Record<string, string> = {
-  WEBSITE: "#0f2044",
-  ZILLOW: "#006aff",
-  MLS: "#7c3aed",
-  REFERRAL: "#e07b39",
-  AGENT: "#059669",
-  BILLBOARD: "#dc2626",
-  WALK_IN: "#ca8a04",
-  OTHER: "#94a3b8",
-};
-
-function SourceChart({ sourceCounts }: { sourceCounts: { source: string; count: number }[] }) {
-  const total = sourceCounts.reduce((s, c) => s + c.count, 0);
-  const sorted = [...sourceCounts].sort((a, b) => b.count - a.count);
-
-  if (total === 0) {
-    return <p className="text-xs text-muted-foreground py-2">No leads yet.</p>;
-  }
-
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="space-y-2">
-      {sorted.map(({ source, count }) => {
-        const pct = Math.round((count / total) * 100);
-        const color = SOURCE_COLORS[source] ?? "#94a3b8";
-        return (
-          <div key={source} className="flex items-center gap-3">
-            <div className="w-20 text-xs text-muted-foreground text-right shrink-0">{SOURCE_LABELS[source] ?? source}</div>
-            <div className="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden">
-              <div
-                className="h-full rounded-md transition-all duration-500 flex items-center justify-end pr-2"
-                style={{ width: `${Math.max(pct, count > 0 ? 4 : 0)}%`, background: color }}
-              >
-                {count > 0 && <span className="text-[10px] font-bold text-white">{count}</span>}
-              </div>
-            </div>
-            <div className="text-xs text-muted-foreground w-8 text-right">{pct}%</div>
-          </div>
-        );
-      })}
-    </div>
+    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+      {children}
+    </p>
   );
 }
 
-// ─── UTM Source Chart ────────────────────────────────────────────────────────
-
-const UTM_COLORS = [
-  "#0f2044", "#1a3366", "#c8a96e", "#e07b39", "#059669",
-  "#7c3aed", "#dc2626", "#0284c7", "#ca8a04", "#94a3b8",
-];
-
-function UtmChart({ rows }: { rows: { utmSource: string | null; utmMedium: string | null; utmCampaign: string | null; count: number }[] }) {
-  // Roll up by source for the bar chart
-  const bySource: Record<string, number> = {};
-  for (const r of rows) {
-    const src = r.utmSource ?? "(direct)";
-    bySource[src] = (bySource[src] ?? 0) + r.count;
-  }
-  const sorted = Object.entries(bySource).sort((a, b) => b[1] - a[1]);
-  const total = sorted.reduce((s, [, c]) => s + c, 0);
-
-  if (total === 0) {
-    return <p className="text-xs text-muted-foreground py-2">No UTM-tagged leads yet. Start running ads with UTM parameters to see attribution here.</p>;
-  }
-
+function MetricCard({
+  label,
+  value,
+  sub,
+  accent,
+  loading,
+}: {
+  label: string;
+  value: string | number;
+  sub?: string;
+  accent?: string;
+  loading?: boolean;
+}) {
   return (
-    <div className="space-y-2">
-      {sorted.map(([src, count], i) => {
-        const pct = Math.round((count / total) * 100);
-        const color = UTM_COLORS[i % UTM_COLORS.length];
-        return (
-          <div key={src} className="flex items-center gap-3">
-            <div className="w-20 text-xs text-muted-foreground text-right shrink-0 truncate" title={src}>{src}</div>
-            <div className="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden">
-              <div
-                className="h-full rounded-md transition-all duration-500 flex items-center justify-end pr-2"
-                style={{ width: `${Math.max(pct, count > 0 ? 4 : 0)}%`, background: color }}
-              >
-                {count > 0 && <span className="text-[10px] font-bold text-white">{count}</span>}
-              </div>
-            </div>
-            <div className="text-xs text-muted-foreground w-8 text-right">{pct}%</div>
+    <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
+      <CardContent className="pt-5 pb-4 px-5">
+        {loading ? (
+          <div className="h-8 w-16 bg-slate-100 rounded animate-pulse mb-1" />
+        ) : (
+          <div
+            className="text-3xl font-black tracking-tight leading-none"
+            style={{ color: accent ?? "#0f2044" }}
+          >
+            {value}
           </div>
-        );
-      })}
-    </div>
+        )}
+        <div className="text-[13px] font-semibold text-slate-700 mt-1.5">{label}</div>
+        {sub && <div className="text-[11px] text-slate-400 mt-0.5">{sub}</div>}
+      </CardContent>
+    </Card>
   );
 }
 
-// ─── Funnel Bar Chart ─────────────────────────────────────────────────────────
-
-function FunnelChart({ stageCounts }: { stageCounts: { stage: string; count: number }[] }) {
-  const activeStages = STAGE_ORDER.filter(s => s !== "LOST" && s !== "IN_CONSTRUCTION" && s !== "CLOSED");
+function PipelineFunnel({ stageCounts }: { stageCounts: { stage: string; count: number }[] }) {
+  const activeStages = PIPELINE_STAGES.filter(s => s !== "LOST" && s !== "CLOSED");
   const countMap = Object.fromEntries(stageCounts.map(s => [s.stage, s.count]));
   const maxCount = Math.max(...activeStages.map(s => countMap[s] ?? 0), 1);
+  const totalActive = activeStages.reduce((sum, s) => sum + (countMap[s] ?? 0), 0);
 
   return (
-    <div className="space-y-2">
-      {activeStages.map((stage) => {
+    <div className="space-y-2.5">
+      {activeStages.map((stage, i) => {
         const count = countMap[stage] ?? 0;
         const pct = Math.round((count / maxCount) * 100);
+        const convPct = i === 0 || totalActive === 0 ? null :
+          Math.round((count / (countMap[activeStages[0]] || 1)) * 100);
         return (
           <div key={stage} className="flex items-center gap-3">
-            <div className="w-32 text-xs text-muted-foreground text-right shrink-0">{STAGE_LABELS[stage]}</div>
-            <div className="flex-1 h-6 bg-slate-100 rounded-md overflow-hidden">
+            <div className="w-28 text-[11px] text-slate-500 text-right shrink-0 font-medium">
+              {STAGE_LABELS[stage]}
+            </div>
+            <div className="flex-1 h-5 bg-slate-50 rounded-md overflow-hidden border border-slate-100">
               <div
-                className="h-full bg-[#0f2044] rounded-md transition-all duration-500 flex items-center justify-end pr-2"
-                style={{ width: `${Math.max(pct, count > 0 ? 4 : 0)}%` }}
+                className="h-full rounded-md transition-all duration-500 flex items-center justify-end pr-2"
+                style={{
+                  width: `${Math.max(pct, count > 0 ? 6 : 0)}%`,
+                  background: "#0f2044",
+                  opacity: 0.85 - i * 0.08,
+                }}
               >
-                {count > 0 && <span className="text-[10px] font-bold text-white">{count}</span>}
+                {count > 0 && (
+                  <span className="text-[10px] font-bold text-white">{count}</span>
+                )}
               </div>
             </div>
-            {count === 0 && <span className="text-xs text-muted-foreground w-4">0</span>}
+            <div className="text-[10px] text-slate-400 w-10 text-right shrink-0">
+              {convPct !== null ? `${convPct}%` : ""}
+            </div>
           </div>
         );
       })}
     </div>
+  );
+}
+
+function ActivityIcon({ type }: { type: string }) {
+  const icons: Record<string, string> = {
+    FORM_SUBMITTED: "●",
+    STAGE_CHANGE: "→",
+    NOTE_ADDED: "✎",
+    EMAIL_SENT: "✉",
+    CALL_LOGGED: "☎",
+    TOUR_SCHEDULED: "◈",
+    SCORE_UPDATED: "◆",
+  };
+  const colors: Record<string, string> = {
+    FORM_SUBMITTED: "text-blue-500",
+    STAGE_CHANGE: "text-amber-500",
+    NOTE_ADDED: "text-slate-400",
+    EMAIL_SENT: "text-emerald-500",
+    CALL_LOGGED: "text-violet-500",
+    TOUR_SCHEDULED: "text-teal-500",
+    SCORE_UPDATED: "text-orange-500",
+  };
+  return (
+    <span className={`text-[10px] font-bold ${colors[type] ?? "text-slate-400"}`}>
+      {icons[type] ?? "·"}
+    </span>
   );
 }
 
@@ -196,71 +196,43 @@ export default function SCOPSDashboard() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
   const loading = adminMeQuery.isLoading;
+
   const [, setLocation] = useLocation();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("ALL");
   const [scoreFilter, setScoreFilter] = useState<string>("ALL");
-  const [typeFilter, setTypeFilter] = useState<string>("ALL");
-  const [sourcePeriod, setSourcePeriod] = useState<"7d" | "30d" | "all">("all");
-  const [trafficPeriod, setTrafficPeriod] = useState<"7d" | "30d" | "month" | "6mo" | "12mo">("30d");
-  const [utmPeriod, setUtmPeriod] = useState<"7d" | "30d" | "all">("all");
 
-  const statsQuery = trpc.leads.dashboardStats.useQuery({ sourcePeriod });
-  const trafficQuery = trpc.analytics.trafficStats.useQuery({ period: trafficPeriod });
-  const utmQuery = trpc.leads.utmStats.useQuery({ period: utmPeriod });
+  // Data queries
+  const dashboardQuery = trpc.dashboard.overview.useQuery();
+  const statsQuery = trpc.leads.dashboardStats.useQuery({ sourcePeriod: "all" });
   const contactsQuery = trpc.leads.list.useQuery({
     pipelineStage: stageFilter !== "ALL" ? stageFilter as any : undefined,
-    contactType: typeFilter !== "ALL" ? typeFilter as any : undefined,
     leadScore: scoreFilter !== "ALL" ? scoreFilter as any : undefined,
   });
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="text-sm text-muted-foreground">Loading…</div>
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="text-sm text-slate-400">Loading…</div>
       </div>
     );
   }
 
   if (!adminUser) {
-    // Redirect to admin login
     window.location.href = "/admin-login";
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="text-sm text-muted-foreground">Redirecting to login…</div>
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="text-sm text-slate-400">Redirecting…</div>
       </div>
     );
   }
 
   const contacts = contactsQuery.data ?? [];
-  const stats = statsQuery.data;
-  const stageCounts = stats?.stageCounts ?? [];
-  const newLeadsThisWeek = stats?.newLeadsThisWeek ?? 0;
-  const sourceCounts = stats?.sourceCounts ?? [];
-  const traffic = trafficQuery.data;
+  const dash = dashboardQuery.data;
+  const stageCounts = statsQuery.data?.stageCounts ?? [];
 
-  // Derived stats
-  const totalActive = contacts.filter(c => !["LOST","CLOSED"].includes(c.pipelineStage)).length;
-  const hotLeads = contacts.filter(c => c.leadScore === "HOT").length;
-  const toursScheduled = contacts.filter(c => c.pipelineStage === "TOUR_SCHEDULED").length;
-  const contractsSigned = contacts.filter(c => c.pipelineStage === "CONTRACT_SIGNED").length;
-
-  // Derived web KPIs
-  const formConversionRate =
-    traffic?.visitors && traffic.visitors > 0
-      ? ((newLeadsThisWeek / traffic.visitors) * 100).toFixed(1)
-      : null;
-
-  // Format avg visit duration (seconds → m:ss)
-  function fmtDuration(secs: number | null | undefined) {
-    if (secs == null) return "—";
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m}m ${s}s`;
-  }
-
-  // Search filter (client-side)
+  // Derived
   const filtered = contacts.filter(c => {
     if (!search) return true;
     const q = search.toLowerCase();
@@ -275,43 +247,80 @@ export default function SCOPSDashboard() {
     return <LeadDetail id={selectedId} onBack={() => setSelectedId(null)} />;
   }
 
+  const inv = dash?.inventoryStats;
+  const forecast = dash?.revenueForecast;
+  const atRisk = dash?.dealsAtRisk ?? [];
+  const inventoryHealth = dash?.inventoryHealth ?? [];
+  const sourcePerf = dash?.sourcePerformance ?? [];
+  const activity = dash?.recentActivity ?? [];
+
+  // Slow-moving: DOM > 60 days
+  const slowMoving = inventoryHealth.filter(p => p.dom > 60).slice(0, 5);
+  // Low activity: 0 leads
+  const lowActivity = inventoryHealth.filter(p => p.leadCount === 0).slice(0, 5);
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
+    <div className="min-h-screen bg-white">
       <SCOPSNav adminUser={adminUser} currentPage="dashboard" />
 
-      <div className="px-6 py-6 max-w-screen-2xl mx-auto space-y-6">
-        {/* CRM KPI Cards */}
+      <div className="px-6 py-6 max-w-screen-2xl mx-auto space-y-8">
+
+        {/* ── Row 1: Top KPI Cards ─────────────────────────────────────── */}
         <div>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Pipeline</p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { label: "New This Week", value: newLeadsThisWeek, sub: "leads captured" },
-              { label: "Active Pipeline", value: totalActive, sub: "open contacts" },
-              { label: "Hot Leads", value: hotLeads, sub: "ASAP + pre-approved" },
-              { label: "Tours Scheduled", value: toursScheduled, sub: "upcoming visits" },
-            ].map(({ label, value, sub }) => (
-              <Card key={label} className="border-0 shadow-sm">
-                <CardContent className="pt-5 pb-4">
-                  <div className="text-3xl font-black text-[#0f2044]">{value}</div>
-                  <div className="text-sm font-semibold mt-1">{label}</div>
-                  <div className="text-xs text-muted-foreground">{sub}</div>
-                </CardContent>
-              </Card>
-            ))}
+          <SectionLabel>Inventory &amp; Revenue</SectionLabel>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <MetricCard
+              label="Units Available"
+              value={inv?.available ?? "—"}
+              sub="active listings"
+              loading={dashboardQuery.isLoading}
+            />
+            <MetricCard
+              label="Under Contract"
+              value={inv?.underContract ?? "—"}
+              sub="pending close"
+              accent="#c8a96e"
+              loading={dashboardQuery.isLoading}
+            />
+            <MetricCard
+              label="Sold (30d)"
+              value={inv?.soldLast30 ?? "—"}
+              sub="units closed"
+              accent="#059669"
+              loading={dashboardQuery.isLoading}
+            />
+            <MetricCard
+              label="Revenue MTD"
+              value={inv ? formatCurrency(inv.revenueMtd) : "—"}
+              sub="month to date"
+              accent="#0f2044"
+              loading={dashboardQuery.isLoading}
+            />
+            <MetricCard
+              label="Tours This Week"
+              value={dash?.toursThisWeek ?? "—"}
+              sub="scheduled"
+              loading={dashboardQuery.isLoading}
+            />
+            <MetricCard
+              label="Absorption Rate"
+              value={dash?.absorptionRate != null ? `${dash.absorptionRate}%` : "—"}
+              sub="30-day rate"
+              loading={dashboardQuery.isLoading}
+            />
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* ── Row 2: Quick Actions ─────────────────────────────────────── */}
         <div>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Quick Actions</p>
+          <SectionLabel>Quick Actions</SectionLabel>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
               {
                 label: "New Blog Post",
                 description: "Write & publish content",
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                   </svg>
                 ),
@@ -322,7 +331,7 @@ export default function SCOPSDashboard() {
                 label: "Add Lead",
                 description: "Create a new CRM contact",
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
                   </svg>
                 ),
@@ -333,7 +342,7 @@ export default function SCOPSDashboard() {
                 label: "Schedule Tour",
                 description: "Book a site visit",
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                   </svg>
                 ),
@@ -344,7 +353,7 @@ export default function SCOPSDashboard() {
                 label: "View Properties",
                 description: "Manage listings",
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
                   </svg>
                 ),
@@ -355,7 +364,7 @@ export default function SCOPSDashboard() {
                 label: "UTM Builder",
                 description: "Generate tracking links",
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
                   </svg>
                 ),
@@ -366,384 +375,411 @@ export default function SCOPSDashboard() {
               <button
                 key={label}
                 onClick={() => setLocation(href)}
-                className="group text-left bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:shadow-md hover:border-slate-200 transition-all duration-200 cursor-pointer"
+                className="group text-left bg-white rounded-xl border border-slate-100 p-4 hover:border-slate-200 hover:shadow-sm transition-all duration-150 cursor-pointer"
               >
                 <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center mb-3 transition-transform group-hover:scale-110"
-                  style={{ background: `${accent}15`, color: accent }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
+                  style={{ background: `${accent}12`, color: accent }}
                 >
                   {icon}
                 </div>
-                <div className="text-sm font-bold text-[#0d1b2a] leading-tight">{label}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{description}</div>
+                <div className="text-[13px] font-bold text-slate-800 leading-tight">{label}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">{description}</div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Web Traffic Section */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Website Traffic</p>
-            <div className="flex items-center gap-2">
-              {traffic?.configured === false && (
-                <span className="text-xs text-amber-600 font-medium bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                  Plausible API key not configured
-                </span>
-              )}
-              {traffic?.configured === true && (
-                <a
-                  href="https://plausible.io/apollohomebuilders.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#0f2044] font-semibold hover:underline"
-                >
-                  Open Plausible ↗
-                </a>
-              )}
-              <div className="flex gap-1">
-                {(["7d", "30d", "month", "6mo", "12mo"] as const).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setTrafficPeriod(p)}
-                    className={`text-[10px] px-2 py-0.5 rounded font-semibold transition-colors ${
-                      trafficPeriod === p
-                        ? "bg-[#0f2044] text-white"
-                        : "bg-slate-100 text-muted-foreground hover:bg-slate-200"
-                    }`}
-                  >
-                    {p === "month" ? "Mo" : p}
-                  </button>
-                ))}
-              </div>
-            </div>
+        {/* ── Row 3: Deals at Risk ─────────────────────────────────────── */}
+        {atRisk.length > 0 && (
+          <div>
+            <SectionLabel>Deals at Risk</SectionLabel>
+            <Card className="bg-white border border-red-100 shadow-none rounded-2xl">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-red-50">
+                        {["Lead", "Stage", "Issue", "Action"].map(h => (
+                          <th key={h} className="text-left text-[10px] font-bold text-red-400 uppercase tracking-wider px-5 py-3">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {atRisk.map((r) => (
+                        <tr key={r.id} className="border-b border-red-50 last:border-0 hover:bg-red-50/40 transition-colors">
+                          <td className="px-5 py-3">
+                            <span className="font-semibold text-slate-800 text-[13px]">{r.name}</span>
+                          </td>
+                          <td className="px-5 py-3">
+                            <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${STAGE_COLORS[r.stage]}`}>
+                              {STAGE_LABELS[r.stage]}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3">
+                            <span className="text-[12px] text-red-600 font-medium">{r.issue}</span>
+                          </td>
+                          <td className="px-5 py-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-[11px] text-[#0f2044] hover:bg-[#0f2044]/8 font-semibold"
+                              onClick={() => setSelectedId(r.id)}
+                            >
+                              View →
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
+        )}
 
-          {/* KPI Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
-            {[
-              { label: "Unique Visitors", value: traffic?.visitors, fmt: (v: number) => v.toLocaleString() },
-              { label: "Pageviews", value: traffic?.pageviews, fmt: (v: number) => v.toLocaleString() },
-              { label: "Bounce Rate", value: traffic?.bounceRate, fmt: (v: number) => `${v}%` },
-              { label: "Avg Visit", value: traffic?.avgVisitDuration, fmt: (v: number) => fmtDuration(v) },
-              { label: "Form Conversion", value: formConversionRate != null ? parseFloat(formConversionRate) : null, fmt: (v: number) => `${v}%` },
-            ].map(({ label, value, fmt }) => (
-              <Card key={label} className="border-0 shadow-sm">
-                <CardContent className="pt-4 pb-3">
-                  {trafficQuery.isLoading ? (
-                    <div className="text-2xl font-black text-slate-200 animate-pulse">—</div>
-                  ) : (
-                    <div className="text-2xl font-black text-[#0f2044]">
-                      {value != null ? fmt(value as number) : "—"}
-                    </div>
-                  )}
-                  <div className="text-xs font-semibold mt-1">{label}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+        {/* ── Row 4: Pipeline + Revenue Forecast ──────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Pipeline Funnel */}
+          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
+            <CardHeader className="pb-3 pt-5 px-5">
+              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                Pipeline Funnel
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              {statsQuery.isLoading ? (
+                <div className="text-sm text-slate-400 py-4">Loading…</div>
+              ) : (
+                <PipelineFunnel stageCounts={stageCounts} />
+              )}
+            </CardContent>
+          </Card>
 
-          {/* Timeseries sparkline + Top Pages + Top Sources */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Timeseries */}
-            <Card className="lg:col-span-1 border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Daily Visitors</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {trafficQuery.isLoading ? (
-                  <div className="text-xs text-muted-foreground py-4">Loading…</div>
-                ) : !traffic?.timeseries?.length ? (
-                  <div className="text-xs text-muted-foreground py-4">No data</div>
-                ) : (
-                  <div className="flex items-end gap-0.5 h-24">
-                    {traffic.timeseries.map((d) => {
-                      const max = Math.max(...traffic.timeseries!.map(x => x.visitors), 1);
-                      const pct = Math.max((d.visitors / max) * 100, 2);
-                      return (
-                        <div key={d.date} className="flex-1 flex flex-col items-center gap-0.5" title={`${d.date}: ${d.visitors} visitors`}>
+          {/* Revenue Forecast */}
+          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
+            <CardHeader className="pb-3 pt-5 px-5">
+              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                Revenue Forecast
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              {dashboardQuery.isLoading ? (
+                <div className="text-sm text-slate-400 py-4">Loading…</div>
+              ) : !forecast || (forecast.days30 === 0 && forecast.days60 === 0 && forecast.days90 === 0) ? (
+                <div className="text-[12px] text-slate-400 py-4">
+                  No active deals with expected close dates. Create deals in the Pipeline to see forecasts.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {[
+                    { label: "30-Day Forecast", value: forecast.days30, desc: "closing within 30 days" },
+                    { label: "60-Day Forecast", value: forecast.days60, desc: "closing in 31–60 days" },
+                    { label: "90-Day Forecast", value: forecast.days90, desc: "closing in 61–90 days" },
+                  ].map(({ label, value, desc }) => {
+                    const maxVal = Math.max(forecast.days30, forecast.days60, forecast.days90, 1);
+                    const pct = Math.round((value / maxVal) * 100);
+                    return (
+                      <div key={label}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[12px] font-semibold text-slate-700">{label}</span>
+                          <span className="text-[13px] font-black text-[#0f2044]">
+                            {value > 0 ? formatCurrency(value) : "—"}
+                          </span>
+                        </div>
+                        <div className="h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
                           <div
-                            className="w-full rounded-sm bg-[#0f2044] opacity-80 hover:opacity-100 transition-opacity"
-                            style={{ height: `${pct}%` }}
+                            className="h-full bg-[#0f2044] rounded-full transition-all duration-500"
+                            style={{ width: `${Math.max(pct, value > 0 ? 4 : 0)}%` }}
                           />
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Top Pages */}
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Top Pages</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1.5">
-                {trafficQuery.isLoading ? (
-                  <div className="text-xs text-muted-foreground py-4">Loading…</div>
-                ) : !traffic?.topPages?.length ? (
-                  <div className="text-xs text-muted-foreground py-4">No data</div>
-                ) : (
-                  traffic.topPages.slice(0, 8).map((p) => (
-                    <div key={p.page} className="flex items-center justify-between gap-2">
-                      <span className="text-xs text-muted-foreground truncate flex-1" title={p.page}>
-                        {p.page === "/" ? "Home" : p.page.replace(/^\//,"")}
-                      </span>
-                      <span className="text-xs font-bold text-[#0f2044] shrink-0">{p.visitors.toLocaleString()}</span>
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Top Sources */}
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Top Sources</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1.5">
-                {trafficQuery.isLoading ? (
-                  <div className="text-xs text-muted-foreground py-4">Loading…</div>
-                ) : !traffic?.topSources?.length ? (
-                  <div className="text-xs text-muted-foreground py-4">No data</div>
-                ) : (
-                  (() => {
-                    const total = traffic.topSources.reduce((s, x) => s + x.visitors, 0);
-                    return traffic.topSources.slice(0, 8).map((s) => {
-                      const pct = total > 0 ? Math.round((s.visitors / total) * 100) : 0;
-                      return (
-                        <div key={s.source} className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground w-24 truncate shrink-0">{s.source || "Direct"}</span>
-                          <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-[#0f2044] rounded-full"
-                              style={{ width: `${Math.max(pct, 2)}%` }}
-                            />
-                          </div>
-                          <span className="text-xs font-bold text-[#0f2044] w-8 text-right shrink-0">{s.visitors}</span>
-                        </div>
-                      );
-                    });
-                  })()
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Funnel + Source + Stage */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <Card className="lg:col-span-1 border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">Pipeline Funnel</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {statsQuery.isLoading ? (
-                <div className="text-sm text-muted-foreground py-4">Loading…</div>
-              ) : (
-                <FunnelChart stageCounts={stageCounts} />
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="lg:col-span-1 border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">Lead Source</CardTitle>
-                <div className="flex gap-1">
-                  {(["7d", "30d", "all"] as const).map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setSourcePeriod(p)}
-                      className={`text-[10px] px-2 py-0.5 rounded font-semibold transition-colors ${
-                        sourcePeriod === p
-                          ? "bg-[#0f2044] text-white"
-                          : "bg-slate-100 text-muted-foreground hover:bg-slate-200"
-                      }`}
-                    >
-                      {p === "all" ? "All" : p}
-                    </button>
-                  ))}
+                        <p className="text-[10px] text-slate-400 mt-1">{desc}</p>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {statsQuery.isLoading ? (
-                <div className="text-sm text-muted-foreground py-4">Loading…</div>
-              ) : (
-                <SourceChart sourceCounts={sourceCounts} />
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="lg:col-span-1 border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">Ad Attribution</CardTitle>
-                <div className="flex gap-1">
-                  {(["7d", "30d", "all"] as const).map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setUtmPeriod(p)}
-                      className={`text-[10px] px-2 py-0.5 rounded font-semibold transition-colors ${
-                        utmPeriod === p
-                          ? "bg-[#0f2044] text-white"
-                          : "bg-slate-100 text-muted-foreground hover:bg-slate-200"
-                      }`}
-                    >
-                      {p === "all" ? "All" : p}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {utmQuery.isLoading ? (
-                <div className="text-sm text-muted-foreground py-4">Loading…</div>
-              ) : (
-                <UtmChart rows={utmQuery.data ?? []} />
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">Stage Breakdown</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {STAGE_ORDER.map(stage => {
-                const count = stageCounts.find(s => s.stage === stage)?.count ?? 0;
-                if (count === 0) return null;
-                return (
-                  <div key={stage} className="flex items-center justify-between">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STAGE_COLORS[stage]}`}>
-                      {STAGE_LABELS[stage]}
-                    </span>
-                    <span className="text-sm font-bold text-[#0f2044]">{count}</span>
-                  </div>
-                );
-              })}
-              {stageCounts.length === 0 && (
-                <p className="text-xs text-muted-foreground py-2">No contacts yet.</p>
               )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Contacts Table */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">
-                Contacts ({filtered.length})
+        {/* ── Row 5: Source Performance + Activity Feed ────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Source Performance */}
+          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
+            <CardHeader className="pb-3 pt-5 px-5">
+              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                Source Performance
               </CardTitle>
-              <div className="flex flex-wrap gap-2">
-                <Input
-                  placeholder="Search name, email, phone…"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="h-8 text-xs w-48"
-                />
-                <Select value={stageFilter} onValueChange={setStageFilter}>
-                  <SelectTrigger className="h-8 text-xs w-36">
-                    <SelectValue placeholder="All Stages" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ALL">All Stages</SelectItem>
-                    {STAGE_ORDER.map(s => <SelectItem key={s} value={s}>{STAGE_LABELS[s]}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                  <SelectTrigger className="h-8 text-xs w-28">
-                    <SelectValue placeholder="All Scores" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ALL">All Scores</SelectItem>
-                    <SelectItem value="HOT">🔥 Hot</SelectItem>
-                    <SelectItem value="WARM">🌤 Warm</SelectItem>
-                    <SelectItem value="COLD">❄️ Cold</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="h-8 text-xs w-28">
-                    <SelectValue placeholder="All Types" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ALL">All Types</SelectItem>
-                    <SelectItem value="BUYER">Buyer</SelectItem>
-                    <SelectItem value="AGENT">Agent</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {contactsQuery.isLoading ? (
-              <div className="text-sm text-muted-foreground p-6">Loading contacts…</div>
-            ) : filtered.length === 0 ? (
-              <div className="text-sm text-muted-foreground p-6 text-center">
-                {contacts.length === 0 ? "No contacts yet. Submit the website form to create the first lead." : "No contacts match the current filters."}
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b bg-slate-50">
-                      {["Name", "Type", "Stage", "Score", "Timeline", "Source", "Created", ""].map(h => (
-                        <th key={h} className="text-left text-xs font-semibold text-muted-foreground px-4 py-2.5 whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((c, i) => (
-                      <tr
-                        key={c.id}
-                        className={`border-b last:border-0 hover:bg-slate-50 cursor-pointer transition-colors ${i % 2 === 0 ? "" : "bg-slate-50/50"}`}
-                        onClick={() => setSelectedId(c.id)}
-                      >
-                        <td className="px-4 py-3">
-                          <div className="font-semibold text-[#0f2044]">{c.firstName} {c.lastName}</div>
-                          <div className="text-xs text-muted-foreground">{c.email}</div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${c.contactType === "BUYER" ? "bg-blue-50 text-blue-700" : "bg-violet-50 text-violet-700"}`}>
-                            {c.contactType === "BUYER" ? "Buyer" : "Agent"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STAGE_COLORS[c.pipelineStage]}`}>
-                            {STAGE_LABELS[c.pipelineStage]}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          {c.leadScore ? (
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-bold border ${SCORE_COLORS[c.leadScore]}`}>
-                              {c.leadScore}
-                            </span>
-                          ) : <span className="text-muted-foreground text-xs">—</span>}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">{formatTimeline(c.timeline)}</td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">{c.source}</td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{formatDate(c.createdAt)}</td>
-                        <td className="px-4 py-3">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs text-[#0f2044] hover:bg-[#0f2044]/10"
-                            onClick={e => { e.stopPropagation(); setSelectedId(c.id); }}
-                          >
-                            View →
-                          </Button>
-                        </td>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              {dashboardQuery.isLoading ? (
+                <div className="text-sm text-slate-400 py-4">Loading…</div>
+              ) : sourcePerf.length === 0 ? (
+                <div className="text-[12px] text-slate-400 py-4">No leads yet.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[12px]">
+                    <thead>
+                      <tr className="border-b border-slate-100">
+                        {["Source", "Leads", "Tours", "Contracts"].map(h => (
+                          <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-2 pr-3">
+                            {h}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {sourcePerf.filter(s => s.leads > 0).map(s => (
+                        <tr key={s.source} className="border-b border-slate-50 last:border-0">
+                          <td className="py-2.5 pr-3 font-semibold text-slate-700">{s.label}</td>
+                          <td className="py-2.5 pr-3 font-black text-[#0f2044]">{s.leads}</td>
+                          <td className="py-2.5 pr-3 text-slate-600">{s.tours}</td>
+                          <td className="py-2.5 font-semibold text-emerald-700">{s.contracts}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Activity Feed */}
+          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
+            <CardHeader className="pb-3 pt-5 px-5">
+              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                Activity Feed
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              {dashboardQuery.isLoading ? (
+                <div className="text-sm text-slate-400 py-4">Loading…</div>
+              ) : activity.length === 0 ? (
+                <div className="text-[12px] text-slate-400 py-4">No activity yet.</div>
+              ) : (
+                <div className="space-y-2.5">
+                  {activity.map(a => (
+                    <div key={a.id} className="flex items-start gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 mt-0.5">
+                        <ActivityIcon type={a.activityType} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] text-slate-700 leading-snug truncate">
+                          {a.firstName && a.lastName && (
+                            <span className="font-semibold text-slate-800">
+                              {a.firstName} {a.lastName} —{" "}
+                            </span>
+                          )}
+                          {a.description}
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">
+                          {timeAgo(a.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ── Row 6: Inventory Health ──────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Slow Moving */}
+          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
+            <CardHeader className="pb-3 pt-5 px-5">
+              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                Slow Moving (60+ DOM)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              {dashboardQuery.isLoading ? (
+                <div className="text-sm text-slate-400 py-4">Loading…</div>
+              ) : slowMoving.length === 0 ? (
+                <div className="text-[12px] text-slate-400 py-4">No properties over 60 days on market.</div>
+              ) : (
+                <div className="space-y-2">
+                  {slowMoving.map(p => (
+                    <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-semibold text-slate-800 truncate">{p.address}</div>
+                        <div className="text-[11px] text-slate-400">{p.price}</div>
+                      </div>
+                      <div className="flex items-center gap-4 shrink-0 ml-4">
+                        <div className="text-right">
+                          <div className="text-[11px] font-black text-amber-600">{p.dom}d</div>
+                          <div className="text-[10px] text-slate-400">DOM</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-[11px] font-bold text-slate-700">{p.leadCount}</div>
+                          <div className="text-[10px] text-slate-400">leads</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Low Activity */}
+          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
+            <CardHeader className="pb-3 pt-5 px-5">
+              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                Low Activity Listings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              {dashboardQuery.isLoading ? (
+                <div className="text-sm text-slate-400 py-4">Loading…</div>
+              ) : lowActivity.length === 0 ? (
+                <div className="text-[12px] text-slate-400 py-4">All listings have active leads.</div>
+              ) : (
+                <div className="space-y-2">
+                  {lowActivity.map(p => (
+                    <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-semibold text-slate-800 truncate">{p.address}</div>
+                        <div className="text-[11px] text-slate-400">{p.price}</div>
+                      </div>
+                      <div className="flex items-center gap-4 shrink-0 ml-4">
+                        <div className="text-right">
+                          <div className="text-[11px] font-black text-slate-500">{p.dom}d</div>
+                          <div className="text-[10px] text-slate-400">DOM</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-[11px] font-bold text-red-500">0</div>
+                          <div className="text-[10px] text-slate-400">leads</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ── Row 7: Active Pipeline Table ─────────────────────────────── */}
+        <div>
+          <SectionLabel>Active Pipeline</SectionLabel>
+          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
+            <CardHeader className="pb-3 pt-5 px-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                  {filtered.length} contacts
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Input
+                    placeholder="Search name, email, phone…"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="h-8 text-xs w-44 border-slate-200 bg-white"
+                  />
+                  <Select value={stageFilter} onValueChange={setStageFilter}>
+                    <SelectTrigger className="h-8 text-xs w-36 border-slate-200">
+                      <SelectValue placeholder="All Stages" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">All Stages</SelectItem>
+                      {PIPELINE_STAGES.map(s => (
+                        <SelectItem key={s} value={s}>{STAGE_LABELS[s]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={scoreFilter} onValueChange={setScoreFilter}>
+                    <SelectTrigger className="h-8 text-xs w-28 border-slate-200">
+                      <SelectValue placeholder="All Scores" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">All Scores</SelectItem>
+                      <SelectItem value="HOT">Hot</SelectItem>
+                      <SelectItem value="WARM">Warm</SelectItem>
+                      <SelectItem value="COLD">Cold</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent className="p-0">
+              {contactsQuery.isLoading ? (
+                <div className="text-sm text-slate-400 p-6">Loading contacts…</div>
+              ) : filtered.length === 0 ? (
+                <div className="text-sm text-slate-400 p-6 text-center">
+                  {contacts.length === 0
+                    ? "No contacts yet. Submit the website form to create the first lead."
+                    : "No contacts match the current filters."}
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[12px]">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50">
+                        {["Name", "Stage", "Score", "Primary Property", "Timeline", "Last Activity", "Next Action", ""].map(h => (
+                          <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-5 py-3 whitespace-nowrap">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((c) => (
+                        <tr
+                          key={c.id}
+                          className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60 cursor-pointer transition-colors"
+                          onClick={() => setSelectedId(c.id)}
+                        >
+                          <td className="px-5 py-3">
+                            <div className="font-semibold text-slate-800">{c.firstName} {c.lastName}</div>
+                            <div className="text-[11px] text-slate-400">{c.email}</div>
+                          </td>
+                          <td className="px-5 py-3">
+                            <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${STAGE_COLORS[c.pipelineStage]}`}>
+                              {STAGE_LABELS[c.pipelineStage]}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3">
+                            {c.leadScore ? (
+                              <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold border ${SCORE_COLORS[c.leadScore]}`}>
+                                {c.leadScore}
+                              </span>
+                            ) : <span className="text-slate-300">—</span>}
+                          </td>
+                          <td className="px-5 py-3 text-slate-500">
+                            {(c as any).primaryPropertyId ? `#${(c as any).primaryPropertyId}` : "—"}
+                          </td>
+                          <td className="px-5 py-3 text-slate-500">{formatTimeline(c.timeline)}</td>
+                          <td className="px-5 py-3 text-slate-400">
+                            {timeAgo((c as any).lastContactedAt ?? c.updatedAt)}
+                          </td>
+                          <td className="px-5 py-3 text-slate-500 max-w-[160px] truncate">
+                            {(c as any).nextAction ?? "—"}
+                          </td>
+                          <td className="px-5 py-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-[11px] text-[#0f2044] hover:bg-[#0f2044]/8 font-semibold"
+                              onClick={e => { e.stopPropagation(); setSelectedId(c.id); }}
+                            >
+                              View →
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
       </div>
     </div>
   );

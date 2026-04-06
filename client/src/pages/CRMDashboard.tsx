@@ -12,16 +12,16 @@ import LeadDetail from "./LeadDetail";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STAGE_ORDER = [
-  "NEW_LEAD", "CONTACTED", "NURTURE", "SQL",
-  "TOUR_SCHEDULED", "TOUR_COMPLETED", "PROPOSAL_SENT",
-  "CONTRACT_SIGNED", "IN_CONSTRUCTION", "CLOSED", "LOST",
+  "NEW_INQUIRY", "QUALIFIED",
+  "TOUR_SCHEDULED", "TOURED",
+  "OFFER_SUBMITTED", "UNDER_CONTRACT", "CLOSED", "LOST",
 ] as const;
 
 const STAGE_LABELS: Record<string, string> = {
-  NEW_LEAD: "New Lead", CONTACTED: "Contacted", NURTURE: "Nurturing",
-  SQL: "SQL", TOUR_SCHEDULED: "Tour Scheduled", TOUR_COMPLETED: "Tour Completed",
-  PROPOSAL_SENT: "Proposal Sent", CONTRACT_SIGNED: "Contract Signed",
-  IN_CONSTRUCTION: "In Construction", CLOSED: "Closed", LOST: "Lost",
+  NEW_INQUIRY: "New Inquiry", QUALIFIED: "Qualified",
+  TOUR_SCHEDULED: "Tour Scheduled", TOURED: "Toured",
+  OFFER_SUBMITTED: "Offer Submitted", UNDER_CONTRACT: "Under Contract",
+  CLOSED: "Closed", LOST: "Lost",
 };
 
 const SCORE_COLORS: Record<string, string> = {
@@ -31,15 +31,12 @@ const SCORE_COLORS: Record<string, string> = {
 };
 
 const STAGE_COLORS: Record<string, string> = {
-  NEW_LEAD: "bg-slate-100 text-slate-700",
-  CONTACTED: "bg-blue-100 text-blue-700",
-  NURTURE: "bg-purple-100 text-purple-700",
-  SQL: "bg-green-100 text-green-700",
+  NEW_INQUIRY: "bg-slate-100 text-slate-700",
+  QUALIFIED: "bg-blue-100 text-blue-700",
   TOUR_SCHEDULED: "bg-teal-100 text-teal-700",
-  TOUR_COMPLETED: "bg-emerald-100 text-emerald-700",
-  PROPOSAL_SENT: "bg-orange-100 text-orange-700",
-  CONTRACT_SIGNED: "bg-green-200 text-green-800",
-  IN_CONSTRUCTION: "bg-yellow-100 text-yellow-700",
+  TOURED: "bg-emerald-100 text-emerald-700",
+  OFFER_SUBMITTED: "bg-orange-100 text-orange-700",
+  UNDER_CONTRACT: "bg-green-200 text-green-800",
   CLOSED: "bg-gray-100 text-gray-700",
   LOST: "bg-red-100 text-red-600",
 };
@@ -161,7 +158,7 @@ function UtmChart({ rows }: { rows: { utmSource: string | null; utmMedium: strin
 // ─── Funnel Bar Chart ─────────────────────────────────────────────────────────
 
 function FunnelChart({ stageCounts }: { stageCounts: { stage: string; count: number }[] }) {
-  const activeStages = STAGE_ORDER.filter(s => s !== "LOST" && s !== "IN_CONSTRUCTION" && s !== "CLOSED");
+  const activeStages = STAGE_ORDER.filter(s => s !== "LOST" && s !== "CLOSED");
   const countMap = Object.fromEntries(stageCounts.map(s => [s.stage, s.count]));
   const maxCount = Math.max(...activeStages.map(s => countMap[s] ?? 0), 1);
 
@@ -245,7 +242,7 @@ export default function CRMDashboard() {
   const totalActive = contacts.filter(c => !["LOST","CLOSED"].includes(c.pipelineStage)).length;
   const hotLeads = contacts.filter(c => c.leadScore === "HOT").length;
   const toursScheduled = contacts.filter(c => c.pipelineStage === "TOUR_SCHEDULED").length;
-  const contractsSigned = contacts.filter(c => c.pipelineStage === "CONTRACT_SIGNED").length;
+  const contractsSigned = contacts.filter(c => c.pipelineStage === "UNDER_CONTRACT").length;
 
   // Derived web KPIs
   const formConversionRate =
