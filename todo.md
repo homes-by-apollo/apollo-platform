@@ -482,3 +482,17 @@
 - [x] Wire add/change-password forms to new tRPC procedures (no env vars, no manual hashing)
 - [ ] Update forgot-password and reset-password flows to use DB tokens
 - [x] Run all tests and confirm 35 pass (8 test files)
+
+## Auth Fix — Cookie Parser (Current Session)
+- [x] Identified root cause: req.cookies was undefined because cookie-parser middleware was missing
+- [x] Installed cookie-parser package
+- [x] Added app.use(cookieParser()) to server/_core/index.ts
+- [x] Verified all three admin logins work: kyle, brandon, jonathan with Pahrump2026!$#
+- [x] All 35 tests passing (8 test files)
+
+## Auth Fix — Cookie Parser (Current Session)
+- [x] Identified root cause: req.cookies was undefined because cookie-parser middleware was missing
+- [x] Installed cookie-parser package
+- [x] Added app.use(cookieParser()) to server/_core/index.ts
+- [x] Verified all three admin logins work: kyle, brandon, jonathan with Pahrump2026}#
+- [x] All 35 tests passing (8 test files)
