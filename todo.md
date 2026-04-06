@@ -581,3 +581,8 @@
 - [x] Add OG meta tags (og:title, og:description, og:image, og:url, twitter:card) to blog post detail page
 - [x] Add Share button to blog post detail page: copy-to-clipboard URL, LinkedIn share link, X share link
 - [x] Add blog post creation shortcut to SCOPS home dashboard
+
+## Blog Editor Enhancements (Apr 6 2026 — Session 4)
+- [x] Wire ?new=1 query param in SCOPSBlog to auto-open the new post form
+- [x] Add Copy Share Link button to SCOPS Blog table rows
+- [x] Add live word count + read-time estimator to SCOPS Blog editor

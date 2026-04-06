@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import SCOPSNav from "@/components/SCOPSNav";
+import { useEffect } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -279,7 +280,29 @@ function BlogModal({
 
           {/* Body */}
           <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Body <span className="font-normal normal-case">(full article content, supports Markdown)</span></label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Body <span className="font-normal normal-case">(full article content, supports Markdown)</span></label>
+              {(() => {
+                const words = form.body.trim() ? form.body.trim().split(/\s+/).length : 0;
+                const readMins = Math.max(1, Math.round(words / 200));
+                const inRange = words >= 900 && words <= 950;
+                const tooShort = words > 0 && words < 900;
+                const tooLong = words > 950;
+                return (
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    inRange ? "bg-green-100 text-green-700" :
+                    tooShort ? "bg-amber-100 text-amber-700" :
+                    tooLong ? "bg-red-100 text-red-700" :
+                    "bg-slate-100 text-slate-500"
+                  }`}>
+                    {words.toLocaleString()} words &middot; {readMins} min read
+                    {inRange && " ✓"}
+                    {tooShort && ` (${900 - words} to go)`}
+                    {tooLong && ` (${words - 950} over)`}
+                  </span>
+                );
+              })()}
+            </div>
             <textarea
               value={form.body}
               onChange={e => set("body", e.target.value)}
@@ -368,6 +391,17 @@ export default function SCOPSBlog() {
   const [showModal, setShowModal] = useState(false);
   const [editPost, setEditPost] = useState<{ id: number; form: BlogForm } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; title: string } | null>(null);
+
+  // Auto-open the new post form when navigated here with ?new=1
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("new") === "1") {
+      setShowModal(true);
+      // Clean the query param from the URL without a page reload
+      const clean = window.location.pathname;
+      window.history.replaceState({}, "", clean);
+    }
+  }, []);
   const [previewPost, setPreviewPost] = useState<{
     title: string; author: string; category: string; body: string;
     imageUrl: string; excerpt: string; readTime: string;
@@ -632,6 +666,23 @@ export default function SCOPSBlog() {
                         {/* Actions */}
                         <td className="px-5 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs h-8 border-[#dde3ef] text-[#6b7a99] hover:bg-[#eef1f8]"
+                              title="Copy public link to clipboard"
+                              onClick={() => {
+                                const slug = (post as { slug?: string }).slug;
+                                if (!slug) { toast.error("Post has no slug yet"); return; }
+                                const url = `${window.location.origin}/blog/${slug}`;
+                                navigator.clipboard.writeText(url).then(
+                                  () => toast.success("Link copied!"),
+                                  () => toast.error("Could not copy link")
+                                );
+                              }}
+                            >
+                              Copy Link
+                            </Button>
                             <Button
                               size="sm"
                               variant="outline"
