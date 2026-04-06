@@ -551,3 +551,6 @@
 - [x] Add Send Weekly Digest button to SCOPS Scheduling page header
 - [x] Fix context.ts to authenticate apollo_admin_session cookie for adminProcedure
 - [x] All 36 tests passing
+
+## Session Apr 6 — SCOPS Nav Logo
+- [x] Add Apollo owl logo to SCOPS DashboardLayout nav top left

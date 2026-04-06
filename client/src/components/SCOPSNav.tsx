@@ -1,7 +1,7 @@
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 
-const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-horizontal_578ef147.png";
+const OWL_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png";
 
 interface SCOPSNavProps {
   adminUser: { name: string };
@@ -33,7 +33,7 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
           className="flex items-center gap-2 pr-5 border-r border-white/20 mr-5 h-[52px] hover:opacity-80 transition-opacity"
           title="Back to Site"
         >
-          <img src={LOGO} alt="Apollo" style={{ height: 28, width: "auto", filter: "brightness(0) invert(1)" }} />
+          <img src={OWL_LOGO} alt="Apollo Owl" style={{ height: 32, width: 32, objectFit: "contain" }} />
         </button>
 
         {/* Brand name */}
