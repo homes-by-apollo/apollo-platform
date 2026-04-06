@@ -166,6 +166,53 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
+          {/* UTM Attribution */}
+          {(contact.utmSource || contact.utmMedium || contact.utmCampaign || contact.landingPage) && (
+            <Card className="border-0 shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Ad Attribution</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                {contact.landingPage && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Landing Page</div>
+                    <span className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded">{contact.landingPage}</span>
+                  </div>
+                )}
+                {contact.utmSource && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Source</div>
+                    <span className="font-medium">{contact.utmSource}</span>
+                  </div>
+                )}
+                {contact.utmMedium && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Medium</div>
+                    <span className="font-medium">{contact.utmMedium}</span>
+                  </div>
+                )}
+                {contact.utmCampaign && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Campaign</div>
+                    <span className="font-medium">{contact.utmCampaign}</span>
+                  </div>
+                )}
+                {contact.utmContent && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Ad Content</div>
+                    <span className="font-medium">{contact.utmContent}</span>
+                  </div>
+                )}
+                {contact.utmTerm && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Keyword</div>
+                    <span className="font-medium">{contact.utmTerm}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Qualification (Buyers only) */}
           {contact.contactType === "BUYER" && (
             <Card className="border-0 shadow-sm">

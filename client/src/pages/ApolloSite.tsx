@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import type React from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -314,6 +314,34 @@ interface FormState {
   message: string;
 }
 
+// ── UTM helper — reads params from URL and persists to sessionStorage ───────
+function useUtmParams() {
+  return useMemo(() => {
+    // First try current URL params (direct ad click)
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const params = new URLSearchParams(search);
+    const fromUrl = {
+      utmSource: params.get("utm_source") ?? undefined,
+      utmMedium: params.get("utm_medium") ?? undefined,
+      utmCampaign: params.get("utm_campaign") ?? undefined,
+      utmContent: params.get("utm_content") ?? undefined,
+      utmTerm: params.get("utm_term") ?? undefined,
+    };
+    // Persist to sessionStorage on first visit with UTM params
+    if (fromUrl.utmSource && typeof window !== "undefined") {
+      sessionStorage.setItem("apollo_utm", JSON.stringify(fromUrl));
+    }
+    // Fall back to sessionStorage (user navigated away from landing page)
+    if (!fromUrl.utmSource && typeof window !== "undefined") {
+      try {
+        const stored = sessionStorage.getItem("apollo_utm");
+        if (stored) return JSON.parse(stored) as typeof fromUrl;
+      } catch {}
+    }
+    return fromUrl;
+  }, []);
+}
+
 export default function ApolloSite({ initialPage = "home" }: { initialPage?: string }) {
   const [, setLocation] = useLocation();
   const [page, setPage] = useState(initialPage);
@@ -327,6 +355,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
   const { user } = useAuth();
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const isAdmin = user?.role === "admin" || !!adminMeQuery.data;
+  const utmParams = useUtmParams();
 
   const contactMutation = trpc.leads.submit.useMutation({
     onSuccess: () => { setFormSent(true); setFormError(null); },
@@ -2302,6 +2331,9 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                             financingStatus: form.financingStatus ? form.financingStatus as "PRE_APPROVED"|"IN_PROCESS"|"NOT_STARTED"|"CASH_BUYER" : undefined,
                             brokerageName: form.brokerageName || undefined,
                             message: form.message || undefined,
+                            // UTM attribution
+                            ...utmParams,
+                            landingPage: window.location.pathname.slice(0, 64) || "/",
                           });
                         }}
                         disabled={contactMutation.isPending}

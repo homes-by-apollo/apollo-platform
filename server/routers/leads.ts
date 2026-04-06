@@ -178,6 +178,13 @@ export const leadsRouter = router({
         licenseNumber: z.string().optional(),
         // Extra
         message: z.string().optional(),
+        // UTM attribution
+        utmSource: z.string().max(128).optional(),
+        utmMedium: z.string().max(128).optional(),
+        utmCampaign: z.string().max(256).optional(),
+        utmContent: z.string().max(256).optional(),
+        utmTerm: z.string().max(256).optional(),
+        landingPage: z.string().max(64).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -198,6 +205,13 @@ export const leadsRouter = router({
         licenseNumber: input.licenseNumber,
         source: "WEBSITE",
         pipelineStage: "NEW_LEAD",
+        // UTM attribution
+        utmSource: input.utmSource ?? null,
+        utmMedium: input.utmMedium ?? null,
+        utmCampaign: input.utmCampaign ?? null,
+        utmContent: input.utmContent ?? null,
+        utmTerm: input.utmTerm ?? null,
+        landingPage: input.landingPage ?? null,
       });
 
       // Log the form submission activity
@@ -218,9 +232,11 @@ export const leadsRouter = router({
 
       // Notify owner (non-blocking)
       const scoreLabel = input.contactType === "BUYER" ? ` | Timeline: ${input.timeline ?? "unknown"}` : "";
+      const utmLabel = input.utmSource ? ` | UTM: ${input.utmSource}/${input.utmMedium ?? "(none)"}` : "";
+      const landingLabel = input.landingPage ? ` | Page: ${input.landingPage}` : "";
       notifyOwner({
         title: `New ${input.contactType === "AGENT" ? "Agent" : "Lead"}: ${input.firstName} ${input.lastName}`,
-        content: `Email: ${input.email} | Phone: ${input.phone}${scoreLabel}${input.message ? `\n\n"${input.message}"` : ""}`,
+        content: `Email: ${input.email} | Phone: ${input.phone}${scoreLabel}${utmLabel}${landingLabel}${input.message ? `\n\n"${input.message}"` : ""}`,
       }).catch(() => {});
 
       return { success: true, contactId };

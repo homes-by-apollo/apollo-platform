@@ -112,6 +112,14 @@ export const contacts = mysqlTable("contacts", {
   // Tour scheduling
   tourDate: timestamp("tourDate"),
 
+  // UTM attribution (ad campaign tracking)
+  utmSource: varchar("utmSource", { length: 128 }),    // e.g. "google", "facebook"
+  utmMedium: varchar("utmMedium", { length: 128 }),    // e.g. "cpc", "social"
+  utmCampaign: varchar("utmCampaign", { length: 256 }), // e.g. "pahrump-homes-spring"
+  utmContent: varchar("utmContent", { length: 256 }),  // e.g. "banner-ad-v2"
+  utmTerm: varchar("utmTerm", { length: 256 }),        // e.g. "pahrump homes for sale"
+  landingPage: varchar("landingPage", { length: 64 }), // e.g. "/get-in-touch", "/find-your-home"
+
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -496,3 +496,9 @@
 - [x] Added app.use(cookieParser()) to server/_core/index.ts
 - [x] Verified all three admin logins work: kyle, brandon, jonathan with Pahrump2026}#
 - [x] All 35 tests passing (8 test files)
+
+## Current Session — Email + UTM
+- [x] Send test email to kyle@apollohomebuilders.com via Resend
+- [x] Wire contact form confirmation email (buyer receives reply on submit) — already wired, confirmed working
+- [x] Add UTM parameter capture to /get-in-touch and /find-your-home
+- [x] Store utm_source, utm_medium, utm_campaign, utm_content, utm_term, landingPage with each lead submission
