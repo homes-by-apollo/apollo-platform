@@ -604,3 +604,7 @@
 - [x] Update CTA button to gold "Download Free Guide" (was navy "Subscribe Now")
 - [x] Update success message to "Check your inbox! Your guide is on its way."
 - [x] Mobile responsive: book stacks above form on small screens
+
+## Book Image Revision (Apr 6 2026)
+- [x] Regenerate book image: slim luxury guide flat on marble, large "2026 PAHRUMP HOME BUYER'S GUIDE" title, small owl/wordmark
+- [x] Upload to CDN and update homepage section src URL

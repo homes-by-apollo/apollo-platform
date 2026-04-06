@@ -1167,16 +1167,16 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                   background:"linear-gradient(135deg, rgba(201,168,76,0.12) 0%, transparent 60%)",
                 }}>
                   <img
-                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-book_b2d72f53.png"
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-book-v2-8rmxs45j86pyJ7mYRWjkdj.webp"
                     alt="2026 Pahrump Home Buyer's Guide"
                     style={{
-                      width:260,
+                      width:320,
                       height:"auto",
                       objectFit:"contain",
                       display:"block",
-                      filter:"drop-shadow(0 24px 48px rgba(0,0,0,0.55))",
-                      transform:"translateY(0px) rotate(-3deg)",
-                      transformOrigin:"bottom center",
+                      filter:"drop-shadow(0 16px 40px rgba(0,0,0,0.22))",
+                      transform:"none",
+                      borderRadius:4,
                     }}
                   />
                 </div>
