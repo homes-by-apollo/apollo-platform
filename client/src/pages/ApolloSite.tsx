@@ -1151,20 +1151,19 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                 padding:"0",
                 position:"relative",
                 overflow:"hidden",
-                backgroundImage:"linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-                backgroundSize:"48px 48px",
                 display:"flex",
                 alignItems:"stretch",
                 minHeight:420,
               }}>
-                {/* LEFT — Book image */}
+                {/* LEFT — Book image on marble */}
                 <div className="nl-book-col" style={{
-                  flex:"0 0 340px",
+                  flex:"0 0 360px",
                   display:"flex",
                   alignItems:"flex-end",
                   justifyContent:"center",
-                  padding:"0 0 0 48px",
-                  background:"linear-gradient(135deg, rgba(201,168,76,0.12) 0%, transparent 60%)",
+                  padding:"32px 24px 0 48px",
+                  background:"#f5f3ef",
+                  borderRadius:"20px 0 0 20px",
                 }}>
                   <img
                     src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-book-v2-8rmxs45j86pyJ7mYRWjkdj.webp"
@@ -1194,9 +1193,25 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                   <h2 style={{ fontSize:"clamp(24px,3vw,38px)", fontWeight:800, color:"white", letterSpacing:"-0.02em", margin:"0 0 16px", lineHeight:1.2 }}>
                     Download Our Free 2026 Pahrump Home Buyer's Guide
                   </h2>
-                  <p style={{ fontSize:17, color:"rgba(255,255,255,0.72)", margin:"0 0 32px", maxWidth:520, lineHeight:1.65 }}>
+                  <p style={{ fontSize:17, color:"rgba(255,255,255,0.72)", margin:"0 0 20px", maxWidth:520, lineHeight:1.65 }}>
                     Download our 2026 Pahrump Home Buyer's Guide and be the first to know when new homes and lots become available in Pahrump. No spam — just the listings that matter.
                   </p>
+                  {/* What's inside list */}
+                  <div style={{ margin:"0 0 28px", display:"flex", flexDirection:"column", gap:8 }}>
+                    <p style={{ fontSize:13, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:"#c9a84c", margin:0 }}>What's inside</p>
+                    {[
+                      "Pahrump market data and 2026 price trends",
+                      "Financing options and construction loan guide",
+                      "Step-by-step Apollo build timeline",
+                      "Current lot availability map",
+                      "First-time buyer checklist",
+                    ].map((item) => (
+                      <div key={item} style={{ display:"flex", alignItems:"center", gap:10 }}>
+                        <div style={{ width:6, height:6, borderRadius:"50%", background:"#c9a84c", flexShrink:0 }} />
+                        <span style={{ fontSize:15, color:"rgba(255,255,255,0.82)", lineHeight:1.4 }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
                   {/* Email form — left-aligned */}
                   <div>
                     <NewsletterForm />

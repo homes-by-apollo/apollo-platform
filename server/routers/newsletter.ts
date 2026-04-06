@@ -69,6 +69,11 @@ async function sendNewsletterConfirmation(email: string): Promise<void> {
               <p style="margin:0 0 32px;font-size:15px;color:#666;line-height:1.7;">
                 No spam. Just the listings that matter. You can unsubscribe at any time.
               </p>
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:12px;"><tr>
+                <td style="background:#c9a84c;border-radius:8px;">
+                  <a href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-Pahrump-Home-Buyers-Guide_48607fca.pdf" style="display:inline-block;padding:14px 28px;font-size:14px;font-weight:700;color:#0f2044;text-decoration:none;letter-spacing:0.02em;">&#8595; Download Your Free Guide (PDF)</a>
+                </td>
+              </tr></table>
               <table cellpadding="0" cellspacing="0"><tr>
                 <td style="background:#0f2044;border-radius:8px;">
                   <a href="https://apollohomebuilders.com" style="display:inline-block;padding:14px 28px;font-size:14px;font-weight:700;color:white;text-decoration:none;letter-spacing:0.02em;">View Current Homes &rarr;</a>

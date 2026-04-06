@@ -608,3 +608,10 @@
 ## Book Image Revision (Apr 6 2026)
 - [x] Regenerate book image: slim luxury guide flat on marble, large "2026 PAHRUMP HOME BUYER'S GUIDE" title, small owl/wordmark
 - [x] Upload to CDN and update homepage section src URL
+
+## Buyers Guide PDF + Homepage Enhancements (Apr 6 2026)
+- [x] Update book container background to light marble/off-white so book image blends seamlessly
+- [x] Add "What's inside" bullet list below form copy on homepage email capture section
+- [x] Generate 2026 Pahrump Home Buyer's Guide as a polished multi-page PDF (11 pages, 6 chapters)
+- [x] Upload PDF to S3 CDN
+- [x] Attach PDF download link (gold button) to Resend confirmation email
