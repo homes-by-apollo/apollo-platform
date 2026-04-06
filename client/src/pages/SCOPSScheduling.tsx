@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import SCOPSNav from "@/components/SCOPSNav";
@@ -58,6 +58,28 @@ const emptyForm: ManualTourForm = {
   endTime: "11:00",
   location: "Pahrump, NV",
 };
+
+// ─── Calendly Widget ─────────────────────────────────────────────────────────
+
+function CalendlyWidget({ url }: { url: string }) {
+  useEffect(() => {
+    // Load Calendly widget script if not already loaded
+    if (!document.querySelector('script[src*="calendly.com/assets/external/widget.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://assets.calendly.com/assets/external/widget.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  return (
+    <div
+      className="calendly-inline-widget"
+      data-url={url}
+      style={{ minWidth: '320px', height: '700px' }}
+    />
+  );
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -184,6 +206,21 @@ export default function SCOPSScheduling() {
             </Card>
           ))}
         </div>
+
+        {/* Calendly Inline Booking Widget */}
+        <Card className="border-0 shadow-sm overflow-hidden">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">
+              Book a Tour — Calendly
+            </CardTitle>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Share this page or use the widget below to book a home tour directly.
+            </p>
+          </CardHeader>
+          <CardContent className="p-0">
+            <CalendlyWidget url="https://calendly.com/d/cyjg-rx9-q39/meeting" />
+          </CardContent>
+        </Card>
 
         {/* Calendly connection status */}
         <Card className="border-0 shadow-sm">

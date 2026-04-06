@@ -526,3 +526,8 @@
 - [ ] Add Calendly appointments table to schema
 - [ ] Create SCOPS Scheduling page showing upcoming Calendly appointments
 - [ ] Run full regression tests after rebrand
+
+## Session Apr 6 — Calendly + Blog + Footer
+- [ ] Add CALENDLY_API_KEY secret and auto-register Calendly webhook
+- [ ] Build /blog as standalone public page (not homepage state)
+- [ ] Fix footer position (not anchored to bottom of page)

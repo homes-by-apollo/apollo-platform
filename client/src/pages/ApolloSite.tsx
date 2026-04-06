@@ -1237,7 +1237,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                 <SectionLabel>Latest Blog</SectionLabel>
                 <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", marginBottom:8 }}>Stay updated with our latest articles</h2>
               </div>
-              <button className="section-view-all" onClick={()=>{ track("View All", { section:"Blog" }); nav("blog"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
+              <button className="section-view-all" onClick={()=>{ track("View All", { section:"Blog" }); setLocation("/blog"); }} style={{ fontSize:22.5, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>View All →</button>
             </div>
             <div className="blog-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,515px)", gap:28, justifyContent:"start" }}>
               {blogs.map(b=>(
@@ -1407,7 +1407,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
         </>}
 
         {/* ══ GLOBAL FOOTER — shown on all sub-pages except home, contact, homes, lots (those render their own footer after content) ══ */}
-        {page !== "home" && page !== "contact" && page !== "homes" && page !== "lots" && page !== "home-detail" && page !== "lot-detail" && (
+        {page !== "home" && page !== "contact" && page !== "homes" && page !== "lots" && page !== "home-detail" && page !== "lot-detail" && page !== "blog" && page !== "faq" && (
           <footer style={{ background:"#0f2044", overflow:"hidden", position:"relative", fontFamily:"inherit" }}>
 
             {/* ── Top band: Brand + Contact info ──────────────────────────────── */}
@@ -2159,31 +2159,8 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
           </div>
         )}
 
-        {/* ══ BLOG ════════════════════════════════════════════════════════════ */}
-        {page==="blog" && (
-          <div className="section-pad" style={{ padding:"40px var(--pad)" }}>
-            <SectionLabel>Insights</SectionLabel>
-            <div className="section-header-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
-              <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:"-0.02em" }}>From the Blog</h1>
-              <div className="filter-row" style={{ display:"flex", gap:8 }}>
-                {["All","Tips","Construction","Investment"].map(f=><FilterBtn key={f} active={blogFilter===f} onClick={()=>setBlogFilter(f)}>{f}</FilterBtn>)}
-              </div>
-            </div>
-            <div className="cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-              {blogs.map(b=>(
-                <div key={b.title} style={{ background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer", border:`1px solid ${BOR}`, boxShadow:"0 2px 16px rgba(0,0,0,0.05)" }}>
-                  <img src={b.img} alt={b.title} style={{ width:"100%", height:180, objectFit:"cover" }} />
-                  <div style={{ padding:"18px 20px 22px" }}>
-                    <span style={{ fontSize:10, fontWeight:700, color:G, background:GL, padding:"3px 9px", borderRadius:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>{b.cat}</span>
-                    <div style={{ fontSize:15, fontWeight:700, color:TXT, lineHeight:1.45, marginTop:10, marginBottom:12 }}>{b.title}</div>
-                    <div style={{ fontSize:11, color:MUT, marginBottom:16 }}>{b.date} · {b.read} read</div>
-                    <button style={{ fontSize:12, fontWeight:700, color:G, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit" }}>Read More →</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* ══ BLOG — redirects to standalone /blog page ══════════════════════ */}
+        {page==="blog" && (() => { setLocation("/blog"); return null; })()}
 
         {/* ══ CONTACT ═════════════════════════════════════════════════════════ */}
         {page==="contact" && (

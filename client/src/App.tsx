@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import ApolloSite from "./pages/ApolloSite";
 import GetInTouch from "./pages/GetInTouch";
 import FindYourHome from "./pages/FindYourHome";
+import PublicBlog from "./pages/PublicBlog";
 import SCOPSDashboard from "./pages/SCOPSDashboard";
 import SCOPSProperties from "./pages/SCOPSProperties";
 import SCOPSBlog from "./pages/SCOPSBlog";
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/">{() => <ApolloSite initialPage="home" />}</Route>
       <Route path="/get-in-touch">{() => <GetInTouch />}</Route>
       <Route path="/find-your-home">{() => <FindYourHome />}</Route>
+      <Route path="/blog" component={PublicBlog} />
 
       {/* Auth routes */}
       <Route path="/admin-login" component={AdminLogin} />

@@ -15,6 +15,11 @@ export const blogRouter = router({
     return getFeaturedBlogPosts();
   }),
 
+  // Public: all published posts for /blog page
+  getPublished: publicProcedure.query(async () => {
+    return getAllBlogPosts();
+  }),
+
   // Admin: full list for CRM table
   getAll: adminProcedure.query(async () => {
     return getAllBlogPosts();
