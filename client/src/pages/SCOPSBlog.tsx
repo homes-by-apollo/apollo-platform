@@ -25,6 +25,8 @@ interface BlogForm {
   imageUrl: string;
   featured: boolean;
   sortOrder: string;
+  scheduledPublishAt: string; // ISO datetime-local string or ""
+  seoKeyword: string; // for SEO score widget (not saved to DB)
 }
 
 const EMPTY_FORM: BlogForm = {
@@ -38,6 +40,8 @@ const EMPTY_FORM: BlogForm = {
   imageUrl: "",
   featured: true,
   sortOrder: "0",
+  scheduledPublishAt: "",
+  seoKeyword: "",
 };
 
 const CAT_COLORS: Record<string, string> = {
@@ -321,6 +325,52 @@ function BlogModal({
             )}
           </div>
 
+          {/* SEO Score Widget */}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">
+              SEO Keyword <span className="font-normal normal-case text-gray-400">(checks title, excerpt, body)</span>
+            </label>
+            <Input
+              value={form.seoKeyword}
+              onChange={e => set("seoKeyword", e.target.value)}
+              placeholder="e.g. Pahrump new homes"
+            />
+            {form.seoKeyword.trim() && (() => {
+              const kw = form.seoKeyword.trim().toLowerCase();
+              const inTitle = form.title.toLowerCase().includes(kw);
+              const inExcerpt = form.excerpt.toLowerCase().includes(kw);
+              const inBody = form.body.toLowerCase().includes(kw);
+              const score = [inTitle, inExcerpt, inBody].filter(Boolean).length;
+              const color = score === 3 ? "text-green-700 bg-green-50 border-green-200" : score >= 2 ? "text-amber-700 bg-amber-50 border-amber-200" : "text-red-700 bg-red-50 border-red-200";
+              const label = score === 3 ? "Strong" : score === 2 ? "Fair" : "Weak";
+              return (
+                <div className={`mt-2 flex items-center gap-3 text-xs font-medium border rounded-lg px-3 py-2 ${color}`}>
+                  <span className="font-bold">{label} SEO ({score}/3)</span>
+                  <span className={inTitle ? "text-green-600" : "text-gray-400"}>Title {inTitle ? "✓" : "✗"}</span>
+                  <span className={inExcerpt ? "text-green-600" : "text-gray-400"}>Excerpt {inExcerpt ? "✓" : "✗"}</span>
+                  <span className={inBody ? "text-green-600" : "text-gray-400"}>Body {inBody ? "✓" : "✗"}</span>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Scheduled Publish Date */}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">
+              Scheduled Publish Date <span className="font-normal normal-case text-gray-400">(leave blank to publish manually)</span>
+            </label>
+            <Input
+              type="datetime-local"
+              value={form.scheduledPublishAt}
+              onChange={e => set("scheduledPublishAt", e.target.value)}
+            />
+            {form.scheduledPublishAt && (
+              <div className="text-xs text-[#1B3A6B] mt-1">
+                Will auto-publish on {new Date(form.scheduledPublishAt).toLocaleString()}
+              </div>
+            )}
+          </div>
+
           {/* Sort Order + Featured */}
           <div className="grid grid-cols-2 gap-4 items-end">
             <div>
@@ -507,6 +557,8 @@ export default function SCOPSBlog() {
       imageUrl: form.imageUrl || undefined,
       featured: form.featured ? 1 : 0,
       sortOrder: parseInt(form.sortOrder) || 0,
+      scheduledPublishAt: form.scheduledPublishAt ? new Date(form.scheduledPublishAt) : null,
+      lastEditedBy: adminUser.name,
     });
   };
 
@@ -524,6 +576,8 @@ export default function SCOPSBlog() {
       imageUrl: form.imageUrl || undefined,
       featured: form.featured ? 1 : 0,
       sortOrder: parseInt(form.sortOrder) || 0,
+      scheduledPublishAt: form.scheduledPublishAt ? new Date(form.scheduledPublishAt) : null,
+      lastEditedBy: adminUser.name,
     });
   };
 
@@ -589,6 +643,7 @@ export default function SCOPSBlog() {
                       <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Author</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Category</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Read Time</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Last Edited</th>
                       <th className="text-center px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Status</th>
                       <th className="text-center px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Featured</th>
                       <th className="text-right px-5 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Actions</th>
@@ -637,6 +692,22 @@ export default function SCOPSBlog() {
 
                         {/* Read time */}
                         <td className="px-4 py-4 text-[#6b7a99]">{post.readTime}</td>
+
+                        {/* Last Edited */}
+                        <td className="px-4 py-4">
+                          {(post as { lastEditedBy?: string; lastEditedAt?: Date }).lastEditedBy ? (
+                            <div>
+                              <div className="text-xs font-medium text-[#0f2044]">{(post as { lastEditedBy?: string }).lastEditedBy}</div>
+                              <div className="text-xs text-[#6b7a99] mt-0.5">
+                                {(post as { lastEditedAt?: Date }).lastEditedAt
+                                  ? new Date((post as { lastEditedAt?: Date }).lastEditedAt!).toLocaleDateString()
+                                  : ""}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-300 italic">Not set</span>
+                          )}
+                        </td>
 
                         {/* Status */}
                         <td className="px-4 py-4 text-center">
@@ -716,6 +787,10 @@ export default function SCOPSBlog() {
                                   imageUrl: post.imageUrl ?? "",
                                   featured: post.featured === 1,
                                   sortOrder: String(post.sortOrder ?? 0),
+                                  scheduledPublishAt: (post as { scheduledPublishAt?: Date }).scheduledPublishAt
+                                    ? new Date((post as { scheduledPublishAt?: Date }).scheduledPublishAt!).toISOString().slice(0, 16)
+                                    : "",
+                                  seoKeyword: "",
                                 },
                               })}
                             >

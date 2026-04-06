@@ -74,15 +74,19 @@ export const blogRouter = router({
         sortOrder: z.number().default(0),
         status: z.enum(["draft", "published"]).default("draft"),
         publishedAt: z.date().optional(),
+        scheduledPublishAt: z.date().nullable().optional(),
+        lastEditedBy: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const slug = input.slug?.trim() || slugify(input.title);
       const id = await createBlogPost({
         ...input,
         slug,
         author: input.author || "Apollo Home Builders",
         publishedAt: input.publishedAt ?? new Date(),
+        lastEditedBy: input.lastEditedBy ?? ctx.user?.name ?? null,
+        lastEditedAt: new Date(),
       });
       return { id, slug };
     }),
@@ -103,15 +107,22 @@ export const blogRouter = router({
         sortOrder: z.number().optional(),
         status: z.enum(["draft", "published"]).optional(),
         publishedAt: z.date().optional(),
+        scheduledPublishAt: z.date().nullable().optional(),
+        lastEditedBy: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
       // Auto-generate slug from title if title changed but no slug provided
       if (data.title && !data.slug) {
         data.slug = slugify(data.title);
       }
-      await updateBlogPost(id, data);
+      // Always stamp last-edited audit fields
+      await updateBlogPost(id, {
+        ...data,
+        lastEditedBy: data.lastEditedBy ?? ctx.user?.name ?? null,
+        lastEditedAt: new Date(),
+      });
       return { success: true };
     }),
 

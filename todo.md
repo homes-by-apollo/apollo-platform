@@ -586,3 +586,12 @@
 - [x] Wire ?new=1 query param in SCOPSBlog to auto-open the new post form
 - [x] Add Copy Share Link button to SCOPS Blog table rows
 - [x] Add live word count + read-time estimator to SCOPS Blog editor
+
+## SCOPS Nav + Blog Enhancements (Apr 6 2026 — Session 5)
+- [x] Update SCOPS global nav: Logo | Dashboard | Pipeline | Inventory | Marketing | Content | Operations | Admin | Kyle dropdown
+- [x] Add lastEditedBy + lastEditedAt fields to blogPosts schema + migration
+- [x] Show Last Edited By column in SCOPS Blog table
+- [x] Add scheduledPublishAt field to blogPosts schema + migration
+- [x] Add scheduled publish date picker to blog post form
+- [x] Add auto-publish cron that checks for scheduled posts every 5 minutes
+- [x] Add SEO score widget to blog editor (keyword check in title/excerpt/body)

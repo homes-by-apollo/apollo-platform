@@ -10,6 +10,9 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerCalendlyWebhook } from "../routers/calendlyWebhook";
 import { sendWeeklyTourDigest } from "../weeklyTourDigest";
+import { getDb } from "../db";
+import { blogPosts } from "../../drizzle/schema";
+import { and, eq, lte, isNotNull } from "drizzle-orm";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -70,6 +73,9 @@ async function startServer() {
 
   // ─── Weekly Tour Digest Cron (every Sunday at 6:00 PM PT = 01:00 UTC Monday) ─
   scheduleSundayDigest();
+
+  // ─── Scheduled Blog Post Auto-Publish (every 5 minutes) ──────────────────────
+  scheduleAutoPublish();
 }
 
 function scheduleSundayDigest() {
@@ -105,6 +111,42 @@ function scheduleSundayDigest() {
   }
 
   scheduleNext();
+}
+
+/** Every 5 minutes, publish any blog posts whose scheduledPublishAt has passed */
+function scheduleAutoPublish() {
+  async function runAutoPublish() {
+    try {
+      const db = await getDb();
+      if (!db) return;
+      const now = new Date();
+      const due = await db
+        .select({ id: blogPosts.id, title: blogPosts.title })
+        .from(blogPosts)
+        .where(
+          and(
+            eq(blogPosts.status, "draft"),
+            isNotNull(blogPosts.scheduledPublishAt),
+            lte(blogPosts.scheduledPublishAt, now)
+          )
+        );
+
+      for (const post of due) {
+        await db
+          .update(blogPosts)
+          .set({ status: "published", publishedAt: now, scheduledPublishAt: null })
+          .where(eq(blogPosts.id, post.id));
+        console.log(`[AutoPublish] Published blog post #${post.id}: "${post.title}"`);
+      }
+    } catch (err) {
+      console.error("[AutoPublish] Error during scheduled publish check:", err);
+    }
+  }
+
+  // Run immediately on startup, then every 5 minutes
+  runAutoPublish();
+  setInterval(runAutoPublish, 5 * 60 * 1000);
+  console.log("[AutoPublish] Scheduled blog post auto-publish running every 5 minutes");
 }
 
 startServer().catch(console.error);

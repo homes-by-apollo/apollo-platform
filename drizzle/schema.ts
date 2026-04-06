@@ -247,6 +247,13 @@ export const blogPosts = mysqlTable("blogPosts", {
   sortOrder: int("sortOrder").notNull().default(0),
   status: mysqlEnum("status", ["draft", "published"]).notNull().default("draft"),
 
+  // Scheduling
+  scheduledPublishAt: timestamp("scheduledPublishAt"),  // null = no scheduled publish
+
+  // Audit
+  lastEditedBy: varchar("lastEditedBy", { length: 128 }),  // admin name who last saved
+  lastEditedAt: timestamp("lastEditedAt"),                  // when they saved it
+
   // Metadata
   publishedAt: timestamp("publishedAt").defaultNow().notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
