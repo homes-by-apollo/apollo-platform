@@ -37,35 +37,12 @@ export async function verifyAdminToken(token: string) {
 }
 
 /**
- * Ensure all admin accounts exist in the DB.
- * Passwords come from env vars: ADMIN_KYLE_HASH, ADMIN_BRANDON_HASH, ADMIN_JONATHAN_HASH.
- * If the env var is not set, that admin cannot log in yet.
+ * No-op: admin accounts are managed in the DB.
+ * Bootstrap with: node scripts/seed-admins.mjs
+ * Manage accounts via the Admin Users page in the CRM.
  */
 async function seedAdmins() {
-  const db = await getDb();
-  if (!db) return;
-
-  const admins = [
-    { email: "kyle@apollohomebuilders.com", name: "Kyle", hashEnv: process.env.ADMIN_KYLE_HASH },
-    { email: "brandon@apollohomebuilders.com", name: "Brandon", hashEnv: process.env.ADMIN_BRANDON_HASH },
-    { email: "jonathan@apollohomebuilders.com", name: "Jonathan", hashEnv: process.env.ADMIN_JONATHAN_HASH },
-  ];
-
-  for (const admin of admins) {
-    if (!admin.hashEnv) continue;
-    const existing = await db.select().from(adminCredentials).where(eq(adminCredentials.email, admin.email)).limit(1);
-    if (existing.length === 0) {
-      await db.insert(adminCredentials).values({
-        email: admin.email,
-        name: admin.name,
-        passwordHash: admin.hashEnv,
-      });
-    } else if (existing[0].passwordHash !== admin.hashEnv) {
-      await db.update(adminCredentials)
-        .set({ passwordHash: admin.hashEnv })
-        .where(eq(adminCredentials.email, admin.email));
-    }
-  }
+  // DB is the single source of truth. No env-var hashes needed.
 }
 
 export const adminAuthRouter = router({
@@ -167,6 +144,70 @@ export const adminAuthRouter = router({
         `,
       });
 
+      return { success: true };
+    }),
+
+  /** List all admin users — requires valid admin session */
+  listAdmins: publicProcedure.query(async ({ ctx }) => {
+    const token = ctx.req.cookies?.[ADMIN_COOKIE];
+    if (!token) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+    const payload = await verifyAdminToken(token);
+    if (!payload) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid session" });
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable." });
+    const admins = await db
+      .select({ id: adminCredentials.id, email: adminCredentials.email, name: adminCredentials.name, createdAt: adminCredentials.createdAt })
+      .from(adminCredentials)
+      .orderBy(adminCredentials.name);
+    return admins;
+  }),
+
+  /** Add a new admin user — requires valid admin session */
+  addAdmin: publicProcedure
+    .input(z.object({ email: z.string().email(), name: z.string().min(1), password: z.string().min(8) }))
+    .mutation(async ({ input, ctx }) => {
+      const token = ctx.req.cookies?.[ADMIN_COOKIE];
+      if (!token) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+      const payload = await verifyAdminToken(token);
+      if (!payload) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid session" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable." });
+      const existing = await db.select().from(adminCredentials).where(eq(adminCredentials.email, input.email.toLowerCase())).limit(1);
+      if (existing.length > 0) throw new TRPCError({ code: "CONFLICT", message: "An admin with that email already exists." });
+      const passwordHash = await bcrypt.hash(input.password, 10);
+      await db.insert(adminCredentials).values({ email: input.email.toLowerCase(), name: input.name, passwordHash });
+      return { success: true };
+    }),
+
+  /** Change any admin's password — requires valid admin session */
+  changeAdminPassword: publicProcedure
+    .input(z.object({ email: z.string().email(), newPassword: z.string().min(8) }))
+    .mutation(async ({ input, ctx }) => {
+      const token = ctx.req.cookies?.[ADMIN_COOKIE];
+      if (!token) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+      const payload = await verifyAdminToken(token);
+      if (!payload) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid session" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable." });
+      const passwordHash = await bcrypt.hash(input.newPassword, 10);
+      await db.update(adminCredentials).set({ passwordHash }).where(eq(adminCredentials.email, input.email.toLowerCase()));
+      return { success: true };
+    }),
+
+  /** Delete an admin user — requires valid admin session, cannot delete yourself */
+  deleteAdmin: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ input, ctx }) => {
+      const token = ctx.req.cookies?.[ADMIN_COOKIE];
+      if (!token) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+      const payload = await verifyAdminToken(token);
+      if (!payload) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid session" });
+      if (payload.email.toLowerCase() === input.email.toLowerCase()) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "You cannot delete your own account." });
+      }
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable." });
+      await db.delete(adminCredentials).where(eq(adminCredentials.email, input.email.toLowerCase()));
       return { success: true };
     }),
 

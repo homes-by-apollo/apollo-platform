@@ -471,4 +471,14 @@
 - [x] Add jonathan@apollohomebuilders.com to seedAdmins list
 - [x] Set ADMIN_JONATHAN_HASH secret (Pahrump2026!$#)
 - [x] Write and pass vitest for credential hash validation (35 tests pass)
-- [ ] Verify apollohomebuilders.com domain in Resend (required for password reset emails)
+- [x] Verify apollohomebuilders.com domain in Resend (required for password reset emails)
+
+## Auth Overhaul — DB-Backed Credentials (Current Session)
+- [x] Remove env-var hash lookups from adminAuth router (ADMIN_KYLE_HASH, ADMIN_BRANDON_HASH, ADMIN_JONATHAN_HASH)
+- [x] Update adminCredentials table to be the single source of truth for all admin logins
+- [x] Seed all three accounts (kyle, brandon, jonathan) with hashed password directly into DB via migration script
+- [x] Update login procedure to query adminCredentials table only
+- [x] Add Admin Users management page in CRM (/crm/users): list admins, add new admin, change password, delete
+- [x] Wire add/change-password forms to new tRPC procedures (no env vars, no manual hashing)
+- [ ] Update forgot-password and reset-password flows to use DB tokens
+- [x] Run all tests and confirm 35 pass (8 test files)
