@@ -595,3 +595,12 @@
 - [x] Add scheduled publish date picker to blog post form
 - [x] Add auto-publish cron that checks for scheduled posts every 5 minutes
 - [x] Add SEO score widget to blog editor (keyword check in title/excerpt/body)
+
+## Homepage Email Capture Redesign (Apr 6 2026)
+- [x] Generate embossed 2026 Home Buyer's Guide book image
+- [x] Create Resend "Buyers Guide" audience list (ID: 8281a905-19a8-4e2c-9711-ef6b67318d1f)
+- [x] Update newsletter.subscribe endpoint to add contacts to Buyers Guide list
+- [x] Redesign homepage email capture section: two-column layout, new copy, book image
+- [x] Update CTA button to gold "Download Free Guide" (was navy "Subscribe Now")
+- [x] Update success message to "Check your inbox! Your guide is on its way."
+- [x] Mobile responsive: book stacks above form on small screens

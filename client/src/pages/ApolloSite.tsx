@@ -239,18 +239,19 @@ function FilterBtn({ children, active, onClick }: { children: React.ReactNode; a
 
 function NewsletterForm() {
   const [nlEmail, setNlEmail] = useState("");
-  const [nlStatus, setNlStatus] = useState<"idle"|"sending"|"done">("idle");
+  const subscribeMutation = trpc.newsletter.subscribe.useMutation();
+
   const handleNlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nlEmail.trim()) return;
-    setNlStatus("sending");
-    setTimeout(() => { setNlStatus("done"); setNlEmail(""); }, 900);
+    subscribeMutation.mutate({ email: nlEmail.trim(), source: "buyers-guide" });
   };
-  if (nlStatus === "done") {
+
+  if (subscribeMutation.isSuccess) {
     return (
       <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"16px 28px" }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4B9CD3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        <span style={{ fontSize:16, fontWeight:600, color:"white" }}>You're on the list! We'll be in touch.</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style={{ fontSize:16, fontWeight:600, color:"white" }}>Check your inbox! Your guide is on its way.</span>
       </div>
     );
   }
@@ -266,12 +267,12 @@ function NewsletterForm() {
       />
       <button
         type="submit"
-        disabled={nlStatus==="sending"}
-        style={{ background:"#0f2044", color:"white", border:"2px solid rgba(255,255,255,0.25)", padding:"18px 32px", fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", transition:"background 0.2s", letterSpacing:"0.01em" }}
-        onMouseEnter={e=>(e.currentTarget.style.background="#1a3060")}
-        onMouseLeave={e=>(e.currentTarget.style.background="#0f2044")}
+        disabled={subscribeMutation.isPending}
+        style={{ background:"#c9a84c", color:"#0f2044", border:"none", padding:"18px 32px", fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", transition:"background 0.2s", letterSpacing:"0.01em" }}
+        onMouseEnter={e=>(e.currentTarget.style.background="#b8943e")}
+        onMouseLeave={e=>(e.currentTarget.style.background="#c9a84c")}
       >
-        {nlStatus==="sending" ? "Subscribing…" : "Subscribe Now"}
+        {subscribeMutation.isPending ? "Sending\u2026" : "Download Free Guide"}
       </button>
     </form>
   );
@@ -609,9 +610,12 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
           .feat-card-text        { flex: none !important; width: 100% !important; padding: 24px 20px !important; }
 
           /* ── Newsletter section ── */
-          .newsletter-panel      { padding: 40px 24px !important; border-radius: 16px !important; width: 100% !important; box-sizing: border-box !important; }
-          .newsletter-panel h2   { font-size: 26px !important; line-height: 1.15 !important; margin-bottom: 16px !important; }
-          .newsletter-panel p    { font-size: 16px !important; line-height: 1.6 !important; margin-bottom: 20px !important; }
+          .newsletter-panel      { flex-direction: column !important; border-radius: 16px !important; width: 100% !important; box-sizing: border-box !important; }
+          .nl-book-col           { flex: none !important; width: 100% !important; padding: 32px 24px 0 !important; align-items: center !important; justify-content: center !important; }
+          .nl-book-col img       { width: 180px !important; transform: rotate(0deg) !important; }
+          .nl-copy-col           { flex: none !important; width: 100% !important; padding: 28px 24px 40px !important; box-sizing: border-box !important; }
+          .nl-copy-col h2        { font-size: 26px !important; line-height: 1.15 !important; margin-bottom: 16px !important; }
+          .nl-copy-col p         { font-size: 16px !important; line-height: 1.6 !important; margin-bottom: 20px !important; }
           /* Stack email input above button on mobile */
           .nl-form               { flex-direction: column !important; border-radius: 14px !important; overflow: visible !important; box-shadow: none !important; gap: 10px !important; }
           .nl-form input[type="email"] { width: 100% !important; height: 56px !important; font-size: 16px !important; padding: 0 18px !important; border-radius: 14px !important; box-shadow: 0 4px 16px rgba(0,0,0,0.18) !important; box-sizing: border-box !important; }
@@ -1138,32 +1142,67 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
             </div>
           </div>
 
-          {/* NEWSLETTER SUBSCRIBE */}
+          {/* NEWSLETTER SUBSCRIBE — Buyers Guide */}
           <div className="section-pad" style={{ padding:"72px var(--pad)", background:"#f4f6fa" }}>
             <div className="site-container">
-              {/* Card with grid-pattern background in Apollo navy */}
               <div className="newsletter-panel" style={{
                 background:"#0f2044",
                 borderRadius:20,
-                padding:"64px 48px",
-                textAlign:"center",
+                padding:"0",
                 position:"relative",
                 overflow:"hidden",
-                /* Subtle grid pattern overlay */
                 backgroundImage:"linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
                 backgroundSize:"48px 48px",
+                display:"flex",
+                alignItems:"stretch",
+                minHeight:420,
               }}>
-                {/* Decorative gold accent line */}
-                <div style={{ width:40, height:3, background:"#c9a84c", borderRadius:2, margin:"0 auto 20px" }} />
-                <h2 style={{ fontSize:"clamp(26px,3.5vw,40px)", fontWeight:800, color:"white", letterSpacing:"-0.02em", margin:"0 0 14px", lineHeight:1.2 }}>
-                  Stay Ahead of New Listings
-                </h2>
-                <p style={{ fontSize:17, color:"rgba(255,255,255,0.68)", margin:"0 auto 36px", maxWidth:520, lineHeight:1.65 }}>
-                  Be the first to know when new homes and lots become available in Pahrump. No spam — just the listings that matter.
-                </p>
-                {/* Email form */}
-                <NewsletterForm />
-                <p style={{ fontSize:13, color:"rgba(255,255,255,0.4)", marginTop:16 }}>Unsubscribe anytime. We respect your privacy.</p>
+                {/* LEFT — Book image */}
+                <div className="nl-book-col" style={{
+                  flex:"0 0 340px",
+                  display:"flex",
+                  alignItems:"flex-end",
+                  justifyContent:"center",
+                  padding:"0 0 0 48px",
+                  background:"linear-gradient(135deg, rgba(201,168,76,0.12) 0%, transparent 60%)",
+                }}>
+                  <img
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-book_b2d72f53.png"
+                    alt="2026 Pahrump Home Buyer's Guide"
+                    style={{
+                      width:260,
+                      height:"auto",
+                      objectFit:"contain",
+                      display:"block",
+                      filter:"drop-shadow(0 24px 48px rgba(0,0,0,0.55))",
+                      transform:"translateY(0px) rotate(-3deg)",
+                      transformOrigin:"bottom center",
+                    }}
+                  />
+                </div>
+
+                {/* RIGHT — Copy + form */}
+                <div className="nl-copy-col" style={{
+                  flex:1,
+                  padding:"56px 56px 56px 48px",
+                  display:"flex",
+                  flexDirection:"column",
+                  justifyContent:"center",
+                }}>
+                  {/* Gold accent */}
+                  <div style={{ width:40, height:3, background:"#c9a84c", borderRadius:2, marginBottom:20 }} />
+                  <h2 style={{ fontSize:"clamp(24px,3vw,38px)", fontWeight:800, color:"white", letterSpacing:"-0.02em", margin:"0 0 16px", lineHeight:1.2 }}>
+                    Download Our Free 2026 Pahrump Home Buyer's Guide
+                  </h2>
+                  <p style={{ fontSize:17, color:"rgba(255,255,255,0.72)", margin:"0 0 32px", maxWidth:520, lineHeight:1.65 }}>
+                    Download our 2026 Pahrump Home Buyer's Guide and be the first to know when new homes and lots become available in Pahrump. No spam — just the listings that matter.
+                  </p>
+                  {/* Email form — left-aligned */}
+                  <div>
+                    <NewsletterForm />
+                    <p style={{ fontSize:13, color:"rgba(255,255,255,0.38)", marginTop:14 }}>Unsubscribe anytime. We respect your privacy.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
