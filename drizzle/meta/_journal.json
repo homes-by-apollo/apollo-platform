@@ -57,6 +57,13 @@
       "when": 1775505593168,
       "tag": "0007_clumsy_dorian_gray",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1775508243406,
+      "tag": "0008_mature_betty_ross",
+      "breakpoints": true
     }
   ]
 }

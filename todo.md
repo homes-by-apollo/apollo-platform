@@ -507,3 +507,22 @@
 - [x] Add UTM source breakdown chart to CRM dashboard
 - [x] Build UTM URL builder page in the CRM
 - [x] Add Resend welcome email button to lead detail view
+
+## SCOPS Rebrand (CRM → SCOPS)
+
+- [ ] Rename all /crm routes to /scops in App.tsx
+- [x] Add /crm/* → /scops/* redirect middleware in Express server
+- [ ] Rename CRMDashboard.tsx → SCOPSDashboard.tsx
+- [ ] Rename CRMProperties.tsx → SCOPSProperties.tsx
+- [ ] Rename CRMBlog.tsx → SCOPSBlog.tsx
+- [ ] Rename CRMUsers.tsx → SCOPSUsers.tsx
+- [ ] Rename CRMUtmBuilder.tsx → SCOPSUtmBuilder.tsx
+- [x] Replace all "CRM" text with "SCOPS" across all pages
+- [x] Update product name to "APOLLO SCOPS" in all headers/titles
+- [ ] Update AdminLogin redirect from /crm to /scops
+- [ ] Update server-side CRM references (email subjects, comments)
+- [ ] Standardize navigation across all SCOPS modules with consistent layout
+- [ ] Fix Calendly integration — add webhook handling and event sync to SCOPS
+- [ ] Add Calendly appointments table to schema
+- [ ] Create SCOPS Scheduling page showing upcoming Calendly appointments
+- [ ] Run full regression tests after rebrand

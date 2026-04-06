@@ -1,0 +1,22 @@
+CREATE TABLE `scheduledTours` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`calendlyEventUri` varchar(512) NOT NULL,
+	`calendlyInviteeUri` varchar(512) NOT NULL,
+	`inviteeName` varchar(256) NOT NULL,
+	`inviteeEmail` varchar(320) NOT NULL,
+	`inviteePhone` varchar(64),
+	`eventName` varchar(256),
+	`startTime` timestamp NOT NULL,
+	`endTime` timestamp NOT NULL,
+	`timezone` varchar(64),
+	`location` text,
+	`status` enum('ACTIVE','CANCELLED') NOT NULL DEFAULT 'ACTIVE',
+	`cancelReason` text,
+	`contactId` int,
+	`rawPayload` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `scheduledTours_id` PRIMARY KEY(`id`),
+	CONSTRAINT `scheduledTours_calendlyEventUri_unique` UNIQUE(`calendlyEventUri`),
+	CONSTRAINT `scheduledTours_calendlyInviteeUri_unique` UNIQUE(`calendlyInviteeUri`)
+);

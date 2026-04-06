@@ -9,6 +9,7 @@ import { blogRouter } from "./routers/blog";
 import { leadsRouter } from "./routers/leads";
 import { newsletterRouter } from "./routers/newsletter";
 import { propertiesRouter } from "./routers/properties";
+import { schedulingRouter } from "./routers/scheduling";
 
 export const appRouter = router({
   system: systemRouter,
@@ -27,6 +28,7 @@ export const appRouter = router({
   leads: leadsRouter,
   newsletter: newsletterRouter,
   properties: propertiesRouter,
+  scheduling: schedulingRouter,
 });
 
 export type AppRouter = typeof appRouter;

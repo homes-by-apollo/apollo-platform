@@ -16,7 +16,7 @@ export default function AdminLogin() {
 
   const loginMutation = trpc.adminAuth.login.useMutation({
     onSuccess: () => {
-      setLocation("/crm");
+      setLocation("/scops");
     },
     onError: (err) => {
       setError(err.message || "Invalid email or password.");

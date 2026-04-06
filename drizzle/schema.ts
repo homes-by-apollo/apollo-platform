@@ -302,3 +302,45 @@ export const passwordResetTokens = mysqlTable("passwordResetTokens", {
 
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type InsertPasswordResetToken = typeof passwordResetTokens.$inferInsert;
+
+// ─── Scheduled Tours (Calendly Sync) ─────────────────────────────────────────
+
+/**
+ * Tour appointments synced from Calendly webhooks.
+ * Each row represents one booked (or cancelled) event.
+ */
+export const scheduledTours = mysqlTable("scheduledTours", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Calendly identifiers
+  calendlyEventUri: varchar("calendlyEventUri", { length: 512 }).notNull().unique(),
+  calendlyInviteeUri: varchar("calendlyInviteeUri", { length: 512 }).notNull().unique(),
+
+  // Invitee info (from Calendly payload)
+  inviteeName: varchar("inviteeName", { length: 256 }).notNull(),
+  inviteeEmail: varchar("inviteeEmail", { length: 320 }).notNull(),
+  inviteePhone: varchar("inviteePhone", { length: 64 }),
+
+  // Event details
+  eventName: varchar("eventName", { length: 256 }),   // e.g. "Home Tour - Pahrump"
+  startTime: timestamp("startTime").notNull(),
+  endTime: timestamp("endTime").notNull(),
+  timezone: varchar("timezone", { length: 64 }),
+  location: text("location"),                          // meeting location or video link
+
+  // Status
+  status: mysqlEnum("status", ["ACTIVE", "CANCELLED"]).notNull().default("ACTIVE"),
+  cancelReason: text("cancelReason"),
+
+  // Link to CRM contact (nullable — may not always match)
+  contactId: int("contactId"),
+
+  // Raw webhook payload for debugging
+  rawPayload: text("rawPayload"),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ScheduledTour = typeof scheduledTours.$inferSelect;
+export type InsertScheduledTour = typeof scheduledTours.$inferInsert;
