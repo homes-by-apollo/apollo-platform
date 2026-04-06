@@ -10,6 +10,7 @@ import {
   getNewLeadsThisWeek,
   getSourceCounts,
   getStageCounts,
+  getUtmSourceCounts,
   logActivity,
   logEmail,
   updateContact,
@@ -396,5 +397,71 @@ export const leadsRouter = router({
         getSourceCounts(input.sourcePeriod),
       ]);
       return { stageCounts, newLeadsThisWeek, sourceCounts };
+    }),
+
+  /**
+   * Protected: UTM attribution breakdown — source/medium/campaign counts.
+   */
+  utmStats: protectedProcedure
+    .input(z.object({ period: z.enum(["7d", "30d", "all"]).optional().default("all") }))
+    .query(async ({ input }) => {
+      const rows = await getUtmSourceCounts(input.period);
+      return rows;
+    }),
+
+  /**
+   * Protected: resend the welcome email to a specific contact.
+   */
+  resendWelcome: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const contact = await getContactById(input.id);
+      if (!contact) throw new TRPCError({ code: "NOT_FOUND", message: "Contact not found" });
+
+      const isBuyer = contact.contactType === "BUYER";
+      const subject = isBuyer
+        ? "Welcome to Apollo Home Builders — We'll Be in Touch Soon"
+        : "Thanks for Connecting — Apollo Home Builders";
+
+      const html = isBuyer
+        ? `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px;background:#f7f8fb">
+  <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo_31888db6.webp" alt="Apollo Home Builders" style="height:48px;margin-bottom:24px" />
+  <h2 style="color:#0f2044;margin:0 0 12px">Hi ${contact.firstName},</h2>
+  <p style="color:#374151;line-height:1.6">Thank you for reaching out to Apollo Home Builders. We've received your inquiry and one of our team members will be in touch within 1 business day.</p>
+  <p style="color:#374151;line-height:1.6">In the meantime, feel free to explore our available homes and lots at <a href="https://apollohomebuilders.com/find-your-home" style="color:#0f2044">apollohomebuilders.com</a>.</p>
+  <p style="color:#374151;line-height:1.6">We look forward to helping you build your dream home in Pahrump.</p>
+  <p style="color:#374151;margin-top:24px">Warm regards,<br/><strong>Brandon Cobb</strong><br/>Apollo Home Builders<br/><a href="tel:7025551234" style="color:#0f2044">(702) 555-1234</a></p>
+</div>`
+        : `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px;background:#f7f8fb">
+  <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo_31888db6.webp" alt="Apollo Home Builders" style="height:48px;margin-bottom:24px" />
+  <h2 style="color:#0f2044;margin:0 0 12px">Hi ${contact.firstName},</h2>
+  <p style="color:#374151;line-height:1.6">Thank you for connecting with Apollo Home Builders. We appreciate your interest in our new construction projects in Pahrump, NV.</p>
+  <p style="color:#374151;line-height:1.6">A member of our team will reach out shortly to discuss how we can work together.</p>
+  <p style="color:#374151;margin-top:24px">Warm regards,<br/><strong>Brandon Cobb</strong><br/>Apollo Home Builders</p>
+</div>`;
+
+      const { error } = await resend.emails.send({
+        from: "Brandon Cobb <brandon@apollohomebuilders.com>",
+        to: contact.email,
+        subject,
+        html,
+      });
+
+      if (error) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error.message });
+
+      await logEmail({
+        contactId: contact.id,
+        templateId: "welcome-resend",
+        subject,
+        toEmail: contact.email,
+        status: "SENT",
+      });
+      await logActivity({
+        contactId: contact.id,
+        activityType: "EMAIL_SENT",
+        description: `Welcome email re-sent manually by admin`,
+      });
+
+      return { success: true };
     }),
 });

@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, isNotNull, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   ActivityLog,
@@ -356,4 +356,31 @@ export async function deleteBlogPost(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(blogPosts).where(eq(blogPosts.id, id));
+}
+
+// ─── UTM Attribution Counts ───────────────────────────────────────────────────
+
+export async function getUtmSourceCounts(period?: "7d" | "30d" | "all") {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff =
+    period === "7d"
+      ? new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      : period === "30d"
+        ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        : null;
+  const conditions = cutoff
+    ? and(isNotNull(contacts.utmSource), gte(contacts.createdAt, cutoff))
+    : isNotNull(contacts.utmSource);
+  return db
+    .select({
+      utmSource: contacts.utmSource,
+      utmMedium: contacts.utmMedium,
+      utmCampaign: contacts.utmCampaign,
+      count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(contacts)
+    .where(conditions)
+    .groupBy(contacts.utmSource, contacts.utmMedium, contacts.utmCampaign)
+    .orderBy(desc(sql<number>`count(*)`));
 }

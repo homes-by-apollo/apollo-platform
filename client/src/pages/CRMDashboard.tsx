@@ -113,6 +113,51 @@ function SourceChart({ sourceCounts }: { sourceCounts: { source: string; count: 
   );
 }
 
+// ─── UTM Source Chart ────────────────────────────────────────────────────────
+
+const UTM_COLORS = [
+  "#0f2044", "#1a3366", "#c8a96e", "#e07b39", "#059669",
+  "#7c3aed", "#dc2626", "#0284c7", "#ca8a04", "#94a3b8",
+];
+
+function UtmChart({ rows }: { rows: { utmSource: string | null; utmMedium: string | null; utmCampaign: string | null; count: number }[] }) {
+  // Roll up by source for the bar chart
+  const bySource: Record<string, number> = {};
+  for (const r of rows) {
+    const src = r.utmSource ?? "(direct)";
+    bySource[src] = (bySource[src] ?? 0) + r.count;
+  }
+  const sorted = Object.entries(bySource).sort((a, b) => b[1] - a[1]);
+  const total = sorted.reduce((s, [, c]) => s + c, 0);
+
+  if (total === 0) {
+    return <p className="text-xs text-muted-foreground py-2">No UTM-tagged leads yet. Start running ads with UTM parameters to see attribution here.</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {sorted.map(([src, count], i) => {
+        const pct = Math.round((count / total) * 100);
+        const color = UTM_COLORS[i % UTM_COLORS.length];
+        return (
+          <div key={src} className="flex items-center gap-3">
+            <div className="w-20 text-xs text-muted-foreground text-right shrink-0 truncate" title={src}>{src}</div>
+            <div className="flex-1 h-5 bg-slate-100 rounded-md overflow-hidden">
+              <div
+                className="h-full rounded-md transition-all duration-500 flex items-center justify-end pr-2"
+                style={{ width: `${Math.max(pct, count > 0 ? 4 : 0)}%`, background: color }}
+              >
+                {count > 0 && <span className="text-[10px] font-bold text-white">{count}</span>}
+              </div>
+            </div>
+            <div className="text-xs text-muted-foreground w-8 text-right">{pct}%</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Funnel Bar Chart ─────────────────────────────────────────────────────────
 
 function FunnelChart({ stageCounts }: { stageCounts: { stage: string; count: number }[] }) {
@@ -160,9 +205,11 @@ export default function CRMDashboard() {
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [sourcePeriod, setSourcePeriod] = useState<"7d" | "30d" | "all">("all");
   const [trafficPeriod, setTrafficPeriod] = useState<"7d" | "30d" | "month" | "6mo" | "12mo">("30d");
+  const [utmPeriod, setUtmPeriod] = useState<"7d" | "30d" | "all">("all");
 
   const statsQuery = trpc.leads.dashboardStats.useQuery({ sourcePeriod });
   const trafficQuery = trpc.analytics.trafficStats.useQuery({ period: trafficPeriod });
+  const utmQuery = trpc.leads.utmStats.useQuery({ period: utmPeriod });
   const contactsQuery = trpc.leads.list.useQuery({
     pipelineStage: stageFilter !== "ALL" ? stageFilter as any : undefined,
     contactType: typeFilter !== "ALL" ? typeFilter as any : undefined,
@@ -262,6 +309,13 @@ export default function CRMDashboard() {
             className="text-white/60 hover:text-white text-sm transition-colors"
           >
             Admin Users
+          </button>
+          <span className="text-white/30">|</span>
+          <button
+            onClick={() => window.location.href = "/crm/utm-builder"}
+            className="text-white/60 hover:text-white text-sm transition-colors"
+          >
+            UTM Builder
           </button>
         </div>
         <div className="flex items-center gap-3">
@@ -493,6 +547,36 @@ export default function CRMDashboard() {
                 <div className="text-sm text-muted-foreground py-4">Loading…</div>
               ) : (
                 <SourceChart sourceCounts={sourceCounts} />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="lg:col-span-1 border-0 shadow-sm">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-bold text-[#0f2044] uppercase tracking-wider">Ad Attribution</CardTitle>
+                <div className="flex gap-1">
+                  {(["7d", "30d", "all"] as const).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setUtmPeriod(p)}
+                      className={`text-[10px] px-2 py-0.5 rounded font-semibold transition-colors ${
+                        utmPeriod === p
+                          ? "bg-[#0f2044] text-white"
+                          : "bg-slate-100 text-muted-foreground hover:bg-slate-200"
+                      }`}
+                    >
+                      {p === "all" ? "All" : p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {utmQuery.isLoading ? (
+                <div className="text-sm text-muted-foreground py-4">Loading…</div>
+              ) : (
+                <UtmChart rows={utmQuery.data ?? []} />
               )}
             </CardContent>
           </Card>

@@ -76,6 +76,14 @@ export default function LeadDetail({ id, onBack }: Props) {
   const [newStage, setNewStage] = useState<string>("");
   const [lossReason, setLossReason] = useState<string>("");
 
+  const resendWelcome = trpc.leads.resendWelcome.useMutation({
+    onSuccess: () => {
+      utils.leads.getById.invalidate({ id });
+      toast.success("Welcome email sent");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
   const updateStage = trpc.leads.updateStage.useMutation({
     onSuccess: () => {
       utils.leads.getById.invalidate({ id });
@@ -129,6 +137,19 @@ export default function LeadDetail({ id, onBack }: Props) {
             {contact.leadScore}
           </span>
         )}
+        <div className="ml-auto">
+          <button
+            onClick={() => resendWelcome.mutate({ id })}
+            disabled={resendWelcome.isPending}
+            className="text-xs border border-white/30 hover:border-white/70 text-white/70 hover:text-white rounded px-3 py-1.5 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          >
+            {resendWelcome.isPending ? (
+              <>⧗ Sending…</>
+            ) : (
+              <>✉️ Resend Welcome Email</>
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="px-6 py-6 max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">

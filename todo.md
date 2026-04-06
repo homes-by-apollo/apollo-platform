@@ -502,3 +502,8 @@
 - [x] Wire contact form confirmation email (buyer receives reply on submit) — already wired, confirmed working
 - [x] Add UTM parameter capture to /get-in-touch and /find-your-home
 - [x] Store utm_source, utm_medium, utm_campaign, utm_content, utm_term, landingPage with each lead submission
+
+## Current Session — UTM Chart + URL Builder + Resend Button
+- [x] Add UTM source breakdown chart to CRM dashboard
+- [x] Build UTM URL builder page in the CRM
+- [x] Add Resend welcome email button to lead detail view

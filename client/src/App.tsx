@@ -11,6 +11,7 @@ import CRMDashboard from "./pages/CRMDashboard";
 import CRMProperties from "./pages/CRMProperties";
 import CRMBlog from "./pages/CRMBlog";
 import CRMUsers from "./pages/CRMUsers";
+import CRMUtmBuilder from "./pages/CRMUtmBuilder";
 import AdminLogin from "./pages/AdminLogin";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -29,6 +30,7 @@ function Router() {
       <Route path={"/crm/properties"} component={CRMProperties} />
       <Route path={"/crm/blog"} component={CRMBlog} />
       <Route path={"/crm/users"} component={CRMUsers} />
+      <Route path={"/crm/utm-builder"} component={CRMUtmBuilder} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
