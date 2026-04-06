@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 
@@ -29,7 +31,6 @@ function RenderBody({ body }: { body: string }) {
     } else if (line.startsWith("### ")) {
       elements.push(<h3 key={key++} style={{ fontSize: 18, fontWeight: 700, color: TXT, marginTop: 28, marginBottom: 10 }}>{line.slice(4)}</h3>);
     } else if (line.startsWith("![")) {
-      // Image: ![alt](url)
       const match = line.match(/!\[([^\]]*)\]\(([^)]+)\)/);
       if (match) {
         elements.push(
@@ -40,13 +41,12 @@ function RenderBody({ body }: { body: string }) {
         );
       }
     } else if (line.startsWith("- ") || line.startsWith("* ")) {
-      // Collect consecutive list items
       const items: string[] = [];
       while (i < lines.length && (lines[i].startsWith("- ") || lines[i].startsWith("* "))) {
         items.push(lines[i].slice(2));
         i++;
       }
-      i--; // back up one since the loop will increment
+      i--;
       elements.push(
         <ul key={key++} style={{ margin: "16px 0 16px 24px", listStyleType: "disc" }}>
           {items.map((item, j) => (
@@ -61,7 +61,7 @@ function RenderBody({ body }: { body: string }) {
         </blockquote>
       );
     } else if (line.trim() === "" || line.trim() === "---") {
-      // skip blank lines / horizontal rules
+      // skip
     } else {
       elements.push(
         <p key={key++} style={{ fontSize: 16, color: TXT, lineHeight: 1.85, marginBottom: 18 }} dangerouslySetInnerHTML={{ __html: renderInline(line) }} />
@@ -73,14 +73,146 @@ function RenderBody({ body }: { body: string }) {
 }
 
 function renderInline(text: string): string {
-  // Bold: **text**
   let result = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-  // Italic: *text*
   result = result.replace(/\*(.+?)\*/g, "<em>$1</em>");
-  // Links: [text](url)
   result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, `<a href="$2" style="color:${G};text-decoration:underline;" target="_blank" rel="noopener">$1</a>`);
   return result;
 }
+
+// ─── Share Button ─────────────────────────────────────────────────────────────
+
+function ShareButton({ url, title, excerpt }: { url: string; title: string; excerpt?: string }) {
+  const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback for older browsers
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+  const xUrl = `https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          display: "flex", alignItems: "center", gap: 7,
+          background: "transparent", border: `1.5px solid ${BOR}`,
+          borderRadius: 8, padding: "7px 14px", cursor: "pointer",
+          fontSize: 13, fontWeight: 700, color: G, fontFamily: "inherit",
+          transition: "all 0.15s",
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = G; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = BOR; }}
+      >
+        {/* Share icon */}
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        Share
+      </button>
+
+      {open && (
+        <>
+          {/* Backdrop to close */}
+          <div style={{ position: "fixed", inset: 0, zIndex: 99 }} onClick={() => setOpen(false)} />
+          <div style={{
+            position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 100,
+            background: "white", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.14)",
+            border: `1px solid ${BOR}`, padding: "8px", minWidth: 200,
+            fontFamily: "inherit",
+          }}>
+            {/* Copy link */}
+            <button
+              onClick={handleCopy}
+              style={{
+                display: "flex", alignItems: "center", gap: 10, width: "100%",
+                background: copied ? "#f0fdf4" : "transparent",
+                border: "none", borderRadius: 8, padding: "10px 12px",
+                cursor: "pointer", fontSize: 13, fontWeight: 600,
+                color: copied ? "#16a34a" : TXT, fontFamily: "inherit", textAlign: "left",
+                transition: "background 0.15s",
+              }}
+            >
+              {copied ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={MUT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              )}
+              {copied ? "Link copied!" : "Copy link"}
+            </button>
+
+            <div style={{ height: 1, background: BOR, margin: "4px 0" }} />
+
+            {/* LinkedIn */}
+            <a
+              href={linkedInUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              style={{
+                display: "flex", alignItems: "center", gap: 10, width: "100%",
+                background: "transparent", border: "none", borderRadius: 8,
+                padding: "10px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600,
+                color: TXT, fontFamily: "inherit", textDecoration: "none",
+                transition: "background 0.15s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "#f0f4ff"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
+            >
+              {/* LinkedIn icon */}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#0A66C2">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+              Share on LinkedIn
+            </a>
+
+            {/* X (Twitter) */}
+            <a
+              href={xUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              style={{
+                display: "flex", alignItems: "center", gap: 10, width: "100%",
+                background: "transparent", border: "none", borderRadius: 8,
+                padding: "10px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600,
+                color: TXT, fontFamily: "inherit", textDecoration: "none",
+                transition: "background 0.15s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "#f0f4ff"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
+            >
+              {/* X icon */}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#000000">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              Share on X
+            </a>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function PublicBlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -95,6 +227,11 @@ export default function PublicBlogPost() {
     { category: post?.category ?? "", excludeId: post?.id ?? 0 },
     { enabled: !!post?.category && !!post?.id }
   );
+
+  // Canonical URL for OG tags
+  const canonicalUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/blog/${slug}`
+    : `https://apollohomebuilders.com/blog/${slug}`;
 
   if (isLoading) {
     return (
@@ -122,8 +259,35 @@ export default function PublicBlogPost() {
     );
   }
 
+  const ogDescription = post.excerpt ?? `Read ${post.title} on the Apollo Home Builders blog.`;
+  const ogImage = post.imageUrl ?? "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png";
+
   return (
     <div style={{ fontFamily: "'Manrope',system-ui,sans-serif", background: BG, color: TXT, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+
+      {/* ── OG / SEO META TAGS ── */}
+      <Helmet>
+        <title>{post.title} | Apollo Home Builders</title>
+        <meta name="description" content={ogDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={ogDescription} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content="Apollo Home Builders" />
+        {post.publishedAt && <meta property="article:published_time" content={new Date(post.publishedAt).toISOString()} />}
+        {post.author && <meta property="article:author" content={post.author} />}
+
+        {/* Twitter / X Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={ogDescription} />
+        <meta name="twitter:image" content={ogImage} />
+      </Helmet>
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -185,10 +349,10 @@ export default function PublicBlogPost() {
           {/* Title */}
           <h1 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 900, color: TXT, lineHeight: 1.15, marginBottom: 20, letterSpacing: "-0.02em" }}>{post.title}</h1>
 
-          {/* Meta row */}
-          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 36, paddingBottom: 24, borderBottom: `1px solid ${BOR}` }}>
+          {/* Meta row — author, date, read time, SHARE */}
+          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 36, paddingBottom: 24, borderBottom: `1px solid ${BOR}`, flexWrap: "wrap" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: G, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, fontWeight: 800 }}>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: G, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, fontWeight: 800, flexShrink: 0 }}>
                 {(post.author ?? "A")[0].toUpperCase()}
               </div>
               <div>
@@ -200,6 +364,16 @@ export default function PublicBlogPost() {
             <div style={{ fontSize: 13, color: MUT }}>{formatDate(post.publishedAt)}</div>
             <div style={{ width: 1, height: 32, background: BOR }} />
             <div style={{ fontSize: 13, color: MUT }}>{post.readTime ?? "5 min"} read</div>
+
+            {/* Spacer pushes Share button to the right */}
+            <div style={{ flex: 1 }} />
+
+            {/* Share button */}
+            <ShareButton
+              url={canonicalUrl}
+              title={post.title}
+              excerpt={post.excerpt ?? undefined}
+            />
           </div>
 
           {/* Body */}
@@ -220,7 +394,7 @@ export default function PublicBlogPost() {
               <button onClick={() => setLocation("/find-your-home")} style={{ background: "white", color: G, border: "none", borderRadius: 8, padding: "12px 28px", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.04em" }}>
                 FIND YOUR HOME
               </button>
-              <button onClick={() => setLocation("/get-in-touch")} style={{ background: "transparent", color: "white", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 8, padding: "12px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              <button onClick={() => setLocation("/get-in-touch")} style={{ background: "transparent", color: "white", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 8, padding: "12px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.04em" }}>
                 GET IN TOUCH
               </button>
             </div>
@@ -241,7 +415,7 @@ export default function PublicBlogPost() {
                 <div
                   key={r.id}
                   className="related-card"
-                  onClick={() => setLocation(`/blog/${r.slug ?? r.id}`)}
+                  onClick={() => setLocation(`/blog/${(r as { slug?: string }).slug ?? r.id}`)}
                   style={{ background: BG, borderRadius: 14, overflow: "hidden", cursor: "pointer", border: `1px solid ${BOR}`, boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}
                 >
                   {r.imageUrl && (

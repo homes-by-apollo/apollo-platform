@@ -576,3 +576,8 @@
 - [x] Add slug + author fields to SCOPS Blog form
 - [x] Add blog post preview modal in SCOPS Blog
 - [x] Publish all three blog posts
+
+## Blog UX Enhancements (Apr 6 2026 — Session 3)
+- [x] Add OG meta tags (og:title, og:description, og:image, og:url, twitter:card) to blog post detail page
+- [x] Add Share button to blog post detail page: copy-to-clipboard URL, LinkedIn share link, X share link
+- [x] Add blog post creation shortcut to SCOPS home dashboard

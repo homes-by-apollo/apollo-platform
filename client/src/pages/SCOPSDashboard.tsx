@@ -196,6 +196,7 @@ export default function SCOPSDashboard() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
   const loading = adminMeQuery.isLoading;
+  const [, setLocation] = useLocation();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("ALL");
@@ -297,6 +298,85 @@ export default function SCOPSDashboard() {
                   <div className="text-xs text-muted-foreground">{sub}</div>
                 </CardContent>
               </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Quick Actions</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {[
+              {
+                label: "New Blog Post",
+                description: "Write & publish content",
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                ),
+                href: "/scops/blog?new=1",
+                accent: "#0f2044",
+              },
+              {
+                label: "Add Lead",
+                description: "Create a new CRM contact",
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+                  </svg>
+                ),
+                href: "/scops/leads?new=1",
+                accent: "#1a3366",
+              },
+              {
+                label: "Schedule Tour",
+                description: "Book a site visit",
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                ),
+                href: "/scops/scheduling",
+                accent: "#059669",
+              },
+              {
+                label: "View Properties",
+                description: "Manage listings",
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                ),
+                href: "/scops/properties",
+                accent: "#7c3aed",
+              },
+              {
+                label: "UTM Builder",
+                description: "Generate tracking links",
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                  </svg>
+                ),
+                href: "/scops/utm-builder",
+                accent: "#e07b39",
+              },
+            ].map(({ label, description, icon, href, accent }) => (
+              <button
+                key={label}
+                onClick={() => setLocation(href)}
+                className="group text-left bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:shadow-md hover:border-slate-200 transition-all duration-200 cursor-pointer"
+              >
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center mb-3 transition-transform group-hover:scale-110"
+                  style={{ background: `${accent}15`, color: accent }}
+                >
+                  {icon}
+                </div>
+                <div className="text-sm font-bold text-[#0d1b2a] leading-tight">{label}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{description}</div>
+              </button>
             ))}
           </div>
         </div>
