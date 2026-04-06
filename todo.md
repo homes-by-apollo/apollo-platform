@@ -463,3 +463,12 @@
 - [x] Create /find-your-home dedicated page (renders ApolloSite with homes section pre-selected)
 - [x] Update all nav buttons (desktop, mobile menu, mobile sticky bar) to push real URLs via wouter
 - [x] Register /get-in-touch and /find-your-home routes in App.tsx
+
+## Admin Credentials & Resend (Current Session)
+- [x] Set RESEND_API_KEY secret for email delivery
+- [x] Set ADMIN_KYLE_HASH secret (Pahrump2026!$#)
+- [x] Set ADMIN_BRANDON_HASH secret (Pahrump2026!$#)
+- [x] Add jonathan@apollohomebuilders.com to seedAdmins list
+- [x] Set ADMIN_JONATHAN_HASH secret (Pahrump2026!$#)
+- [x] Write and pass vitest for credential hash validation (35 tests pass)
+- [ ] Verify apollohomebuilders.com domain in Resend (required for password reset emails)

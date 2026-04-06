@@ -37,8 +37,8 @@ export async function verifyAdminToken(token: string) {
 }
 
 /**
- * Ensure the two admin accounts exist in the DB.
- * Passwords come from env vars: ADMIN_KYLE_HASH and ADMIN_BRANDON_HASH.
+ * Ensure all admin accounts exist in the DB.
+ * Passwords come from env vars: ADMIN_KYLE_HASH, ADMIN_BRANDON_HASH, ADMIN_JONATHAN_HASH.
  * If the env var is not set, that admin cannot log in yet.
  */
 async function seedAdmins() {
@@ -48,6 +48,7 @@ async function seedAdmins() {
   const admins = [
     { email: "kyle@apollohomebuilders.com", name: "Kyle", hashEnv: process.env.ADMIN_KYLE_HASH },
     { email: "brandon@apollohomebuilders.com", name: "Brandon", hashEnv: process.env.ADMIN_BRANDON_HASH },
+    { email: "jonathan@apollohomebuilders.com", name: "Jonathan", hashEnv: process.env.ADMIN_JONATHAN_HASH },
   ];
 
   for (const admin of admins) {
