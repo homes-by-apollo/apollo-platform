@@ -3,6 +3,8 @@ import {
   getDealsAtRisk,
   getInventoryHealth,
   getInventoryStats,
+  getPipelineInsights,
+  getPipelineKanban,
   getRecentActivity,
   getRevenueForecast,
   getSourcePerformance,
@@ -46,5 +48,15 @@ export const dashboardRouter = router({
       sourcePerformance,
       recentActivity,
     };
+  }),
+
+  /** Protected: all leads for the kanban pipeline board */
+  pipelineKanban: protectedProcedure.query(async () => {
+    return getPipelineKanban();
+  }),
+
+  /** Protected: aggregate pipeline insights strip */
+  pipelineInsights: protectedProcedure.query(async () => {
+    return getPipelineInsights();
   }),
 });

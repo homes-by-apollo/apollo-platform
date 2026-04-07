@@ -15,6 +15,7 @@ import SCOPSBlog from "./pages/SCOPSBlog";
 import SCOPSUsers from "./pages/SCOPSUsers";
 import SCOPSUtmBuilder from "./pages/SCOPSUtmBuilder";
 import SCOPSScheduling from "./pages/SCOPSScheduling";
+import SCOPSPipeline from "./pages/SCOPSPipeline";
 import AdminLogin from "./pages/AdminLogin";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -41,7 +42,8 @@ function Router() {
       <Route path="/scops/blog" component={SCOPSBlog} />
       <Route path="/scops/users" component={SCOPSUsers} />
       <Route path="/scops/utm-builder" component={SCOPSUtmBuilder} />
-      <Route path="/scops/scheduling" component={SCOPSScheduling} />
+      <Route path="/scops/scheduling" component={SCOPSPipeline} />
+      <Route path="/scops/scheduling/tours" component={SCOPSScheduling} />
 
       {/* Backward-compatibility redirects: /crm/* → /scops/* */}
       <Route path="/crm">{() => <Redirect to="/scops" />}</Route>

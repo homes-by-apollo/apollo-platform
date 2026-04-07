@@ -1157,11 +1157,11 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
               }}>
                 {/* LEFT — Book image, flat vertical on dark bg */}
                 <div className="nl-book-col" style={{
-                  flex:"0 0 360px",
+                  flex:"0 0 460px",
                   display:"flex",
                   alignItems:"center",
                   justifyContent:"center",
-                  padding:"40px 32px",
+                  padding:"32px 24px",
                   background:"rgba(255,255,255,0.04)",
                   borderRadius:"20px 0 0 20px",
                   overflow:"hidden",
@@ -1171,7 +1171,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                     alt="2026 Pahrump Home Buyer's Guide"
                     style={{
                       width:"100%",
-                      maxWidth:260,
+                      maxWidth:390,
                       height:"auto",
                       display:"block",
                       filter:"drop-shadow(0 20px 48px rgba(0,0,0,0.55))",

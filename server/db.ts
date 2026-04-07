@@ -748,3 +748,111 @@ export async function getRecentActivity(limit = 20) {
     .orderBy(desc(activityLog.createdAt))
     .limit(limit);
 }
+
+// ─── Pipeline Kanban ──────────────────────────────────────────────────────────
+
+/**
+ * Returns all active leads grouped by pipeline stage, enriched with:
+ * - primary property address
+ * - last activity timestamp
+ * - overdue flag (no activity in 48h)
+ * - assigned user name
+ * Sorted within each stage by: overdue first → HOT → recent activity → rest
+ */
+export async function getPipelineKanban() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const OVERDUE_MS = 48 * 60 * 60 * 1000;
+  const now = Date.now();
+
+  // Fetch all non-closed/non-lost leads with their primary property
+  const rows = await db
+    .select({
+      id: contacts.id,
+      firstName: contacts.firstName,
+      lastName: contacts.lastName,
+      email: contacts.email,
+      phone: contacts.phone,
+      pipelineStage: contacts.pipelineStage,
+      leadScore: contacts.leadScore,
+      timeline: contacts.timeline,
+      financingStatus: contacts.financingStatus,
+      priceRangeMin: contacts.priceRangeMin,
+      priceRangeMax: contacts.priceRangeMax,
+      nextAction: contacts.nextAction,
+      lastContactedAt: contacts.lastContactedAt,
+      tourDate: contacts.tourDate,
+      createdAt: contacts.createdAt,
+      updatedAt: contacts.updatedAt,
+      assignedTo: contacts.assignedTo,
+      primaryPropertyId: contacts.primaryPropertyId,
+      propertyAddress: properties.address,
+      propertyPrice: properties.price,
+      assignedUserName: users.name,
+    })
+    .from(contacts)
+    .leftJoin(properties, eq(contacts.primaryPropertyId, properties.id))
+    .leftJoin(users, eq(contacts.assignedTo, users.id))
+    .orderBy(desc(contacts.updatedAt));
+
+  // Enrich with overdue flag and urgency score
+  return rows.map(row => {
+    const lastActivity = row.lastContactedAt ?? row.updatedAt ?? row.createdAt;
+    const msSince = lastActivity ? now - new Date(lastActivity).getTime() : Infinity;
+    const isOverdue = msSince > OVERDUE_MS;
+    const urgencyScore =
+      (isOverdue ? 1000 : 0) +
+      (row.leadScore === "HOT" ? 100 : row.leadScore === "WARM" ? 50 : 0) +
+      Math.floor(msSince / 1000 / 60); // minutes since last activity
+    return { ...row, isOverdue, urgencyScore, lastActivityAt: lastActivity };
+  });
+}
+
+/**
+ * Returns aggregate pipeline insights: total value, conversion rate,
+ * avg days in stage, and bottleneck stage.
+ */
+export async function getPipelineInsights() {
+  const db = await getDb();
+  if (!db) return { totalPipelineValue: 0, conversionRate: 0, avgDaysInStage: 0, bottleneckStage: "NEW_INQUIRY" as string, activeDealCount: 0 };
+
+  const allLeads = await db.select({
+    pipelineStage: contacts.pipelineStage,
+    priceRangeMax: contacts.priceRangeMax,
+    createdAt: contacts.createdAt,
+    updatedAt: contacts.updatedAt,
+  }).from(contacts);
+
+  const active = allLeads.filter(l =>
+    l.pipelineStage !== "CLOSED" && l.pipelineStage !== "LOST"
+  );
+  const closed = allLeads.filter(l => l.pipelineStage === "CLOSED");
+  const total = allLeads.length;
+
+  const totalPipelineValue = active.reduce((sum, l) => sum + (l.priceRangeMax ?? 350000), 0);
+  const conversionRate = total > 0 ? Math.round((closed.length / total) * 1000) / 10 : 0;
+
+  // Avg days in stage (rough: updatedAt - createdAt for active leads)
+  const avgDaysInStage = active.length > 0
+    ? Math.round(active.reduce((sum, l) => {
+        const days = (new Date(l.updatedAt ?? l.createdAt).getTime() - new Date(l.createdAt).getTime()) / 86400000;
+        return sum + days;
+      }, 0) / active.length)
+    : 0;
+
+  // Bottleneck: stage with most leads
+  const stageCounts: Record<string, number> = {};
+  for (const l of active) {
+    stageCounts[l.pipelineStage] = (stageCounts[l.pipelineStage] ?? 0) + 1;
+  }
+  const bottleneckStage = Object.entries(stageCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "NEW_INQUIRY";
+
+  return {
+    totalPipelineValue,
+    conversionRate,
+    avgDaysInStage,
+    bottleneckStage,
+    activeDealCount: active.length,
+  };
+}

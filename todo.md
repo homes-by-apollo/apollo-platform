@@ -673,3 +673,9 @@
 - [x] Rename Active Pipeline → "Today's Focus", sort by urgency/score/recency, add primary property + last activity + next action columns
 - [x] KPI cards: add micro-signals (trend indicator, vs last period context)
 - [x] Increase information density, reduce vertical whitespace
+
+## Apr 6 2026 — Multi-task batch
+- [ ] Enlarge buyer's guide book image by 50%
+- [ ] Rebuild Pipeline tab as Liquid Glass kanban conversion workspace
+- [ ] Send buyers guide PDF to kyleryankelly@gmail.com
+- [ ] Test email capture form with kyle@kylekelly.co
