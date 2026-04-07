@@ -702,3 +702,11 @@
 - [x] Add slugs to static blog fallback data so cards link to correct articles
 - [x] Blog cards on homepage now link to /blog/{slug} with hover animation
 - [x] Blog card images in PublicBlog.tsx updated to match published post images
+
+## Apr 7 2026 — SCOPS Tab Redesigns + Footer Polish
+- [x] Add Instagram CTA ("📸 Follow @homesby.apollo") to GlobalFooter below subscribe form
+- [x] Add footer_subscribe Plausible event on footer form success
+- [x] Redesign SCOPS Pipeline tab — Liquid Glass kanban (lead list + map + detail panel)
+- [x] Redesign SCOPS Inventory tab — map-centric view with lead cards and property detail panel
+- [x] Redesign SCOPS Marketing tab — Channel Performance, Campaign Leaderboard, Landing Pages, UTM Builder
+- [x] Redesign SCOPS Content tab — Blog Posts table with KPI cards and Landing Pages panels

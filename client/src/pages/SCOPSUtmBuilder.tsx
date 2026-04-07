@@ -1,104 +1,49 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import SCOPSNav from "@/components/SCOPSNav";
-
-// ─── Pre-built campaign templates ─────────────────────────────────────────────
+import { getLoginUrl } from "@/const";
 
 const TEMPLATES = [
-  {
-    label: "Google Search — Pahrump Homes",
-    source: "google",
-    medium: "cpc",
-    campaign: "pahrump-new-homes",
-    content: "search-brand",
-    term: "pahrump+new+homes",
-    landingPage: "/get-in-touch",
-  },
-  {
-    label: "Google Search — Build a Home NV",
-    source: "google",
-    medium: "cpc",
-    campaign: "nevada-home-builder",
-    content: "search-generic",
-    term: "build+a+home+nevada",
-    landingPage: "/get-in-touch",
-  },
-  {
-    label: "Facebook — New Homes Pahrump",
-    source: "facebook",
-    medium: "paid-social",
-    campaign: "pahrump-new-homes",
-    content: "carousel-homes",
-    term: "",
-    landingPage: "/find-your-home",
-  },
-  {
-    label: "Facebook — Retargeting",
-    source: "facebook",
-    medium: "paid-social",
-    campaign: "retargeting",
-    content: "retarget-visitors",
-    term: "",
-    landingPage: "/get-in-touch",
-  },
-  {
-    label: "Instagram — Home Build Story",
-    source: "instagram",
-    medium: "paid-social",
-    campaign: "brand-awareness",
-    content: "story-build",
-    term: "",
-    landingPage: "/find-your-home",
-  },
-  {
-    label: "Email Newsletter",
-    source: "email",
-    medium: "newsletter",
-    campaign: "monthly-update",
-    content: "cta-button",
-    term: "",
-    landingPage: "/get-in-touch",
-  },
-  {
-    label: "Billboard — Pahrump Hwy 160",
-    source: "billboard",
-    medium: "outdoor",
-    campaign: "pahrump-hwy160",
-    content: "qr-code",
-    term: "",
-    landingPage: "/get-in-touch",
-  },
-  {
-    label: "Zillow Profile",
-    source: "zillow",
-    medium: "listing",
-    campaign: "zillow-profile",
-    content: "website-link",
-    term: "",
-    landingPage: "/find-your-home",
-  },
+  { label: "Google Search — Pahrump Homes", source: "google", medium: "cpc", campaign: "pahrump-new-homes", content: "search-brand", term: "pahrump+new+homes", landingPage: "/get-in-touch" },
+  { label: "Google Search — Build a Home NV", source: "google", medium: "cpc", campaign: "nevada-home-builder", content: "search-generic", term: "build+a+home+nevada", landingPage: "/get-in-touch" },
+  { label: "Facebook — New Homes Pahrump", source: "facebook", medium: "paid-social", campaign: "pahrump-new-homes", content: "carousel-homes", term: "", landingPage: "/find-your-home" },
+  { label: "Facebook — Retargeting", source: "facebook", medium: "paid-social", campaign: "retargeting", content: "retarget-visitors", term: "", landingPage: "/get-in-touch" },
+  { label: "Instagram — Home Build Story", source: "instagram", medium: "paid-social", campaign: "brand-awareness", content: "story-build", term: "", landingPage: "/find-your-home" },
+  { label: "Email Newsletter", source: "email", medium: "newsletter", campaign: "monthly-update", content: "cta-button", term: "", landingPage: "/get-in-touch" },
+  { label: "Billboard — Pahrump Hwy 160", source: "billboard", medium: "outdoor", campaign: "pahrump-hwy160", content: "qr-code", term: "", landingPage: "/get-in-touch" },
+  { label: "Zillow Profile", source: "zillow", medium: "listing", campaign: "zillow-profile", content: "website-link", term: "", landingPage: "/find-your-home" },
 ];
-
 const BASE_URL = "https://apollohomebuilders.com";
-
 const LANDING_PAGES = [
   { value: "/get-in-touch", label: "/get-in-touch — Contact Form" },
   { value: "/find-your-home", label: "/find-your-home — Browse Homes" },
   { value: "/", label: "/ — Homepage" },
 ];
-
-function buildUrl(params: {
-  landingPage: string;
-  source: string;
-  medium: string;
-  campaign: string;
-  content: string;
-  term: string;
-}) {
+const CHANNEL_DATA = [
+  { name: "Zillow", icon: "🏠", leads: 57, color: "#006AFF" },
+  { name: "Facebook Ads", icon: "📘", leads: 32, color: "#1877F2" },
+  { name: "Google Ads", icon: "🔍", leads: 30, color: "#4285F4" },
+  { name: "Referrals", icon: "📧", leads: 19, color: "#10b981" },
+  { name: "Website", icon: "🌐", leads: 14, color: "#6366f1" },
+];
+const CAMPAIGN_DATA = [
+  { name: "Zillow", icon: "🏠", leads: 57, tours: 19, contracts: 6, revenue: "$3.15M" },
+  { name: "Facebook Ads", icon: "📘", leads: 32, tours: 12, contracts: 3, revenue: "$1.75M" },
+  { name: "Google Ads", icon: "🔍", leads: 30, tours: 9, contracts: 2, revenue: "$920K" },
+  { name: "Referrals", icon: "📧", leads: 19, tours: 6, contracts: 1, revenue: "$570K" },
+  { name: "Website", icon: "🌐", leads: 14, tours: 5, contracts: 1, revenue: "$330K" },
+];
+const LANDING_PAGE_DATA = [
+  { name: "Zillow Organic", icon: "🏠", visitors: 772, leads: 42, convRate: "$211M" },
+  { name: "Facebook Retargeting", icon: "📘", visitors: 593, leads: 25, convRate: "$175M" },
+  { name: "Google Search – 1BR Pahrump", icon: "🔍", visitors: 470, leads: 15, convRate: "$890K" },
+  { name: "Email Newsletter", icon: "📧", visitors: 125, leads: 10, convRate: "$330K" },
+];
+function buildUrl(params: { landingPage: string; source: string; medium: string; campaign: string; content: string; term: string }) {
   const qs = new URLSearchParams();
   if (params.source) qs.set("utm_source", params.source);
   if (params.medium) qs.set("utm_medium", params.medium);
@@ -108,234 +53,235 @@ function buildUrl(params: {
   const query = qs.toString();
   return `${BASE_URL}${params.landingPage}${query ? `?${query}` : ""}`;
 }
-
+function GlassCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.70)", borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.06)", overflow: "hidden", ...style }}>
+      {children}
+    </div>
+  );
+}
+function SH({ title, action }: { title: string; action?: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+      <span style={{ fontSize: 13, fontWeight: 700, color: "#1a1a2e", letterSpacing: 0.2 }}>{title}</span>
+      {action && <span style={{ fontSize: 11, color: "#6b7280" }}>{action}</span>}
+    </div>
+  );
+}
 export default function SCOPSUtmBuilder() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
+  const loading = adminMeQuery.isLoading;
   const [landingPage, setLandingPage] = useState("/get-in-touch");
   const [source, setSource] = useState("");
   const [medium, setMedium] = useState("");
   const [campaign, setCampaign] = useState("");
   const [content, setContent] = useState("");
   const [term, setTerm] = useState("");
-
-  const generatedUrl = useMemo(
-    () => buildUrl({ landingPage, source, medium, campaign, content, term }),
-    [landingPage, source, medium, campaign, content, term]
-  );
-
-  function applyTemplate(t: typeof TEMPLATES[0]) {
-    setLandingPage(t.landingPage);
-    setSource(t.source);
-    setMedium(t.medium);
-    setCampaign(t.campaign);
-    setContent(t.content);
-    setTerm(t.term);
-  }
-
-  function copyUrl() {
-    navigator.clipboard.writeText(generatedUrl).then(() => {
-      toast.success("URL copied to clipboard");
-    });
-  }
-
-  function reset() {
-    setLandingPage("/get-in-touch");
-    setSource("");
-    setMedium("");
-    setCampaign("");
-    setContent("");
-    setTerm("");
-  }
-
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+  const generatedUrl = useMemo(() => buildUrl({ landingPage, source, medium, campaign, content, term }), [landingPage, source, medium, campaign, content, term]);
+  function applyTemplate(t: typeof TEMPLATES[0]) { setLandingPage(t.landingPage); setSource(t.source); setMedium(t.medium); setCampaign(t.campaign); setContent(t.content); setTerm(t.term); }
+  function copyUrl() { navigator.clipboard.writeText(generatedUrl); toast.success("URL copied to clipboard"); }
+  function reset() { setLandingPage("/get-in-touch"); setSource(""); setMedium(""); setCampaign(""); setContent(""); setTerm(""); }
+  if (loading) return null;
+  if (!adminUser) { window.location.href = getLoginUrl(); return null; }
+  const totalLeads = CHANNEL_DATA.reduce((s, c) => s + c.leads, 0);
+  const maxLeads = Math.max(...CHANNEL_DATA.map(c => c.leads));
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <SCOPSNav adminUser={{ name: adminUser?.name ?? "" }} currentPage="utm-builder" />
-
-      <div className="px-6 py-6 max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Left: Builder Form */}
-        <div className="lg:col-span-2 space-y-4">
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Build Your URL</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Landing Page */}
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #e8edf8 0%, #d8e4f4 30%, #ccd8f0 60%, #d4dcf0 100%)", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+      <SCOPSNav adminUser={adminUser} currentPage="utm-builder" />
+      {/* Filter Bar */}
+      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.50)", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        {["All Inventory ▾", "Performance ▾", "Map View ▾", "Marketing Readiness ▾"].map((label, i) => (
+          <button key={label} style={{ padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: i === 0 ? "rgba(15,32,68,0.10)" : "rgba(255,255,255,0.70)", border: i === 0 ? "1px solid rgba(15,32,68,0.20)" : "1px solid rgba(0,0,0,0.10)", color: i === 0 ? "#0f2044" : "#6b7280", cursor: "pointer" }}>{label}</button>
+        ))}
+        <div style={{ flex: 1, minWidth: 200, maxWidth: 280, marginLeft: "auto" }}>
+          <input placeholder="Search address, city or zip…" style={{ width: "100%", padding: "6px 14px", background: "rgba(255,255,255,0.80)", border: "1px solid rgba(0,0,0,0.12)", borderRadius: 20, color: "#1a1a2e", fontSize: 12, outline: "none" }} />
+        </div>
+      </div>
+      {/* 3-Column Body */}
+      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "300px 1fr 300px", gap: 16, padding: 16, overflow: "auto" }}>
+        {/* LEFT */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <GlassCard>
+            <SH title="Channel Performance" action="Past 60 Days ▾" />
+            <div style={{ padding: "10px 16px 14px" }}>
+              {CHANNEL_DATA.map(ch => (
+                <div key={ch.name} onClick={() => setSelectedChannel(selectedChannel === ch.name ? null : ch.name)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 10, cursor: "pointer", marginBottom: 4, background: selectedChannel === ch.name ? "rgba(15,32,68,0.06)" : "transparent", transition: "background 0.15s" }}>
+                  <span style={{ fontSize: 16 }}>{ch.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>{ch.name}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#1a1a2e" }}>{ch.leads}</span>
+                    </div>
+                    <div style={{ height: 4, borderRadius: 2, background: "rgba(0,0,0,0.08)", overflow: "hidden" }}>
+                      <div style={{ height: "100%", borderRadius: 2, background: ch.color, width: `${(ch.leads / maxLeads) * 100}%`, transition: "width 0.4s ease" }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", marginTop: 8, paddingTop: 8, display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 700, color: "#1a1a2e" }}>
+                <span>Total</span><span>{totalLeads}</span>
+              </div>
+            </div>
+          </GlassCard>
+          <GlassCard style={{ flex: 1 }}>
+            <SH title="Landing Pages" action="Past 60 Days ▾" />
+            <div style={{ padding: "0 0 8px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 0, padding: "6px 16px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                {["TITLE", "VISITORS", "LEADS", "CONV."].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8, textAlign: h !== "TITLE" ? "right" : "left" }}>{h}</span>)}
+              </div>
+              {LANDING_PAGE_DATA.map(lp => (
+                <div key={lp.name} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 0, padding: "9px 16px", borderBottom: "1px solid rgba(0,0,0,0.04)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 13 }}>{lp.icon}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{lp.name}</span>
+                  </div>
+                  <span style={{ fontSize: 12, color: "#374151", textAlign: "right", paddingLeft: 8 }}>{lp.visitors.toLocaleString()}</span>
+                  <span style={{ fontSize: 12, color: "#374151", textAlign: "right", paddingLeft: 8 }}>{lp.leads}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#0f2044", textAlign: "right", paddingLeft: 8 }}>{lp.convRate}</span>
+                </div>
+              ))}
+              <div style={{ padding: "8px 16px", display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 0, borderTop: "1px solid rgba(0,0,0,0.07)" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#1a1a2e" }}>TOTAL</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#1a1a2e", textAlign: "right", paddingLeft: 8 }}>152</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#1a1a2e", textAlign: "right", paddingLeft: 8 }}>51</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#0f2044", textAlign: "right", paddingLeft: 8 }}>$6.67M</span>
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+        {/* CENTER */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <GlassCard>
+            <SH title="Campaign Leaderboard" action="Past 60 Days ▾" />
+            <div style={{ padding: "0 0 8px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, padding: "6px 16px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                {["CAMPAIGN", "LEADS ↕", "TOURS ↕", "CONTRACTS ↕", "REVENUE ↕"].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8, textAlign: h !== "CAMPAIGN" ? "right" : "left", cursor: "pointer" }}>{h}</span>)}
+              </div>
+              {CAMPAIGN_DATA.map(c => (
+                <div key={c.name} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.04)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 14 }}>{c.icon}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>{c.name}</span>
+                  </div>
+                  <span style={{ fontSize: 13, color: "#374151", textAlign: "right", paddingLeft: 12 }}>{c.leads}</span>
+                  <span style={{ fontSize: 13, color: "#374151", textAlign: "right", paddingLeft: 12 }}>{c.tours}</span>
+                  <span style={{ fontSize: 13, color: "#374151", textAlign: "right", paddingLeft: 12 }}>{c.contracts}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#0f2044", textAlign: "right", paddingLeft: 12 }}>{c.revenue}</span>
+                </div>
+              ))}
+              <div style={{ padding: "8px 16px", display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, borderTop: "1px solid rgba(0,0,0,0.07)" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#1a1a2e" }}></span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#1a1a2e", textAlign: "right", paddingLeft: 12 }}>152</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#1a1a2e", textAlign: "right", paddingLeft: 12 }}>51</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#1a1a2e", textAlign: "right", paddingLeft: 12 }}>13</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#0f2044", textAlign: "right", paddingLeft: 12 }}>$6.67M</span>
+              </div>
+            </div>
+          </GlassCard>
+          <GlassCard style={{ flex: 1 }}>
+            <SH title="UTM Builder" action="Past 60 Days ▾" />
+            <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
-                <label className="text-xs font-semibold text-[#0f2044] block mb-1.5">
-                  Landing Page <span className="text-red-500">*</span>
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {LANDING_PAGES.map(lp => (
-                    <button
-                      key={lp.value}
-                      onClick={() => setLandingPage(lp.value)}
-                      className={`text-xs px-3 py-1.5 rounded-full font-semibold border transition-colors ${
-                        landingPage === lp.value
-                          ? "bg-[#0f2044] text-white border-[#0f2044]"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-[#0f2044]"
-                      }`}
-                    >
-                      {lp.label}
-                    </button>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8, marginBottom: 6 }}>LANDING PAGE</div>
+                <Select value={landingPage} onValueChange={setLandingPage}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {LANDING_PAGES.map(lp => <SelectItem key={lp.value} value={lp.value}>{lp.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {[
+                  { label: "utm_source", value: source, set: setSource, placeholder: "google" },
+                  { label: "utm_medium", value: medium, set: setMedium, placeholder: "cpc" },
+                  { label: "utm_campaign", value: campaign, set: setCampaign, placeholder: "pahrump-new-homes" },
+                  { label: "utm_content", value: content, set: setContent, placeholder: "carousel-homes" },
+                ].map(f => (
+                  <div key={f.label}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8, marginBottom: 4 }}>{f.label}</div>
+                    <Input value={f.value} onChange={e => f.set(e.target.value.toLowerCase().replace(/\s+/g, "-"))} placeholder={f.placeholder} className="h-8 text-xs" />
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8, marginBottom: 4 }}>utm_term <span style={{ fontWeight: 400, color: "#d1d5db" }}>(Google Ads only)</span></div>
+                <Input value={term} onChange={e => setTerm(e.target.value.toLowerCase().replace(/\s+/g, "+"))} placeholder="pahrump+new+homes" className="h-8 text-xs" />
+              </div>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8, marginBottom: 6 }}>GENERATED URL</div>
+                <div style={{ background: "rgba(15,32,68,0.04)", border: "1px solid rgba(15,32,68,0.12)", borderRadius: 8, padding: "10px 12px", fontSize: 11, fontFamily: "monospace", color: "#374151", wordBreak: "break-all", marginBottom: 8 }}>{generatedUrl}</div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <Button size="sm" onClick={copyUrl} className="bg-[#0f2044] hover:bg-[#1a3366] text-white text-xs h-8 flex-1">Copy URL</Button>
+                  <Button size="sm" variant="outline" onClick={reset} className="text-xs h-8">Reset</Button>
+                  <a href={generatedUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: "#0f2044", textDecoration: "underline", display: "flex", alignItems: "center" }}>Preview ↗</a>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8, marginBottom: 8 }}>QUICK TEMPLATES</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {TEMPLATES.slice(0, 5).map((t, i) => (
+                    <button key={i} onClick={() => applyTemplate(t)} style={{ padding: "4px 10px", borderRadius: 20, fontSize: 10, fontWeight: 600, background: "rgba(15,32,68,0.06)", border: "1px solid rgba(15,32,68,0.12)", color: "#0f2044", cursor: "pointer" }}>{t.label.split("—")[0].trim()}</button>
                   ))}
                 </div>
               </div>
-
-              {/* Source + Medium */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-semibold text-[#0f2044] block mb-1.5">
-                    utm_source <span className="text-red-500">*</span>
-                    <span className="text-muted-foreground font-normal ml-1">(e.g. google, facebook)</span>
-                  </label>
-                  <Input
-                    value={source}
-                    onChange={e => setSource(e.target.value.toLowerCase().replace(/\s+/g, "-"))}
-                    placeholder="google"
-                    className="h-8 text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-[#0f2044] block mb-1.5">
-                    utm_medium
-                    <span className="text-muted-foreground font-normal ml-1">(e.g. cpc, email)</span>
-                  </label>
-                  <Input
-                    value={medium}
-                    onChange={e => setMedium(e.target.value.toLowerCase().replace(/\s+/g, "-"))}
-                    placeholder="cpc"
-                    className="h-8 text-xs"
-                  />
-                </div>
-              </div>
-
-              {/* Campaign + Content */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-semibold text-[#0f2044] block mb-1.5">
-                    utm_campaign
-                    <span className="text-muted-foreground font-normal ml-1">(ad group name)</span>
-                  </label>
-                  <Input
-                    value={campaign}
-                    onChange={e => setCampaign(e.target.value.toLowerCase().replace(/\s+/g, "-"))}
-                    placeholder="pahrump-new-homes"
-                    className="h-8 text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-[#0f2044] block mb-1.5">
-                    utm_content
-                    <span className="text-muted-foreground font-normal ml-1">(ad creative ID)</span>
-                  </label>
-                  <Input
-                    value={content}
-                    onChange={e => setContent(e.target.value.toLowerCase().replace(/\s+/g, "-"))}
-                    placeholder="carousel-homes"
-                    className="h-8 text-xs"
-                  />
-                </div>
-              </div>
-
-              {/* Term */}
-              <div>
-                <label className="text-xs font-semibold text-[#0f2044] block mb-1.5">
-                  utm_term
-                  <span className="text-muted-foreground font-normal ml-1">(keyword, Google Ads only)</span>
-                </label>
-                <Input
-                  value={term}
-                  onChange={e => setTerm(e.target.value.toLowerCase().replace(/\s+/g, "+"))}
-                  placeholder="pahrump+new+homes"
-                  className="h-8 text-xs"
-                />
-              </div>
-
-              {/* Generated URL */}
-              <div className="pt-2">
-                <label className="text-xs font-semibold text-[#0f2044] block mb-1.5">Generated URL</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs font-mono text-slate-700 break-all select-all">
-                    {generatedUrl}
-                  </div>
-                  <Button
-                    size="sm"
-                    className="bg-[#0f2044] hover:bg-[#1a3366] text-white shrink-0 h-auto px-4"
-                    onClick={copyUrl}
-                  >
-                    Copy
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs"
-                  onClick={reset}
-                >
-                  Reset
-                </Button>
-                <a
-                  href={generatedUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#0f2044] underline self-center ml-2 hover:text-[#1a3366]"
-                >
-                  Preview ↗
-                </a>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </div>
-
-        {/* Right: Pre-built Templates */}
-        <div className="space-y-4">
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Campaign Templates</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {TEMPLATES.map((t, i) => (
-                <button
-                  key={i}
-                  onClick={() => applyTemplate(t)}
-                  className="w-full text-left px-3 py-2.5 rounded-lg border border-slate-200 hover:border-[#0f2044] hover:bg-slate-50 transition-colors group"
-                >
-                  <div className="text-xs font-semibold text-[#0f2044] group-hover:text-[#1a3366]">{t.label}</div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5 font-mono">
-                    {t.source}/{t.medium} → {t.landingPage}
-                  </div>
-                </button>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Quick reference */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Parameter Guide</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-xs text-slate-600">
+        {/* RIGHT */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {selectedChannel ? (
+            <GlassCard>
+              <SH title={selectedChannel} action={<button onClick={() => setSelectedChannel(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: 16 }}>×</button>} />
+              <div style={{ padding: 16 }}>
+                {(() => {
+                  const ch = CAMPAIGN_DATA.find(c => c.name === selectedChannel);
+                  if (!ch) return null;
+                  return (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {[
+                        { label: "Total Leads", value: ch.leads, color: "#6366f1" },
+                        { label: "Tours Booked", value: ch.tours, color: "#22c55e" },
+                        { label: "Contracts", value: ch.contracts, color: "#f59e0b" },
+                        { label: "Revenue", value: ch.revenue, color: "#0f2044" },
+                      ].map(stat => (
+                        <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "rgba(255,255,255,0.50)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.70)" }}>
+                          <span style={{ fontSize: 12, color: "#6b7280" }}>{stat.label}</span>
+                          <span style={{ fontSize: 16, fontWeight: 800, color: stat.color }}>{stat.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            </GlassCard>
+          ) : (
+            <GlassCard>
+              <div style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>📊</div>
+                <div>Click a channel to<br />see performance details</div>
+              </div>
+            </GlassCard>
+          )}
+          <GlassCard style={{ flex: 1 }}>
+            <SH title="Parameter Guide" />
+            <div style={{ padding: "10px 16px 14px" }}>
               {[
-                ["utm_source", "Where the traffic comes from", "google, facebook, billboard"],
-                ["utm_medium", "The marketing channel", "cpc, email, paid-social"],
-                ["utm_campaign", "The campaign or ad group", "pahrump-new-homes"],
-                ["utm_content", "The specific ad or creative", "carousel-a, story-video"],
-                ["utm_term", "Paid keyword (Google only)", "pahrump+homes"],
-              ].map(([param, desc, ex]) => (
-                <div key={param} className="border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                  <div className="font-mono font-semibold text-[#0f2044] text-[10px]">{param}</div>
-                  <div className="text-[10px] text-muted-foreground">{desc}</div>
-                  <div className="text-[10px] text-slate-400 italic">e.g. {ex}</div>
+                { param: "utm_source", desc: "Where the traffic comes from", ex: "google, facebook, billboard" },
+                { param: "utm_medium", desc: "The marketing channel", ex: "cpc, email, paid-social" },
+                { param: "utm_campaign", desc: "The campaign or ad group", ex: "pahrump-new-homes" },
+                { param: "utm_content", desc: "The specific ad or creative", ex: "carousel-a, story-video" },
+                { param: "utm_term", desc: "Paid keyword (Google only)", ex: "pahrump+homes" },
+              ].map(({ param, desc, ex }) => (
+                <div key={param} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", paddingBottom: 10, marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, fontFamily: "monospace", fontWeight: 700, color: "#0f2044" }}>{param}</div>
+                  <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{desc}</div>
+                  <div style={{ fontSize: 10, color: "#9ca3af", fontStyle: "italic", marginTop: 1 }}>e.g. {ex}</div>
                 </div>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </div>
       </div>
     </div>

@@ -1,20 +1,17 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import SCOPSNav from "@/components/SCOPSNav";
+import { MapView } from "@/components/Map";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
 type PropertyType = "HOME" | "LOT";
 type TagType = "Available" | "Coming Soon" | "Sold" | "Under Contract";
-
 interface PropertyForm {
   propertyType: PropertyType;
   tag: TagType;
@@ -33,7 +30,6 @@ interface PropertyForm {
   sortOrder: string;
   description: string;
 }
-
 const EMPTY_FORM: PropertyForm = {
   propertyType: "HOME",
   tag: "Available",
@@ -53,15 +49,16 @@ const EMPTY_FORM: PropertyForm = {
   description: "",
 };
 
-const TAG_COLORS: Record<TagType, string> = {
-  Available: "bg-green-100 text-green-700 border-green-200",
-  "Coming Soon": "bg-blue-100 text-blue-700 border-blue-200",
-  Sold: "bg-gray-100 text-gray-600 border-gray-200",
-  "Under Contract": "bg-amber-100 text-amber-700 border-amber-200",
+const TAG_PIN_COLORS: Record<string, string> = {
+  "Available":       "#22c55e",
+  "Under Contract":  "#f59e0b",
+  "Sold":            "#ef4444",
+  "Coming Soon":     "#6366f1",
 };
 
-// ─── Property Form Modal ──────────────────────────────────────────────────────
+const PAHRUMP_CENTER = { lat: 36.2083, lng: -115.9839 };
 
+// ─── Property Form Modal ──────────────────────────────────────────────────────
 function PropertyModal({
   initial,
   onClose,
@@ -74,24 +71,16 @@ function PropertyModal({
   saving: boolean;
 }) {
   const [form, setForm] = useState<PropertyForm>(initial);
-  const set = (field: keyof PropertyForm, value: string | boolean) =>
-    setForm(prev => ({ ...prev, [field]: value }));
-
+  const set = (k: keyof PropertyForm, v: string | boolean) => setForm(f => ({ ...f, [k]: v }));
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-lg font-bold text-[#0f2044]">
-            {initial.address ? "Edit Listing" : "Add Listing"}
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl font-bold leading-none">×</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="px-6 py-4 border-b flex items-center justify-between">
+          <h2 className="text-lg font-bold text-[#0f2044]">{initial.address ? "Edit Listing" : "Add Listing"}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
         </div>
-
-        <div className="px-6 py-5 space-y-4">
-          {/* Type + Tag row */}
+        <div className="px-6 py-4 space-y-4">
+          {/* Type + Tag */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Type</label>
@@ -104,28 +93,25 @@ function PropertyModal({
               </Select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Status Tag</label>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Status</label>
               <Select value={form.tag} onValueChange={v => set("tag", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Available">Available</SelectItem>
                   <SelectItem value="Coming Soon">Coming Soon</SelectItem>
-                  <SelectItem value="Sold">Sold</SelectItem>
                   <SelectItem value="Under Contract">Under Contract</SelectItem>
+                  <SelectItem value="Sold">Sold</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-
           {/* Address */}
           <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Address *</label>
-            <Input value={form.address} onChange={e => set("address", e.target.value)} placeholder="123 Desert Rose Dr" />
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Street Address</label>
+            <Input value={form.address} onChange={e => set("address", e.target.value)} placeholder="420 E Bellville Rd" />
           </div>
-
-          {/* City + State */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">City</label>
               <Input value={form.city} onChange={e => set("city", e.target.value)} placeholder="Pahrump" />
             </div>
@@ -134,19 +120,17 @@ function PropertyModal({
               <Input value={form.state} onChange={e => set("state", e.target.value)} placeholder="NV" />
             </div>
           </div>
-
           {/* Price */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Display Price *</label>
-              <Input value={form.price} onChange={e => set("price", e.target.value)} placeholder="$489,000" />
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Display Price</label>
+              <Input value={form.price} onChange={e => set("price", e.target.value)} placeholder="$525,000" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Price (numeric, for sorting)</label>
-              <Input type="number" value={form.priceValue} onChange={e => set("priceValue", e.target.value)} placeholder="489000" />
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Price Value</label>
+              <Input type="number" value={form.priceValue} onChange={e => set("priceValue", e.target.value)} placeholder="525000" />
             </div>
           </div>
-
           {/* Home-specific */}
           {form.propertyType === "HOME" && (
             <div className="grid grid-cols-3 gap-4">
@@ -164,7 +148,6 @@ function PropertyModal({
               </div>
             </div>
           )}
-
           {/* Lot-specific */}
           {form.propertyType === "LOT" && (
             <div className="grid grid-cols-2 gap-4">
@@ -178,7 +161,6 @@ function PropertyModal({
               </div>
             </div>
           )}
-
           {/* Image URL */}
           <div>
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Primary Image URL</label>
@@ -187,7 +169,6 @@ function PropertyModal({
               <img src={form.imageUrl} alt="preview" className="mt-2 h-24 w-full object-cover rounded-lg border" />
             )}
           </div>
-
           {/* Description */}
           <div>
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Description</label>
@@ -199,7 +180,6 @@ function PropertyModal({
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
             />
           </div>
-
           {/* Sort Order + Featured */}
           <div className="grid grid-cols-2 gap-4 items-end">
             <div>
@@ -218,7 +198,6 @@ function PropertyModal({
             </div>
           </div>
         </div>
-
         <div className="px-6 py-4 border-t flex justify-end gap-3">
           <Button variant="outline" onClick={onClose} disabled={saving}>Cancel</Button>
           <Button
@@ -235,7 +214,6 @@ function PropertyModal({
 }
 
 // ─── Delete Confirm Modal ─────────────────────────────────────────────────────
-
 function DeleteModal({ address, onCancel, onConfirm, deleting }: {
   address: string;
   onCancel: () => void;
@@ -260,38 +238,174 @@ function DeleteModal({ address, onCancel, onConfirm, deleting }: {
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// ─── Property Card ────────────────────────────────────────────────────────────
+type Property = {
+  id: number;
+  address: string;
+  city: string;
+  state: string;
+  tag: string;
+  price: string;
+  priceValue: number | null;
+  beds: number | null;
+  baths: number | null;
+  sqft: string | null;
+  lotSize: string | null;
+  imageUrl: string | null;
+  propertyType: string;
+  featured: number;
+  description: string | null;
+  utilities: string | null;
+  sortOrder: number | null;
+};
 
+function PropertyCard({ property, selected, onClick }: { property: Property; selected: boolean; onClick: () => void }) {
+  const tagColor = TAG_PIN_COLORS[property.tag] ?? "#6366f1";
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        background: selected ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.10)",
+        border: selected ? "1.5px solid rgba(255,255,255,0.50)" : "1px solid rgba(255,255,255,0.14)",
+        borderRadius: 14, cursor: "pointer", overflow: "hidden",
+        backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+        boxShadow: selected ? "0 4px 20px rgba(0,0,0,0.20)" : "0 2px 8px rgba(0,0,0,0.10)",
+        transition: "all 0.15s ease", marginBottom: 8,
+      }}
+    >
+      {property.imageUrl && (
+        <div style={{ position: "relative", height: 80 }}>
+          <img src={property.imageUrl} alt={property.address} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          <div style={{ position: "absolute", top: 6, left: 6, background: tagColor, color: "white", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>{property.tag}</div>
+          {property.featured === 1 && (
+            <div style={{ position: "absolute", top: 6, right: 6, background: "#f59e0b", color: "white", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 20 }}>★</div>
+          )}
+        </div>
+      )}
+      <div style={{ padding: "10px 12px" }}>
+        <div style={{ fontWeight: 700, fontSize: 13, color: "white", marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{property.address}</div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginBottom: 6 }}>{property.city}, {property.state}</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: "white" }}>{property.price}</span>
+          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.50)" }}>
+            {property.propertyType === "HOME"
+              ? `${property.beds ?? "—"} bd · ${property.baths ?? "—"} ba · ${property.sqft ?? "—"} sqft`
+              : property.lotSize ?? "Lot"}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Property Detail Panel ────────────────────────────────────────────────────
+function PropertyDetailPanel({ property, onClose, onEdit, onDelete }: {
+  property: Property;
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const tagColor = TAG_PIN_COLORS[property.tag] ?? "#6366f1";
+  const priceNum = property.priceValue ?? parseInt(property.price.replace(/[^0-9]/g, "")) ?? 0;
+
+  return (
+    <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.10)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.16)", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", height: 180, flexShrink: 0 }}>
+        <img src={property.imageUrl ?? "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80"} alt={property.address} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ position: "absolute", top: 10, left: 10, background: tagColor, color: "white", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>{property.tag}</div>
+        <button onClick={onClose} style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.50)", border: "none", color: "white", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+      </div>
+      <div style={{ padding: "16px 16px 0" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{property.address}</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>{property.city}, {property.state}</div>
+          </div>
+          {property.featured === 1 && (
+            <div style={{ background: "#f59e0b", color: "white", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 8, flexShrink: 0, marginLeft: 8 }}>★ Featured</div>
+          )}
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 800, color: "white", marginBottom: 12 }}>${priceNum.toLocaleString()}</div>
+        <div style={{ display: "flex", gap: 10, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Type</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.propertyType === "HOME" ? "Home" : "Lot"}</div>
+          </div>
+          {property.propertyType === "HOME" && property.beds && (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Beds</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.beds}</div>
+            </div>
+          )}
+          {property.propertyType === "HOME" && property.baths && (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Baths</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.baths}</div>
+            </div>
+          )}
+          {property.propertyType === "HOME" && property.sqft && (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Sq Ft</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.sqft}</div>
+            </div>
+          )}
+          {property.propertyType === "LOT" && property.lotSize && (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Lot Size</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.lotSize}</div>
+            </div>
+          )}
+        </div>
+        {property.description && (
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, marginBottom: 14 }}>{property.description}</div>
+        )}
+        {property.utilities && (
+          <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, padding: "8px 10px", marginBottom: 14 }}>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", marginBottom: 2 }}>Utilities</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.70)" }}>{property.utilities}</div>
+          </div>
+        )}
+      </div>
+      <div style={{ padding: "0 16px 16px", display: "flex", gap: 8 }}>
+        <button onClick={onEdit} style={{ flex: 1, padding: "10px", borderRadius: 10, background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.30)", color: "#a5b4fc", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Edit</button>
+        <button onClick={onDelete} style={{ flex: 1, padding: "10px", borderRadius: 10, background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.25)", color: "#fca5a5", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Delete</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function SCOPSProperties() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
   const loading = adminMeQuery.isLoading;
+
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [tagFilter, setTagFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<number | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
 
   const utils = trpc.useUtils();
   const propertiesQuery = trpc.properties.getAll.useQuery(
     typeFilter !== "ALL" ? { propertyType: typeFilter as PropertyType } : undefined
   );
-
   const createMutation = trpc.properties.create.useMutation({
     onSuccess: () => { utils.properties.getAll.invalidate(); toast.success("Listing created"); setEditingId(null); },
     onError: (e) => toast.error(e.message),
   });
-
   const updateMutation = trpc.properties.update.useMutation({
     onSuccess: () => { utils.properties.getAll.invalidate(); toast.success("Listing updated"); setEditingId(null); },
     onError: (e) => toast.error(e.message),
   });
-
   const deleteMutation = trpc.properties.delete.useMutation({
-    onSuccess: () => { utils.properties.getAll.invalidate(); toast.success("Listing deleted"); setDeletingId(null); },
+    onSuccess: () => { utils.properties.getAll.invalidate(); toast.success("Listing deleted"); setDeletingId(null); setSelectedProperty(null); },
     onError: (e) => toast.error(e.message),
   });
-
   const toggleFeatured = trpc.properties.update.useMutation({
     onMutate: async ({ id, data }) => {
       await utils.properties.getAll.cancel();
@@ -305,17 +419,33 @@ export default function SCOPSProperties() {
     onSettled: () => utils.properties.getAll.invalidate(),
   });
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen bg-slate-50"><div className="text-sm text-muted-foreground">Loading…</div></div>;
-  }
+  const handleMapReady = useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+    markersRef.current.forEach(m => { m.map = null; });
+    markersRef.current = [];
+    const geocoder = new google.maps.Geocoder();
+    const properties = propertiesQuery.data ?? [];
+    properties.forEach(prop => {
+      const fullAddress = `${prop.address}, ${prop.city}, ${prop.state}`;
+      geocoder.geocode({ address: fullAddress }, (results, status) => {
+        if (status === "OK" && results?.[0]) {
+          const pinColor = TAG_PIN_COLORS[prop.tag] ?? "#6366f1";
+          const pinEl = document.createElement("div");
+          pinEl.style.cssText = `width:24px;height:24px;border-radius:50% 50% 50% 0;background:${pinColor};border:2px solid white;transform:rotate(-45deg);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);`;
+          const marker = new google.maps.marker.AdvancedMarkerElement({ map, position: results[0].geometry.location, content: pinEl, title: prop.address });
+          marker.addListener("click", () => setSelectedProperty(prop as Property));
+          markersRef.current.push(marker);
+        }
+      });
+    });
+  }, [propertiesQuery.data]);
 
-  if (!adminUser) {
-    window.location.href = "/admin-login";
-    return <div className="flex items-center justify-center min-h-screen bg-slate-50"><div className="text-sm text-muted-foreground">Redirecting to login…</div></div>;
-  }
+  if (loading) return null;
+  if (!adminUser) { window.location.href = getLoginUrl(); return null; }
 
-  const properties = propertiesQuery.data ?? [];
+  const properties = (propertiesQuery.data ?? []) as Property[];
   const filtered = properties.filter(p => {
+    if (typeFilter !== "ALL" && p.propertyType !== typeFilter) return false;
     if (tagFilter !== "ALL" && p.tag !== tagFilter) return false;
     if (search) {
       const q = search.toLowerCase();
@@ -324,12 +454,11 @@ export default function SCOPSProperties() {
     return true;
   });
 
-  const featuredCount = properties.filter(p => p.featured === 1).length;
-  const homeCount = properties.filter(p => p.propertyType === "HOME").length;
-  const lotCount = properties.filter(p => p.propertyType === "LOT").length;
   const availableCount = properties.filter(p => p.tag === "Available").length;
+  const underContractCount = properties.filter(p => p.tag === "Under Contract").length;
+  const soldCount = properties.filter(p => p.tag === "Sold").length;
+  const featuredCount = properties.filter(p => p.featured === 1).length;
 
-  // Build form from existing property for editing
   const getEditForm = (id: number): PropertyForm => {
     const p = properties.find(x => x.id === id);
     if (!p) return EMPTY_FORM;
@@ -372,7 +501,6 @@ export default function SCOPSProperties() {
       sortOrder: parseInt(form.sortOrder) || 0,
       description: form.description || undefined,
     };
-
     if (editingId === "new") {
       createMutation.mutate(payload);
     } else if (typeof editingId === "number") {
@@ -383,193 +511,109 @@ export default function SCOPSProperties() {
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #c8d4f0 0%, #b8c8e8 30%, #a8b8e0 60%, #c0cce8 100%)", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={adminUser} currentPage="properties" />
 
-      <div className="px-6 py-6 max-w-screen-xl mx-auto space-y-6">
-
-        {/* KPI Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: "Total Listings", value: properties.length, sub: "in database" },
-            { label: "Featured", value: featuredCount, sub: "on homepage carousel" },
-            { label: "Homes", value: homeCount, sub: "residential builds" },
-            { label: "Lots", value: lotCount, sub: "available land" },
-          ].map(({ label, value, sub }) => (
-            <Card key={label} className="border-0 shadow-sm">
-              <CardContent className="pt-5 pb-4">
-                <div className="text-3xl font-black text-[#0f2044]">{value}</div>
-                <div className="text-sm font-semibold mt-1">{label}</div>
-                <div className="text-xs text-muted-foreground">{sub}</div>
-              </CardContent>
-            </Card>
-          ))}
+      {/* ── KPI Stats Bar ── */}
+      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.40)", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        {[
+          { label: "Available", value: availableCount, color: "#22c55e" },
+          { label: "Under Contract", value: underContractCount, color: "#f59e0b" },
+          { label: "Sold", value: soldCount, color: "#ef4444" },
+          { label: "Featured", value: featuredCount, color: "#6366f1" },
+          { label: "Total", value: properties.length, color: "#374151" },
+        ].map(stat => (
+          <div key={stat.label} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", background: "rgba(255,255,255,0.70)", borderRadius: 20, border: "1px solid rgba(0,0,0,0.08)" }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: stat.color }} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: stat.color }}>{stat.value}</span>
+            <span style={{ fontSize: 11, color: "#6b7280" }}>{stat.label}</span>
+          </div>
+        ))}
+        <div style={{ flex: 1, minWidth: 200, maxWidth: 300, marginLeft: "auto", display: "flex", gap: 8 }}>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address or city…" style={{ flex: 1, padding: "7px 14px", background: "rgba(255,255,255,0.80)", border: "1px solid rgba(0,0,0,0.12)", borderRadius: 20, color: "#1a1a2e", fontSize: 12, outline: "none" }} />
+          <button onClick={() => setEditingId("new")} style={{ padding: "7px 16px", borderRadius: 20, background: "#0f2044", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Add</button>
         </div>
+      </div>
 
-        {/* Table Card */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <CardTitle className="text-base font-bold text-[#0f2044]">All Listings</CardTitle>
-              <Button
-                onClick={() => setEditingId("new")}
-                className="bg-[#0f2044] hover:bg-[#1a3366] text-white text-sm"
-                size="sm"
-              >
-                + Add Listing
-              </Button>
+      {/* ── Filter Bar ── */}
+      <div style={{ padding: "8px 20px", background: "rgba(255,255,255,0.40)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.30)", display: "flex", gap: 8, alignItems: "center" }}>
+        {["ALL", "HOME", "LOT"].map(t => (
+          <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: typeFilter === t ? "rgba(15,32,68,0.15)" : "rgba(255,255,255,0.60)", border: typeFilter === t ? "1px solid rgba(15,32,68,0.30)" : "1px solid rgba(0,0,0,0.08)", color: typeFilter === t ? "#0f2044" : "#6b7280" }}>
+            {t === "ALL" ? "All Types" : t === "HOME" ? "Homes" : "Lots"}
+          </button>
+        ))}
+        <div style={{ width: 1, height: 16, background: "rgba(0,0,0,0.12)", margin: "0 4px" }} />
+        {["ALL", "Available", "Under Contract", "Sold", "Coming Soon"].map(tag => {
+          const color = tag === "ALL" ? "#374151" : TAG_PIN_COLORS[tag] ?? "#374151";
+          return (
+            <button key={tag} onClick={() => setTagFilter(tag)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: tagFilter === tag ? `${color}18` : "rgba(255,255,255,0.60)", border: tagFilter === tag ? `1px solid ${color}44` : "1px solid rgba(0,0,0,0.08)", color: tagFilter === tag ? color : "#6b7280" }}>
+              {tag === "ALL" ? "All Status" : tag}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── 3-Panel Body ── */}
+      <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
+        {/* LEFT: Property list */}
+        <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.40)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.40)", overflowY: "auto", padding: "12px" }}>
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a2e", marginBottom: 2 }}>
+              {filtered.length} Listing{filtered.length !== 1 ? "s" : ""}
             </div>
-
-            {/* Filters */}
-            <div className="flex flex-wrap gap-2 mt-3">
-              <Input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search address or city…"
-                className="w-48 h-8 text-sm"
+            <div style={{ fontSize: 11, color: "rgba(0,0,0,0.40)" }}>
+              {typeFilter === "ALL" ? "All types" : typeFilter === "HOME" ? "Homes only" : "Lots only"}
+              {tagFilter !== "ALL" ? ` · ${tagFilter}` : ""}
+            </div>
+          </div>
+          {propertiesQuery.isLoading ? (
+            <div style={{ color: "rgba(0,0,0,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
+          ) : filtered.length === 0 ? (
+            <div style={{ color: "rgba(0,0,0,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No listings found</div>
+          ) : (
+            filtered.map(prop => (
+              <PropertyCard
+                key={prop.id}
+                property={prop}
+                selected={selectedProperty?.id === prop.id}
+                onClick={() => setSelectedProperty(selectedProperty?.id === prop.id ? null : prop)}
               />
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-32 h-8 text-sm"><SelectValue placeholder="Type" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Types</SelectItem>
-                  <SelectItem value="HOME">Homes</SelectItem>
-                  <SelectItem value="LOT">Lots</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={tagFilter} onValueChange={setTagFilter}>
-                <SelectTrigger className="w-40 h-8 text-sm"><SelectValue placeholder="Status" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Statuses</SelectItem>
-                  <SelectItem value="Available">Available</SelectItem>
-                  <SelectItem value="Coming Soon">Coming Soon</SelectItem>
-                  <SelectItem value="Under Contract">Under Contract</SelectItem>
-                  <SelectItem value="Sold">Sold</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
-
-          <CardContent className="p-0">
-            {propertiesQuery.isLoading ? (
-              <div className="py-12 text-center text-sm text-muted-foreground">Loading listings…</div>
-            ) : filtered.length === 0 ? (
-              <div className="py-12 text-center">
-                <div className="text-4xl mb-3">🏠</div>
-                <div className="text-sm font-semibold text-[#0f2044] mb-1">No listings found</div>
-                <div className="text-xs text-muted-foreground mb-4">
-                  {properties.length === 0 ? "Add your first listing to get started." : "Try adjusting your filters."}
-                </div>
-                {properties.length === 0 && (
-                  <Button onClick={() => setEditingId("new")} size="sm" className="bg-[#0f2044] hover:bg-[#1a3366]">
-                    + Add First Listing
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b bg-slate-50/80">
-                      <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Photo</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Address</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Type</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Price</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Details</th>
-                      <th className="text-center px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Featured</th>
-                      <th className="text-right px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map(p => (
-                      <tr key={p.id} className="border-b last:border-0 hover:bg-slate-50/60 transition-colors">
-                        {/* Photo */}
-                        <td className="px-4 py-3">
-                          {p.imageUrl ? (
-                            <img src={p.imageUrl} alt="" className="w-14 h-10 object-cover rounded-md border" />
-                          ) : (
-                            <div className="w-14 h-10 rounded-md bg-slate-100 flex items-center justify-center text-lg">🏠</div>
-                          )}
-                        </td>
-
-                        {/* Address */}
-                        <td className="px-4 py-3">
-                          <div className="font-semibold text-[#0f2044]">{p.address}</div>
-                          <div className="text-xs text-muted-foreground">{p.city}, {p.state}</div>
-                        </td>
-
-                        {/* Type */}
-                        <td className="px-4 py-3">
-                          <Badge variant="outline" className={p.propertyType === "HOME" ? "bg-indigo-50 text-indigo-700 border-indigo-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"}>
-                            {p.propertyType === "HOME" ? "Home" : "Lot"}
-                          </Badge>
-                        </td>
-
-                        {/* Status */}
-                        <td className="px-4 py-3">
-                          <Badge variant="outline" className={TAG_COLORS[p.tag as TagType] ?? ""}>
-                            {p.tag}
-                          </Badge>
-                        </td>
-
-                        {/* Price */}
-                        <td className="px-4 py-3 font-bold text-[#0f2044]">{p.price}</td>
-
-                        {/* Details */}
-                        <td className="px-4 py-3 text-xs text-muted-foreground">
-                          {p.propertyType === "HOME" ? (
-                            <span>{p.beds ?? "—"} bd · {p.baths ?? "—"} ba · {p.sqft ?? "—"} sqft</span>
-                          ) : (
-                            <span>{p.lotSize ?? "—"}</span>
-                          )}
-                        </td>
-
-                        {/* Featured toggle */}
-                        <td className="px-4 py-3 text-center">
-                          <button
-                            onClick={() => toggleFeatured.mutate({ id: p.id, data: { featured: p.featured === 1 ? 0 : 1 } })}
-                            title={p.featured === 1 ? "Remove from homepage carousel" : "Add to homepage carousel"}
-                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${p.featured === 1 ? "bg-[#0f2044]" : "bg-gray-200"}`}
-                          >
-                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform ${p.featured === 1 ? "translate-x-5" : "translate-x-1"}`} />
-                          </button>
-                        </td>
-
-                        {/* Actions */}
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setEditingId(p.id)}
-                              className="h-7 text-xs"
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setDeletingId(p.id)}
-                              className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50"
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Featured section note */}
-        <div className="text-xs text-muted-foreground text-center pb-4">
-          The <strong>Featured</strong> toggle controls which listings appear in the homepage carousel. Toggle it on/off without touching the database.
+            ))
+          )}
         </div>
+
+        {/* CENTER: Map */}
+        <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+          <MapView initialCenter={PAHRUMP_CENTER} initialZoom={12} onMapReady={handleMapReady} className="w-full h-full" />
+          {/* Legend */}
+          <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "8px 16px", display: "flex", gap: 16, alignItems: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.15)", fontSize: 12, fontWeight: 600 }}>
+            {[{ color: "#22c55e", label: "Available" }, { color: "#f59e0b", label: "Under Contract" }, { color: "#ef4444", label: "Sold" }, { color: "#6366f1", label: "Coming Soon" }].map(({ color, label }) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: color }} />
+                <span style={{ color: "#374151" }}>{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT: Detail panel */}
+        {selectedProperty ? (
+          <div style={{ padding: "12px", background: "rgba(255,255,255,0.35)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderLeft: "1px solid rgba(255,255,255,0.40)", overflowY: "auto" }}>
+            <PropertyDetailPanel
+              property={selectedProperty}
+              onClose={() => setSelectedProperty(null)}
+              onEdit={() => { setEditingId(selectedProperty.id); }}
+              onDelete={() => setDeletingId(selectedProperty.id)}
+            />
+          </div>
+        ) : (
+          <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.25)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderLeft: "1px solid rgba(255,255,255,0.40)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ textAlign: "center", color: "rgba(0,0,0,0.30)", fontSize: 13 }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>📍</div>
+              <div>Click a pin or listing<br />to see details</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Modal */}
@@ -581,7 +625,6 @@ export default function SCOPSProperties() {
           saving={isSaving}
         />
       )}
-
       {/* Delete Confirm Modal */}
       {deletingId !== null && (
         <DeleteModal

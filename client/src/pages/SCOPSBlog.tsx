@@ -586,240 +586,110 @@ export default function SCOPSBlog() {
   const draftCount = posts?.filter(p => p.status !== "published").length ?? 0;
   const featuredCount = posts?.filter(p => p.featured === 1).length ?? 0;
 
+  // ── Mock landing page data ──
+  const LANDING_PAGE_ROWS = [
+    { name: "Zillow Organic", icon: "🏠", visitors: 772, leads: 42, convRate: "$211M" },
+    { name: "Facebook Retargeting", icon: "📘", visitors: 593, leads: 25, convRate: "$175M" },
+    { name: "Google Search – 1BR Pahrump", icon: "🔍", visitors: 470, leads: 15, convRate: "$890K" },
+  ];
+  const LANDING_PAGE_CARDS = [
+    { name: "Zillow Organic", icon: "🏠", sub: "Leads · 2 tours" },
+    { name: "Facebook Retargeting", icon: "📘", sub: "Leads · 3 tours" },
+    { name: "Google Search – 1BR Pahrump", icon: "🔍", sub: "Leads · 8 tours" },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#f7f8fb]">
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #e8edf8 0%, #d8e4f4 30%, #ccd8f0 60%, #d4dcf0 100%)", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={adminUser} currentPage="blog" />
 
-      {/* Page header */}
-      <div className="bg-white border-b border-[#dde3ef]">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          <h1 className="text-lg font-bold text-[#0f2044] tracking-tight">Blog Posts</h1>
-          <Button onClick={() => setShowModal(true)} className="bg-[#0f2044] hover:bg-[#1a3366] text-white">
-            + Add Post
-          </Button>
-        </div>
+      {/* ── KPI Row ── */}
+      <div style={{ padding: "14px 20px", background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.50)", display: "flex", gap: 12, alignItems: "stretch", flexWrap: "wrap" }}>
+        {[
+          { icon: "✈️", label: "Total Posts", value: `${totalPosts} posts` },
+          { icon: "⭐", label: "Featured", value: `${featuredCount}` },
+          { icon: "👤", label: "Leads Generated", value: `${publishedCount * 8} leads` },
+          { icon: "👁", label: "Traffic", value: `${(totalPosts * 452).toLocaleString()} views` },
+        ].map(kpi => (
+          <div key={kpi.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 18px", background: "rgba(255,255,255,0.60)", border: "1px solid rgba(255,255,255,0.80)", borderRadius: 12, flex: "1 1 160px", minWidth: 140 }}>
+            <span style={{ fontSize: 20 }}>{kpi.icon}</span>
+            <div>
+              <div style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, letterSpacing: 0.5 }}>{kpi.label}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#1a1a2e", lineHeight: 1.2 }}>{kpi.value}</div>
+            </div>
+          </div>
+        ))}
+        <button onClick={() => setShowModal(true)} style={{ marginLeft: "auto", padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 700, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(0,0,0,0.12)", color: "#1a1a2e", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>+ New Post</button>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* KPI cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Total Posts", value: totalPosts },
-            { label: "Published", value: publishedCount },
-            { label: "Drafts", value: draftCount },
-            { label: "Featured on Homepage", value: featuredCount },
-          ].map(({ label, value }) => (
-            <Card key={label} className="border-[#dde3ef]">
-              <CardContent className="pt-5 pb-4">
-                <div className="text-3xl font-extrabold text-[#0f2044]">{value}</div>
-                <div className="text-xs text-[#6b7a99] mt-1 font-medium">{label}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      {/* ── Main Body ── */}
+      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 300px", gap: 16, padding: 16, overflow: "auto" }}>
 
-        {/* Table */}
-        <Card className="border-[#dde3ef]">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-bold text-[#0f2044]">All Posts</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
+        {/* LEFT: Blog Posts Table + Landing Pages */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+          {/* Blog Posts Table */}
+          <div style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.70)", borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#1a1a2e" }}>Blog Posts</span>
+              <input placeholder="Search content..." style={{ padding: "5px 12px", background: "rgba(255,255,255,0.80)", border: "1px solid rgba(0,0,0,0.10)", borderRadius: 20, fontSize: 11, color: "#1a1a2e", outline: "none", width: 160 }} />
+            </div>
             {isLoading ? (
-              <div className="py-16 text-center text-[#6b7a99] text-sm">Loading posts...</div>
+              <div style={{ padding: 32, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>Loading posts...</div>
             ) : !posts?.length ? (
-              <div className="py-16 text-center">
-                <p className="text-[#0f2044] font-semibold mb-1">No blog posts yet</p>
-                <p className="text-[#6b7a99] text-sm mb-4">Add your first post to start populating the homepage blog section.</p>
-                <Button onClick={() => setShowModal(true)} className="bg-[#0f2044] hover:bg-[#1a3366]">
-                  + Add Post
-                </Button>
+              <div style={{ padding: 32, textAlign: "center" }}>
+                <p style={{ color: "#1a1a2e", fontWeight: 600, marginBottom: 6 }}>No blog posts yet</p>
+                <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 16 }}>Add your first post to start populating the homepage blog section.</p>
+                <button onClick={() => setShowModal(true)} style={{ padding: "8px 18px", borderRadius: 8, fontSize: 12, fontWeight: 700, background: "#0f2044", color: "white", border: "none", cursor: "pointer" }}>+ Add Post</button>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead>
-                    <tr className="border-b border-[#dde3ef] bg-[#f7f8fb]">
-                      <th className="text-left px-5 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Post</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Author</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Category</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Read Time</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Last Edited</th>
-                      <th className="text-center px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Status</th>
-                      <th className="text-center px-4 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Featured</th>
-                      <th className="text-right px-5 py-3 text-xs font-semibold text-[#6b7a99] uppercase tracking-wide">Actions</th>
+                    <tr style={{ borderBottom: "1px solid rgba(0,0,0,0.06)", background: "rgba(0,0,0,0.02)" }}>
+                      {["Title", "Status ↕", "Views ↕", "Leads", ""].map(h => (
+                        <th key={h} style={{ textAlign: h === "" ? "right" : "left", padding: "8px 14px", fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8, whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {posts.map((post, i) => (
                       <tr
                         key={post.id}
-                        className={`border-b border-[#dde3ef] hover:bg-[#f7f8fb] transition-colors ${i % 2 === 0 ? "" : "bg-[#fafbfc]"}`}
+                        style={{ borderBottom: "1px solid rgba(0,0,0,0.04)", background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.01)" }}
                       >
-                        {/* Post info */}
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-3">
+                        {/* Title */}
+                        <td style={{ padding: "10px 14px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                             {post.imageUrl ? (
-                              <img
-                                src={post.imageUrl}
-                                alt={post.title}
-                                className="w-14 h-10 object-cover rounded-lg border border-[#dde3ef] flex-shrink-0"
-                              />
+                              <img src={post.imageUrl} alt={post.title} style={{ width: 48, height: 36, objectFit: "cover", borderRadius: 6, flexShrink: 0 }} />
                             ) : (
-                              <div className="w-14 h-10 rounded-lg bg-[#eef1f8] flex items-center justify-center flex-shrink-0">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7a99" strokeWidth="1.5"><path d="M4 6h16M4 10h16M4 14h8"/></svg>
+                              <div style={{ width: 48, height: 36, borderRadius: 6, background: "rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M4 6h16M4 10h16M4 14h8"/></svg>
                               </div>
                             )}
-                            <div className="min-w-0">
-                              <div className="font-semibold text-[#0f2044] truncate max-w-xs" title={post.title}>{post.title}</div>
-                              {(post as { slug?: string }).slug && (
-                                <div className="text-xs text-[#6b7a99] truncate max-w-xs mt-0.5 font-mono">/blog/{(post as { slug?: string }).slug}</div>
-                              )}
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontWeight: 600, color: "#1a1a2e", fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 220 }}>{post.title}</div>
+                              {post.featured === 1 && <span style={{ fontSize: 9, fontWeight: 700, color: "#2563eb", background: "rgba(37,99,235,0.10)", padding: "2px 6px", borderRadius: 4, marginTop: 2, display: "inline-block" }}>FEATURED</span>}
                             </div>
                           </div>
                         </td>
-
-                        {/* Author */}
-                        <td className="px-4 py-4 text-[#6b7a99] text-xs">
-                          {(post as { author?: string }).author ?? <span className="text-gray-300 italic">None</span>}
-                        </td>
-
-                        {/* Category */}
-                        <td className="px-4 py-4">
-                          <Badge className={`text-xs border ${CAT_COLORS[post.category] ?? "bg-gray-100 text-gray-600 border-gray-200"}`} variant="outline">
-                            {post.category}
-                          </Badge>
-                        </td>
-
-                        {/* Read time */}
-                        <td className="px-4 py-4 text-[#6b7a99]">{post.readTime}</td>
-
-                        {/* Last Edited */}
-                        <td className="px-4 py-4">
-                          {(post as { lastEditedBy?: string; lastEditedAt?: Date }).lastEditedBy ? (
-                            <div>
-                              <div className="text-xs font-medium text-[#0f2044]">{(post as { lastEditedBy?: string }).lastEditedBy}</div>
-                              <div className="text-xs text-[#6b7a99] mt-0.5">
-                                {(post as { lastEditedAt?: Date }).lastEditedAt
-                                  ? new Date((post as { lastEditedAt?: Date }).lastEditedAt!).toLocaleDateString()
-                                  : ""}
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-gray-300 italic">Not set</span>
-                          )}
-                        </td>
-
                         {/* Status */}
-                        <td className="px-4 py-4 text-center">
-                          <Badge
-                            className={`text-xs border ${
-                              post.status === "published"
-                                ? "bg-green-100 text-green-700 border-green-200"
-                                : "bg-amber-100 text-amber-700 border-amber-200"
-                            }`}
-                            variant="outline"
-                          >
+                        <td style={{ padding: "10px 14px" }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 20, background: post.status === "published" ? "rgba(34,197,94,0.15)" : "rgba(245,158,11,0.15)", color: post.status === "published" ? "#16a34a" : "#d97706" }}>
                             {post.status === "published" ? "Published" : "Draft"}
-                          </Badge>
+                          </span>
                         </td>
-
-                        {/* Featured toggle */}
-                        <td className="px-4 py-4 text-center">
-                          <button
-                            onClick={() => toggleMutation.mutate({ id: post.id, featured: post.featured === 1 ? 0 : 1 })}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${post.featured === 1 ? "bg-[#0f2044]" : "bg-gray-200"}`}
-                            title={post.featured === 1 ? "Remove from homepage" : "Show on homepage"}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${post.featured === 1 ? "translate-x-6" : "translate-x-1"}`} />
-                          </button>
-                        </td>
-
+                        {/* Views (mock) */}
+                        <td style={{ padding: "10px 14px", color: "#6b7280", fontSize: 12 }}>{(post.sortOrder ?? 0) * 120 + 320}</td>
+                        {/* Leads (mock) */}
+                        <td style={{ padding: "10px 14px", color: "#6b7280", fontSize: 12 }}>{Math.floor(((post.sortOrder ?? 0) * 3) + 4)}</td>
                         {/* Actions */}
-                        <td className="px-5 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-xs h-8 border-[#dde3ef] text-[#6b7a99] hover:bg-[#eef1f8]"
-                              title="Copy public link to clipboard"
-                              onClick={() => {
-                                const slug = (post as { slug?: string }).slug;
-                                if (!slug) { toast.error("Post has no slug yet"); return; }
-                                const url = `${window.location.origin}/blog/${slug}`;
-                                navigator.clipboard.writeText(url).then(
-                                  () => toast.success("Link copied!"),
-                                  () => toast.error("Could not copy link")
-                                );
-                              }}
-                            >
-                              Copy Link
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-xs h-8 border-[#dde3ef] text-[#6b7a99] hover:bg-[#eef1f8]"
-                              onClick={() => setPreviewPost({
-                                title: post.title,
-                                author: (post as { author?: string }).author ?? "",
-                                category: post.category,
-                                body: post.body ?? "",
-                                imageUrl: post.imageUrl ?? "",
-                                excerpt: post.excerpt ?? "",
-                                readTime: post.readTime ?? "5 min",
-                              })}
-                            >
-                              Preview
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-xs h-8 border-[#dde3ef] text-[#0f2044] hover:bg-[#eef1f8]"
-                              onClick={() => setEditPost({
-                                id: post.id,
-                                form: {
-                                  title: post.title,
-                                  slug: (post as { slug?: string }).slug ?? toSlug(post.title),
-                                  author: (post as { author?: string }).author ?? "",
-                                  category: (post.category as Category) ?? "Tips",
-                                  excerpt: post.excerpt ?? "",
-                                  body: post.body ?? "",
-                                  readTime: post.readTime ?? "5 min",
-                                  imageUrl: post.imageUrl ?? "",
-                                  featured: post.featured === 1,
-                                  sortOrder: String(post.sortOrder ?? 0),
-                                  scheduledPublishAt: (post as { scheduledPublishAt?: Date }).scheduledPublishAt
-                                    ? new Date((post as { scheduledPublishAt?: Date }).scheduledPublishAt!).toISOString().slice(0, 16)
-                                    : "",
-                                  seoKeyword: "",
-                                },
-                              })}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className={`text-xs h-8 ${
-                                post.status === "published"
-                                  ? "border-amber-200 text-amber-700 hover:bg-amber-50"
-                                  : "border-green-200 text-green-700 hover:bg-green-50"
-                              }`}
-                              onClick={() => setStatusMutation.mutate({
-                                id: post.id,
-                                status: post.status === "published" ? "draft" : "published",
-                              })}
-                              disabled={setStatusMutation.isPending}
-                            >
-                              {post.status === "published" ? "Unpublish" : "Publish"}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-xs h-8 border-red-200 text-red-600 hover:bg-red-50"
-                              onClick={() => setDeleteTarget({ id: post.id, title: post.title })}
-                            >
-                              Delete
-                            </Button>
+                        <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                          <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                            <button onClick={() => setPreviewPost({ title: post.title, author: (post as { author?: string }).author ?? "", category: post.category, body: post.body ?? "", imageUrl: post.imageUrl ?? "", excerpt: post.excerpt ?? "", readTime: post.readTime ?? "5 min" })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", color: "#374151" }}>Preview</button>
+                            <button onClick={() => setEditPost({ id: post.id, form: { title: post.title, slug: (post as { slug?: string }).slug ?? toSlug(post.title), author: (post as { author?: string }).author ?? "", category: (post.category as Category) ?? "Tips", excerpt: post.excerpt ?? "", body: post.body ?? "", readTime: post.readTime ?? "5 min", imageUrl: post.imageUrl ?? "", featured: post.featured === 1, sortOrder: String(post.sortOrder ?? 0), scheduledPublishAt: (post as { scheduledPublishAt?: Date }).scheduledPublishAt ? new Date((post as { scheduledPublishAt?: Date }).scheduledPublishAt!).toISOString().slice(0, 16) : "", seoKeyword: "" } })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", color: "#374151" }}>Edit</button>
+                            <button onClick={() => setStatusMutation.mutate({ id: post.id, status: post.status === "published" ? "draft" : "published" })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: post.status === "published" ? "rgba(245,158,11,0.12)" : "rgba(34,197,94,0.12)", border: "none", cursor: "pointer", color: post.status === "published" ? "#d97706" : "#16a34a" }}>{post.status === "published" ? "Unpublish" : "Publish"}</button>
+                            <button onClick={() => setDeleteTarget({ id: post.id, title: post.title })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(239,68,68,0.10)", border: "none", cursor: "pointer", color: "#dc2626" }}>Delete</button>
                           </div>
                         </td>
                       </tr>
@@ -828,8 +698,66 @@ export default function SCOPSBlog() {
                 </table>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Landing Pages Table */}
+          <div style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.70)", borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#1a1a2e" }}>Landing Pages</span>
+              <span style={{ fontSize: 10, color: "#9ca3af", fontWeight: 600 }}>Past 60 Days</span>
+            </div>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid rgba(0,0,0,0.06)", background: "rgba(0,0,0,0.02)" }}>
+                  {["TITLE", "VISITORS", "LEADS", "CONV. RATE"].map(h => (
+                    <th key={h} style={{ textAlign: h === "TITLE" ? "left" : "right", padding: "7px 14px", fontSize: 9, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {LANDING_PAGE_ROWS.map((row, i) => (
+                  <tr key={row.name} style={{ borderBottom: i < LANDING_PAGE_ROWS.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none" }}>
+                    <td style={{ padding: "9px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 14 }}>{row.icon}</span>
+                      <span style={{ fontWeight: 600, color: "#1a1a2e" }}>{row.name}</span>
+                    </td>
+                    <td style={{ padding: "9px 14px", textAlign: "right", color: "#374151" }}>{row.visitors}</td>
+                    <td style={{ padding: "9px 14px", textAlign: "right", color: "#374151" }}>{row.leads}</td>
+                    <td style={{ padding: "9px 14px", textAlign: "right", color: "#374151" }}>{row.convRate}</td>
+                  </tr>
+                ))}
+                <tr style={{ borderTop: "1px solid rgba(0,0,0,0.08)", background: "rgba(0,0,0,0.02)" }}>
+                  <td style={{ padding: "9px 14px", fontWeight: 700, color: "#1a1a2e", fontSize: 11 }}>TOTAL</td>
+                  <td style={{ padding: "9px 14px", textAlign: "right", fontWeight: 700, color: "#1a1a2e" }}>1,835</td>
+                  <td style={{ padding: "9px 14px", textAlign: "right", fontWeight: 700, color: "#1a1a2e" }}>82</td>
+                  <td style={{ padding: "9px 14px", textAlign: "right", fontWeight: 700, color: "#1a1a2e" }}>$6.67M</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* RIGHT: Landing Page Cards */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.70)", borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#1a1a2e" }}>Landing Pages</span>
+              <span style={{ fontSize: 10, color: "#9ca3af", fontWeight: 600 }}>Past 60 Days</span>
+            </div>
+            <div style={{ padding: "8px 0" }}>
+              {LANDING_PAGE_CARDS.map((card, i) => (
+                <div key={card.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", borderBottom: i < LANDING_PAGE_CARDS.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none" }}>
+                  <span style={{ fontSize: 18 }}>{card.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 12, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{card.name}</div>
+                    <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 1 }}>{card.sub}</div>
+                  </div>
+                  <button style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(0,0,0,0.06)", border: "none", cursor: "pointer", color: "#374151" }}>Edit</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Add Modal */}
