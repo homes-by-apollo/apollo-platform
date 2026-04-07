@@ -13,8 +13,11 @@ import {
   getDb,
 } from "../db";
 import { protectedProcedure, router } from "../_core/trpc";
-import { contacts, leadPropertyInterest, properties, scheduledTours } from "../../drizzle/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { contacts, leadPropertyInterest, properties, scheduledTours, adminCredentials } from "../../drizzle/schema";
+import { eq, desc, and, lte, isNotNull, not, inArray } from "drizzle-orm";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ─── Shared enums ─────────────────────────────────────────────────────────────
 const pipelineStageEnum = z.enum([
@@ -297,5 +300,148 @@ export const pipelineRouter = router({
         description: `Next action updated: ${data.nextAction ?? "(cleared)"}`,
       });
       return { success: true };
+    }),
+
+  /**
+   * Cron-callable: finds leads with overdue nextActionDueAt, logs an OVERDUE
+   * activity, and fires a Resend alert to the assigned rep (or all admins if
+   * no rep is assigned). Returns a summary of flagged leads.
+   *
+   * Designed to be called by the server-side cron every 15 minutes.
+   */
+  flagStale: protectedProcedure.mutation(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+    const now = new Date();
+    const activeStages = ["NEW_INQUIRY", "QUALIFIED", "TOUR_SCHEDULED", "TOURED", "OFFER_SUBMITTED", "UNDER_CONTRACT"];
+
+    // Find leads with a past nextActionDueAt that haven't been marked yet
+    const overdueLeads = await db
+      .select({
+        id: contacts.id,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+        email: contacts.email,
+        nextAction: contacts.nextAction,
+        nextActionDueAt: contacts.nextActionDueAt,
+        pipelineStage: contacts.pipelineStage,
+        assignedTo: contacts.assignedTo,
+        repEmail: adminCredentials.email,
+        repName: adminCredentials.name,
+      })
+      .from(contacts)
+      .leftJoin(adminCredentials, eq(contacts.assignedTo, adminCredentials.id))
+      .where(
+        and(
+          isNotNull(contacts.nextActionDueAt),
+          lte(contacts.nextActionDueAt, now),
+          inArray(contacts.pipelineStage, activeStages as ("NEW_INQUIRY" | "QUALIFIED" | "TOUR_SCHEDULED" | "TOURED" | "OFFER_SUBMITTED" | "UNDER_CONTRACT")[])
+        )
+      );
+
+    if (overdueLeads.length === 0) return { flagged: 0, alerts: 0 };
+
+    // Get fallback admin emails (all admins) for unassigned leads
+    const allAdmins = await db
+      .select({ email: adminCredentials.email, name: adminCredentials.name })
+      .from(adminCredentials);
+
+    let flagged = 0;
+    let alerts = 0;
+
+    for (const lead of overdueLeads) {
+      // Log overdue activity
+      await logActivity({
+        contactId: lead.id,
+        activityType: "NOTE_ADDED",
+        description: `OVERDUE: Action "${lead.nextAction ?? "Follow up"}" was due ${lead.nextActionDueAt?.toLocaleDateString() ?? "(unknown date)"} and has not been completed.`,
+      });
+
+      // Clear nextActionDueAt so this lead is not re-flagged on the next run
+      await updateContact(lead.id, { nextActionDueAt: null });
+      flagged++;
+
+      // Determine who to alert
+      const recipients: { email: string; name: string }[] = lead.repEmail
+        ? [{ email: lead.repEmail, name: lead.repName ?? "Rep" }]
+        : allAdmins;
+
+      const leadName = `${lead.firstName} ${lead.lastName}`.trim();
+      const stageLabel: Record<string, string> = {
+        NEW_INQUIRY: "New Inquiry", QUALIFIED: "Qualified",
+        TOUR_SCHEDULED: "Tour Scheduled", TOURED: "Toured",
+        OFFER_SUBMITTED: "Offer Submitted", UNDER_CONTRACT: "Under Contract",
+      };
+
+      for (const rep of recipients) {
+        const html = `
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;padding:32px 24px;background:#fff">
+  <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:20px 24px;margin-bottom:24px">
+    <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:0.06em">Action Overdue</p>
+    <p style="margin:0;font-size:22px;font-weight:800;color:#111">${leadName}</p>
+    <p style="margin:4px 0 0;font-size:14px;color:#6b7280">${stageLabel[lead.pipelineStage ?? ""] ?? lead.pipelineStage}</p>
+  </div>
+  <p style="font-size:15px;color:#374151;line-height:1.7">
+    Hi ${rep.name}, the following action for <strong>${leadName}</strong> was due on
+    <strong>${lead.nextActionDueAt?.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) ?? "(date unknown)"}</strong>
+    and has not been completed:
+  </p>
+  <div style="background:#f9fafb;border-left:4px solid #3b82f6;padding:14px 18px;border-radius:0 8px 8px 0;margin:16px 0">
+    <p style="margin:0;font-size:15px;font-weight:600;color:#111">${lead.nextAction ?? "Follow up with lead"}</p>
+  </div>
+  <p style="font-size:14px;color:#6b7280;line-height:1.7">
+    Please log into the Apollo SCOPS dashboard to update this lead's status and schedule the next action.
+  </p>
+  <a href="https://apollohomebuilders.com/scops/pipeline" style="display:inline-block;background:#0f2044;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;margin-top:8px">Open Pipeline</a>
+  <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0" />
+  <p style="color:#9ca3af;font-size:12px">Apollo Home Builders &middot; Pahrump, NV &middot; (775) 363-1616</p>
+</div>`;
+
+        try {
+          const { error } = await resend.emails.send({
+            from: "Apollo SCOPS <hello@apollohomebuilders.com>",
+            to: rep.email,
+            subject: `[Action Overdue] ${leadName} — ${lead.nextAction ?? "Follow up"}`,
+            html,
+          });
+          if (!error) alerts++;
+        } catch {
+          // Non-fatal — continue processing other leads
+        }
+      }
+    }
+
+    return { flagged, alerts };
+  }),
+
+  /**
+   * Bulk-move multiple leads to a new pipeline stage.
+   * Used by the Kanban bulk-select action bar.
+   */
+  bulkMoveStage: protectedProcedure
+    .input(z.object({
+      ids: z.array(z.number()).min(1),
+      stage: pipelineStageEnum,
+      lossReason: z.enum(["BOUGHT_ELSEWHERE", "FINANCING_FAILED", "TIMELINE_CHANGED", "PRICE_TOO_HIGH", "NO_RESPONSE", "OTHER"]).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      let moved = 0;
+      for (const id of input.ids) {
+        const existing = await getContactById(id);
+        if (!existing) continue;
+        await updateContact(id, {
+          pipelineStage: input.stage,
+          ...(input.lossReason ? { lossReason: input.lossReason } : {}),
+        });
+        await logActivity({
+          contactId: id,
+          userId: ctx.user.id,
+          activityType: "STAGE_CHANGE",
+          description: `Bulk stage move to ${input.stage} by ${ctx.user.name ?? "admin"}${input.lossReason ? ` (${input.lossReason})` : ""}`,
+        });
+        moved++;
+      }
+      return { moved };
     }),
 });

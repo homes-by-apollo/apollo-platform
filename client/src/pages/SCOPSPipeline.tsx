@@ -4,7 +4,7 @@ import { getLoginUrl } from "@/const";
 import SCOPSNav from "@/components/SCOPSNav";
 import { toast } from "sonner";
 
-// ─── Quick Add Sheet ──────────────────────────────────────────────────────────
+// ------------------------------------------------------------
 function QuickAddSheet({ onClose, onSuccess, initialStage }: { onClose: () => void; onSuccess: () => void; initialStage?: string }) {
   const utils = trpc.useUtils();
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", priceRangeMax: "", financingStatus: "" as "" | "PRE_APPROVED" | "IN_PROCESS" | "NOT_STARTED" | "CASH_BUYER", source: "" as "" | "WEBSITE" | "ZILLOW" | "MLS" | "REFERRAL" | "AGENT" | "BILLBOARD" | "WALK_IN" | "OTHER", notes: "" });
@@ -41,7 +41,7 @@ function QuickAddSheet({ onClose, onSuccess, initialStage }: { onClose: () => vo
   );
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------
 type Lead = {
   id: number;
   firstName: string;
@@ -84,7 +84,7 @@ type Property = {
   propertyType: string;
 };
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------
 const STAGES = [
   { key: "NEW_INQUIRY",      label: "New Inquiry",      color: "#6366f1" },
   { key: "QUALIFIED",        label: "Qualified",        color: "#3b82f6" },
@@ -111,7 +111,7 @@ const TAG_PIN_COLORS: Record<string, string> = {
 
 const PAHRUMP_CENTER = { lat: 36.2083, lng: -115.9839 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------
 function fmtBudget(min: number | null, max: number | null) {
   const fmt = (n: number) => n >= 1000000 ? `$${(n/1000000).toFixed(1)}M` : n >= 1000 ? `$${Math.round(n/1000)}K` : `$${n}`;
   if (!max && !min) return null;
@@ -149,8 +149,8 @@ function initials(first: string, last: string) {
   return `${first[0] ?? ""}${last[0] ?? ""}`.toUpperCase();
 }
 
-// ─── Lead Card ────────────────────────────────────────────────────────────────
-function LeadCard({ lead, selected, dimmed, onClick, onDragStart }: { lead: Lead; selected: boolean; dimmed?: boolean; onClick: () => void; onDragStart?: (e: DragEvent<HTMLDivElement>, lead: Lead) => void }) {
+// ------------------------------------------------------------
+function LeadCard({ lead, selected, dimmed, onClick, onDragStart, checked, onCheck }: { lead: Lead; selected: boolean; dimmed?: boolean; onClick: () => void; onDragStart?: (e: DragEvent<HTMLDivElement>, lead: Lead) => void; checked?: boolean; onCheck?: (id: number, checked: boolean) => void }) {
   const budget = fmtBudget(lead.priceRangeMin, lead.priceRangeMax);
   const financing = fmtFinancing(lead.financingStatus);
   const timeline = fmtTimeline(lead.timeline);
@@ -165,9 +165,9 @@ function LeadCard({ lead, selected, dimmed, onClick, onDragStart }: { lead: Lead
       draggable
       onDragStart={(e) => onDragStart?.(e, lead)}
       style={{
-        background: selected ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.65)",
-        border: selected ? "1.5px solid rgba(255,255,255,0.95)" : lead.isOverdue ? "1px solid rgba(239,68,68,0.35)" : "1px solid rgba(255,255,255,0.80)",
-        borderRadius: 14, padding: "12px 14px", cursor: "grab",
+        background: checked ? "rgba(99,102,241,0.08)" : selected ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.65)",
+        border: checked ? "1.5px solid rgba(99,102,241,0.50)" : selected ? "1.5px solid rgba(255,255,255,0.95)" : lead.isOverdue ? "1px solid rgba(239,68,68,0.35)" : "1px solid rgba(255,255,255,0.80)",
+        borderRadius: 14, padding: "12px 14px 12px 34px", cursor: "grab",
         backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         boxShadow: selected ? "0 4px 20px rgba(100,130,200,0.18)" : "0 2px 8px rgba(100,130,200,0.08)",
         transition: "all 0.15s ease", marginBottom: 8, position: "relative",
@@ -175,6 +175,13 @@ function LeadCard({ lead, selected, dimmed, onClick, onDragStart }: { lead: Lead
         pointerEvents: dimmed ? "none" : "auto",
       }}
     >
+      {/* Checkbox for bulk select */}
+      <div
+        onClick={e => { e.stopPropagation(); onCheck?.(lead.id, !checked); }}
+        style={{ position: "absolute", top: 12, left: 10, zIndex: 2, width: 16, height: 16, borderRadius: 4, border: checked ? "2px solid #6366f1" : "2px solid rgba(15,32,68,0.20)", background: checked ? "#6366f1" : "rgba(255,255,255,0.80)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.12s", flexShrink: 0 }}
+      >
+        {checked && <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.2 5.8L8 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+      </div>
       {lead.isOverdue && (
         <>
           <div style={{ position: "absolute", top: 0, left: 0, width: 3, height: "100%", background: "#ef4444", borderRadius: "14px 0 0 14px" }} />
@@ -232,7 +239,7 @@ function LeadCard({ lead, selected, dimmed, onClick, onDragStart }: { lead: Lead
   );
 }
 
-// ─── Property Detail Panel ────────────────────────────────────────────────────
+// ------------------------------------------------------------
 function PropertyDetailPanel({ property, leads, onClose }: { property: Property; leads: Lead[]; onClose: () => void }) {
   const tagColor = TAG_PIN_COLORS[property.tag] ?? "#6366f1";
   const relatedLeads = leads.filter(l => l.primaryPropertyId === property.id || l.propertyAddress === property.address);
@@ -279,7 +286,7 @@ function PropertyDetailPanel({ property, leads, onClose }: { property: Property;
   );
 }
 
-// ─── Schedule Tour Mini Form ──────────────────────────────────────────────────
+// ------------------------------------------------------------
 function ScheduleTourForm({ lead, onClose, onSuccess }: { lead: Lead; onClose: () => void; onSuccess: () => void }) {
   const utils = trpc.useUtils();
   const now = new Date();
@@ -348,7 +355,7 @@ function ScheduleTourForm({ lead, onClose, onSuccess }: { lead: Lead; onClose: (
   );
 }
 
-// ─── Quick Note Input ────────────────────────────────────────────────────────
+// ------------------------------------------------------------
 function QuickNoteInput({ leadId }: { leadId: number }) {
   const utils = trpc.useUtils();
   const [note, setNote] = useState("");
@@ -397,7 +404,7 @@ function QuickNoteInput({ leadId }: { leadId: number }) {
   );
 }
 
-// ─── Lead Detail Panel ────────────────────────────────────────────────────────
+// ------------------------------------------------------------
 function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: () => void; onMoveStage: (id: number, stage: string) => void }) {
   const utils = trpc.useUtils();
   const detailQ = trpc.pipeline.detail.useQuery({ id: lead.id });
@@ -622,7 +629,7 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
   );
 }
 
-// // ─── Email Blast Sheet ────────────────────────────────────────────────────────
+// // ------------------------------------------------------------
 function EmailBlastSheet({ stage, onClose }: { stage: string; onClose: () => void }) {
   const stageLabel = STAGES.find(s => s.key === stage)?.label ?? stage.replace(/_/g, " ");
   const [subject, setSubject] = useState("");
@@ -665,7 +672,7 @@ function EmailBlastSheet({ stage, onClose }: { stage: string; onClose: () => voi
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────
+// ------------------------------------------------------------
 export default function SCOPSPipeline() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
@@ -694,6 +701,21 @@ export default function SCOPSPipeline() {
   });
 
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  // Bulk select state
+  const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set());
+  const [bulkTargetStage, setBulkTargetStage] = useState<string>("");
+  const bulkMove = trpc.pipeline.bulkMoveStage.useMutation({
+    onSuccess: (data) => {
+      utils.pipeline.list.invalidate();
+      utils.pipeline.summary.invalidate();
+      toast.success(`Moved ${data.moved} lead${data.moved !== 1 ? "s" : ""} to ${STAGES.find(s => s.key === bulkTargetStage)?.label ?? bulkTargetStage}`);
+      setCheckedIds(new Set());
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  const handleCheck = useCallback((id: number, checked: boolean) => {
+    setCheckedIds(prev => { const next = new Set(prev); if (checked) next.add(id); else next.delete(id); return next; });
+  }, []);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
   const dragLeadRef = useRef<Lead | null>(null);
   const handleLeadDragStart = useCallback((e: DragEvent<HTMLDivElement>, lead: Lead) => {
@@ -744,22 +766,67 @@ export default function SCOPSPipeline() {
       {showQuickAdd && <QuickAddSheet onClose={() => { setShowQuickAdd(false); setQuickAddStage(undefined); }} onSuccess={() => { setShowQuickAdd(false); setQuickAddStage(undefined); }} initialStage={quickAddStage} />}
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: adminUser.adminRole }} currentPage="scheduling" />
 
-      {/* KPI Summary Bar */}
-      {summary && (
-        <div style={{ padding: "8px 20px", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.70)", display: "flex", gap: 24, alignItems: "center" }}>
-          {[
-            { label: "Total Leads", value: summary.totalActive, color: "#2563eb" },
-            { label: "At Risk", value: summary.atRisk, color: "#dc2626" },
-            { label: "Tours This Week", value: summary.toursThisWeek, color: "#059669" },
-            { label: "New This Week", value: summary.newThisWeek, color: "#d97706" },
-          ].map(({ label, value, color }) => (
-            <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color }}>{value}</div>
-              <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)", lineHeight: 1.2 }}>{label}</div>
+      {/* KPI Summary Bar + Conversion Rate Widget */}
+      {summary && (() => {
+        // Compute conversion rates between adjacent active stages
+        const FUNNEL = [
+          { key: "NEW_INQUIRY",     label: "New Inquiry" },
+          { key: "QUALIFIED",       label: "Qualified" },
+          { key: "TOUR_SCHEDULED",  label: "Tour Sched." },
+          { key: "TOURED",          label: "Toured" },
+          { key: "OFFER_SUBMITTED", label: "Offer" },
+          { key: "UNDER_CONTRACT",  label: "Contract" },
+          { key: "CLOSED",          label: "Closed" },
+        ];
+        const stageMap: Record<string, number> = {};
+        (summary.stageCounts as { stage: string; count: number }[]).forEach(s => { stageMap[s.stage] = s.count; });
+        const conversions = FUNNEL.slice(0, -1).map((s, i) => {
+          const from = stageMap[s.key] ?? 0;
+          const to = stageMap[FUNNEL[i + 1].key] ?? 0;
+          const rate = from > 0 ? Math.round((to / from) * 100) : 0;
+          return { from: s.label, to: FUNNEL[i + 1].label, rate, fromCount: from, toCount: to };
+        });
+        const maxRate = Math.max(...conversions.map(c => c.rate), 1);
+        return (
+          <div style={{ background: "rgba(255,255,255,0.45)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.70)" }}>
+            {/* Row 1: KPI numbers */}
+            <div style={{ padding: "8px 20px", display: "flex", gap: 24, alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.50)" }}>
+              {[
+                { label: "Total Leads", value: summary.totalActive, color: "#2563eb" },
+                { label: "At Risk", value: summary.atRisk, color: "#dc2626" },
+                { label: "Tours This Week", value: summary.toursThisWeek, color: "#059669" },
+                { label: "New This Week", value: summary.newThisWeek, color: "#d97706" },
+              ].map(({ label, value, color }) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color }}>{value}</div>
+                  <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)", lineHeight: 1.2 }}>{label}</div>
+                </div>
+              ))}
+              <div style={{ marginLeft: "auto", fontSize: 10, fontWeight: 700, color: "rgba(15,32,68,0.30)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Stage Conversion Rates</div>
             </div>
-          ))}
-        </div>
-      )}
+            {/* Row 2: Conversion rate mini bar chart */}
+            <div style={{ padding: "8px 20px 10px", display: "flex", gap: 6, alignItems: "flex-end", overflowX: "auto" }}>
+              {conversions.map(c => {
+                const barH = Math.max(4, Math.round((c.rate / maxRate) * 36));
+                const barColor = c.rate >= 60 ? "#10b981" : c.rate >= 35 ? "#f59e0b" : "#ef4444";
+                return (
+                  <div key={c.from + c.to} title={`${c.from} → ${c.to}: ${c.rate}% (${c.toCount}/${c.fromCount})`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "default", minWidth: 54 }}>
+                    {/* Rate label above bar */}
+                    <div style={{ fontSize: 10, fontWeight: 700, color: barColor }}>{c.rate}%</div>
+                    {/* Bar */}
+                    <div style={{ width: 36, height: barH, background: barColor, borderRadius: "3px 3px 0 0", opacity: 0.85, transition: "height 0.3s" }} />
+                    {/* Baseline */}
+                    <div style={{ width: 36, height: 1, background: "rgba(15,32,68,0.15)" }} />
+                    {/* Stage label */}
+                    <div style={{ fontSize: 9, color: "rgba(15,32,68,0.40)", textAlign: "center", lineHeight: 1.2, maxWidth: 52, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.from}</div>
+                    <div style={{ fontSize: 8, color: "rgba(15,32,68,0.25)", textAlign: "center" }}>→ {c.to}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Filter Bar */}
       <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.50)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -869,6 +936,8 @@ export default function SCOPSPipeline() {
                           {visibleLeads.map(lead => (
                             <LeadCard key={lead.id} lead={lead} selected={selectedLead?.id === lead.id}
                               dimmed={matchingIds !== null && !matchingIds.has(lead.id)}
+                              checked={checkedIds.has(lead.id)}
+                              onCheck={handleCheck}
                               onClick={() => { setSelectedLead(selectedLead?.id === lead.id ? null : lead); }}
                               onDragStart={handleLeadDragStart}
                             />
@@ -910,6 +979,45 @@ export default function SCOPSPipeline() {
       {/* Email Blast Sheet */}
       {showBlastSheet && blastStage && (
         <EmailBlastSheet stage={blastStage} onClose={() => setShowBlastSheet(false)} />
+      )}
+
+      {/* Bulk Stage-Move Action Bar */}
+      {checkedIds.size > 0 && (
+        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 500, background: "linear-gradient(135deg, rgba(15,23,42,0.97), rgba(30,41,59,0.97))", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 18, padding: "12px 20px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 8px 40px rgba(0,0,0,0.35)", backdropFilter: "blur(20px)" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
+            {checkedIds.size} lead{checkedIds.size !== 1 ? "s" : ""} selected
+          </div>
+          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.15)" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Move to</div>
+            <div style={{ position: "relative" }}>
+              <select
+                value={bulkTargetStage}
+                onChange={e => setBulkTargetStage(e.target.value)}
+                style={{ appearance: "none", background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.20)", borderRadius: 10, color: bulkTargetStage ? "#fff" : "rgba(255,255,255,0.45)", padding: "7px 28px 7px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer", outline: "none" }}
+              >
+                <option value="" style={{ background: "#1e293b" }}>Select stage…</option>
+                {STAGES.map(s => <option key={s.key} value={s.key} style={{ background: "#1e293b" }}>{s.label}</option>)}
+              </select>
+              <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(255,255,255,0.40)" }}>▾</span>
+            </div>
+            <button
+              disabled={!bulkTargetStage || bulkMove.isPending}
+              onClick={() => {
+                if (!bulkTargetStage) return;
+                bulkMove.mutate({ ids: Array.from(checkedIds), stage: bulkTargetStage as Parameters<typeof bulkMove.mutate>[0]["stage"] });
+              }}
+              style={{ padding: "7px 18px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: bulkTargetStage ? "#6366f1" : "rgba(255,255,255,0.10)", border: "none", color: bulkTargetStage ? "#fff" : "rgba(255,255,255,0.30)", cursor: bulkTargetStage ? "pointer" : "not-allowed", transition: "all 0.15s" }}
+            >
+              {bulkMove.isPending ? "Moving…" : "Apply"}
+            </button>
+          </div>
+          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.15)" }} />
+          <button
+            onClick={() => setCheckedIds(new Set())}
+            style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, color: "rgba(255,255,255,0.50)", cursor: "pointer", padding: "6px 10px", fontSize: 12 }}
+          >✕ Clear</button>
+        </div>
       )}
     </div>
   );

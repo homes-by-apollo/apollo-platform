@@ -779,3 +779,10 @@
 - [x] Overdue count badge on Kanban column header
 - [x] Send-to-Stage email blast: leads.sendBulkEmail server procedure
 - [x] Compose sheet in column header ("Send to Stage" button opens subject/body form)
+
+## Apr 7 2026 — Blog Image Fix, SCOPS Background, Cron, Bulk Move, Analytics
+- [x] Replace apartment complex blog image with house-framing/build confidence photo
+- [x] Apply new liquid glass wave background (.webp) to all SCOPS pages
+- [x] Lead re-engagement cron job: flag stale leads + Resend alert to assigned rep
+- [x] Bulk stage-move: checkboxes on Kanban cards + Move Selected to Stage action bar
+- [x] Pipeline analytics conversion rate widget above Kanban columns

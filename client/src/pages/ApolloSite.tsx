@@ -33,7 +33,7 @@ const lots = [
 
 const blogs = [
   { cat:"Tips", title:"Why Pahrump is Nevada's Best-Kept Secret for New Home Buyers", slug:"why-pahrump-is-nevadas-best-kept-secret-for-new-home-buyers", date:"Feb 12, 2025", read:"5 min", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/pahrump-home1_9c98ce21.jpg" },
-  { cat:"Construction", title:"What to Expect During Your Apollo Home Build", slug:"what-to-expect-during-your-apollo-home-build", date:"Jan 28, 2025", read:"7 min", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/construction-nv_97a4405b.jpg" },
+  { cat:"Construction", title:"What to Expect During Your Apollo Home Build", slug:"what-to-expect-during-your-apollo-home-build", date:"Jan 28, 2025", read:"7 min", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-home-framing-blog-bouH5QAL4MFwA5GeFtqpAY.webp" },
   { cat:"Investment", title:"The Case for Multi-Family Builds in Southern Nevada", slug:"the-case-for-multi-family-builds-in-southern-nevada", date:"Jan 10, 2025", read:"6 min", img:"https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/multifamily-nv_dfd486dd.jpg" },
 ];
 
