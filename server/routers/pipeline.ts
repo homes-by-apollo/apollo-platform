@@ -176,13 +176,14 @@ export const pipelineRouter = router({
       timeline: z.enum(["ASAP", "1_3_MONTHS", "3_6_MONTHS", "6_12_MONTHS", "JUST_BROWSING"]).optional(),
       source: z.enum(["WEBSITE", "ZILLOW", "MLS", "REFERRAL", "AGENT", "BILLBOARD", "WALK_IN", "OTHER"]).optional(),
       notes: z.string().optional(),
+      initialStage: pipelineStageEnum.optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const { notes, ...contactData } = input;
+      const { notes, initialStage, ...contactData } = input;
       const id = await createContact({
         ...contactData,
         contactType: "BUYER",
-        pipelineStage: "NEW_INQUIRY",
+        pipelineStage: initialStage ?? "NEW_INQUIRY",
       });
       if (notes) {
         await logActivity({

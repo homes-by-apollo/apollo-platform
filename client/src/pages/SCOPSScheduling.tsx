@@ -194,7 +194,7 @@ export default function SCOPSScheduling() {
   return (
     <div className="scops-bg min-h-screen">
       {/* Nav */}
-      <SCOPSNav adminUser={adminUser} currentPage="scheduling" />
+      <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="scheduling" />
 
       <div className="px-6 py-6 max-w-screen-xl mx-auto space-y-6">
 

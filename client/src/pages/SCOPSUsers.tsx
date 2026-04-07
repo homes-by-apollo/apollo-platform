@@ -148,7 +148,7 @@ export default function SCOPSUsers() {
       className="scops-bg min-h-screen"
       style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif" }}
     >
-      <SCOPSNav adminUser={{ name: adminUser?.name ?? "" }} currentPage="users" />
+      <SCOPSNav adminUser={{ name: adminUser?.name ?? "", adminRole: (adminUser as any)?.adminRole }} currentPage="users" />
 
       <div className="flex h-[calc(100vh-56px)]">
         {/* ── Left: User List ── */}

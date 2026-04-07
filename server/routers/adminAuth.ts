@@ -51,7 +51,21 @@ export const adminAuthRouter = router({
     const token = ctx.req.cookies?.[ADMIN_COOKIE];
     if (!token) return null;
     const payload = await verifyAdminToken(token);
-    return payload ?? null;
+    if (!payload) return null;
+    // Enrich with adminRole from DB
+    try {
+      const db = await getDb();
+      if (db) {
+        const row = await db.select({ adminRole: adminCredentials.adminRole })
+          .from(adminCredentials)
+          .where(eq(adminCredentials.email, payload.email.toLowerCase()))
+          .limit(1);
+        return { ...payload, adminRole: row[0]?.adminRole ?? null };
+      }
+    } catch {
+      // fallback: return without adminRole
+    }
+    return { ...payload, adminRole: null };
   }),
 
   /** Email + password login */

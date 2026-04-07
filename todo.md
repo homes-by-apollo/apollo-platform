@@ -761,3 +761,8 @@
 - [x] Add roles system (Super Admin, Admin, Marketing, Sales) to user table + procedures
 - [x] Redesign Pipeline as true horizontal Kanban (one column per stage, all visible simultaneously)
 - [x] Add lead score badge chip to Pipeline Kanban cards
+
+## Apr 7 2026 — Kanban Enhancements + Role-Gated Nav
+- [x] Per-column Add Lead (+) button in Kanban column header (pre-fills QuickAddSheet with stage)
+- [x] Kanban card collapse/expand: show top 5 by urgencyScore, "Show N more" expand button for 10+ leads
+- [x] Role-gated nav items: hide Marketing/Content from sales role, hide Pipeline/Scheduling from marketing role

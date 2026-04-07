@@ -31,7 +31,7 @@ const PAGE_TO_SECTION: Record<string, string> = {
 };
 
 interface SCOPSNavProps {
-  adminUser: { name: string };
+  adminUser: { name: string; adminRole?: string | null };
   currentPage?: "dashboard" | "properties" | "blog" | "users" | "utm-builder" | "scheduling";
 }
 
@@ -72,6 +72,14 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
 
   const activeSection = currentPage ? PAGE_TO_SECTION[currentPage] : "";
   const firstName = adminUser.name?.split(" ")[0] ?? adminUser.name ?? "User";
+  const role = adminUser.adminRole ?? "admin";
+
+  // Role-gated nav: sales can't see Marketing/Content; marketing can't see Pipeline/Scheduling
+  const visibleSections = NAV_SECTIONS.filter(s => {
+    if (role === "sales" && (s.key === "utm-builder" || s.key === "blog")) return false;
+    if (role === "marketing" && (s.key === "scheduling")) return false;
+    return true;
+  });
 
   return (
     <div
@@ -105,7 +113,7 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
 
       {/* ── Center: Nav tabs ── */}
       <nav className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-        {NAV_SECTIONS.map((section) => {
+        {visibleSections.map((section) => {
           const isActive =
             activeSection === section.label ||
             activeSection === section.key ||

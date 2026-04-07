@@ -660,7 +660,7 @@ export default function SCOPSDashboard() {
 
   return (
     <div className="scops-bg">
-      <SCOPSNav adminUser={adminUser} currentPage="dashboard" />
+      <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="dashboard" />
 
       <div className="px-4 py-4 max-w-screen-2xl mx-auto space-y-4">
 

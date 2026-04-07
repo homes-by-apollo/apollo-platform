@@ -89,7 +89,7 @@ export default function SCOPSUtmBuilder() {
   const maxLeads = Math.max(...CHANNEL_DATA.map(c => c.leads));
   return (
     <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
-      <SCOPSNav adminUser={adminUser} currentPage="utm-builder" />
+      <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="utm-builder" />
       {/* Filter Bar */}
       <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.50)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.75)", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         {["All Inventory ▾", "Performance ▾", "Map View ▾", "Marketing Readiness ▾"].map((label, i) => (

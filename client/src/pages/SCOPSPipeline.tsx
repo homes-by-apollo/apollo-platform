@@ -5,7 +5,7 @@ import SCOPSNav from "@/components/SCOPSNav";
 import { toast } from "sonner";
 
 // ─── Quick Add Sheet ──────────────────────────────────────────────────────────
-function QuickAddSheet({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+function QuickAddSheet({ onClose, onSuccess, initialStage }: { onClose: () => void; onSuccess: () => void; initialStage?: string }) {
   const utils = trpc.useUtils();
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", priceRangeMax: "", financingStatus: "" as "" | "PRE_APPROVED" | "IN_PROCESS" | "NOT_STARTED" | "CASH_BUYER", source: "" as "" | "WEBSITE" | "ZILLOW" | "MLS" | "REFERRAL" | "AGENT" | "BILLBOARD" | "WALK_IN" | "OTHER", notes: "" });
   const create = trpc.pipeline.quickCreate.useMutation({
@@ -18,10 +18,10 @@ function QuickAddSheet({ onClose, onSuccess }: { onClose: () => void; onSuccess:
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={{ background: "linear-gradient(135deg, rgba(30,41,59,0.98), rgba(15,23,42,0.98))", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "24px 24px 0 0", padding: "24px", width: "100%", maxWidth: "480px", maxHeight: "85vh", overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-          <div style={{ color: "#fff", fontWeight: 700, fontSize: "18px" }}>Quick Add Lead</div>
+          <div style={{ color: "#fff", fontWeight: 700, fontSize: "18px" }}>Quick Add Lead{initialStage ? <span style={{ fontSize: 11, fontWeight: 600, marginLeft: 8, background: "rgba(255,255,255,0.12)", padding: "2px 8px", borderRadius: 6, color: "rgba(255,255,255,0.7)" }}>{initialStage.replace(/_/g, " ")}</span> : null}</div>
           <button onClick={onClose} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "8px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "6px 12px", fontSize: "14px" }}>✕</button>
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); create.mutate({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, priceRangeMax: form.priceRangeMax ? Number(form.priceRangeMax) : undefined, financingStatus: form.financingStatus || undefined, source: form.source || undefined, notes: form.notes || undefined }); }} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <form onSubmit={(e) => { e.preventDefault(); create.mutate({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, priceRangeMax: form.priceRangeMax ? Number(form.priceRangeMax) : undefined, financingStatus: form.financingStatus || undefined, source: form.source || undefined, notes: form.notes || undefined, initialStage: (initialStage as Parameters<typeof create.mutate>[0]["initialStage"]) || undefined }); }} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <div><label style={labelStyle}>First Name *</label><input required value={form.firstName} onChange={(e) => setForm(f => ({ ...f, firstName: e.target.value }))} placeholder="Ryan" style={inputStyle} /></div>
             <div><label style={labelStyle}>Last Name *</label><input required value={form.lastName} onChange={(e) => setForm(f => ({ ...f, lastName: e.target.value }))} placeholder="Turner" style={inputStyle} /></div>
@@ -500,6 +500,11 @@ export default function SCOPSPipeline() {
   const [filterScore, setFilterScore] = useState("");
   const [search, setSearch] = useState("");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [quickAddStage, setQuickAddStage] = useState<string | undefined>(undefined);
+  // Collapse/expand state: columns with 10+ leads show top 5 by default
+  const [expandedCols, setExpandedCols] = useState<Set<string>>(new Set());
+  const COLLAPSE_THRESHOLD = 10;
+  const COLLAPSED_SHOW = 5;
   // Kanban: always fetch all stages; client-side filter handles search + score
   const pipelineQ = trpc.pipeline.list.useQuery(
     { search: search || undefined },
@@ -550,8 +555,8 @@ export default function SCOPSPipeline() {
 
   return (
     <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
-      {showQuickAdd && <QuickAddSheet onClose={() => setShowQuickAdd(false)} onSuccess={() => setShowQuickAdd(false)} />}
-      <SCOPSNav adminUser={adminUser} currentPage="scheduling" />
+      {showQuickAdd && <QuickAddSheet onClose={() => { setShowQuickAdd(false); setQuickAddStage(undefined); }} onSuccess={() => { setShowQuickAdd(false); setQuickAddStage(undefined); }} initialStage={quickAddStage} />}
+      <SCOPSNav adminUser={{ name: adminUser.name, adminRole: adminUser.adminRole }} currentPage="scheduling" />
 
       {/* KPI Summary Bar */}
       {summary && (
@@ -625,29 +630,67 @@ export default function SCOPSPipeline() {
                 <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid rgba(255,255,255,0.70)", flexShrink: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>{stage.label}</div>
-                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: `${stage.color}20`, border: `1px solid ${stage.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: stage.color }}>
-                      {colLeads.length}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <div style={{ width: 22, height: 22, borderRadius: "50%", background: `${stage.color}20`, border: `1px solid ${stage.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: stage.color }}>
+                        {colLeads.length}
+                      </div>
+                      {/* Per-column Add Lead button */}
+                      <button
+                        onClick={() => { setQuickAddStage(stage.key); setShowQuickAdd(true); }}
+                        title={`Add lead to ${stage.label}`}
+                        style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.90)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14, fontWeight: 700, color: "rgba(15,32,68,0.55)", lineHeight: 1, boxShadow: "0 1px 4px rgba(100,130,200,0.12)", transition: "all 0.12s" }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${stage.color}18`; (e.currentTarget as HTMLButtonElement).style.color = stage.color; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.70)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(15,32,68,0.55)"; }}
+                      >+</button>
                     </div>
                   </div>
                   <div style={{ width: 28, height: 2, background: stage.color, borderRadius: 2, marginTop: 6, opacity: 0.7 }} />
                 </div>
                 {/* Cards */}
-                <div style={{ flex: 1, overflowY: "auto", padding: "10px 10px 10px" }}>
-                  {pipelineQ.isLoading ? (
-                    <div style={{ color: "rgba(15,32,68,0.30)", textAlign: "center", padding: 20, fontSize: 12 }}>Loading…</div>
-                  ) : colLeads.length === 0 ? (
-                    <div style={{ color: "rgba(15,32,68,0.20)", textAlign: "center", padding: "20px 10px", fontSize: 11, border: "2px dashed rgba(15,32,68,0.10)", borderRadius: 10 }}>
-                      Drop here
+                {(() => {
+                  const isExpanded = expandedCols.has(stage.key);
+                  const shouldCollapse = colLeads.length >= COLLAPSE_THRESHOLD && !isExpanded;
+                  const visibleLeads = shouldCollapse
+                    ? [...colLeads].sort((a, b) => b.urgencyScore - a.urgencyScore).slice(0, COLLAPSED_SHOW)
+                    : colLeads;
+                  const hiddenCount = colLeads.length - COLLAPSED_SHOW;
+                  return (
+                    <div style={{ flex: 1, overflowY: "auto", padding: "10px 10px 10px" }}>
+                      {pipelineQ.isLoading ? (
+                        <div style={{ color: "rgba(15,32,68,0.30)", textAlign: "center", padding: 20, fontSize: 12 }}>Loading…</div>
+                      ) : colLeads.length === 0 ? (
+                        <div style={{ color: "rgba(15,32,68,0.20)", textAlign: "center", padding: "20px 10px", fontSize: 11, border: "2px dashed rgba(15,32,68,0.10)", borderRadius: 10 }}>
+                          Drop here
+                        </div>
+                      ) : (
+                        <>
+                          {visibleLeads.map(lead => (
+                            <LeadCard key={lead.id} lead={lead} selected={selectedLead?.id === lead.id}
+                              onClick={() => { setSelectedLead(selectedLead?.id === lead.id ? null : lead); }}
+                              onDragStart={handleLeadDragStart}
+                            />
+                          ))}
+                          {shouldCollapse && hiddenCount > 0 && (
+                            <button
+                              onClick={() => setExpandedCols(prev => { const next = new Set(prev); next.add(stage.key); return next; })}
+                              style={{ width: "100%", padding: "8px", borderRadius: 10, background: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.80)", cursor: "pointer", fontSize: 11, fontWeight: 600, color: "rgba(15,32,68,0.55)", marginTop: 4, transition: "all 0.12s" }}
+                            >
+                              Show {hiddenCount} more
+                            </button>
+                          )}
+                          {isExpanded && colLeads.length >= COLLAPSE_THRESHOLD && (
+                            <button
+                              onClick={() => setExpandedCols(prev => { const next = new Set(prev); next.delete(stage.key); return next; })}
+                              style={{ width: "100%", padding: "8px", borderRadius: 10, background: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.80)", cursor: "pointer", fontSize: 11, fontWeight: 600, color: "rgba(15,32,68,0.45)", marginTop: 4 }}
+                            >
+                              Show less
+                            </button>
+                          )}
+                        </>
+                      )}
                     </div>
-                  ) : (
-                    colLeads.map(lead => (
-                      <LeadCard key={lead.id} lead={lead} selected={selectedLead?.id === lead.id}
-                        onClick={() => { setSelectedLead(selectedLead?.id === lead.id ? null : lead); }}
-                        onDragStart={handleLeadDragStart}
-                      />
-                    ))
-                  )}
-                </div>
+                  );
+                })()}
               </div>
             );
           })}
