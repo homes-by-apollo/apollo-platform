@@ -14,6 +14,7 @@ import { getDb } from "../db";
 import { blogPosts, contacts, adminCredentials } from "../../drizzle/schema";
 import { and, eq, lte, isNotNull, inArray } from "drizzle-orm";
 import { Resend } from "resend";
+import { getStaleThresholdHours } from "../routers/settings";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -161,9 +162,11 @@ function scheduleLeadReengagement() {
       if (!db) return;
 
       const now = new Date();
+      const staleHours = await getStaleThresholdHours();
+      const cutoff = new Date(now.getTime() - staleHours * 60 * 60 * 1000);
       const activeStages = ["NEW_INQUIRY", "QUALIFIED", "TOUR_SCHEDULED", "TOURED", "OFFER_SUBMITTED", "UNDER_CONTRACT"];
 
-      // Find leads with a past nextActionDueAt in active stages
+      // Find leads with a past nextActionDueAt in active stages (older than staleHours)
       const overdueLeads = await db
         .select({
           id: contacts.id,

@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { GlobalFooter } from "@/components/GlobalFooter";
+import { Helmet } from "react-helmet-async";
 
 const COVER_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-home-buyers-guide-cover_56befa3f.png";
 const PDF_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-Pahrump-Home-Buyers-Guide_0f00d242.pdf";
@@ -42,6 +43,24 @@ export default function BuyersGuideThankYou() {
 
   return (
     <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", background: "#f8f7f4", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <Helmet>
+        <title>Your Free Buyer's Guide Is on Its Way | Apollo Home Builders</title>
+        <meta name="description" content="Download your free 2026 Pahrump Home Buyer's Guide. Covers pricing, financing, build timelines, lot availability, and what to expect when building with Apollo." />
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Your Free 2026 Pahrump Home Buyer's Guide | Apollo Home Builders" />
+        <meta property="og:description" content="Everything you need to know before building in Pahrump, Nevada — pricing, financing, timelines, and lot availability. Download free." />
+        <meta property="og:image" content={COVER_IMG} />
+        <meta property="og:image:width" content="800" />
+        <meta property="og:image:height" content="1035" />
+        <meta property="og:image:alt" content="2026 Pahrump Home Buyer's Guide cover" />
+        <meta property="og:url" content="https://apollohomebuilders.com/buyers-guide-thank-you" />
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Your Free 2026 Pahrump Home Buyer's Guide | Apollo Home Builders" />
+        <meta name="twitter:description" content="Everything you need to know before building in Pahrump, Nevada. Download free." />
+        <meta name="twitter:image" content={COVER_IMG} />
+      </Helmet>
       {/* ── NAV ── */}
       <nav style={{ background: "white", borderBottom: "1px solid rgba(15,32,68,0.08)", padding: "0 5vw", display: "flex", alignItems: "center", justifyContent: "space-between", height: 68 }}>
         <button onClick={() => setLocation("/")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}>

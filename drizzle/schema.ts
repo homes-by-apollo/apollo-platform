@@ -434,3 +434,15 @@ export const leadPropertyInterest = mysqlTable("leadPropertyInterest", {
 
 export type LeadPropertyInterest = typeof leadPropertyInterest.$inferSelect;
 export type InsertLeadPropertyInterest = typeof leadPropertyInterest.$inferInsert;
+
+// ─── System Settings ──────────────────────────────────────────────────────────
+/**
+ * Key-value store for configurable system settings (e.g., stale lead threshold).
+ * Each key is unique; values are stored as strings and parsed by the consumer.
+ */
+export const systemSettings = mysqlTable("systemSettings", {
+  key: varchar("key", { length: 128 }).primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SystemSetting = typeof systemSettings.$inferSelect;

@@ -39,11 +39,11 @@ const blogs = [
 
 // Home-page FAQ (5 featured questions)
 const faqs: [string, string][] = [
-  ["How much does it cost to build a home with Apollo?","Our all-inclusive packages start in the low $300s and scale with lot size, floor plan, and finish selections. Every quote is fixed-price — what you sign is what you pay. No change-order surprises."],
-  ["How long does the build process take?","Most single-family homes take 6–9 months from signed contract to keys in hand. We provide a written construction schedule at contract signing and update you at every milestone."],
-  ["Do you help with financing?","Yes. We have relationships with Pahrump-area lenders who specialize in construction-to-permanent loans. We'll connect you at your first consultation so financing never holds up your timeline."],
-  ["What does Apollo's warranty cover?","Every Apollo home comes with a 1-year workmanship warranty, a 2-year mechanical warranty covering plumbing, electrical, and HVAC, and a 10-year structural warranty on the foundation and framing."],
-  ["Do you have lots available right now?","Yes — we currently have lots available in Pahrump ranging from 0.25 to 1+ acres, starting at $45,000. Lot inventory moves quickly; schedule a consultation to see what's available today."],
+  ["How much does it cost to build with Apollo?","Our all-inclusive homes typically start in the low $300s and scale based on lot, plan, and finishes. Every quote is fixed-price, so what you sign is what you pay. No surprises."],
+  ["How long does the build process take?","Most homes are completed in 6–9 months from contract to keys. You'll receive a clear timeline upfront and updates at every major milestone."],
+  ["Do you help with financing?","Yes. We connect you with trusted lenders who specialize in construction-to-permanent loans so financing doesn't slow you down."],
+  ["What does your warranty include?","Every home includes a 1-year workmanship warranty, 2-year systems coverage, and a 10-year structural warranty for long-term peace of mind."],
+  ["Do you have lots available right now?","Yes. We offer available lots across Pahrump, starting around $45K. Availability changes quickly, so we recommend checking current availability."],
 ];
 
 // Full FAQ page — 14 questions across 4 categories
@@ -261,7 +261,7 @@ function NewsletterForm() {
     );
   }
   return (
-    <form className="nl-form" onSubmit={handleNlSubmit} style={{ display:"flex", gap:0, maxWidth:560, margin:"0 auto", borderRadius:12, overflow:"hidden", boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
+    <form className="nl-form" onSubmit={handleNlSubmit} style={{ display:"flex", gap:0, maxWidth:560, margin:"0", borderRadius:12, overflow:"hidden", boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
       <input
         type="email"
         required
@@ -1053,7 +1053,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                   ].map(([icon,title,desc])=>(
                     <div key={title as string}>
                       <div style={{ width:44, height:44, borderRadius:12, background:GL, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:14 }}>{icon}</div>
-                      <div style={{ fontSize:19.2, fontWeight:700, color:TXT, marginBottom:10 }}>{title}</div>
+                      <div style={{ fontSize:23.2, fontWeight:700, color:TXT, marginBottom:10 }}>{title}</div>
                       <div style={{ fontSize:17.4, color:MUT, lineHeight:1.75 }}>{desc}</div>
                     </div>
                   ))}
@@ -1343,12 +1343,20 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
           <div className="section-pad" style={{ background:"white", padding:"80px var(--pad) 80px" }}>
             <div className="site-container">
             <SectionLabel>FAQ</SectionLabel>
-            <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:24, marginBottom:40, flexWrap:"wrap" }}>
-              <h2 style={{ fontSize:"clamp(36px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, margin:0, maxWidth:520 }}>Feel free to ask any questions</h2>
-              <button className="faq-view-all-btn" onClick={()=>setPage("faq")} style={{ marginTop:8, width:200, height:65, background:"#5bb8f5", color:G, border:"none", borderRadius:8, fontSize:20, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", display:"inline-flex", alignItems:"center", justifyContent:"center", gap:6 }}>View All FAQs ↗</button>
+            <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:24, marginBottom:12, flexWrap:"wrap" }}>
+              <div>
+                <h2 style={{ fontSize:"clamp(32px,3.5vw,48px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, margin:"0 0 8px" }}>Have questions? We've got answers.</h2>
+                <p style={{ fontSize:17, color:MUT, margin:0, lineHeight:1.6 }}>Everything you need to know before building with Apollo.</p>
+              </div>
+              <button className="faq-view-all-btn" onClick={()=>setPage("faq")} style={{ marginTop:8, background:"none", border:"none", color:G, fontSize:17, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", display:"inline-flex", alignItems:"center", gap:6, padding:"8px 0", textDecoration:"underline", textUnderlineOffset:3 }}>View All FAQs →</button>
             </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+            <div style={{ display:"flex", flexDirection:"column", gap:12, marginTop:36 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
+            </div>
+            {/* Bottom CTA */}
+            <div style={{ marginTop:48, padding:"28px 36px", background:GL, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"space-between", gap:20, flexWrap:"wrap" }}>
+              <p style={{ fontSize:18, fontWeight:700, color:TXT, margin:0 }}>Ready to see what's available?</p>
+              <button onClick={()=>{ track("Check Availability", { section:"FAQ CTA" }); setPage("homes"); }} style={{ background:G, color:"white", border:"none", borderRadius:8, padding:"14px 28px", fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"inherit", display:"inline-flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }}>Check Availability →</button>
             </div>
             </div>
           </div>

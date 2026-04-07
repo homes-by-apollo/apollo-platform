@@ -12,6 +12,7 @@ import { newsletterRouter } from "./routers/newsletter";
 import { propertiesRouter } from "./routers/properties";
 import { schedulingRouter } from "./routers/scheduling";
 import { pipelineRouter } from "./routers/pipeline";
+import { settingsRouter } from "./routers/settings";
 
 export const appRouter = router({
   system: systemRouter,
@@ -33,6 +34,7 @@ export const appRouter = router({
   newsletter: newsletterRouter,
   properties: propertiesRouter,
   scheduling: schedulingRouter,
+  settings: settingsRouter,
 });
 
 export type AppRouter = typeof appRouter;

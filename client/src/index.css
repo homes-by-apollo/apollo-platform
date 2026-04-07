@@ -221,24 +221,24 @@
   --stage-lost: oklch(0.64 0.2 25);
 }
 
-/* Light Apple Liquid Glass tokens for SCOPS */
+/* Dark Liquid Glass tokens for SCOPS */
 .scops-bg,
 [data-scops] {
-  --glass-bg: rgba(255, 255, 255, 0.52);
-  --glass-bg-strong: rgba(255, 255, 255, 0.72);
-  --glass-bg-soft: rgba(255, 255, 255, 0.32);
-  --glass-border: rgba(255, 255, 255, 0.75);
-  --glass-border-soft: rgba(255, 255, 255, 0.50);
-  --glass-highlight: rgba(255, 255, 255, 0.90);
-  --glass-shadow-sm: 0 2px 12px rgba(100, 130, 200, 0.10), 0 1px 3px rgba(100, 130, 200, 0.08);
-  --glass-shadow-md: 0 8px 32px rgba(100, 130, 200, 0.14), 0 2px 8px rgba(100, 130, 200, 0.08);
-  --glass-shadow-lg: 0 20px 60px rgba(100, 130, 200, 0.18), 0 4px 16px rgba(100, 130, 200, 0.10);
+  --glass-bg: rgba(255, 255, 255, 0.10);
+  --glass-bg-strong: rgba(255, 255, 255, 0.16);
+  --glass-bg-soft: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.20);
+  --glass-border-soft: rgba(255, 255, 255, 0.10);
+  --glass-highlight: rgba(255, 255, 255, 0.30);
+  --glass-shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.30), 0 1px 3px rgba(0, 0, 0, 0.20);
+  --glass-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.25);
+  --glass-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.50), 0 4px 16px rgba(0, 0, 0, 0.30);
   --glass-blur: 28px;
   --glass-saturate: 180%;
-  /* Text colors for light glass */
-  --glass-text: rgba(15, 32, 68, 0.90);
-  --glass-text-muted: rgba(15, 32, 68, 0.50);
-  --glass-text-faint: rgba(15, 32, 68, 0.35);
+  /* Text colors for dark glass */
+  --glass-text: rgba(255, 255, 255, 0.92);
+  --glass-text-muted: rgba(255, 255, 255, 0.55);
+  --glass-text-faint: rgba(255, 255, 255, 0.35);
 }
 
 /* ── Glass surface primitives ── */
@@ -305,9 +305,9 @@
   box-shadow: 0 0 0 1px rgba(99, 179, 237, 0.30), var(--glass-shadow-sm);
 }
 
-/* ── SCOPS background — Light Apple Liquid Glass ── */
+/* ── SCOPS background — Dark Liquid Glass ── */
 .scops-bg {
-  background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/scops-bg-liquid-glass_6638b8fc.webp');
+  background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/dark-liquid-glass-scops-bg-v2_298e7b85.webp');
   background-size: cover;
   background-position: center top;
   background-attachment: fixed;

@@ -792,3 +792,11 @@
 - [x] Wire newsletter form success to redirect to /buyers-guide-thank-you
 - [x] Rebrand blog CTA background from dark navy to bright amber/gold gradient on PublicBlogPost.tsx
 - [x] Conversion rate drill-down: clicking a bar in analytics widget filters Kanban to that stage (click again to clear)
+
+## Apr 7 2026 — Homepage Polish, SCOPS Dark Glass, Thank-You SEO, Stale Threshold
+- [x] Homepage: increase "All-Inclusive Pricing", "Local Pahrump Expertise", "Flexible Floor Plans", "Preferred Lenders" font size by 4pt
+- [x] Homepage: left-align buyers guide email form with the text above/below it
+- [x] Homepage FAQ: update section header, 5 FAQ items, and add "Ready to see what's available?" bottom CTA
+- [x] Thank-you page: add react-helmet OG meta tags (title, description, og:image)
+- [x] SCOPS Admin: stale lead threshold setting (DB table + procedure + /scops/settings page)
+- [x] SCOPS Dashboard: apply dark liquid glass design system (new dark background, dark glass tokens, white text)
