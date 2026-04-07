@@ -710,3 +710,14 @@
 - [x] Redesign SCOPS Inventory tab — map-centric view with lead cards and property detail panel
 - [x] Redesign SCOPS Marketing tab — Channel Performance, Campaign Leaderboard, Landing Pages, UTM Builder
 - [x] Redesign SCOPS Content tab — Blog Posts table with KPI cards and Landing Pages panels
+
+## Apr 7 2026 — SCOPS Liquid Glass Design System
+- [x] Add .glass, .glass-card, .glass-panel, .glass-hover CSS primitives to index.css (SCOPS-only)
+- [x] Create GlassCard.tsx reusable component
+- [x] Create GlassPanel.tsx reusable component
+- [x] Create KpiCard.tsx reusable component
+- [x] Create PipelineCard.tsx reusable component
+- [x] Refactor SCOPSDashboard to use GlassCard/GlassPanel/KpiCard
+- [x] Refactor SCOPSPipeline to use GlassCard/PipelineCard
+- [x] Refactor SCOPSProperties (Inventory) to use GlassCard/GlassPanel
+- [x] Apply dark radial gradient body background to all SCOPS pages (Dashboard, Pipeline, Inventory, Marketing, Content)

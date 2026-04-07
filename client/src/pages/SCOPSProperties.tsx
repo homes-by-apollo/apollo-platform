@@ -511,11 +511,11 @@ export default function SCOPSProperties() {
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #c8d4f0 0%, #b8c8e8 30%, #a8b8e0 60%, #c0cce8 100%)", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "radial-gradient(circle at top left, #1f2937, #0f172a)", backgroundAttachment: "fixed", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={adminUser} currentPage="properties" />
 
       {/* ── KPI Stats Bar ── */}
-      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.40)", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.10)", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         {[
           { label: "Available", value: availableCount, color: "#22c55e" },
           { label: "Under Contract", value: underContractCount, color: "#f59e0b" },
@@ -523,30 +523,30 @@ export default function SCOPSProperties() {
           { label: "Featured", value: featuredCount, color: "#6366f1" },
           { label: "Total", value: properties.length, color: "#374151" },
         ].map(stat => (
-          <div key={stat.label} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", background: "rgba(255,255,255,0.70)", borderRadius: 20, border: "1px solid rgba(0,0,0,0.08)" }}>
+          <div key={stat.label} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", background: "rgba(255,255,255,0.08)", borderRadius: 20, border: "1px solid rgba(255,255,255,0.14)" }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: stat.color }} />
             <span style={{ fontSize: 12, fontWeight: 700, color: stat.color }}>{stat.value}</span>
-            <span style={{ fontSize: 11, color: "#6b7280" }}>{stat.label}</span>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>{stat.label}</span>
           </div>
         ))}
         <div style={{ flex: 1, minWidth: 200, maxWidth: 300, marginLeft: "auto", display: "flex", gap: 8 }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address or city…" style={{ flex: 1, padding: "7px 14px", background: "rgba(255,255,255,0.80)", border: "1px solid rgba(0,0,0,0.12)", borderRadius: 20, color: "#1a1a2e", fontSize: 12, outline: "none" }} />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address or city…" style={{ flex: 1, padding: "7px 14px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, color: "rgba(255,255,255,0.85)", fontSize: 12, outline: "none" }} />
           <button onClick={() => setEditingId("new")} style={{ padding: "7px 16px", borderRadius: 20, background: "#0f2044", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Add</button>
         </div>
       </div>
 
       {/* ── Filter Bar ── */}
-      <div style={{ padding: "8px 20px", background: "rgba(255,255,255,0.40)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.30)", display: "flex", gap: 8, alignItems: "center" }}>
+      <div style={{ padding: "8px 20px", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", gap: 8, alignItems: "center" }}>
         {["ALL", "HOME", "LOT"].map(t => (
-          <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: typeFilter === t ? "rgba(15,32,68,0.15)" : "rgba(255,255,255,0.60)", border: typeFilter === t ? "1px solid rgba(15,32,68,0.30)" : "1px solid rgba(0,0,0,0.08)", color: typeFilter === t ? "#0f2044" : "#6b7280" }}>
+          <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: typeFilter === t ? "rgba(99,102,241,0.20)" : "rgba(255,255,255,0.07)", border: typeFilter === t ? "1px solid rgba(99,102,241,0.45)" : "1px solid rgba(255,255,255,0.12)", color: typeFilter === t ? "#a5b4fc" : "rgba(255,255,255,0.55)" }}>
             {t === "ALL" ? "All Types" : t === "HOME" ? "Homes" : "Lots"}
           </button>
         ))}
-        <div style={{ width: 1, height: 16, background: "rgba(0,0,0,0.12)", margin: "0 4px" }} />
+        <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.15)", margin: "0 4px" }} />
         {["ALL", "Available", "Under Contract", "Sold", "Coming Soon"].map(tag => {
-          const color = tag === "ALL" ? "#374151" : TAG_PIN_COLORS[tag] ?? "#374151";
+          const color = tag === "ALL" ? "rgba(255,255,255,0.70)" : TAG_PIN_COLORS[tag] ?? "rgba(255,255,255,0.70)";
           return (
-            <button key={tag} onClick={() => setTagFilter(tag)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: tagFilter === tag ? `${color}18` : "rgba(255,255,255,0.60)", border: tagFilter === tag ? `1px solid ${color}44` : "1px solid rgba(0,0,0,0.08)", color: tagFilter === tag ? color : "#6b7280" }}>
+            <button key={tag} onClick={() => setTagFilter(tag)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: tagFilter === tag ? `${color}22` : "rgba(255,255,255,0.07)", border: tagFilter === tag ? `1px solid ${color}55` : "1px solid rgba(255,255,255,0.12)", color: tagFilter === tag ? color : "rgba(255,255,255,0.55)" }}>
               {tag === "ALL" ? "All Status" : tag}
             </button>
           );
@@ -556,20 +556,20 @@ export default function SCOPSProperties() {
       {/* ── 3-Panel Body ── */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
         {/* LEFT: Property list */}
-        <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.40)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.40)", overflowY: "auto", padding: "12px" }}>
+        <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.10)", overflowY: "auto", padding: "12px" }}>
           <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a2e", marginBottom: 2 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.90)", marginBottom: 2 }}>
               {filtered.length} Listing{filtered.length !== 1 ? "s" : ""}
             </div>
-            <div style={{ fontSize: 11, color: "rgba(0,0,0,0.40)" }}>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>
               {typeFilter === "ALL" ? "All types" : typeFilter === "HOME" ? "Homes only" : "Lots only"}
               {tagFilter !== "ALL" ? ` · ${tagFilter}` : ""}
             </div>
           </div>
           {propertiesQuery.isLoading ? (
-            <div style={{ color: "rgba(0,0,0,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
+            <div style={{ color: "rgba(255,255,255,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
           ) : filtered.length === 0 ? (
-            <div style={{ color: "rgba(0,0,0,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No listings found</div>
+            <div style={{ color: "rgba(255,255,255,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No listings found</div>
           ) : (
             filtered.map(prop => (
               <PropertyCard
@@ -586,11 +586,11 @@ export default function SCOPSProperties() {
         <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
           <MapView initialCenter={PAHRUMP_CENTER} initialZoom={12} onMapReady={handleMapReady} className="w-full h-full" />
           {/* Legend */}
-          <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "8px 16px", display: "flex", gap: 16, alignItems: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.15)", fontSize: 12, fontWeight: 600 }}>
+          <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", background: "rgba(15,23,42,0.80)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "8px 16px", display: "flex", gap: 16, alignItems: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.40)", fontSize: 12, fontWeight: 600 }}>
             {[{ color: "#22c55e", label: "Available" }, { color: "#f59e0b", label: "Under Contract" }, { color: "#ef4444", label: "Sold" }, { color: "#6366f1", label: "Coming Soon" }].map(({ color, label }) => (
               <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <div style={{ width: 10, height: 10, borderRadius: "50%", background: color }} />
-                <span style={{ color: "#374151" }}>{label}</span>
+                <span style={{ color: "rgba(255,255,255,0.80)" }}>{label}</span>
               </div>
             ))}
           </div>

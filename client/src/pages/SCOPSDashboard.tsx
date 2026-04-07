@@ -111,12 +111,12 @@ function GC({
 }: { children: React.ReactNode; className?: string; style?: React.CSSProperties; noPad?: boolean }) {
   return (
     <div className={className} style={{
-      background:"rgba(255,255,255,0.62)",
-      backdropFilter:"blur(20px) saturate(1.6)",
-      WebkitBackdropFilter:"blur(20px) saturate(1.6)",
-      border:"1px solid rgba(255,255,255,0.75)",
+      background:"rgba(255,255,255,0.08)",
+      backdropFilter:"blur(20px)",
+      WebkitBackdropFilter:"blur(20px)",
+      border:"1px solid rgba(255,255,255,0.12)",
       borderRadius:18,
-      boxShadow:"0 4px 24px rgba(30,60,120,.08),0 1px 3px rgba(30,60,120,.06),inset 0 1px 0 rgba(255,255,255,.9)",
+      boxShadow:"0 8px 32px rgba(0,0,0,0.15)",
       padding: noPad ? 0 : "16px 18px",
       ...style,
     }}>
@@ -130,8 +130,8 @@ function GC({
 function SH({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
     <div className="flex items-baseline gap-2 mb-3">
-      <span className="text-[13px] font-bold text-slate-700">{children}</span>
-      {sub && <span className="text-[11px] text-slate-400 font-medium">{sub}</span>}
+      <span className="text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.90)" }}>{children}</span>
+      {sub && <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.45)" }}>{sub}</span>}
     </div>
   );
 }
@@ -148,13 +148,13 @@ function KpiCard({
   const isUp = (delta ?? 0) >= 0;
   return (
     <GC style={{ padding:"14px 16px" }}>
-      <div className="text-[10px] font-semibold text-slate-400 mb-1.5 leading-tight uppercase tracking-wide">{label}</div>
+      <div className="text-[10px] font-semibold mb-1.5 leading-tight uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.50)" }}>{label}</div>
       {loading ? (
-        <div className="h-7 w-16 bg-white/60 rounded-lg animate-pulse mb-2" />
+        <div className="h-7 w-16 rounded-lg animate-pulse mb-2" style={{ background: "rgba(255,255,255,0.12)" }} />
       ) : (
         <div className="flex items-baseline gap-1 mb-1.5">
-          <span className="text-[26px] font-black text-slate-800 leading-none tracking-tight">{value}</span>
-          {unit && <span className="text-[12px] font-semibold text-slate-400">{unit}</span>}
+          <span className="text-[26px] font-black leading-none tracking-tight" style={{ color: "rgba(255,255,255,0.95)" }}>{value}</span>
+          {unit && <span className="text-[12px] font-semibold" style={{ color: "rgba(255,255,255,0.45)" }}>{unit}</span>}
         </div>
       )}
       {/* Micro-signal */}
@@ -197,8 +197,8 @@ function DealsAtRisk({
     <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"rgba(34,197,94,.08)", border:"1px solid rgba(34,197,94,.2)" }}>
       <span className="text-[18px]">✅</span>
       <div>
-        <div className="text-[12px] font-bold text-emerald-700">Pipeline is healthy</div>
-        <div className="text-[11px] text-emerald-600">All active leads contacted within 48 hours</div>
+        <div className="text-[12px] font-bold" style={{ color: "#34d399" }}>Pipeline is healthy</div>
+        <div className="text-[11px]" style={{ color: "#6ee7b7" }}>All active leads contacted within 48 hours</div>
       </div>
     </div>
   );
@@ -224,21 +224,21 @@ function DealsAtRisk({
             {/* Lead info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-[13px] font-bold text-slate-800">{d.name}</span>
+                <span className="text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.92)" }}>{d.name}</span>
                 {scoreP && (
                   <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full" style={{ background: scoreP.bg, color: scoreP.text }}>
                     {d.leadScore}
                   </span>
                 )}
-                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background:"rgba(0,0,0,.06)", color:"#64748b" }}>
+                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background:"rgba(255,255,255,.10)", color:"rgba(255,255,255,0.60)" }}>
                   {STAGE_LABELS[d.stage] ?? d.stage}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-slate-500">
+              <div className="flex items-center gap-2 text-[11px]" style={{ color: "rgba(255,255,255,0.50)" }}>
                 <span className="font-semibold" style={{ color: urg.badge }}>{d.issue}</span>
                 {d.primaryPropertyAddress && (
                   <>
-                    <span className="text-slate-300">·</span>
+                    <span style={{ color: "rgba(255,255,255,0.30)" }}>·</span>
                     <span className="truncate max-w-[160px]">🏠 {d.primaryPropertyAddress}</span>
                   </>
                 )}
@@ -247,8 +247,8 @@ function DealsAtRisk({
 
             {/* Last contact */}
             <div className="flex-shrink-0 text-right">
-              <div className="text-[10px] text-slate-400">Last contact</div>
-              <div className="text-[11px] font-bold text-slate-600">{timeAgo(d.lastContactedAt)}</div>
+              <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.40)" }}>Last contact</div>
+              <div className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.70)" }}>{timeAgo(d.lastContactedAt)}</div>
             </div>
 
             {/* CTA */}
@@ -466,7 +466,7 @@ function InventoryHealth({ items, loading }: { items: InvItem[]; loading?: boole
               onError={e => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG; }}
             />
             <div className="flex-1 min-w-0">
-              <div className="text-[11px] font-semibold text-slate-800 truncate">{p.address}</div>
+              <div className="text-[11px] font-semibold truncate" style={{ color: "rgba(255,255,255,0.90)" }}>{p.address}</div>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: meta.bg, color: meta.color }}>
                   {meta.label}
@@ -489,9 +489,9 @@ function InventoryHealth({ items, loading }: { items: InvItem[]; loading?: boole
 // ─── Source Performance ───────────────────────────────────────────────────────
 
 function SourcePerf({ rows, loading }: { rows: { source:string; label:string; leads:number; tours:number; contracts:number }[]; loading?: boolean }) {
-  if (loading) return <div className="text-sm text-slate-400">Loading…</div>;
+  if (loading) return <div className="text-sm" style={{ color: "rgba(255,255,255,0.40)" }}>Loading…</div>;
   const active = rows.filter(r => r.leads > 0);
-  if (active.length === 0) return <div className="text-[12px] text-slate-400 py-2">No leads yet.</div>;
+  if (active.length === 0) return <div className="text-[12px] py-2" style={{ color: "rgba(255,255,255,0.40)" }}>No leads yet.</div>;
   const totalLeads = active.reduce((s,r) => s+r.leads, 0);
   const totalContracts = active.reduce((s,r) => s+r.contracts, 0);
   return (
@@ -500,7 +500,7 @@ function SourcePerf({ rows, loading }: { rows: { source:string; label:string; le
         <thead>
           <tr style={{ borderBottom:"1px solid rgba(255,255,255,.5)" }}>
             {["","LEADS","TOURS","CONTRACTS","REV"].map(h => (
-              <th key={h} className="text-left text-[9px] font-bold text-slate-400 uppercase tracking-wider px-3 py-2">{h}</th>
+              <th key={h} className="text-left text-[9px] font-bold uppercase tracking-wider px-3 py-2" style={{ color: "rgba(255,255,255,0.45)" }}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -510,22 +510,22 @@ function SourcePerf({ rows, loading }: { rows: { source:string; label:string; le
               <td className="px-3 py-2">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[12px]">{SOURCE_ICONS[s.source] ?? "📊"}</span>
-                  <span className="font-semibold text-slate-700">{s.label}</span>
+                  <span className="font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>{s.label}</span>
                 </div>
               </td>
-              <td className="px-3 py-2 font-black text-slate-800">{s.leads}</td>
-              <td className="px-3 py-2 text-slate-600">{s.tours}</td>
-              <td className="px-3 py-2 font-semibold text-emerald-700">{s.contracts}</td>
-              <td className="px-3 py-2 font-bold text-[#2563eb]">{s.contracts > 0 ? fmt$(s.contracts*425_000) : "—"}</td>
+              <td className="px-3 py-2 font-black" style={{ color: "rgba(255,255,255,0.90)" }}>{s.leads}</td>
+              <td className="px-3 py-2" style={{ color: "rgba(255,255,255,0.65)" }}>{s.tours}</td>
+              <td className="px-3 py-2 font-semibold" style={{ color: "#34d399" }}>{s.contracts}</td>
+              <td className="px-3 py-2 font-bold" style={{ color: "#60a5fa" }}>{s.contracts > 0 ? fmt$(s.contracts*425_000) : "—"}</td>
             </tr>
           ))}
           {active.length > 1 && (
             <tr style={{ borderTop:"1px solid rgba(255,255,255,.6)", background:"rgba(255,255,255,.25)" }}>
-              <td className="px-3 py-2 text-[10px] font-bold text-slate-500">TOTAL</td>
-              <td className="px-3 py-2 font-black text-slate-800">{totalLeads}</td>
-              <td className="px-3 py-2 text-slate-600">{active.reduce((s,r)=>s+r.tours,0)}</td>
-              <td className="px-3 py-2 font-black text-emerald-700">{totalContracts}</td>
-              <td className="px-3 py-2 font-black text-[#2563eb]">{totalContracts > 0 ? fmt$(totalContracts*425_000) : "—"}</td>
+              <td className="px-3 py-2 text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.45)" }}>TOTAL</td>
+              <td className="px-3 py-2 font-black" style={{ color: "rgba(255,255,255,0.90)" }}>{totalLeads}</td>
+              <td className="px-3 py-2" style={{ color: "rgba(255,255,255,0.65)" }}>{active.reduce((s,r)=>s+r.tours,0)}</td>
+              <td className="px-3 py-2 font-black" style={{ color: "#34d399" }}>{totalContracts}</td>
+              <td className="px-3 py-2 font-black" style={{ color: "#60a5fa" }}>{totalContracts > 0 ? fmt$(totalContracts*425_000) : "—"}</td>
             </tr>
           )}
         </tbody>
@@ -540,23 +540,23 @@ function ActivityFeed({ items, loading }: {
   items: { id:number; activityType:string; description:string; firstName?:string|null; lastName?:string|null; createdAt:Date|string }[];
   loading?: boolean;
 }) {
-  if (loading) return <div className="space-y-2">{[1,2,3].map(i=><div key={i} className="h-10 rounded-xl bg-white/40 animate-pulse"/>)}</div>;
-  if (items.length === 0) return <div className="text-[12px] text-slate-400 py-2">No recent activity.</div>;
+  if (loading) return <div className="space-y-2">{[1,2,3].map(i=><div key={i} className="h-10 rounded-xl animate-pulse" style={{ background: "rgba(255,255,255,0.08)" }}/>)}</div>;
+  if (items.length === 0) return <div className="text-[12px] py-2" style={{ color: "rgba(255,255,255,0.40)" }}>No recent activity.</div>;
   return (
     <div className="space-y-2">
       {items.slice(0,8).map(a => (
-        <div key={a.id} className="flex items-center gap-2.5 p-2 rounded-xl" style={{ background:"rgba(255,255,255,.5)", border:"1px solid rgba(255,255,255,.7)" }}>
+        <div key={a.id} className="flex items-center gap-2.5 p-2 rounded-xl" style={{ background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.10)" }}>
           <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
             style={{ background:"linear-gradient(135deg,#4a90d9,#2563eb)" }}>
             {a.firstName ? a.firstName.charAt(0).toUpperCase() : "?"}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-semibold text-slate-800 truncate">
+            <div className="text-[11px] font-semibold truncate" style={{ color: "rgba(255,255,255,0.90)" }}>
               {a.firstName && a.lastName ? `${a.firstName} ${a.lastName}` : "System"}
             </div>
-            <div className="text-[10px] text-slate-500 truncate">{a.description}</div>
+            <div className="text-[10px] truncate" style={{ color: "rgba(255,255,255,0.50)" }}>{a.description}</div>
           </div>
-          <div className="text-[9px] text-slate-400 flex-shrink-0">{timeAgo(a.createdAt)}</div>
+          <div className="text-[9px] flex-shrink-0" style={{ color: "rgba(255,255,255,0.40)" }}>{timeAgo(a.createdAt)}</div>
         </div>
       ))}
     </div>
@@ -614,8 +614,8 @@ export default function SCOPSDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen"
-        style={{ background:"linear-gradient(135deg,#c8d8f0,#dce8f8 40%,#e8f0fc 70%,#d0dff5)" }}>
-        <div className="text-sm text-slate-500">Loading…</div>
+        style={{ background:"radial-gradient(circle at top left, #1f2937, #0f172a)" }}>
+        <div className="text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>Loading…</div>
       </div>
     );
   }
@@ -659,10 +659,7 @@ export default function SCOPSDashboard() {
   const absorptionPct = Math.min((dash?.absorptionRate ?? 0), 100);
 
   return (
-    <div className="min-h-screen" style={{
-      background:"linear-gradient(145deg,#b8ccec 0%,#cddaf5 25%,#dce8fb 50%,#c8d8f0 75%,#b8c8e8 100%)",
-      backgroundAttachment:"fixed",
-    }}>
+    <div className="scops-bg">
       <SCOPSNav adminUser={adminUser} currentPage="dashboard" />
 
       <div className="px-4 py-4 max-w-screen-2xl mx-auto space-y-4">
@@ -688,7 +685,7 @@ export default function SCOPSDashboard() {
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-slate-400">Leads not contacted in 48+ hours · sorted by urgency</span>
+            <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.45)" }}>Leads not contacted in 48+ hours · sorted by urgency</span>
           </div>
           <DealsAtRisk deals={atRisk} loading={dashboardQuery.isLoading} onView={setSelectedId} />
         </GC>
@@ -698,7 +695,7 @@ export default function SCOPSDashboard() {
           <GC>
             <SH>Pipeline Funnel</SH>
             {statsQuery.isLoading
-              ? <div className="text-sm text-slate-400 py-4">Loading…</div>
+              ? <div className="text-sm py-4" style={{ color: "rgba(255,255,255,0.40)" }}>Loading…</div>
               : <PipelineFunnel stageCounts={stageCounts} />
             }
           </GC>
@@ -730,7 +727,7 @@ export default function SCOPSDashboard() {
           <div className="px-4 pt-4 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-baseline gap-2">
               <SH>Today's Focus</SH>
-              <span className="text-[10px] text-slate-400 font-medium -mt-1">sorted by urgency · {filtered.length} contacts</span>
+              <span className="text-[10px] font-medium -mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>sorted by urgency · {filtered.length} contacts</span>
             </div>
             <div className="flex flex-wrap gap-2">
               <Input
@@ -764,9 +761,9 @@ export default function SCOPSDashboard() {
           </div>
 
           {contactsQuery.isLoading ? (
-            <div className="text-sm text-slate-400 px-4 pb-4">Loading contacts…</div>
+            <div className="text-sm px-4 pb-4" style={{ color: "rgba(255,255,255,0.40)" }}>Loading contacts…</div>
           ) : filtered.length === 0 ? (
-            <div className="text-sm text-slate-400 px-4 pb-6 text-center py-8">
+            <div className="text-sm px-4 pb-6 text-center py-8" style={{ color: "rgba(255,255,255,0.40)" }}>
               {contacts.length === 0 ? "No contacts yet." : "No contacts match the current filters."}
             </div>
           ) : (
@@ -775,7 +772,7 @@ export default function SCOPSDashboard() {
                 <thead>
                   <tr style={{ borderBottom:"1px solid rgba(255,255,255,.5)", background:"rgba(255,255,255,.25)" }}>
                     {["Name","Stage","Score","Primary Property","Timeline","Last Activity","Next Action",""].map(h => (
-                      <th key={h} className="text-left text-[9px] font-bold text-slate-400 uppercase tracking-wider px-4 py-2.5 whitespace-nowrap">{h}</th>
+                      <th key={h} className="text-left text-[9px] font-bold uppercase tracking-wider px-4 py-2.5 whitespace-nowrap" style={{ color: "rgba(255,255,255,0.45)" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -798,8 +795,8 @@ export default function SCOPSDashboard() {
                             {uScore >= 60 && <div className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" title="High urgency" />}
                             {uScore >= 30 && uScore < 60 && <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" title="Medium urgency" />}
                             <div>
-                              <div className="font-semibold text-slate-800">{c.firstName} {c.lastName}</div>
-                              <div className="text-[10px] text-slate-400">{c.email}</div>
+                              <div className="font-semibold" style={{ color: "rgba(255,255,255,0.90)" }}>{c.firstName} {c.lastName}</div>
+                              <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.45)" }}>{c.email}</div>
                             </div>
                           </div>
                         </td>
@@ -813,18 +810,18 @@ export default function SCOPSDashboard() {
                             <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background:sc.bg, color:sc.text }}>
                               {c.leadScore}
                             </span>
-                          ) : <span className="text-slate-300">—</span>}
+                          ) : <span style={{ color: "rgba(255,255,255,0.30)" }}>—</span>}
                         </td>
-                        <td className="px-4 py-2.5 text-slate-500 max-w-[120px] truncate">
+                        <td className="px-4 py-2.5 max-w-[120px] truncate" style={{ color: "rgba(255,255,255,0.60)" }}>
                           {(c as any).primaryPropertyId ? `#${(c as any).primaryPropertyId}` : "—"}
                         </td>
-                        <td className="px-4 py-2.5 text-slate-500">{fmtTimeline(c.timeline)}</td>
-                        <td className="px-4 py-2.5 text-slate-400">{timeAgo((c as any).lastContactedAt ?? c.updatedAt)}</td>
-                        <td className="px-4 py-2.5 text-slate-500 max-w-[140px] truncate">{(c as any).nextAction ?? "—"}</td>
+                        <td className="px-4 py-2.5" style={{ color: "rgba(255,255,255,0.60)" }}>{fmtTimeline(c.timeline)}</td>
+                        <td className="px-4 py-2.5" style={{ color: "rgba(255,255,255,0.45)" }}>{timeAgo((c as any).lastContactedAt ?? c.updatedAt)}</td>
+                        <td className="px-4 py-2.5 max-w-[140px] truncate" style={{ color: "rgba(255,255,255,0.60)" }}>{(c as any).nextAction ?? "—"}</td>
                         <td className="px-4 py-2.5">
                           <button
-                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-600 transition-all hover:bg-white/60"
-                            style={{ background:"rgba(255,255,255,.5)", border:"1px solid rgba(255,255,255,.7)" }}
+                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all"
+                            style={{ background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.15)", color:"rgba(255,255,255,0.75)" }}
                             onClick={e => { e.stopPropagation(); setSelectedId(c.id); }}
                           >
                             Open →

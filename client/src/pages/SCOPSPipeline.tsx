@@ -372,63 +372,63 @@ export default function SCOPSPipeline() {
     : null;
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #c8d4f0 0%, #b8c8e8 30%, #a8b8e0 60%, #c0cce8 100%)", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "radial-gradient(circle at top left, #1f2937, #0f172a)", backgroundAttachment: "fixed", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={adminUser} currentPage="scheduling" />
 
       {/* Filter Bar */}
-      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.40)", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.80)", border: "1px solid rgba(0,0,0,0.12)", color: "#374151", cursor: "pointer" }}>≡ Listings</button>
+      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.10)", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.80)", cursor: "pointer" }}>≡ Listings</button>
         <div style={{ position: "relative" }}>
-          <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterStage ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.70)", border: filterStage ? "1px solid rgba(99,102,241,0.40)" : "1px solid rgba(0,0,0,0.12)", color: filterStage ? "#4f46e5" : "#374151", outline: "none" }}>
+          <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterStage ? "rgba(99,102,241,0.20)" : "rgba(255,255,255,0.08)", border: filterStage ? "1px solid rgba(99,102,241,0.50)" : "1px solid rgba(255,255,255,0.15)", color: filterStage ? "#a5b4fc" : "rgba(255,255,255,0.70)", outline: "none" }}>
             <option value="">Any Status</option>
             {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
           </select>
-          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "#374151" }}>▾</span>
+          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(255,255,255,0.50)" }}>▾</span>
         </div>
-        <button onClick={() => toast.info("Price filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(0,0,0,0.12)", color: "#374151", cursor: "pointer" }}>Any Price</button>
-        <button onClick={() => toast.info("View filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(0,0,0,0.12)", color: "#374151", cursor: "pointer" }}>Any View</button>
-        <button onClick={() => toast.info("More filters — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(0,0,0,0.12)", color: "#374151", cursor: "pointer" }}>Filter filters</button>
+        <button onClick={() => toast.info("Price filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.70)", cursor: "pointer" }}>Any Price</button>
+        <button onClick={() => toast.info("View filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.70)", cursor: "pointer" }}>Any View</button>
+        <button onClick={() => toast.info("More filters — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.70)", cursor: "pointer" }}>Filter filters</button>
         <div style={{ position: "relative" }}>
-          <select value={filterScore} onChange={e => setFilterScore(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterScore ? "rgba(245,158,11,0.12)" : "rgba(255,255,255,0.70)", border: filterScore ? "1px solid rgba(245,158,11,0.40)" : "1px solid rgba(0,0,0,0.12)", color: filterScore ? "#d97706" : "#374151", outline: "none" }}>
+          <select value={filterScore} onChange={e => setFilterScore(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterScore ? "rgba(245,158,11,0.18)" : "rgba(255,255,255,0.08)", border: filterScore ? "1px solid rgba(245,158,11,0.50)" : "1px solid rgba(255,255,255,0.15)", color: filterScore ? "#fbbf24" : "rgba(255,255,255,0.70)", outline: "none" }}>
             <option value="">Any Score</option>
             <option value="HOT">🔥 Hot</option>
             <option value="WARM">🌤 Warm</option>
             <option value="COLD">❄️ Cold</option>
           </select>
-          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "#374151" }}>▾</span>
+          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(255,255,255,0.50)" }}>▾</span>
         </div>
         <div style={{ flex: 1, minWidth: 200, maxWidth: 340, marginLeft: "auto" }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address, city, or zip code" style={{ width: "100%", padding: "7px 14px", background: "rgba(255,255,255,0.80)", border: "1px solid rgba(0,0,0,0.12)", borderRadius: 20, color: "#1a1a2e", fontSize: 12, outline: "none" }} />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address, city, or zip code" style={{ width: "100%", padding: "7px 14px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, color: "rgba(255,255,255,0.85)", fontSize: 12, outline: "none" }} />
         </div>
       </div>
 
       {/* 3-Panel Body */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
         {/* LEFT: Lead list */}
-        <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.40)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.40)", overflowY: "auto", padding: "12px" }}>
+        <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.10)", overflowY: "auto", padding: "12px" }}>
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e" }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
                 {filterStage ? (STAGES.find(s => s.key === filterStage)?.label ?? "All Leads") : "All Leads"}
               </div>
               <button onClick={() => toast.info("Add Lead — coming soon")} style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.30)", color: "#4f46e5", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
             </div>
-            <div style={{ fontSize: 11, color: "rgba(0,0,0,0.40)" }}>{filtered.length} lead{filtered.length !== 1 ? "s" : ""} · {filtered.filter(l => l.tourDate).length} tours</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>{filtered.length} lead{filtered.length !== 1 ? "s" : ""} · {filtered.filter(l => l.tourDate).length} tours</div>
           </div>
           <div style={{ display: "flex", gap: 5, marginBottom: 12, overflowX: "auto", paddingBottom: 2 }}>
             {STAGES.slice(0, 5).map(s => {
               const count = allLeads.filter(l => l.pipelineStage === s.key).length;
               return (
-                <button key={s.key} onClick={() => setFilterStage(filterStage === s.key ? "" : s.key)} style={{ flexShrink: 0, padding: "3px 8px", borderRadius: 8, background: filterStage === s.key ? `${s.color}22` : "rgba(255,255,255,0.60)", border: filterStage === s.key ? `1px solid ${s.color}55` : "1px solid rgba(0,0,0,0.08)", fontSize: 10, fontWeight: 600, cursor: "pointer", color: filterStage === s.key ? s.color : "rgba(0,0,0,0.50)", display: "flex", alignItems: "center", gap: 4 }}>
+                <button key={s.key} onClick={() => setFilterStage(filterStage === s.key ? "" : s.key)} style={{ flexShrink: 0, padding: "3px 8px", borderRadius: 8, background: filterStage === s.key ? `${s.color}22` : "rgba(255,255,255,0.08)", border: filterStage === s.key ? `1px solid ${s.color}55` : "1px solid rgba(255,255,255,0.12)", fontSize: 10, fontWeight: 600, cursor: "pointer", color: filterStage === s.key ? s.color : "rgba(255,255,255,0.45)", display: "flex", alignItems: "center", gap: 4 }}>
                   <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.color, display: "inline-block" }} />{count}
                 </button>
               );
             })}
           </div>
           {kanbanQ.isLoading ? (
-            <div style={{ color: "rgba(0,0,0,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
+            <div style={{ color: "rgba(255,255,255,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
           ) : filtered.length === 0 ? (
-            <div style={{ color: "rgba(0,0,0,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No leads found</div>
+            <div style={{ color: "rgba(255,255,255,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No leads found</div>
           ) : (
             filtered.map(lead => (
               <LeadCard key={lead.id} lead={lead} selected={selectedLead?.id === lead.id} onClick={() => { setSelectedLead(selectedLead?.id === lead.id ? null : lead); setSelectedProperty(null); }} />
