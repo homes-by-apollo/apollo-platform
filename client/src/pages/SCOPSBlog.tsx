@@ -535,7 +535,7 @@ export default function SCOPSBlog() {
   // Auth guard
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "radial-gradient(circle at top left, #1f2937, #0f172a)" }}>
+      <div className="scops-bg min-h-screen flex items-center justify-center">
         <div className="text-[#6b7a99] text-sm">Loading...</div>
       </div>
     );
@@ -599,7 +599,7 @@ export default function SCOPSBlog() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "radial-gradient(circle at top left, #1f2937, #0f172a)", backgroundAttachment: "fixed", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={adminUser} currentPage="blog" />
 
       {/* ── KPI Row ── */}

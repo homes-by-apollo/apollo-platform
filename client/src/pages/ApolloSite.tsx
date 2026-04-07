@@ -1182,7 +1182,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                   overflow:"hidden",
                 }}>
                   <img
-                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-cover-v2_7502242a.png"
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-home-buyers-guide-cover_56befa3f.png"
                     alt="2026 Pahrump Home Buyer's Guide"
                     style={{
                       width:"100%",

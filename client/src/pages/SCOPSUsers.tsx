@@ -4,7 +4,6 @@ import { trpc } from "@/lib/trpc";
 import SCOPSNav from "@/components/SCOPSNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -16,22 +15,16 @@ import {
 
 export default function SCOPSUsers() {
   const [, setLocation] = useLocation();
-  // Simple notification helper
   const notify = (title: string, description?: string) => {
-    // Use browser alert as fallback; can be replaced with a toast library later
     console.log(`[${title}]`, description ?? "");
   };
 
-  // Auth check
   const { data: adminUser, isLoading: authLoading } = trpc.adminAuth.me.useQuery();
-
-  // Admin list
   const { data: admins, isLoading: adminsLoading, refetch } = trpc.adminAuth.listAdmins.useQuery(
     undefined,
     { enabled: !!adminUser }
   );
 
-  // Mutations
   const logoutMutation = trpc.adminAuth.logout.useMutation({
     onSuccess: () => setLocation("/admin-login"),
   });
@@ -61,91 +54,93 @@ export default function SCOPSUsers() {
     onError: (e) => notify("Error", e.message),
   });
 
-  // Add admin dialog
   const [addOpen, setAddOpen] = useState(false);
   const [addForm, setAddForm] = useState({ email: "", name: "", password: "" });
-
-  // Change password dialog
   const [pwOpen, setPwOpen] = useState(false);
   const [pwForm, setPwForm] = useState({ email: "", newPassword: "" });
-
-  // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState<{ email: string; name: string } | null>(null);
 
-  // Redirect if not authenticated
   if (!authLoading && !adminUser) {
     setLocation("/admin-login");
     return null;
   }
 
+  const cardStyle: React.CSSProperties = {
+    background: "rgba(255,255,255,0.65)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    border: "1px solid rgba(255,255,255,0.80)",
+    borderRadius: 16,
+    boxShadow: "0 4px 20px rgba(100,130,200,0.10)",
+    padding: "16px 20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  };
+
+  const inputCls = "bg-white/70 border-white/80 text-[#0f2044] placeholder:text-[#0f2044]/30 focus:border-blue-300";
+
   return (
-    <div className="min-h-screen bg-[#0a1628] text-white">
-      {/* Top Nav */}
+    <div className="scops-bg min-h-screen" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif" }}>
       <SCOPSNav adminUser={{ name: adminUser?.name ?? "" }} currentPage="users" />
 
-      {/* Content */}
       <div className="max-w-3xl mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-white">Admin Users</h1>
-            <p className="text-white/50 text-sm mt-1">
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: "rgba(15,32,68,0.90)" }}>Admin Users</h1>
+            <p className="text-sm mt-0.5" style={{ color: "rgba(15,32,68,0.50)" }}>
               Manage who can access the Apollo SCOPS dashboard.
             </p>
           </div>
           <Button
             onClick={() => setAddOpen(true)}
-            className="bg-[#c9a84c] hover:bg-[#b8973e] text-[#0f2044] font-semibold"
+            className="bg-[#0f2044] hover:bg-[#1a3366] text-white font-semibold shadow-sm"
           >
             + Add Admin
           </Button>
         </div>
 
         {adminsLoading ? (
-          <div className="text-white/40 text-sm">Loading…</div>
+          <div className="text-sm" style={{ color: "rgba(15,32,68,0.40)" }}>Loading…</div>
         ) : (
           <div className="space-y-3">
             {(admins ?? []).map((admin) => (
-              <Card key={admin.email} className="bg-[#0f2044] border-white/10">
-                <CardContent className="flex items-center justify-between py-4 px-5">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-white">{admin.name}</span>
-                      {admin.email === adminUser?.email && (
-                        <Badge className="bg-[#c9a84c]/20 text-[#c9a84c] border-[#c9a84c]/30 text-xs">
-                          You
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="text-white/50 text-sm">{admin.email}</div>
-                    <div className="text-white/30 text-xs mt-0.5">
-                      Added {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
-                    </div>
-                  </div>
+              <div key={admin.email} style={cardStyle}>
+                <div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-white/20 text-white/70 hover:text-white hover:border-white/50 bg-transparent text-xs"
-                      onClick={() => {
-                        setPwForm({ email: admin.email, newPassword: "" });
-                        setPwOpen(true);
-                      }}
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                      style={{ background: "linear-gradient(135deg, #4a90d9 0%, #2563eb 100%)" }}
                     >
-                      Change Password
-                    </Button>
-                    {admin.email !== adminUser?.email && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-red-500/30 text-red-400 hover:text-red-300 hover:border-red-400 bg-transparent text-xs"
-                        onClick={() => setDeleteTarget({ email: admin.email, name: admin.name })}
-                      >
-                        Remove
-                      </Button>
+                      {(admin.name || "A")[0].toUpperCase()}
+                    </div>
+                    <span className="font-semibold" style={{ color: "rgba(15,32,68,0.90)" }}>{admin.name}</span>
+                    {admin.email === adminUser?.email && (
+                      <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">You</Badge>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="text-sm mt-1 ml-10" style={{ color: "rgba(15,32,68,0.55)" }}>{admin.email}</div>
+                  <div className="text-xs mt-0.5 ml-10" style={{ color: "rgba(15,32,68,0.35)" }}>
+                    Added {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => { setPwForm({ email: admin.email, newPassword: "" }); setPwOpen(true); }}
+                    style={{ padding: "6px 14px", borderRadius: 10, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", color: "rgba(15,32,68,0.70)", cursor: "pointer" }}
+                  >
+                    Change Password
+                  </button>
+                  {admin.email !== adminUser?.email && (
+                    <button
+                      onClick={() => setDeleteTarget({ email: admin.email, name: admin.name })}
+                      style={{ padding: "6px 14px", borderRadius: 10, fontSize: 12, fontWeight: 600, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "rgba(185,28,28,0.85)", cursor: "pointer" }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -153,49 +148,30 @@ export default function SCOPSUsers() {
 
       {/* Add Admin Dialog */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="bg-[#0f2044] border-white/10 text-white">
+        <DialogContent className="bg-white/90 backdrop-blur-xl border-white/80 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-white">Add Admin User</DialogTitle>
+            <DialogTitle className="text-[#0f2044]">Add Admin User</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <label className="text-sm text-white/70 mb-1 block">Full Name</label>
-              <Input
-                placeholder="e.g. Sarah"
-                value={addForm.name}
-                onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
-                className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-              />
+              <label className="text-xs font-semibold text-[#0f2044]/60 uppercase tracking-wide mb-1 block">Full Name</label>
+              <Input placeholder="e.g. Sarah" value={addForm.name} onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))} className={inputCls} />
             </div>
             <div>
-              <label className="text-sm text-white/70 mb-1 block">Email Address</label>
-              <Input
-                type="email"
-                placeholder="sarah@apollohomebuilders.com"
-                value={addForm.email}
-                onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
-                className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-              />
+              <label className="text-xs font-semibold text-[#0f2044]/60 uppercase tracking-wide mb-1 block">Email Address</label>
+              <Input type="email" placeholder="sarah@apollohomebuilders.com" value={addForm.email} onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))} className={inputCls} />
             </div>
             <div>
-              <label className="text-sm text-white/70 mb-1 block">Temporary Password</label>
-              <Input
-                type="password"
-                placeholder="Min. 8 characters"
-                value={addForm.password}
-                onChange={(e) => setAddForm((f) => ({ ...f, password: e.target.value }))}
-                className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-              />
+              <label className="text-xs font-semibold text-[#0f2044]/60 uppercase tracking-wide mb-1 block">Temporary Password</label>
+              <Input type="password" placeholder="Min. 8 characters" value={addForm.password} onChange={(e) => setAddForm((f) => ({ ...f, password: e.target.value }))} className={inputCls} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAddOpen(false)} className="border-white/20 text-white/70 bg-transparent">
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setAddOpen(false)} className="border-gray-200 text-gray-600">Cancel</Button>
             <Button
               onClick={() => addAdminMutation.mutate(addForm)}
               disabled={addAdminMutation.isPending || !addForm.email || !addForm.name || addForm.password.length < 8}
-              className="bg-[#c9a84c] hover:bg-[#b8973e] text-[#0f2044] font-semibold"
+              className="bg-[#0f2044] hover:bg-[#1a3366] text-white font-semibold"
             >
               {addAdminMutation.isPending ? "Adding…" : "Add Admin"}
             </Button>
@@ -205,33 +181,25 @@ export default function SCOPSUsers() {
 
       {/* Change Password Dialog */}
       <Dialog open={pwOpen} onOpenChange={setPwOpen}>
-        <DialogContent className="bg-[#0f2044] border-white/10 text-white">
+        <DialogContent className="bg-white/90 backdrop-blur-xl border-white/80 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-white">Change Password</DialogTitle>
+            <DialogTitle className="text-[#0f2044]">Change Password</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <p className="text-white/60 text-sm">
-              Setting new password for <span className="text-white font-medium">{pwForm.email}</span>
+            <p className="text-[#0f2044]/60 text-sm">
+              Setting new password for <span className="text-[#0f2044] font-medium">{pwForm.email}</span>
             </p>
             <div>
-              <label className="text-sm text-white/70 mb-1 block">New Password</label>
-              <Input
-                type="password"
-                placeholder="Min. 8 characters"
-                value={pwForm.newPassword}
-                onChange={(e) => setPwForm((f) => ({ ...f, newPassword: e.target.value }))}
-                className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-              />
+              <label className="text-xs font-semibold text-[#0f2044]/60 uppercase tracking-wide mb-1 block">New Password</label>
+              <Input type="password" placeholder="Min. 8 characters" value={pwForm.newPassword} onChange={(e) => setPwForm((f) => ({ ...f, newPassword: e.target.value }))} className={inputCls} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPwOpen(false)} className="border-white/20 text-white/70 bg-transparent">
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setPwOpen(false)} className="border-gray-200 text-gray-600">Cancel</Button>
             <Button
               onClick={() => changePasswordMutation.mutate(pwForm)}
               disabled={changePasswordMutation.isPending || pwForm.newPassword.length < 8}
-              className="bg-[#c9a84c] hover:bg-[#b8973e] text-[#0f2044] font-semibold"
+              className="bg-[#0f2044] hover:bg-[#1a3366] text-white font-semibold"
             >
               {changePasswordMutation.isPending ? "Saving…" : "Save Password"}
             </Button>
@@ -241,17 +209,15 @@ export default function SCOPSUsers() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
-        <DialogContent className="bg-[#0f2044] border-white/10 text-white">
+        <DialogContent className="bg-white/90 backdrop-blur-xl border-white/80 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-white">Remove Admin</DialogTitle>
+            <DialogTitle className="text-[#0f2044]">Remove Admin</DialogTitle>
           </DialogHeader>
-          <p className="text-white/70 text-sm py-2">
-            Are you sure you want to remove <span className="text-white font-semibold">{deleteTarget?.name}</span> ({deleteTarget?.email})? They will immediately lose access to the CRM.
+          <p className="text-[#0f2044]/60 text-sm py-2">
+            Are you sure you want to remove <span className="text-[#0f2044] font-semibold">{deleteTarget?.name}</span> ({deleteTarget?.email})? They will immediately lose access to the CRM.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="border-white/20 text-white/70 bg-transparent">
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="border-gray-200 text-gray-600">Cancel</Button>
             <Button
               onClick={() => deleteTarget && deleteAdminMutation.mutate({ email: deleteTarget.email })}
               disabled={deleteAdminMutation.isPending}

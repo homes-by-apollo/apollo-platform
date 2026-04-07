@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, DragEvent } from "react";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import SCOPSNav from "@/components/SCOPSNav";
@@ -151,8 +151,9 @@ function initials(first: string, last: string) {
 }
 
 // ─── Lead Card ────────────────────────────────────────────────────────────────
-function LeadCard({ lead, selected, onClick }: {
+function LeadCard({ lead, selected, onClick, onDragStart }: {
   lead: Lead; selected: boolean; onClick: () => void;
+  onDragStart?: (e: DragEvent<HTMLDivElement>, lead: Lead) => void;
 }) {
   const budget = fmtBudget(lead.priceRangeMin, lead.priceRangeMax);
   const financing = fmtFinancing(lead.financingStatus);
@@ -165,12 +166,14 @@ function LeadCard({ lead, selected, onClick }: {
   return (
     <div
       onClick={onClick}
+      draggable
+      onDragStart={(e) => onDragStart?.(e, lead)}
       style={{
-        background: selected ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.10)",
-        border: selected ? "1.5px solid rgba(255,255,255,0.50)" : lead.isOverdue ? "1px solid rgba(239,68,68,0.35)" : "1px solid rgba(255,255,255,0.14)",
-        borderRadius: 14, padding: "12px 14px", cursor: "pointer",
+        background: selected ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.65)",
+        border: selected ? "1.5px solid rgba(255,255,255,0.95)" : lead.isOverdue ? "1px solid rgba(239,68,68,0.35)" : "1px solid rgba(255,255,255,0.80)",
+        borderRadius: 14, padding: "12px 14px", cursor: "grab",
         backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-        boxShadow: selected ? "0 4px 20px rgba(0,0,0,0.20)" : "0 2px 8px rgba(0,0,0,0.10)",
+        boxShadow: selected ? "0 4px 20px rgba(100,130,200,0.18)" : "0 2px 8px rgba(100,130,200,0.08)",
         transition: "all 0.15s ease", marginBottom: 8, position: "relative",
       }}
     >
@@ -187,11 +190,11 @@ function LeadCard({ lead, selected, onClick }: {
           {initials(lead.firstName, lead.lastName)}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 600, fontSize: 13, color: "white", letterSpacing: "-0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.90)", letterSpacing: "-0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {lead.firstName} {lead.lastName}
           </div>
           {lead.propertyAddress && (
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div style={{ fontSize: 11, color: "rgba(15,32,68,0.50)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {lead.propertyAddress}
             </div>
           )}
@@ -205,13 +208,13 @@ function LeadCard({ lead, selected, onClick }: {
         </span>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
-        {budget && <span style={{ fontSize: 10, color: "rgba(255,255,255,0.80)", background: "rgba(255,255,255,0.10)", padding: "2px 7px", borderRadius: 6, fontWeight: 600 }}>{budget}</span>}
-        {financing && <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 6, fontWeight: 600, color: financing === "Pre-Approved" || financing === "Cash" ? "#34d399" : "rgba(255,255,255,0.55)", background: financing === "Pre-Approved" || financing === "Cash" ? "rgba(52,211,153,0.12)" : "rgba(255,255,255,0.07)" }}>{financing}</span>}
-        {timeline && <span style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", background: "rgba(255,255,255,0.07)", padding: "2px 7px", borderRadius: 6 }}>{timeline}</span>}
+        {budget && <span style={{ fontSize: 10, color: "rgba(15,32,68,0.80)", background: "rgba(15,32,68,0.07)", padding: "2px 7px", borderRadius: 6, fontWeight: 600 }}>{budget}</span>}
+        {financing && <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 6, fontWeight: 600, color: financing === "Pre-Approved" || financing === "Cash" ? "#059669" : "rgba(15,32,68,0.55)", background: financing === "Pre-Approved" || financing === "Cash" ? "rgba(5,150,105,0.10)" : "rgba(15,32,68,0.06)" }}>{financing}</span>}
+        {timeline && <span style={{ fontSize: 10, color: "rgba(15,32,68,0.50)", background: "rgba(15,32,68,0.06)", padding: "2px 7px", borderRadius: 6 }}>{timeline}</span>}
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: `${stageColor}22`, color: stageColor }}>{stageLabel}</span>
-        <span style={{ fontSize: 10, color: lead.isOverdue ? "#fca5a5" : "rgba(255,255,255,0.35)" }}>{lead.isOverdue ? "⚠ Overdue" : ago ?? "New"}</span>
+        <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: `${stageColor}18`, color: stageColor }}>{stageLabel}</span>
+        <span style={{ fontSize: 10, color: lead.isOverdue ? "#dc2626" : "rgba(15,32,68,0.35)" }}>{lead.isOverdue ? "⚠ Overdue" : ago ?? "New"}</span>
       </div>
     </div>
   );
@@ -224,121 +227,252 @@ function PropertyDetailPanel({ property, leads, onClose }: { property: Property;
   const priceNum = property.priceValue ?? parseInt(property.price.replace(/[^0-9]/g, "")) ?? 0;
 
   return (
-    <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.10)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.16)", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.70)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 4px 24px rgba(100,130,200,0.12)" }}>
       <div style={{ position: "relative", height: 160, flexShrink: 0 }}>
         <img src={property.imageUrl ?? "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80"} alt={property.address} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         <div style={{ position: "absolute", top: 10, left: 10, background: tagColor, color: "white", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>{property.tag}</div>
-        <button onClick={onClose} style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.50)", border: "none", color: "white", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+        <button onClick={onClose} style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.40)", border: "none", color: "white", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
       </div>
       <div style={{ padding: "16px 16px 0" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{property.address}</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>{property.city}, {property.state}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "rgba(15,32,68,0.90)", lineHeight: 1.2 }}>{property.address}</div>
+            <div style={{ fontSize: 13, color: "rgba(15,32,68,0.50)", marginTop: 2 }}>{property.city}, {property.state}</div>
           </div>
           <div style={{ background: "#f59e0b", color: "white", fontSize: 12, fontWeight: 700, padding: "3px 8px", borderRadius: 8, flexShrink: 0 }}>85</div>
         </div>
-        <div style={{ fontSize: 20, fontWeight: 800, color: "white", marginBottom: 12 }}>${priceNum.toLocaleString()}</div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-          <div style={{ textAlign: "center" }}><div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Type</div><div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.propertyType === "HOME" ? "Home" : "Lot"}</div></div>
-          {property.baths && <div style={{ textAlign: "center" }}><div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Baths</div><div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.baths}</div></div>}
-          {property.sqft && <div style={{ textAlign: "center" }}><div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Sq Ft</div><div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.sqft}</div></div>}
+        <div style={{ fontSize: 20, fontWeight: 800, color: "rgba(15,32,68,0.90)", marginBottom: 12 }}>${priceNum.toLocaleString()}</div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid rgba(15,32,68,0.08)" }}>
+          <div style={{ textAlign: "center" }}><div style={{ fontSize: 11, color: "rgba(15,32,68,0.40)" }}>Type</div><div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.80)" }}>{property.propertyType === "HOME" ? "Home" : "Lot"}</div></div>
+          {property.baths && <div style={{ textAlign: "center" }}><div style={{ fontSize: 11, color: "rgba(15,32,68,0.40)" }}>Baths</div><div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.80)" }}>{property.baths}</div></div>}
+          {property.sqft && <div style={{ textAlign: "center" }}><div style={{ fontSize: 11, color: "rgba(15,32,68,0.40)" }}>Sq Ft</div><div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.80)" }}>{property.sqft}</div></div>}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
           {[{ label: "Avg", value: "4" }, { label: "Leads", value: String(relatedLeads.length || 8) }, { label: "Tours", value: "3" }, { label: "Days", value: "12" }].map(m => (
-            <div key={m.label} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, padding: "8px 4px", textAlign: "center" }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "white" }}>{m.value}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.40)" }}>{m.label}</div>
+            <div key={m.label} style={{ background: "rgba(15,32,68,0.05)", borderRadius: 8, padding: "8px 4px", textAlign: "center" }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>{m.value}</div>
+              <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)" }}>{m.label}</div>
             </div>
           ))}
         </div>
       </div>
       <div style={{ padding: "0 16px 16px", flex: 1, overflowY: "auto" }}>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>ACTIVITY</div>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(15,32,68,0.35)", marginBottom: 10 }}>ACTIVITY</div>
         <div style={{ borderRadius: 10, overflow: "hidden", marginBottom: 14 }}>
           <img src={property.imageUrl ?? "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=80"} alt="" style={{ width: "100%", height: 90, objectFit: "cover", display: "block" }} />
         </div>
-        <button onClick={() => toast.info("View Details — coming soon")} style={{ width: "100%", padding: "10px", borderRadius: 10, background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.18)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>View Details</button>
+        <button onClick={() => toast.info("View Details — coming soon")} style={{ width: "100%", padding: "10px", borderRadius: 10, background: "rgba(15,32,68,0.06)", border: "1px solid rgba(15,32,68,0.12)", color: "rgba(15,32,68,0.80)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>View Details</button>
       </div>
+    </div>
+  );
+}
+
+// ─── Schedule Tour Mini Form ──────────────────────────────────────────────────
+function ScheduleTourForm({ lead, onClose, onSuccess }: { lead: Lead; onClose: () => void; onSuccess: () => void }) {
+  const utils = trpc.useUtils();
+  const now = new Date();
+  const defaultDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const defaultDateStr = `${defaultDate.getFullYear()}-${pad(defaultDate.getMonth() + 1)}-${pad(defaultDate.getDate())}`;
+  const [dateStr, setDateStr] = useState(defaultDateStr);
+  const [timeStr, setTimeStr] = useState("10:00");
+  const [location, setLocation] = useState(lead.propertyAddress ?? "");
+
+  const scheduleTour = trpc.scheduling.create.useMutation({
+    onSuccess: () => {
+      utils.pipeline.detail.invalidate({ id: lead.id });
+      utils.pipeline.list.invalidate();
+      toast.success(`Tour scheduled for ${lead.firstName} ${lead.lastName}`);
+      onSuccess();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const startTime = new Date(`${dateStr}T${timeStr}:00`);
+    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // 1 hour
+    scheduleTour.mutate({
+      inviteeName: `${lead.firstName} ${lead.lastName}`,
+      inviteeEmail: lead.email,
+      inviteePhone: lead.phone,
+      eventName: "Home Tour",
+      startTime,
+      endTime,
+      location: location || undefined,
+      contactId: lead.id,
+    });
+  };
+
+  return (
+    <div style={{ background: "rgba(255,255,255,0.95)", border: "1px solid rgba(15,32,68,0.12)", borderRadius: 12, padding: "14px", marginBottom: 10 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.80)", marginBottom: 10 }}>Schedule Tour</div>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+          <div>
+            <div style={{ fontSize: 10, color: "rgba(15,32,68,0.45)", marginBottom: 3 }}>Date</div>
+            <input type="date" value={dateStr} onChange={e => setDateStr(e.target.value)} required
+              style={{ width: "100%", padding: "6px 8px", borderRadius: 8, border: "1px solid rgba(15,32,68,0.15)", fontSize: 11, color: "rgba(15,32,68,0.85)", background: "white", boxSizing: "border-box" }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 10, color: "rgba(15,32,68,0.45)", marginBottom: 3 }}>Time</div>
+            <input type="time" value={timeStr} onChange={e => setTimeStr(e.target.value)} required
+              style={{ width: "100%", padding: "6px 8px", borderRadius: 8, border: "1px solid rgba(15,32,68,0.15)", fontSize: 11, color: "rgba(15,32,68,0.85)", background: "white", boxSizing: "border-box" }} />
+          </div>
+        </div>
+        <div>
+          <div style={{ fontSize: 10, color: "rgba(15,32,68,0.45)", marginBottom: 3 }}>Location (optional)</div>
+          <input value={location} onChange={e => setLocation(e.target.value)} placeholder="Property address…"
+            style={{ width: "100%", padding: "6px 8px", borderRadius: 8, border: "1px solid rgba(15,32,68,0.15)", fontSize: 11, color: "rgba(15,32,68,0.85)", background: "white", boxSizing: "border-box" }} />
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button type="button" onClick={onClose} style={{ flex: 1, padding: "7px", borderRadius: 8, background: "rgba(15,32,68,0.06)", border: "1px solid rgba(15,32,68,0.12)", color: "rgba(15,32,68,0.60)", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+          <button type="submit" disabled={scheduleTour.isPending} style={{ flex: 2, padding: "7px", borderRadius: 8, background: "#2563eb", border: "none", color: "white", fontSize: 11, fontWeight: 700, cursor: scheduleTour.isPending ? "not-allowed" : "pointer", opacity: scheduleTour.isPending ? 0.7 : 1 }}>
+            {scheduleTour.isPending ? "Scheduling…" : "Confirm Tour"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
 
 // ─── Lead Detail Panel ────────────────────────────────────────────────────────
 function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: () => void; onMoveStage: (id: number, stage: string) => void }) {
-  const detailQ = trpc.leads.getById.useQuery({ id: lead.id });
+  const detailQ = trpc.pipeline.detail.useQuery({ id: lead.id });
   const detail = detailQ.data;
+  const [showTourForm, setShowTourForm] = useState(false);
+
+  const tours = detail?.tours ?? [];
+  const activity = detail?.activity ?? [];
+  const interests = detail?.interests ?? [];
+  const contact = detail?.contact;
 
   return (
-    <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.10)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.16)", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "16px", borderBottom: "1px solid rgba(255,255,255,0.10)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "white" }}>{lead.firstName} {lead.lastName}</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>{STAGES.find(s => s.key === lead.pipelineStage)?.label}</div>
+    <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.70)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 4px 24px rgba(100,130,200,0.12)" }}>
+      {/* Header */}
+      <div style={{ padding: "16px", borderBottom: "1px solid rgba(15,32,68,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #4a90d9, #2563eb)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "white", flexShrink: 0 }}>
+            {initials(lead.firstName, lead.lastName)}
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(15,32,68,0.90)" }}>{lead.firstName} {lead.lastName}</div>
+            <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)", marginTop: 1 }}>{STAGES.find(s => s.key === lead.pipelineStage)?.label}</div>
+          </div>
         </div>
-        <button onClick={onClose} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.60)", borderRadius: 8, width: 30, height: 30, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+        <button onClick={onClose} style={{ background: "rgba(15,32,68,0.06)", border: "1px solid rgba(15,32,68,0.12)", color: "rgba(15,32,68,0.50)", borderRadius: 8, width: 30, height: 30, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
       </div>
+
       <div style={{ padding: "14px 16px", flex: 1, overflowY: "auto" }}>
-        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>{lead.email}</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>{lead.phone}</div>
+        {/* Contact info */}
+        <div style={{ background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
+          <div style={{ fontSize: 11, color: "rgba(15,32,68,0.55)", marginBottom: 3 }}>{lead.email}</div>
+          <div style={{ fontSize: 11, color: "rgba(15,32,68,0.55)" }}>{lead.phone}</div>
         </div>
+
+        {/* Budget + Financing */}
         <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
           {fmtBudget(lead.priceRangeMin, lead.priceRangeMax) && (
-            <div style={{ flex: 1, background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 10px" }}>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", marginBottom: 2 }}>Budget</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "white" }}>{fmtBudget(lead.priceRangeMin, lead.priceRangeMax)}</div>
+            <div style={{ flex: 1, background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "8px 10px" }}>
+              <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginBottom: 2 }}>Budget</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{fmtBudget(lead.priceRangeMin, lead.priceRangeMax)}</div>
             </div>
           )}
           {fmtFinancing(lead.financingStatus) && (
-            <div style={{ flex: 1, background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 10px" }}>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", marginBottom: 2 }}>Finance</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "white" }}>{fmtFinancing(lead.financingStatus)}</div>
+            <div style={{ flex: 1, background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "8px 10px" }}>
+              <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginBottom: 2 }}>Finance</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{fmtFinancing(lead.financingStatus)}</div>
             </div>
           )}
         </div>
+
+        {/* Assigned rep */}
         {lead.assignedUserName && (
-          <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 12px", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #818cf8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "white", flexShrink: 0 }}>
+          <div style={{ background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "8px 12px", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #4a90d9, #2563eb)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "white", flexShrink: 0 }}>
               {initials(lead.assignedUserName.split(" ")[0] ?? "", lead.assignedUserName.split(" ")[1] ?? "")}
             </div>
             <div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.40)" }}>Assigned</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "white" }}>{lead.assignedUserName}</div>
+              <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)" }}>Assigned</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{lead.assignedUserName}</div>
             </div>
           </div>
         )}
-        {lead.nextAction && (
-          <div style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.25)", borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
-            <div style={{ fontSize: 10, color: "rgba(99,102,241,0.70)", marginBottom: 4, fontWeight: 600, letterSpacing: "0.06em" }}>NEXT ACTION</div>
-            <div style={{ fontSize: 12, color: "#a5b4fc" }}>{lead.nextAction}</div>
+
+        {/* Next Action */}
+        {(contact?.nextAction ?? lead.nextAction) && (
+          <div style={{ background: "rgba(37,99,235,0.08)", border: "1px solid rgba(37,99,235,0.20)", borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
+            <div style={{ fontSize: 10, color: "rgba(37,99,235,0.70)", marginBottom: 4, fontWeight: 600, letterSpacing: "0.06em" }}>NEXT ACTION</div>
+            <div style={{ fontSize: 12, color: "#1d4ed8" }}>{contact?.nextAction ?? lead.nextAction}</div>
           </div>
         )}
-        {lead.tourDate && (
-          <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", marginBottom: 4 }}>Upcoming Tour</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "white" }}>
-              {new Date(lead.tourDate).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
-            </div>
-          </div>
-        )}
-        {detail?.activity && detail.activity.length > 0 && (
+
+        {/* Schedule Tour Quick Action */}
+        <div style={{ marginBottom: 10 }}>
+          {showTourForm ? (
+            <ScheduleTourForm lead={lead} onClose={() => setShowTourForm(false)} onSuccess={() => setShowTourForm(false)} />
+          ) : (
+            <button onClick={() => setShowTourForm(true)} style={{ width: "100%", padding: "9px", borderRadius: 10, background: "linear-gradient(135deg, #2563eb, #1d4ed8)", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <span style={{ fontSize: 14 }}>📅</span> Schedule Tour
+            </button>
+          )}
+        </div>
+
+        {/* Upcoming Tours from pipeline.detail */}
+        {tours.length > 0 && (
           <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>ACTIVITY</div>
-            {detail.activity.slice(0, 4).map((a: { id: number; activityType: string; description: string; createdAt: Date }) => (
-              <div key={a.id} style={{ padding: "8px 10px", background: "rgba(255,255,255,0.05)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", marginBottom: 6 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.70)", marginBottom: 2 }}>{a.activityType.replace(/_/g, " ")}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.50)" }}>{a.description}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.30)", marginTop: 3 }}>{timeAgo(a.createdAt)}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(15,32,68,0.35)", marginBottom: 6 }}>UPCOMING TOURS</div>
+            {tours.slice(0, 3).map((t: { id: number; eventName: string | null; startTime: Date; status: string; location: string | null }) => (
+              <div key={t.id} style={{ padding: "8px 10px", background: t.status === "ACTIVE" ? "rgba(5,150,105,0.07)" : "rgba(15,32,68,0.04)", borderRadius: 8, border: `1px solid ${t.status === "ACTIVE" ? "rgba(5,150,105,0.20)" : "rgba(15,32,68,0.08)"}`, marginBottom: 5 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: t.status === "ACTIVE" ? "#065f46" : "rgba(15,32,68,0.50)" }}>{t.eventName ?? "Home Tour"}</div>
+                <div style={{ fontSize: 11, color: "rgba(15,32,68,0.55)", marginTop: 2 }}>
+                  {new Date(t.startTime).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                </div>
+                {t.location && <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginTop: 1 }}>{t.location}</div>}
               </div>
             ))}
           </div>
         )}
+
+        {/* Property Interests from pipeline.detail */}
+        {interests.length > 0 && (
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(15,32,68,0.35)", marginBottom: 6 }}>PROPERTY INTERESTS</div>
+            {interests.slice(0, 3).map((p: { id: number; address: string | null; price: string | null; imageUrl: string | null; tag: string | null; interestLevel: string | null; isPrimaryInterest: number | boolean | null }) => (
+              <div key={p.id} style={{ padding: "8px 10px", background: "rgba(15,32,68,0.04)", borderRadius: 8, border: "1px solid rgba(15,32,68,0.08)", marginBottom: 5, display: "flex", gap: 8, alignItems: "center" }}>
+                {p.imageUrl && <img src={p.imageUrl} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: "cover", flexShrink: 0 }} />}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(15,32,68,0.80)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.address ?? "Property"}</div>
+                  <div style={{ fontSize: 10, color: "rgba(15,32,68,0.45)" }}>{p.price ?? ""} {p.isPrimaryInterest ? "· Primary" : ""}</div>
+                </div>
+                {p.tag && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: (TAG_PIN_COLORS[p.tag] ?? "#6366f1") + "18", color: TAG_PIN_COLORS[p.tag] ?? "#6366f1" }}>{p.tag}</span>}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Activity Log from pipeline.detail */}
+        {activity.length > 0 && (
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(15,32,68,0.35)", marginBottom: 8 }}>ACTIVITY LOG</div>
+            {activity.slice(0, 6).map((a: { id: number; activityType: string; description: string; createdAt: Date }) => (
+              <div key={a.id} style={{ padding: "8px 10px", background: "rgba(15,32,68,0.04)", borderRadius: 8, border: "1px solid rgba(15,32,68,0.08)", marginBottom: 6 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(15,32,68,0.70)" }}>{a.activityType.replace(/_/g, " ")}</div>
+                  <div style={{ fontSize: 10, color: "rgba(15,32,68,0.30)" }}>{timeAgo(a.createdAt)}</div>
+                </div>
+                <div style={{ fontSize: 11, color: "rgba(15,32,68,0.50)" }}>{a.description}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Move Stage */}
         <div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginBottom: 6, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Move Stage</div>
+          <div style={{ fontSize: 10, color: "rgba(15,32,68,0.35)", marginBottom: 6, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Move Stage</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {STAGES.filter(s => s.key !== lead.pipelineStage).slice(0, 4).map(s => (
-              <button key={s.key} onClick={() => onMoveStage(lead.id, s.key)} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 11, fontWeight: 600, background: `${s.color}15`, border: `1px solid ${s.color}30`, color: s.color, cursor: "pointer" }}>{s.label}</button>
+              <button key={s.key} onClick={() => onMoveStage(lead.id, s.key)} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 11, fontWeight: 600, background: `${s.color}12`, border: `1px solid ${s.color}35`, color: s.color, cursor: "pointer" }}>{s.label}</button>
             ))}
           </div>
         </div>
@@ -363,15 +497,30 @@ export default function SCOPSPipeline() {
   const summaryQ = trpc.pipeline.summary.useQuery(undefined, { refetchInterval: 60_000 });
   const propertiesQ = trpc.properties.getAll.useQuery();
   const utils = trpc.useUtils();
-  const updateStage = trpc.leads.updateStage.useMutation({
+  const updateStage = trpc.pipeline.updateStage.useMutation({
     onSuccess: () => { utils.pipeline.list.invalidate(); utils.pipeline.summary.invalidate(); toast.success("Stage updated"); },
     onError: (e) => toast.error(e.message),
   });
 
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [dragOverStage, setDragOverStage] = useState<string | null>(null);
+  const dragLeadRef = useRef<Lead | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+
+  const handleLeadDragStart = useCallback((e: DragEvent<HTMLDivElement>, lead: Lead) => {
+    dragLeadRef.current = lead;
+    e.dataTransfer.effectAllowed = "move";
+  }, []);
+
+  const handleStageDrop = useCallback((stage: string) => {
+    const lead = dragLeadRef.current;
+    if (!lead || lead.pipelineStage === stage) { setDragOverStage(null); return; }
+    updateStage.mutate({ id: lead.id, stage: stage as Parameters<typeof updateStage.mutate>[0]["stage"] });
+    setDragOverStage(null);
+    dragLeadRef.current = null;
+  }, [updateStage]);
 
   const allLeads: Lead[] = (pipelineQ.data ?? []) as Lead[];
   const allProperties: Property[] = (propertiesQ.data ?? []) as Property[];
@@ -417,84 +566,98 @@ export default function SCOPSPipeline() {
     : null;
 
   return (
-    <div style={{ minHeight: "100vh", background: "radial-gradient(circle at top left, #1f2937, #0f172a)", backgroundAttachment: "fixed", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       {showQuickAdd && <QuickAddSheet onClose={() => setShowQuickAdd(false)} onSuccess={() => setShowQuickAdd(false)} />}
       <SCOPSNav adminUser={adminUser} currentPage="scheduling" />
 
       {/* KPI Summary Bar */}
       {summary && (
-        <div style={{ padding: "8px 20px", background: "rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: 24, alignItems: "center" }}>
+        <div style={{ padding: "8px 20px", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.70)", display: "flex", gap: 24, alignItems: "center" }}>
           {[
-            { label: "Total Leads", value: summary.totalActive, color: "#a5b4fc" },
-            { label: "At Risk", value: summary.atRisk, color: "#f87171" },
-            { label: "Tours This Week", value: summary.toursThisWeek, color: "#34d399" },
-            { label: "New This Week", value: summary.newThisWeek, color: "#fbbf24" },
+            { label: "Total Leads", value: summary.totalActive, color: "#2563eb" },
+            { label: "At Risk", value: summary.atRisk, color: "#dc2626" },
+            { label: "Tours This Week", value: summary.toursThisWeek, color: "#059669" },
+            { label: "New This Week", value: summary.newThisWeek, color: "#d97706" },
           ].map(({ label, value, color }) => (
             <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color }}>{value}</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)", lineHeight: 1.2 }}>{label}</div>
+              <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)", lineHeight: 1.2 }}>{label}</div>
             </div>
           ))}
         </div>
       )}
 
       {/* Filter Bar */}
-      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.10)", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.80)", cursor: "pointer" }}>≡ Listings</button>
+      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.50)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", color: "rgba(15,32,68,0.75)", cursor: "pointer" }}>≡ Stage</button>
         <div style={{ position: "relative" }}>
-          <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterStage ? "rgba(99,102,241,0.20)" : "rgba(255,255,255,0.08)", border: filterStage ? "1px solid rgba(99,102,241,0.50)" : "1px solid rgba(255,255,255,0.15)", color: filterStage ? "#a5b4fc" : "rgba(255,255,255,0.70)", outline: "none" }}>
-            <option value="">Any Status</option>
+          <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterStage ? "rgba(37,99,235,0.12)" : "rgba(255,255,255,0.70)", border: filterStage ? "1px solid rgba(37,99,235,0.35)" : "1px solid rgba(255,255,255,0.85)", color: filterStage ? "#1d4ed8" : "rgba(15,32,68,0.65)", outline: "none" }}>
+            <option value="">All Stages</option>
             {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
           </select>
-          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(255,255,255,0.50)" }}>▾</span>
+          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(15,32,68,0.40)" }}>▾</span>
         </div>
-        <button onClick={() => toast.info("Price filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.70)", cursor: "pointer" }}>Any Price</button>
-        <button onClick={() => toast.info("View filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.70)", cursor: "pointer" }}>Any View</button>
-        <button onClick={() => toast.info("More filters — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.70)", cursor: "pointer" }}>Filter filters</button>
+        <button onClick={() => toast.info("Price filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", color: "rgba(15,32,68,0.60)", cursor: "pointer" }}>Any Price</button>
+        <button onClick={() => toast.info("Rep filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", color: "rgba(15,32,68,0.60)", cursor: "pointer" }}>All Reps</button>
         <div style={{ position: "relative" }}>
-          <select value={filterScore} onChange={e => setFilterScore(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterScore ? "rgba(245,158,11,0.18)" : "rgba(255,255,255,0.08)", border: filterScore ? "1px solid rgba(245,158,11,0.50)" : "1px solid rgba(255,255,255,0.15)", color: filterScore ? "#fbbf24" : "rgba(255,255,255,0.70)", outline: "none" }}>
+          <select value={filterScore} onChange={e => setFilterScore(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterScore ? "rgba(217,119,6,0.12)" : "rgba(255,255,255,0.70)", border: filterScore ? "1px solid rgba(217,119,6,0.35)" : "1px solid rgba(255,255,255,0.85)", color: filterScore ? "#b45309" : "rgba(15,32,68,0.65)", outline: "none" }}>
             <option value="">Any Score</option>
             <option value="HOT">🔥 Hot</option>
             <option value="WARM">🌤 Warm</option>
             <option value="COLD">❄️ Cold</option>
           </select>
-          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(255,255,255,0.50)" }}>▾</span>
+          <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(15,32,68,0.40)" }}>▾</span>
         </div>
-        <div style={{ flex: 1, minWidth: 200, maxWidth: 340, marginLeft: "auto" }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address, city, or zip code" style={{ width: "100%", padding: "7px 14px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, color: "rgba(255,255,255,0.85)", fontSize: 12, outline: "none" }} />
+        <button onClick={() => setShowQuickAdd(true)} style={{ marginLeft: "auto", padding: "6px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: "#0f2044", border: "none", color: "white", cursor: "pointer" }}>+ Add Lead</button>
+        <div style={{ minWidth: 200, maxWidth: 300 }}>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search leads…" style={{ width: "100%", padding: "7px 14px", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
         </div>
       </div>
 
       {/* 3-Panel Body */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
         {/* LEFT: Lead list */}
-        <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.10)", overflowY: "auto", padding: "12px" }}>
+        <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.40)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderRight: "1px solid rgba(255,255,255,0.70)", overflowY: "auto", padding: "12px" }}>
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(15,32,68,0.90)" }}>
                 {filterStage ? (STAGES.find(s => s.key === filterStage)?.label ?? "All Leads") : "All Leads"}
               </div>
-              <button onClick={() => setShowQuickAdd(true)} style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.30)", color: "#a5b4fc", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
             </div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>{filtered.length} lead{filtered.length !== 1 ? "s" : ""} · {filtered.filter(l => l.tourDate).length} tours</div>
+            <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)" }}>{filtered.length} lead{filtered.length !== 1 ? "s" : ""} · {filtered.filter(l => l.tourDate).length} tours</div>
           </div>
           <div style={{ display: "flex", gap: 5, marginBottom: 12, overflowX: "auto", paddingBottom: 2 }}>
             {STAGES.slice(0, 5).map(s => {
               const count = allLeads.filter(l => l.pipelineStage === s.key).length;
+              const isDragTarget = dragOverStage === s.key;
               return (
-                <button key={s.key} onClick={() => setFilterStage(filterStage === s.key ? "" : s.key)} style={{ flexShrink: 0, padding: "3px 8px", borderRadius: 8, background: filterStage === s.key ? `${s.color}22` : "rgba(255,255,255,0.08)", border: filterStage === s.key ? `1px solid ${s.color}55` : "1px solid rgba(255,255,255,0.12)", fontSize: 10, fontWeight: 600, cursor: "pointer", color: filterStage === s.key ? s.color : "rgba(255,255,255,0.45)", display: "flex", alignItems: "center", gap: 4 }}>
+                <button key={s.key}
+                  onClick={() => setFilterStage(filterStage === s.key ? "" : s.key)}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverStage(s.key); }}
+                  onDragLeave={() => setDragOverStage(null)}
+                  onDrop={() => handleStageDrop(s.key)}
+                  style={{ flexShrink: 0, padding: "3px 8px", borderRadius: 8,
+                    background: isDragTarget ? `${s.color}30` : filterStage === s.key ? `${s.color}20` : "rgba(255,255,255,0.60)",
+                    border: isDragTarget ? `2px solid ${s.color}` : filterStage === s.key ? `1px solid ${s.color}60` : "1px solid rgba(255,255,255,0.80)",
+                    fontSize: 10, fontWeight: 600, cursor: "pointer", color: filterStage === s.key || isDragTarget ? s.color : "rgba(15,32,68,0.50)",
+                    display: "flex", alignItems: "center", gap: 4, transition: "all 0.12s ease",
+                    transform: isDragTarget ? "scale(1.08)" : "scale(1)",
+                  }}>
                   <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.color, display: "inline-block" }} />{count}
                 </button>
               );
             })}
           </div>
           {pipelineQ.isLoading ? (
-            <div style={{ color: "rgba(255,255,255,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
+            <div style={{ color: "rgba(15,32,68,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
           ) : filtered.length === 0 ? (
-            <div style={{ color: "rgba(255,255,255,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No leads found</div>
+            <div style={{ color: "rgba(15,32,68,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No leads found</div>
           ) : (
             filtered.map(lead => (
-              <LeadCard key={lead.id} lead={lead} selected={selectedLead?.id === lead.id} onClick={() => { setSelectedLead(selectedLead?.id === lead.id ? null : lead); setSelectedProperty(null); }} />
+              <LeadCard key={lead.id} lead={lead} selected={selectedLead?.id === lead.id}
+                onClick={() => { setSelectedLead(selectedLead?.id === lead.id ? null : lead); setSelectedProperty(null); }}
+                onDragStart={handleLeadDragStart}
+              />
             ))
           )}
         </div>
@@ -514,12 +677,12 @@ export default function SCOPSPipeline() {
 
         {/* RIGHT: Detail panel */}
         {rightPanel ? (
-          <div style={{ padding: "12px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderLeft: "1px solid rgba(255,255,255,0.10)", overflowY: "auto" }}>
+          <div style={{ padding: "12px", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderLeft: "1px solid rgba(255,255,255,0.75)", overflowY: "auto" }}>
             {rightPanel}
           </div>
         ) : (
-          <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderLeft: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ textAlign: "center", color: "rgba(255,255,255,0.25)", fontSize: 13 }}>
+          <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.35)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderLeft: "1px solid rgba(255,255,255,0.70)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ textAlign: "center", color: "rgba(15,32,68,0.30)", fontSize: 13 }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>🏠</div>
               <div>Click a pin or lead<br />to see details</div>
             </div>

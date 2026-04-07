@@ -55,16 +55,16 @@ function buildUrl(params: { landingPage: string; source: string; medium: string;
 }
 function GlassCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <div style={{ background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16, boxShadow: "0 8px 32px rgba(0,0,0,0.20)", overflow: "hidden", ...style }}>
+    <div style={{ background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 16, boxShadow: "0 4px 24px rgba(100,130,200,0.12)", overflow: "hidden", ...style }}>
       {children}
     </div>
   );
 }
 function SH({ title, action }: { title: string; action?: React.ReactNode }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-      <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.90)", letterSpacing: 0.2 }}>{title}</span>
-      {action && <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{action}</span>}
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(15,32,68,0.08)" }}>
+      <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(15,32,68,0.90)", letterSpacing: 0.2 }}>{title}</span>
+      {action && <span style={{ fontSize: 11, color: "rgba(15,32,68,0.45)" }}>{action}</span>}
     </div>
   );
 }
@@ -88,15 +88,15 @@ export default function SCOPSUtmBuilder() {
   const totalLeads = CHANNEL_DATA.reduce((s, c) => s + c.leads, 0);
   const maxLeads = Math.max(...CHANNEL_DATA.map(c => c.leads));
   return (
-    <div style={{ minHeight: "100vh", background: "radial-gradient(circle at top left, #1f2937, #0f172a)", backgroundAttachment: "fixed", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={adminUser} currentPage="utm-builder" />
       {/* Filter Bar */}
-      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.10)", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.50)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.75)", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         {["All Inventory ▾", "Performance ▾", "Map View ▾", "Marketing Readiness ▾"].map((label, i) => (
-          <button key={label} style={{ padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.20)" : "rgba(255,255,255,0.08)", border: i === 0 ? "1px solid rgba(99,102,241,0.40)" : "1px solid rgba(255,255,255,0.12)", color: i === 0 ? "#a5b4fc" : "rgba(255,255,255,0.60)", cursor: "pointer" }}>{label}</button>
+          <button key={label} style={{ padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.65)", border: i === 0 ? "1px solid rgba(99,102,241,0.40)" : "1px solid rgba(255,255,255,0.80)", color: i === 0 ? "#6366f1" : "rgba(15,32,68,0.55)", cursor: "pointer" }}>{label}</button>
         ))}
         <div style={{ flex: 1, minWidth: 200, maxWidth: 280, marginLeft: "auto" }}>
-          <input placeholder="Search address, city or zip…" style={{ width: "100%", padding: "6px 14px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, color: "rgba(255,255,255,0.85)", fontSize: 12, outline: "none" }} />
+          <input placeholder="Search address, city or zip…" style={{ width: "100%", padding: "6px 14px", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
         </div>
       </div>
       {/* 3-Column Body */}
@@ -107,20 +107,20 @@ export default function SCOPSUtmBuilder() {
             <SH title="Channel Performance" action="Past 60 Days ▾" />
             <div style={{ padding: "10px 16px 14px" }}>
               {CHANNEL_DATA.map(ch => (
-                <div key={ch.name} onClick={() => setSelectedChannel(selectedChannel === ch.name ? null : ch.name)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 10, cursor: "pointer", marginBottom: 4, background: selectedChannel === ch.name ? "rgba(15,32,68,0.06)" : "transparent", transition: "background 0.15s" }}>
+                <div key={ch.name} onClick={() => setSelectedChannel(selectedChannel === ch.name ? null : ch.name)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 10, cursor: "pointer", marginBottom: 4, background: selectedChannel === ch.name ? "rgba(15,32,68,0.08)" : "transparent", transition: "background 0.15s" }}>
                   <span style={{ fontSize: 16 }}>{ch.icon}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.90)" }}>{ch.name}</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>{ch.leads}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{ch.name}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>{ch.leads}</span>
                     </div>
-                    <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
+                    <div style={{ height: 4, borderRadius: 2, background: "rgba(15,32,68,0.08)", overflow: "hidden" }}>
                       <div style={{ height: "100%", borderRadius: 2, background: ch.color, width: `${(ch.leads / maxLeads) * 100}%`, transition: "width 0.4s ease" }} />
                     </div>
                   </div>
                 </div>
               ))}
-              <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", marginTop: 8, paddingTop: 8, display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
+              <div style={{ borderTop: "1px solid rgba(15,32,68,0.08)", marginTop: 8, paddingTop: 8, display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>
                 <span>Total</span><span>{totalLeads}</span>
               </div>
             </div>
@@ -128,25 +128,25 @@ export default function SCOPSUtmBuilder() {
           <GlassCard style={{ flex: 1 }}>
             <SH title="Landing Pages" action="Past 60 Days ▾" />
             <div style={{ padding: "0 0 8px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 0, padding: "6px 16px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                {["TITLE", "VISITORS", "LEADS", "CONV."].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.40)", letterSpacing: 0.8, textAlign: h !== "TITLE" ? "right" : "left" }}>{h}</span>)}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 0, padding: "6px 16px", borderBottom: "1px solid rgba(15,32,68,0.08)" }}>
+                {["TITLE", "VISITORS", "LEADS", "CONV."].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, textAlign: h !== "TITLE" ? "right" : "left" }}>{h}</span>)}
               </div>
               {LANDING_PAGE_DATA.map(lp => (
-                <div key={lp.name} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 0, padding: "9px 16px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <div key={lp.name} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 0, padding: "9px 16px", borderBottom: "1px solid rgba(15,32,68,0.07)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ fontSize: 13 }}>{lp.icon}</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.90)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{lp.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{lp.name}</span>
                   </div>
-                  <span style={{ fontSize: 12, color: "rgba(255,255,255,0.70)", textAlign: "right", paddingLeft: 8 }}>{lp.visitors.toLocaleString()}</span>
-                  <span style={{ fontSize: 12, color: "rgba(255,255,255,0.70)", textAlign: "right", paddingLeft: 8 }}>{lp.leads}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#a5b4fc", textAlign: "right", paddingLeft: 8 }}>{lp.convRate}</span>
+                  <span style={{ fontSize: 12, color: "rgba(15,32,68,0.60)", textAlign: "right", paddingLeft: 8 }}>{lp.visitors.toLocaleString()}</span>
+                  <span style={{ fontSize: 12, color: "rgba(15,32,68,0.60)", textAlign: "right", paddingLeft: 8 }}>{lp.leads}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", textAlign: "right", paddingLeft: 8 }}>{lp.convRate}</span>
                 </div>
               ))}
-              <div style={{ padding: "8px 16px", display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 0, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>TOTAL</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.90)", textAlign: "right", paddingLeft: 8 }}>152</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.90)", textAlign: "right", paddingLeft: 8 }}>51</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#a5b4fc", textAlign: "right", paddingLeft: 8 }}>$6.67M</span>
+              <div style={{ padding: "8px 16px", display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 0, borderTop: "1px solid rgba(15,32,68,0.08)" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>TOTAL</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right", paddingLeft: 8 }}>152</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right", paddingLeft: 8 }}>51</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", textAlign: "right", paddingLeft: 8 }}>$6.67M</span>
               </div>
             </div>
           </GlassCard>
@@ -156,27 +156,27 @@ export default function SCOPSUtmBuilder() {
           <GlassCard>
             <SH title="Campaign Leaderboard" action="Past 60 Days ▾" />
             <div style={{ padding: "0 0 8px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, padding: "6px 16px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                {["CAMPAIGN", "LEADS ↕", "TOURS ↕", "CONTRACTS ↕", "REVENUE ↕"].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.40)", letterSpacing: 0.8, textAlign: h !== "CAMPAIGN" ? "right" : "left", cursor: "pointer" }}>{h}</span>)}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, padding: "6px 16px", borderBottom: "1px solid rgba(15,32,68,0.08)" }}>
+                {["CAMPAIGN", "LEADS ⇕", "TOURS ⇕", "CONTRACTS ⇕", "REVENUE ⇕"].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, textAlign: h !== "CAMPAIGN" ? "right" : "left", cursor: "pointer" }}>{h}</span>)}
               </div>
               {CAMPAIGN_DATA.map(c => (
-                <div key={c.name} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, padding: "10px 16px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <div key={c.name} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, padding: "10px 16px", borderBottom: "1px solid rgba(15,32,68,0.07)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 14 }}>{c.icon}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.90)" }}>{c.name}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{c.name}</span>
                   </div>
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", textAlign: "right", paddingLeft: 12 }}>{c.leads}</span>
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", textAlign: "right", paddingLeft: 12 }}>{c.tours}</span>
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", textAlign: "right", paddingLeft: 12 }}>{c.contracts}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#a5b4fc", textAlign: "right", paddingLeft: 12 }}>{c.revenue}</span>
+                  <span style={{ fontSize: 13, color: "rgba(15,32,68,0.60)", textAlign: "right", paddingLeft: 12 }}>{c.leads}</span>
+                  <span style={{ fontSize: 13, color: "rgba(15,32,68,0.60)", textAlign: "right", paddingLeft: 12 }}>{c.tours}</span>
+                  <span style={{ fontSize: 13, color: "rgba(15,32,68,0.60)", textAlign: "right", paddingLeft: 12 }}>{c.contracts}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#6366f1", textAlign: "right", paddingLeft: 12 }}>{c.revenue}</span>
                 </div>
               ))}
-              <div style={{ padding: "8px 16px", display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}></span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.90)", textAlign: "right", paddingLeft: 12 }}>152</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.90)", textAlign: "right", paddingLeft: 12 }}>51</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.90)", textAlign: "right", paddingLeft: 12 }}>13</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#a5b4fc", textAlign: "right", paddingLeft: 12 }}>$6.67M</span>
+              <div style={{ padding: "8px 16px", display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, borderTop: "1px solid rgba(15,32,68,0.08)" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}></span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right", paddingLeft: 12 }}>152</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right", paddingLeft: 12 }}>51</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right", paddingLeft: 12 }}>13</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", textAlign: "right", paddingLeft: 12 }}>$6.67M</span>
               </div>
             </div>
           </GlassCard>
@@ -184,7 +184,7 @@ export default function SCOPSUtmBuilder() {
             <SH title="UTM Builder" action="Past 60 Days ▾" />
             <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.40)", letterSpacing: 0.8, marginBottom: 6 }}>LANDING PAGE</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, marginBottom: 6 }}>LANDING PAGE</div>
                 <Select value={landingPage} onValueChange={setLandingPage}>
                   <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -200,18 +200,18 @@ export default function SCOPSUtmBuilder() {
                   { label: "utm_content", value: content, set: setContent, placeholder: "carousel-homes" },
                 ].map(f => (
                   <div key={f.label}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.40)", letterSpacing: 0.8, marginBottom: 4 }}>{f.label}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, marginBottom: 4 }}>{f.label}</div>
                     <Input value={f.value} onChange={e => f.set(e.target.value.toLowerCase().replace(/\s+/g, "-"))} placeholder={f.placeholder} className="h-8 text-xs" />
                   </div>
                 ))}
               </div>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.40)", letterSpacing: 0.8, marginBottom: 4 }}>utm_term <span style={{ fontWeight: 400, color: "#d1d5db" }}>(Google Ads only)</span></div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, marginBottom: 4 }}>utm_term <span style={{ fontWeight: 400, color: "rgba(15,32,68,0.50)" }}>(Google Ads only)</span></div>
                 <Input value={term} onChange={e => setTerm(e.target.value.toLowerCase().replace(/\s+/g, "+"))} placeholder="pahrump+new+homes" className="h-8 text-xs" />
               </div>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.40)", letterSpacing: 0.8, marginBottom: 6 }}>GENERATED URL</div>
-                <div style={{ background: "rgba(15,32,68,0.04)", border: "1px solid rgba(15,32,68,0.12)", borderRadius: 8, padding: "10px 12px", fontSize: 11, fontFamily: "monospace", color: "rgba(255,255,255,0.70)", wordBreak: "break-all", marginBottom: 8 }}>{generatedUrl}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, marginBottom: 6 }}>GENERATED URL</div>
+                <div style={{ background: "rgba(15,32,68,0.04)", border: "1px solid rgba(15,32,68,0.12)", borderRadius: 8, padding: "10px 12px", fontSize: 11, fontFamily: "monospace", color: "rgba(15,32,68,0.70)", wordBreak: "break-all", marginBottom: 8 }}>{generatedUrl}</div>
                 <div style={{ display: "flex", gap: 8 }}>
                   <Button size="sm" onClick={copyUrl} className="bg-[#0f2044] hover:bg-[#1a3366] text-white text-xs h-8 flex-1">Copy URL</Button>
                   <Button size="sm" variant="outline" onClick={reset} className="text-xs h-8">Reset</Button>
@@ -219,10 +219,10 @@ export default function SCOPSUtmBuilder() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.40)", letterSpacing: 0.8, marginBottom: 8 }}>QUICK TEMPLATES</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, marginBottom: 8 }}>QUICK TEMPLATES</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {TEMPLATES.slice(0, 5).map((t, i) => (
-                    <button key={i} onClick={() => applyTemplate(t)} style={{ padding: "4px 10px", borderRadius: 20, fontSize: 10, fontWeight: 600, background: "rgba(15,32,68,0.06)", border: "1px solid rgba(15,32,68,0.12)", color: "#a5b4fc", cursor: "pointer" }}>{t.label.split("—")[0].trim()}</button>
+                    <button key={i} onClick={() => applyTemplate(t)} style={{ padding: "4px 10px", borderRadius: 20, fontSize: 10, fontWeight: 600, background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.25)", color: "#6366f1", cursor: "pointer" }}>{t.label.split("—")[0].trim()}</button>
                   ))}
                 </div>
               </div>
@@ -244,10 +244,10 @@ export default function SCOPSUtmBuilder() {
                         { label: "Total Leads", value: ch.leads, color: "#6366f1" },
                         { label: "Tours Booked", value: ch.tours, color: "#22c55e" },
                         { label: "Contracts", value: ch.contracts, color: "#f59e0b" },
-                        { label: "Revenue", value: ch.revenue, color: "#a5b4fc" },
+                        { label: "Revenue", value: ch.revenue, color: "#6366f1" },
                       ].map(stat => (
-                        <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "rgba(255,255,255,0.50)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.70)" }}>
-                          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.50)" }}>{stat.label}</span>
+                        <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "rgba(255,255,255,0.70)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.85)" }}>
+                          <span style={{ fontSize: 12, color: "rgba(15,32,68,0.50)" }}>{stat.label}</span>
                           <span style={{ fontSize: 16, fontWeight: 800, color: stat.color }}>{stat.value}</span>
                         </div>
                       ))}
@@ -258,7 +258,7 @@ export default function SCOPSUtmBuilder() {
             </GlassCard>
           ) : (
             <GlassCard>
-              <div style={{ padding: 24, textAlign: "center", color: "rgba(255,255,255,0.40)", fontSize: 13 }}>
+              <div style={{ padding: 24, textAlign: "center", color: "rgba(15,32,68,0.35)", fontSize: 13 }}>
                 <div style={{ fontSize: 28, marginBottom: 8 }}>📊</div>
                 <div>Click a channel to<br />see performance details</div>
               </div>
@@ -267,17 +267,11 @@ export default function SCOPSUtmBuilder() {
           <GlassCard style={{ flex: 1 }}>
             <SH title="Parameter Guide" />
             <div style={{ padding: "10px 16px 14px" }}>
-              {[
-                { param: "utm_source", desc: "Where the traffic comes from", ex: "google, facebook, billboard" },
-                { param: "utm_medium", desc: "The marketing channel", ex: "cpc, email, paid-social" },
-                { param: "utm_campaign", desc: "The campaign or ad group", ex: "pahrump-new-homes" },
-                { param: "utm_content", desc: "The specific ad or creative", ex: "carousel-a, story-video" },
-                { param: "utm_term", desc: "Paid keyword (Google only)", ex: "pahrump+homes" },
-              ].map(({ param, desc, ex }) => (
-                <div key={param} style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", paddingBottom: 10, marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, fontFamily: "monospace", fontWeight: 700, color: "#a5b4fc" }}>{param}</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>{desc}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", fontStyle: "italic", marginTop: 1 }}>e.g. {ex}</div>
+              {[{ param: "utm_source", desc: "Where the traffic comes from", ex: "google, facebook, billboard" }, { param: "utm_medium", desc: "The marketing channel", ex: "cpc, email, paid-social" }, { param: "utm_campaign", desc: "The campaign or ad group", ex: "pahrump-new-homes" }, { param: "utm_content", desc: "The specific ad or creative", ex: "carousel-a, story-video" }, { param: "utm_term", desc: "Paid keyword (Google only)", ex: "pahrump+homes" }].map(({ param, desc, ex }) => (
+                <div key={param} style={{ borderBottom: "1px solid rgba(15,32,68,0.07)", paddingBottom: 10, marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, fontFamily: "monospace", fontWeight: 700, color: "#6366f1" }}>{param}</div>
+                  <div style={{ fontSize: 11, color: "rgba(15,32,68,0.50)", marginTop: 2 }}>{desc}</div>
+                  <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", fontStyle: "italic", marginTop: 1 }}>e.g. {ex}</div>
                 </div>
               ))}
             </div>

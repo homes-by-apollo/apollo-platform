@@ -154,7 +154,7 @@ export default function SCOPSScheduling() {
   }
   if (loading || !adminUser) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="scops-bg min-h-screen flex items-center justify-center">
         <div className="text-slate-400 text-sm">Loading…</div>
       </div>
     );
@@ -192,7 +192,7 @@ export default function SCOPSScheduling() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="scops-bg min-h-screen">
       {/* Nav */}
       <SCOPSNav adminUser={adminUser} currentPage="scheduling" />
 

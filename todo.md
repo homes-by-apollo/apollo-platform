@@ -736,3 +736,21 @@
 - [x] Add KPI summary bar (Total Leads, At Risk, Tours This Week, New This Week)
 - [x] Fix dark glass right panel
 - [x] Write vitest for pipeline router (39 tests passing)
+
+## Apr 7 2026 — Pipeline CRM, CSS Tokens, Admin Refactor, Home Buyers Guide
+- [x] Upload new Home Buyers Guide cover image to CDN and update homepage newsletter section
+- [x] Update PDF cover page to new Home Buyers Guide design
+- [x] Upgrade index.css with full Liquid Glass token system (OKLCH tokens, status tokens, stage tokens, glass utilities)
+- [x] Wire pipeline.leadDetail to click-to-select right panel
+- [x] Add drag-to-move stage on Pipeline lead cards (onDragEnd → pipeline.updateStage)
+- [x] Add Schedule Tour quick action to LeadDetailPanel
+- [ ] Refactor Admin tab into user dropdown with Admin Controls section
+- [ ] Build Admin Users workspace (AdminUsersTable, AdminInspectorPanel, InviteAdminSheet)
+- [ ] Add roles system (Super Admin, Admin, Marketing, Sales) with permissions
+
+## Apr 7 2026 — Pipeline Kanban + Inventory Redesign (from mockups)
+- [x] Redesign Pipeline tab as Kanban board (horizontal stage columns, liquid glass cards, drag-to-move)
+- [x] Pipeline right panel: wire pipeline.detail for full data (activity log, tours, property interests, next action)
+- [x] Add Schedule Tour quick action button to LeadDetailPanel
+- [x] Redesign Inventory tab: Channel Performance + Campaign Leaderboard + UTM Builder + Map layout
+- [x] Apply light Apple liquid glass background to ALL SCOPS pages (Dashboard, Pipeline, Inventory, Marketing, Content, Scheduling, Users)

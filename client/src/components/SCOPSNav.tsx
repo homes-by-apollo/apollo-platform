@@ -46,8 +46,8 @@ function LiveClock() {
   const date = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
   return (
     <div className="flex items-center gap-2 select-none">
-      <span className="text-[15px] font-semibold text-white/90 tabular-nums tracking-tight">{time}</span>
-      <span className="text-[12px] text-white/50 font-medium">{date}</span>
+          <span className="text-[15px] font-semibold tabular-nums tracking-tight" style={{ color: "rgba(15,32,68,0.85)" }}>{time}</span>
+          <span className="text-[12px] font-medium" style={{ color: "rgba(15,32,68,0.45)" }}>{date}</span>
     </div>
   );
 }
@@ -81,10 +81,11 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
         minHeight: 56,
         paddingLeft: 20,
         paddingRight: 20,
-        background: "rgba(15, 32, 68, 0.72)",
-        backdropFilter: "blur(20px) saturate(1.8)",
-        WebkitBackdropFilter: "blur(20px) saturate(1.8)",
-        borderBottom: "1px solid rgba(255,255,255,0.12)",
+        background: "rgba(255, 255, 255, 0.62)",
+        backdropFilter: "blur(28px) saturate(180%)",
+        WebkitBackdropFilter: "blur(28px) saturate(180%)",
+        borderBottom: "1px solid rgba(255,255,255,0.80)",
+        boxShadow: "0 1px 0 rgba(100, 130, 200, 0.10)",
         position: "sticky",
         top: 0,
         zIndex: 50,
@@ -119,18 +120,19 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
                 if (section.path) setLocation(section.path);
               }}
               className="relative px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap"
-              style={{
-                color: isActive ? "white" : section.soon ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.6)",
-                background: isActive
-                  ? "rgba(255,255,255,0.15)"
-                  : "transparent",
-                border: isActive
-                  ? "1px solid rgba(255,255,255,0.2)"
-                  : "1px solid transparent",
-                backdropFilter: isActive ? "blur(8px)" : "none",
-                cursor: section.soon ? "default" : "pointer",
-                boxShadow: isActive ? "0 1px 8px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)" : "none",
-              }}
+          style={{
+            color: isActive ? "rgba(15,32,68,0.95)" : section.soon ? "rgba(15,32,68,0.25)" : "rgba(15,32,68,0.55)",
+            background: isActive
+              ? "rgba(255,255,255,0.80)"
+              : "transparent",
+            border: isActive
+              ? "1px solid rgba(255,255,255,0.90)"
+              : "1px solid transparent",
+            backdropFilter: isActive ? "blur(12px)" : "none",
+            cursor: section.soon ? "default" : "pointer",
+            boxShadow: isActive ? "0 2px 12px rgba(100,130,200,0.15), inset 0 1px 0 rgba(255,255,255,0.90)" : "none",
+            fontWeight: isActive ? 600 : 500,
+          }}
               title={section.soon ? "Coming soon" : undefined}
             >
               {section.label}
@@ -145,9 +147,10 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
           onClick={() => setUserMenuOpen(prev => !prev)}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all"
           style={{
-            background: userMenuOpen ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            backdropFilter: "blur(8px)",
+            background: userMenuOpen ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.60)",
+            border: "1px solid rgba(255,255,255,0.85)",
+            backdropFilter: "blur(12px)",
+            boxShadow: "0 2px 8px rgba(100,130,200,0.12)",
           }}
         >
           <div
@@ -156,10 +159,11 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
           >
             {firstName.charAt(0).toUpperCase()}
           </div>
-          <span className="text-[13px] font-medium text-white">{firstName}</span>
+          <span className="text-[13px] font-medium" style={{ color: "rgba(15,32,68,0.85)" }}>{firstName}</span>
           <svg
             width="10" height="10" viewBox="0 0 12 12" fill="none"
-            className={`transition-transform text-white/60 ${userMenuOpen ? "rotate-180" : ""}`}
+            className={`transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+            style={{ color: "rgba(15,32,68,0.45)" }}
           >
             <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -169,9 +173,11 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
           <div
             className="absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-2xl border py-1 z-50"
             style={{
-              background: "rgba(255,255,255,0.92)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(255,255,255,0.5)",
+              background: "rgba(255,255,255,0.88)",
+              backdropFilter: "blur(28px) saturate(180%)",
+              WebkitBackdropFilter: "blur(28px) saturate(180%)",
+              border: "1px solid rgba(255,255,255,0.85)",
+              boxShadow: "0 8px 32px rgba(100,130,200,0.18)",
             }}
           >
             <div className="px-4 py-2.5 border-b border-gray-100">
