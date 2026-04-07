@@ -270,7 +270,24 @@ export const leadsRouter = router({
       resend.emails.send({
         from: "SCOPS Alerts <hello@apollohomebuilders.com>",
         to: ["ops@apollohomebuilders.com"],
-        subject: `New Lead: ${firstName} ${lastName}`,
+        subject: (() => {
+          const parts: string[] = [`New Lead \u2014 ${firstName} ${lastName}`];
+          if (input.price_range) {
+            const priceLabels: Record<string, string> = {
+              "300_400": "$300\u2013400K", "400_500": "$400\u2013500K",
+              "500_600": "$500\u2013600K", "600_plus": "$600K+",
+            };
+            parts.push(priceLabels[input.price_range] ?? input.price_range);
+          }
+          if (input.timeline) {
+            const tlLabels: Record<string, string> = {
+              "ASAP": "ASAP", "1_3_MONTHS": "1\u20133 mo", "3_6_MONTHS": "3\u20136 mo",
+              "6_12_MONTHS": "6\u201312 mo", "JUST_BROWSING": "Just browsing",
+            };
+            parts.push(tlLabels[input.timeline] ?? input.timeline);
+          }
+          return parts.join(" \u00b7 ");
+        })(),
         html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#f7f8fb">
             <h2 style="color:#0f2044;margin:0 0 16px">New Lead — SCOPS</h2>

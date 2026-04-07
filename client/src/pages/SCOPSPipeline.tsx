@@ -12,14 +12,14 @@ function QuickAddSheet({ onClose, onSuccess, initialStage }: { onClose: () => vo
     onSuccess: () => { utils.pipeline.list.invalidate(); utils.pipeline.summary.invalidate(); toast.success(`${form.firstName} ${form.lastName} added to pipeline`); onSuccess(); },
     onError: (err) => toast.error(err.message),
   });
-  const inputStyle: React.CSSProperties = { width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "10px", color: "#fff", padding: "9px 12px", fontSize: "13px", boxSizing: "border-box" };
+  const inputStyle: React.CSSProperties = { width: "100%", background: "#f8f9fb", border: "1px solid #e2e6ed", borderRadius: "10px", color: "#fff", padding: "9px 12px", fontSize: "13px", boxSizing: "border-box" };
   const labelStyle: React.CSSProperties = { color: "rgba(255,255,255,0.5)", fontSize: "11px", fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", display: "block", marginBottom: "4px" };
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ background: "linear-gradient(135deg, rgba(30,41,59,0.98), rgba(15,23,42,0.98))", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "24px 24px 0 0", padding: "24px", width: "100%", maxWidth: "480px", maxHeight: "85vh", overflowY: "auto" }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ background: "#f8f9fb", border: "1px solid #e2e6ed", borderRadius: "24px 24px 0 0", padding: "24px", width: "100%", maxWidth: "480px", maxHeight: "85vh", overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-          <div style={{ color: "#fff", fontWeight: 700, fontSize: "18px" }}>Quick Add Lead{initialStage ? <span style={{ fontSize: 11, fontWeight: 600, marginLeft: 8, background: "rgba(255,255,255,0.12)", padding: "2px 8px", borderRadius: 6, color: "rgba(255,255,255,0.7)" }}>{initialStage.replace(/_/g, " ")}</span> : null}</div>
-          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "8px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "6px 12px", fontSize: "14px" }}>✕</button>
+          <div style={{ color: "#fff", fontWeight: 700, fontSize: "18px" }}>Quick Add Lead{initialStage ? <span style={{ fontSize: 11, fontWeight: 600, marginLeft: 8, background: "#ffffff", padding: "2px 8px", borderRadius: 6, color: "rgba(255,255,255,0.7)" }}>{initialStage.replace(/_/g, " ")}</span> : null}</div>
+          <button onClick={onClose} style={{ background: "#f8f9fb", border: "none", borderRadius: "8px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "6px 12px", fontSize: "14px" }}>✕</button>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); create.mutate({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, priceRangeMax: form.priceRangeMax ? Number(form.priceRangeMax) : undefined, financingStatus: form.financingStatus || undefined, source: form.source || undefined, notes: form.notes || undefined, initialStage: (initialStage as Parameters<typeof create.mutate>[0]["initialStage"]) || undefined }); }} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
@@ -168,7 +168,6 @@ function LeadCard({ lead, selected, dimmed, onClick, onDragStart, checked, onChe
         background: checked ? "rgba(99,102,241,0.08)" : selected ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.65)",
         border: checked ? "1.5px solid rgba(99,102,241,0.50)" : selected ? "1.5px solid rgba(255,255,255,0.95)" : lead.isOverdue ? "1px solid rgba(239,68,68,0.35)" : "1px solid rgba(255,255,255,0.80)",
         borderRadius: 14, padding: "12px 14px 12px 34px", cursor: "grab",
-        backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         boxShadow: selected ? "0 4px 20px rgba(100,130,200,0.18)" : "0 2px 8px rgba(100,130,200,0.08)",
         transition: "all 0.15s ease", marginBottom: 8, position: "relative",
         opacity: dimmed ? 0.28 : 1,
@@ -185,7 +184,7 @@ function LeadCard({ lead, selected, dimmed, onClick, onDragStart, checked, onChe
       {lead.isOverdue && (
         <>
           <div style={{ position: "absolute", top: 0, left: 0, width: 3, height: "100%", background: "#ef4444", borderRadius: "14px 0 0 14px" }} />
-          <div style={{ position: "absolute", top: 8, right: 8, background: "#ef4444", color: "white", fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 6, letterSpacing: "0.05em", zIndex: 1 }}>OVERDUE</div>
+          <div style={{ position: "absolute", top: 8, right: 8, background: "#ef4444", color: "#ffffff", fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 6, letterSpacing: "0.05em", zIndex: 1 }}>OVERDUE</div>
         </>
       )}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
@@ -193,7 +192,7 @@ function LeadCard({ lead, selected, dimmed, onClick, onDragStart, checked, onChe
           width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
           background: "linear-gradient(135deg, #6366f1, #818cf8)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 12, fontWeight: 700, color: "white",
+          fontSize: 12, fontWeight: 700, color: "#ffffff",
         }}>
           {initials(lead.firstName, lead.lastName)}
         </div>
@@ -213,7 +212,7 @@ function LeadCard({ lead, selected, dimmed, onClick, onDragStart, checked, onChe
             width: 28, height: 28, borderRadius: 8, flexShrink: 0,
             background: lead.urgencyScore >= 80 ? "#ef4444" : lead.urgencyScore >= 60 ? "#f59e0b" : "#6366f1",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 11, fontWeight: 800, color: "white",
+            fontSize: 11, fontWeight: 800, color: "#ffffff",
           }}>
             {lead.urgencyScore}
           </div>
@@ -246,11 +245,11 @@ function PropertyDetailPanel({ property, leads, onClose }: { property: Property;
   const priceNum = property.priceValue ?? parseInt(property.price.replace(/[^0-9]/g, "")) ?? 0;
 
   return (
-    <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.70)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 4px 24px rgba(100,130,200,0.12)" }}>
+    <div style={{ width: 300, flexShrink: 0, background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 4px 24px rgba(100,130,200,0.12)" }}>
       <div style={{ position: "relative", height: 160, flexShrink: 0 }}>
         <img src={property.imageUrl ?? "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80"} alt={property.address} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", top: 10, left: 10, background: tagColor, color: "white", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>{property.tag}</div>
-        <button onClick={onClose} style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.40)", border: "none", color: "white", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+        <div style={{ position: "absolute", top: 10, left: 10, background: tagColor, color: "#ffffff", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>{property.tag}</div>
+        <button onClick={onClose} style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.4)", border: "none", color: "#ffffff", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
       </div>
       <div style={{ padding: "16px 16px 0" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
@@ -258,7 +257,7 @@ function PropertyDetailPanel({ property, leads, onClose }: { property: Property;
             <div style={{ fontSize: 16, fontWeight: 700, color: "rgba(15,32,68,0.90)", lineHeight: 1.2 }}>{property.address}</div>
             <div style={{ fontSize: 13, color: "rgba(15,32,68,0.50)", marginTop: 2 }}>{property.city}, {property.state}</div>
           </div>
-          <div style={{ background: "#f59e0b", color: "white", fontSize: 12, fontWeight: 700, padding: "3px 8px", borderRadius: 8, flexShrink: 0 }}>85</div>
+          <div style={{ background: "#f59e0b", color: "#ffffff", fontSize: 12, fontWeight: 700, padding: "3px 8px", borderRadius: 8, flexShrink: 0 }}>85</div>
         </div>
         <div style={{ fontSize: 20, fontWeight: 800, color: "rgba(15,32,68,0.90)", marginBottom: 12 }}>${priceNum.toLocaleString()}</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid rgba(15,32,68,0.08)" }}>
@@ -324,7 +323,7 @@ function ScheduleTourForm({ lead, onClose, onSuccess }: { lead: Lead; onClose: (
   };
 
   return (
-    <div style={{ background: "rgba(255,255,255,0.95)", border: "1px solid rgba(15,32,68,0.12)", borderRadius: 12, padding: "14px", marginBottom: 10 }}>
+    <div style={{ background: "#ffffff", border: "1px solid rgba(15,32,68,0.12)", borderRadius: 12, padding: "14px", marginBottom: 10 }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.80)", marginBottom: 10 }}>Schedule Tour</div>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
@@ -346,7 +345,7 @@ function ScheduleTourForm({ lead, onClose, onSuccess }: { lead: Lead; onClose: (
         </div>
         <div style={{ display: "flex", gap: 6 }}>
           <button type="button" onClick={onClose} style={{ flex: 1, padding: "7px", borderRadius: 8, background: "rgba(15,32,68,0.06)", border: "1px solid rgba(15,32,68,0.12)", color: "rgba(15,32,68,0.60)", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
-          <button type="submit" disabled={scheduleTour.isPending} style={{ flex: 2, padding: "7px", borderRadius: 8, background: "#2563eb", border: "none", color: "white", fontSize: 11, fontWeight: 700, cursor: scheduleTour.isPending ? "not-allowed" : "pointer", opacity: scheduleTour.isPending ? 0.7 : 1 }}>
+          <button type="submit" disabled={scheduleTour.isPending} style={{ flex: 2, padding: "7px", borderRadius: 8, background: "#2563eb", border: "none", color: "#ffffff", fontSize: 11, fontWeight: 700, cursor: scheduleTour.isPending ? "not-allowed" : "pointer", opacity: scheduleTour.isPending ? 0.7 : 1 }}>
             {scheduleTour.isPending ? "Scheduling…" : "Confirm Tour"}
           </button>
         </div>
@@ -383,7 +382,7 @@ function QuickNoteInput({ leadId }: { leadId: number }) {
           style={{
             flex: 1, padding: "7px 10px", borderRadius: 9,
             border: "1px solid rgba(15,32,68,0.14)",
-            background: "rgba(255,255,255,0.70)",
+            background: "#ffffff",
             fontSize: 12, color: "rgba(15,32,68,0.85)",
             outline: "none",
           }}
@@ -436,11 +435,11 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
   const contact = detail?.contact;
 
   return (
-    <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.70)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 4px 24px rgba(100,130,200,0.12)" }}>
+    <div style={{ width: 300, flexShrink: 0, background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 4px 24px rgba(100,130,200,0.12)" }}>
       {/* Header */}
       <div style={{ padding: "16px", borderBottom: "1px solid rgba(15,32,68,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #4a90d9, #2563eb)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "white", flexShrink: 0 }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #4a90d9, #2563eb)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#ffffff", flexShrink: 0 }}>
             {initials(lead.firstName, lead.lastName)}
           </div>
           <div>
@@ -471,7 +470,7 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
                 <input
                   value={editForm[key] as string}
                   onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
-                  style={{ width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid rgba(37,99,235,0.25)", fontSize: 12, background: "rgba(255,255,255,0.80)", color: "rgba(15,32,68,0.85)", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid rgba(37,99,235,0.25)", fontSize: 12, background: "#ffffff", color: "rgba(15,32,68,0.85)", boxSizing: "border-box" }}
                 />
               </div>
             ))}
@@ -480,7 +479,7 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
               <select
                 value={editForm.financingStatus}
                 onChange={e => setEditForm(f => ({ ...f, financingStatus: e.target.value as typeof f.financingStatus }))}
-                style={{ width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid rgba(37,99,235,0.25)", fontSize: 12, background: "rgba(255,255,255,0.80)", color: "rgba(15,32,68,0.85)" }}
+                style={{ width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid rgba(37,99,235,0.25)", fontSize: 12, background: "#ffffff", color: "rgba(15,32,68,0.85)" }}
               >
                 <option value="">— Not set —</option>
                 <option value="PRE_APPROVED">Pre-Approved</option>
@@ -500,7 +499,7 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
                 priceRangeMax: editForm.priceRangeMax ? Number(editForm.priceRangeMax) : undefined,
                 financingStatus: (editForm.financingStatus || null) as "PRE_APPROVED" | "IN_PROCESS" | "NOT_STARTED" | "CASH_BUYER" | null | undefined,
               })}
-              style={{ width: "100%", padding: "8px", borderRadius: 8, background: "linear-gradient(135deg, #2563eb, #1d4ed8)", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: updateLead.isPending ? "not-allowed" : "pointer", opacity: updateLead.isPending ? 0.7 : 1 }}
+              style={{ width: "100%", padding: "8px", borderRadius: 8, background: "linear-gradient(135deg, #2563eb, #1d4ed8)", border: "none", color: "#ffffff", fontSize: 12, fontWeight: 700, cursor: updateLead.isPending ? "not-allowed" : "pointer", opacity: updateLead.isPending ? 0.7 : 1 }}
             >
               {updateLead.isPending ? "Saving…" : "Save Changes"}
             </button>
@@ -532,7 +531,7 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
         {/* Assigned rep */}
         {lead.assignedUserName && (
           <div style={{ background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "8px 12px", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #4a90d9, #2563eb)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "white", flexShrink: 0 }}>
+            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #4a90d9, #2563eb)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#ffffff", flexShrink: 0 }}>
               {initials(lead.assignedUserName.split(" ")[0] ?? "", lead.assignedUserName.split(" ")[1] ?? "")}
             </div>
             <div>
@@ -555,7 +554,7 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
           {showTourForm ? (
             <ScheduleTourForm lead={lead} onClose={() => setShowTourForm(false)} onSuccess={() => setShowTourForm(false)} />
           ) : (
-            <button onClick={() => setShowTourForm(true)} style={{ width: "100%", padding: "9px", borderRadius: 10, background: "linear-gradient(135deg, #2563eb, #1d4ed8)", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <button onClick={() => setShowTourForm(true)} style={{ width: "100%", padding: "9px", borderRadius: 10, background: "linear-gradient(135deg, #2563eb, #1d4ed8)", border: "none", color: "#ffffff", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
               <span style={{ fontSize: 14 }}>📅</span> Schedule Tour
             </button>
           )}
@@ -641,30 +640,30 @@ function EmailBlastSheet({ stage, onClose }: { stage: string; onClose: () => voi
     },
     onError: (e) => toast.error(e.message),
   });
-  const inputStyle: React.CSSProperties = { width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 10, color: "#fff", padding: "9px 12px", fontSize: 13, boxSizing: "border-box", outline: "none" };
+  const inputStyle: React.CSSProperties = { width: "100%", background: "#ffffff", border: "1px solid #d1d5db", borderRadius: 8, color: "#111827", padding: "9px 12px", fontSize: 13, boxSizing: "border-box", outline: "none" };
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ background: "linear-gradient(135deg, rgba(30,41,59,0.98), rgba(15,23,42,0.98))", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "24px 24px 0 0", padding: "24px", width: "100%", maxWidth: 520, maxHeight: "80vh", overflowY: "auto" }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ background: "#f8f9fb", border: "1px solid #e2e6ed", borderRadius: "24px 24px 0 0", padding: "24px", width: "100%", maxWidth: 520, maxHeight: "80vh", overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
-            <div style={{ color: "#fff", fontWeight: 700, fontSize: 18 }}>Email Blast</div>
-            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, marginTop: 2 }}>Sending to all <strong style={{ color: "rgba(255,255,255,0.75)" }}>{stageLabel}</strong> leads</div>
+            <div style={{ color: "#111827", fontWeight: 700, fontSize: 18 }}>Email Blast</div>
+            <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 2 }}>Sending to all <strong style={{ color: "#374151" }}>{stageLabel}</strong> leads</div>
           </div>
-          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "6px 12px", fontSize: 14 }}>✕</button>
+          <button onClick={onClose} style={{ background: "#f1f3f7", border: "none", borderRadius: 8, color: "#6b7280", cursor: "pointer", padding: "6px 12px", fontSize: 14 }}>✕</button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
-            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 5 }}>Subject</div>
+            <div style={{ color: "#9ca3af", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 5 }}>Subject</div>
             <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. New homes available in Pahrump…" style={inputStyle} />
           </div>
           <div>
-            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 5 }}>Message</div>
+            <div style={{ color: "#9ca3af", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 5 }}>Message</div>
             <textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Write your message here…" rows={7} style={{ ...inputStyle, resize: "vertical" }} />
           </div>
           <button
             disabled={!subject.trim() || !body.trim() || sendBlast.isPending}
             onClick={() => sendBlast.mutate({ stage, subject: subject.trim(), body: body.trim() })}
-            style={{ background: subject.trim() && body.trim() ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "rgba(255,255,255,0.10)", border: "none", borderRadius: 12, color: subject.trim() && body.trim() ? "#fff" : "rgba(255,255,255,0.30)", cursor: subject.trim() && body.trim() ? "pointer" : "default", padding: 14, fontSize: 14, fontWeight: 700, opacity: sendBlast.isPending ? 0.7 : 1 }}
+            style={{ background: subject.trim() && body.trim() ? "#2563eb" : "#e5e7eb", border: "none", borderRadius: 12, color: subject.trim() && body.trim() ? "#fff" : "#9ca3af", cursor: subject.trim() && body.trim() ? "pointer" : "default", padding: 14, fontSize: 14, fontWeight: 700, opacity: sendBlast.isPending ? 0.7 : 1 }}
           >{sendBlast.isPending ? "Sending…" : `Send to ${stageLabel} Leads`}</button>
         </div>
       </div>
@@ -788,9 +787,9 @@ export default function SCOPSPipeline() {
         });
         const maxRate = Math.max(...conversions.map(c => c.rate), 1);
         return (
-          <div style={{ background: "rgba(255,255,255,0.45)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.70)" }}>
+          <div style={{ background: "#ffffff", borderBottom: "1px solid #e2e6ed" }}>
             {/* Row 1: KPI numbers */}
-            <div style={{ padding: "8px 20px", display: "flex", gap: 24, alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.50)" }}>
+            <div style={{ padding: "8px 20px", display: "flex", gap: 24, alignItems: "center", borderBottom: "1px solid #e2e6ed" }}>
               {[
                 { label: "Total Leads", value: summary.totalActive, color: "#2563eb" },
                 { label: "At Risk", value: summary.atRisk, color: "#dc2626" },
@@ -837,19 +836,19 @@ export default function SCOPSPipeline() {
       })()}
 
       {/* Filter Bar */}
-      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.50)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", color: "rgba(15,32,68,0.75)", cursor: "pointer" }}>≡ Stage</button>
+      <div style={{ padding: "10px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "#ffffff", border: "1px solid #e2e6ed", color: "rgba(15,32,68,0.75)", cursor: "pointer" }}>≡ Stage</button>
         <div style={{ position: "relative" }}>
-          <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterStage ? "rgba(37,99,235,0.12)" : "rgba(255,255,255,0.70)", border: filterStage ? "1px solid rgba(37,99,235,0.35)" : "1px solid rgba(255,255,255,0.85)", color: filterStage ? "#1d4ed8" : "rgba(15,32,68,0.65)", outline: "none" }}>
+          <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterStage ? "#eff6ff" : "#ffffff", border: filterStage ? "1px solid #bfdbfe" : "1px solid #e2e6ed", color: filterStage ? "#1d4ed8" : "#374151", outline: "none" }}>
             <option value="">All Stages</option>
             {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
           </select>
           <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(15,32,68,0.40)" }}>▾</span>
         </div>
-        <button onClick={() => toast.info("Price filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", color: "rgba(15,32,68,0.60)", cursor: "pointer" }}>Any Price</button>
-        <button onClick={() => toast.info("Rep filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", color: "rgba(15,32,68,0.60)", cursor: "pointer" }}>All Reps</button>
+        <button onClick={() => toast.info("Price filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "#ffffff", border: "1px solid #e2e6ed", color: "rgba(15,32,68,0.60)", cursor: "pointer" }}>Any Price</button>
+        <button onClick={() => toast.info("Rep filter — coming soon")} style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "#ffffff", border: "1px solid #e2e6ed", color: "rgba(15,32,68,0.60)", cursor: "pointer" }}>All Reps</button>
         <div style={{ position: "relative" }}>
-          <select value={filterScore} onChange={e => setFilterScore(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterScore ? "rgba(217,119,6,0.12)" : "rgba(255,255,255,0.70)", border: filterScore ? "1px solid rgba(217,119,6,0.35)" : "1px solid rgba(255,255,255,0.85)", color: filterScore ? "#b45309" : "rgba(15,32,68,0.65)", outline: "none" }}>
+          <select value={filterScore} onChange={e => setFilterScore(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterScore ? "#fffbeb" : "#ffffff", border: filterScore ? "1px solid #fde68a" : "1px solid #e2e6ed", color: filterScore ? "#b45309" : "#374151", outline: "none" }}>
             <option value="">Any Score</option>
             <option value="HOT">🔥 Hot</option>
             <option value="WARM">🌤 Warm</option>
@@ -857,9 +856,9 @@ export default function SCOPSPipeline() {
           </select>
           <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(15,32,68,0.40)" }}>▾</span>
         </div>
-        <button onClick={() => setShowQuickAdd(true)} style={{ marginLeft: "auto", padding: "6px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: "#0f2044", border: "none", color: "white", cursor: "pointer" }}>+ Add Lead</button>
+        <button onClick={() => setShowQuickAdd(true)} style={{ marginLeft: "auto", padding: "6px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: "#0f2044", border: "none", color: "#ffffff", cursor: "pointer" }}>+ Add Lead</button>
         <div style={{ minWidth: 200, maxWidth: 300 }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search leads…" style={{ width: "100%", padding: "7px 14px", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search leads…" style={{ width: "100%", padding: "7px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
         </div>
       </div>
 
@@ -878,9 +877,8 @@ export default function SCOPSPipeline() {
                 onDrop={() => handleStageDrop(stage.key)}
                 style={{
                   width: 230, flexShrink: 0, marginRight: 10,
-                  background: isDragTarget ? `${stage.color}10` : "rgba(255,255,255,0.40)",
-                  backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
-                  border: isDragTarget ? `2px solid ${stage.color}60` : "1px solid rgba(255,255,255,0.75)",
+                  background: isDragTarget ? `${stage.color}10` : "#f8f9fb",
+                  border: isDragTarget ? `2px solid ${stage.color}60` : "1px solid #e2e6ed",
                   borderRadius: 16, display: "flex", flexDirection: "column",
                   maxHeight: "calc(100vh - 180px)",
                   transition: "border-color 0.15s, background 0.15s",
@@ -891,12 +889,12 @@ export default function SCOPSPipeline() {
                 {(() => {
                   const overdueCount = colLeads.filter(l => l.isOverdue).length;
                   return (
-                  <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid rgba(255,255,255,0.70)", flexShrink: 0 }}>
+                  <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid #e2e6ed", flexShrink: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>{stage.label}</div>
                         {overdueCount > 0 && (
-                          <div title={`${overdueCount} overdue lead${overdueCount > 1 ? 's' : ''}`} style={{ background: "#ef4444", color: "white", fontSize: 9, fontWeight: 800, padding: "1px 5px", borderRadius: 5, letterSpacing: "0.04em" }}>{overdueCount}</div>
+                          <div title={`${overdueCount} overdue lead${overdueCount > 1 ? 's' : ''}`} style={{ background: "#ef4444", color: "#ffffff", fontSize: 9, fontWeight: 800, padding: "1px 5px", borderRadius: 5, letterSpacing: "0.04em" }}>{overdueCount}</div>
                         )}
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -907,15 +905,15 @@ export default function SCOPSPipeline() {
                         <button
                           onClick={() => { setBlastStage(stage.key); setShowBlastSheet(true); }}
                           title={`Email all ${stage.label} leads`}
-                          style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.90)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 11, color: "rgba(15,32,68,0.45)", boxShadow: "0 1px 4px rgba(100,130,200,0.10)" }}
+                          style={{ width: 22, height: 22, borderRadius: "50%", background: "#ffffff", border: "1px solid #e2e6ed", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 11, color: "rgba(15,32,68,0.45)", boxShadow: "0 1px 4px rgba(100,130,200,0.10)" }}
                         >✉</button>
                         {/* Per-column Add Lead button */}
                         <button
                           onClick={() => { setQuickAddStage(stage.key); setShowQuickAdd(true); }}
                           title={`Add lead to ${stage.label}`}
-                          style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.90)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14, fontWeight: 700, color: "rgba(15,32,68,0.55)", lineHeight: 1, boxShadow: "0 1px 4px rgba(100,130,200,0.12)", transition: "all 0.12s" }}
+                          style={{ width: 22, height: 22, borderRadius: "50%", background: "#ffffff", border: "1px solid #e2e6ed", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14, fontWeight: 700, color: "rgba(15,32,68,0.55)", lineHeight: 1, boxShadow: "0 1px 4px rgba(100,130,200,0.12)", transition: "all 0.12s" }}
                           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${stage.color}18`; (e.currentTarget as HTMLButtonElement).style.color = stage.color; }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.70)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(15,32,68,0.55)"; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "#ffffff"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(15,32,68,0.55)"; }}
                         >+</button>
                       </div>
                     </div>
@@ -953,7 +951,7 @@ export default function SCOPSPipeline() {
                           {shouldCollapse && hiddenCount > 0 && (
                             <button
                               onClick={() => setExpandedCols(prev => { const next = new Set(prev); next.add(stage.key); return next; })}
-                              style={{ width: "100%", padding: "8px", borderRadius: 10, background: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.80)", cursor: "pointer", fontSize: 11, fontWeight: 600, color: "rgba(15,32,68,0.55)", marginTop: 4, transition: "all 0.12s" }}
+                              style={{ width: "100%", padding: "8px", borderRadius: 10, background: "#ffffff", border: "1px solid #e2e6ed", cursor: "pointer", fontSize: 11, fontWeight: 600, color: "rgba(15,32,68,0.55)", marginTop: 4, transition: "all 0.12s" }}
                             >
                               Show {hiddenCount} more
                             </button>
@@ -961,7 +959,7 @@ export default function SCOPSPipeline() {
                           {isExpanded && colLeads.length >= COLLAPSE_THRESHOLD && (
                             <button
                               onClick={() => setExpandedCols(prev => { const next = new Set(prev); next.delete(stage.key); return next; })}
-                              style={{ width: "100%", padding: "8px", borderRadius: 10, background: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.80)", cursor: "pointer", fontSize: 11, fontWeight: 600, color: "rgba(15,32,68,0.45)", marginTop: 4 }}
+                              style={{ width: "100%", padding: "8px", borderRadius: 10, background: "#ffffff", border: "1px solid #e2e6ed", cursor: "pointer", fontSize: 11, fontWeight: 600, color: "rgba(15,32,68,0.45)", marginTop: 4 }}
                             >
                               Show less
                             </button>
@@ -978,7 +976,7 @@ export default function SCOPSPipeline() {
 
         {/* RIGHT: Detail panel */}
         {rightPanel && (
-          <div style={{ width: 320, flexShrink: 0, background: "rgba(255,255,255,0.45)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderLeft: "1px solid rgba(255,255,255,0.75)", overflowY: "auto", padding: "12px" }}>
+          <div style={{ width: 320, flexShrink: 0, background: "#ffffff", borderLeft: "1px solid #e2e6ed", overflowY: "auto", padding: "12px" }}>
             {rightPanel}
           </div>
         )}
@@ -991,23 +989,23 @@ export default function SCOPSPipeline() {
 
       {/* Bulk Stage-Move Action Bar */}
       {checkedIds.size > 0 && (
-        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 500, background: "linear-gradient(135deg, rgba(15,23,42,0.97), rgba(30,41,59,0.97))", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 18, padding: "12px 20px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 8px 40px rgba(0,0,0,0.35)", backdropFilter: "blur(20px)" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
+        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 500, background: "#f8f9fb", border: "1px solid #e2e6ed", borderRadius: 18, padding: "12px 20px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 8px 40px rgba(0,0,0,0.35)", }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
             {checkedIds.size} lead{checkedIds.size !== 1 ? "s" : ""} selected
           </div>
-          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.15)" }} />
+          <div style={{ width: 1, height: 20, background: "#e2e6ed" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Move to</div>
+            <div style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Move to</div>
             <div style={{ position: "relative" }}>
               <select
                 value={bulkTargetStage}
                 onChange={e => setBulkTargetStage(e.target.value)}
-                style={{ appearance: "none", background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.20)", borderRadius: 10, color: bulkTargetStage ? "#fff" : "rgba(255,255,255,0.45)", padding: "7px 28px 7px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer", outline: "none" }}
+                style={{ appearance: "none", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 10, color: bulkTargetStage ? "#111827" : "#9ca3af", padding: "7px 28px 7px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer", outline: "none" }}
               >
-                <option value="" style={{ background: "#1e293b" }}>Select stage…</option>
-                {STAGES.map(s => <option key={s.key} value={s.key} style={{ background: "#1e293b" }}>{s.label}</option>)}
+                <option value="">Select stage…</option>
+                {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
               </select>
-              <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(255,255,255,0.40)" }}>▾</span>
+              <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "#9ca3af" }}>▾</span>
             </div>
             <button
               disabled={!bulkTargetStage || bulkMove.isPending}
@@ -1015,15 +1013,15 @@ export default function SCOPSPipeline() {
                 if (!bulkTargetStage) return;
                 bulkMove.mutate({ ids: Array.from(checkedIds), stage: bulkTargetStage as Parameters<typeof bulkMove.mutate>[0]["stage"] });
               }}
-              style={{ padding: "7px 18px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: bulkTargetStage ? "#6366f1" : "rgba(255,255,255,0.10)", border: "none", color: bulkTargetStage ? "#fff" : "rgba(255,255,255,0.30)", cursor: bulkTargetStage ? "pointer" : "not-allowed", transition: "all 0.15s" }}
+              style={{ padding: "7px 18px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: bulkTargetStage ? "#6366f1" : "#e5e7eb", border: "none", color: bulkTargetStage ? "#fff" : "#9ca3af", cursor: bulkTargetStage ? "pointer" : "not-allowed", transition: "all 0.15s" }}
             >
               {bulkMove.isPending ? "Moving…" : "Apply"}
             </button>
           </div>
-          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.15)" }} />
+          <div style={{ width: 1, height: 20, background: "#e2e6ed" }} />
           <button
             onClick={() => setCheckedIds(new Set())}
-            style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, color: "rgba(255,255,255,0.50)", cursor: "pointer", padding: "6px 10px", fontSize: 12 }}
+            style={{ background: "#f8f9fb", border: "none", borderRadius: 8, color: "#6b7280", cursor: "pointer", padding: "6px 10px", fontSize: 12 }}
           >✕ Clear</button>
         </div>
       )}

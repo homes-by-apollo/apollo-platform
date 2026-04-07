@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 
-const OWL_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png";
+const HOMES_BY_APOLLO_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes-by-apollo-logo_2ad1dfe7.png";
 
 type NavSection = {
   label: string;
@@ -13,12 +13,12 @@ type NavSection = {
 };
 
 const NAV_SECTIONS: NavSection[] = [
-  { label: "Dashboard",   key: "dashboard",   path: "/scops" },
-  { label: "Pipeline",    key: "scheduling",  path: "/scops/scheduling" },
-  { label: "Inventory",   key: "properties",  path: "/scops/properties" },
-  { label: "Marketing",   key: "utm-builder", path: "/scops/utm-builder" },
-  { label: "Content",     key: "blog",        path: "/scops/blog" },
-  { label: "Settings",     key: "settings",    path: "/scops/settings" },
+  { label: "Dashboard",  key: "dashboard",   path: "/scops" },
+  { label: "Pipeline",   key: "scheduling",  path: "/scops/scheduling" },
+  { label: "Inventory",  key: "properties",  path: "/scops/properties" },
+  { label: "Marketing",  key: "utm-builder", path: "/scops/utm-builder" },
+  { label: "Content",    key: "blog",        path: "/scops/blog" },
+  { label: "Settings",   key: "settings",    path: "/scops/settings" },
 ];
 
 const PAGE_TO_SECTION: Record<string, string> = {
@@ -45,9 +45,9 @@ function LiveClock() {
   const time = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
   const date = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
   return (
-    <div className="flex items-center gap-2 select-none">
-          <span className="text-[15px] font-semibold tabular-nums tracking-tight" style={{ color: "rgba(255,255,255,0.90)" }}>{time}</span>
-          <span className="text-[12px] font-medium" style={{ color: "rgba(255,255,255,0.50)" }}>{date}</span>
+    <div className="flex items-center gap-2.5 select-none">
+      <span className="text-[20px] font-semibold tabular-nums tracking-tight text-gray-900">{time}</span>
+      <span className="text-[15px] font-medium text-gray-400">{date}</span>
     </div>
   );
 }
@@ -75,45 +75,45 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
   const firstName = adminUser.name?.split(" ")[0] ?? adminUser.name ?? "User";
   const role = adminUser.adminRole ?? "admin";
 
-  // Role-gated nav: sales can't see Marketing/Content; marketing can't see Pipeline/Scheduling
+  // Role-gated nav: sales can't see Marketing/Content; marketing can't see Pipeline
   const visibleSections = NAV_SECTIONS.filter(s => {
     if (role === "sales" && (s.key === "utm-builder" || s.key === "blog")) return false;
-    if (role === "marketing" && (s.key === "scheduling")) return false;
+    if (role === "marketing" && s.key === "scheduling") return false;
     return true;
   });
 
   return (
     <div
-      className="flex items-center justify-between border-b"
+      className="flex items-center justify-between bg-white border-b border-gray-200"
       style={{
-        minHeight: 64,
-        paddingLeft: 20,
-        paddingRight: 20,
-        background: "rgba(20, 20, 30, 0.55)",
-        backdropFilter: "blur(28px) saturate(180%)",
-        WebkitBackdropFilter: "blur(28px) saturate(180%)",
-        borderBottom: "1px solid rgba(255,255,255,0.12)",
-        boxShadow: "0 1px 0 rgba(0, 0, 0, 0.30)",
+        minHeight: 80,
+        paddingLeft: 24,
+        paddingRight: 24,
+        boxShadow: "0 1px 3px rgba(15,23,42,0.06)",
         position: "sticky",
         top: 0,
         zIndex: 50,
       }}
     >
-      {/* ── Left: Clock + Logo ── */}
-      <div className="flex items-center gap-4 flex-shrink-0">
-        <LiveClock />
-        <div style={{ width: 1, height: 22, background: "rgba(255,255,255,0.15)" }} />
+      {/* ── Left: Logo + Clock ── */}
+      <div className="flex items-center gap-5 flex-shrink-0">
         <button
           onClick={() => window.location.href = "/"}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="flex items-center hover:opacity-80 transition-opacity"
           title="Back to Apollo Site"
         >
-          <img src={OWL_LOGO} alt="Apollo Owl" style={{ height: 28, width: 28, objectFit: "contain" }} />
+          <img
+            src={HOMES_BY_APOLLO_LOGO}
+            alt="Homes by Apollo"
+            style={{ height: 44, width: "auto", objectFit: "contain" }}
+          />
         </button>
+        <div style={{ width: 1, height: 28, background: "#e5e7eb" }} />
+        <LiveClock />
       </div>
 
       {/* ── Center: Nav tabs ── */}
-      <nav className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+      <nav className="flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
         {visibleSections.map((section) => {
           const isActive =
             activeSection === section.label ||
@@ -127,34 +127,28 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
                 if (section.soon) { toast.info(`${section.label} — coming soon`); return; }
                 if (section.path) setLocation(section.path);
               }}
-              className="relative px-3.5 py-1.5 rounded-lg text-[17px] font-medium transition-all whitespace-nowrap"
+              className="relative px-4 py-2 rounded-lg text-[15px] font-medium transition-all whitespace-nowrap"
               style={{
-                color: isActive ? "rgba(255,255,255,0.95)" : section.soon ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.60)",
-                background: isActive ? "rgba(255,255,255,0.15)" : "transparent",
-                border: "1px solid transparent",
-                borderColor: isActive ? "rgba(255,255,255,0.25)" : "transparent",
-                backdropFilter: isActive ? "blur(12px)" : "none",
+                color: isActive ? "#111827" : section.soon ? "#d1d5db" : "#6b7280",
+                background: isActive ? "#f3f4f6" : "transparent",
                 cursor: section.soon ? "default" : "pointer",
-                boxShadow: isActive ? "0 2px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20)" : "none",
                 fontWeight: isActive ? 600 : 500,
-                paddingBottom: "calc(0.375rem + 4px)",
               }}
               title={section.soon ? "Coming soon" : undefined}
             >
               {section.label}
-              {/* Amber underline — absolute, below pill, full-width */}
+              {/* Blue underline for active tab */}
               {isActive && (
                 <span
                   aria-hidden
                   style={{
                     position: "absolute",
                     bottom: 0,
-                    left: "10%",
-                    width: "80%",
+                    left: "15%",
+                    width: "70%",
                     height: 2,
                     borderRadius: 2,
-                    background: "#e8a020",
-                    boxShadow: "0 0 6px rgba(232,160,32,0.60)",
+                    background: "#2563eb",
                   }}
                 />
               )}
@@ -167,25 +161,20 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
       <div className="relative flex-shrink-0" ref={menuRef}>
         <button
           onClick={() => setUserMenuOpen(prev => !prev)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all"
-          style={{
-            background: userMenuOpen ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.10)",
-            border: "1px solid rgba(255,255,255,0.25)",
-            backdropFilter: "blur(12px)",
-            boxShadow: "0 2px 8px rgba(100,130,200,0.12)",
-          }}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+          style={{ background: userMenuOpen ? "#f3f4f6" : "#ffffff" }}
         >
           <div
-            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #4a90d9 0%, #2563eb 100%)" }}
+            className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+            style={{ background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)" }}
           >
             {firstName.charAt(0).toUpperCase()}
           </div>
-          <span className="text-[15px] font-medium" style={{ color: "rgba(255,255,255,0.90)" }}>{firstName}</span>
+          <span className="text-[14px] font-medium text-gray-700">{firstName}</span>
           <svg
             width="10" height="10" viewBox="0 0 12 12" fill="none"
             className={`transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
-            style={{ color: "rgba(255,255,255,0.55)" }}
+            style={{ color: "#9ca3af" }}
           >
             <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -193,18 +182,12 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
 
         {userMenuOpen && (
           <div
-            className="absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-2xl border py-1 z-50"
-            style={{
-              background: "rgba(255,255,255,0.88)",
-              backdropFilter: "blur(28px) saturate(180%)",
-              WebkitBackdropFilter: "blur(28px) saturate(180%)",
-              border: "1px solid rgba(255,255,255,0.85)",
-              boxShadow: "0 8px 32px rgba(100,130,200,0.18)",
-            }}
+            className="absolute right-0 top-full mt-2 w-52 rounded-xl shadow-lg border border-gray-200 bg-white py-1 z-50"
+            style={{ boxShadow: "0 8px 24px rgba(15,23,42,0.12)" }}
           >
             <div className="px-4 py-2.5 border-b border-gray-100">
-              <div className="text-xs font-bold text-[#0f2044] truncate">{adminUser.name}</div>
-              <div className="text-[11px] text-gray-400">SCOPS Admin</div>
+              <div className="text-sm font-semibold text-gray-900 truncate">{adminUser.name}</div>
+              <div className="text-xs text-gray-400 mt-0.5">SCOPS Admin</div>
             </div>
             <button
               onClick={() => { setUserMenuOpen(false); setLocation("/scops"); }}
@@ -218,10 +201,9 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
             >
               View Public Site
             </button>
-            {/* Admin Controls section */}
             <div className="border-t border-gray-100 mt-1 pt-1">
               <div className="px-4 py-1.5">
-                <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "rgba(15,32,68,0.35)" }}>Admin Controls</span>
+                <span className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Admin Controls</span>
               </div>
               <button
                 onClick={() => { setUserMenuOpen(false); setLocation("/scops/users"); }}

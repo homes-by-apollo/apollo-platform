@@ -835,31 +835,23 @@
 - [x] /faqs page: add application/ld+json FAQ schema markup for Google rich results
 
 ## Remove Manus + Plausible Funnel Tracking (Apr 7 2026)
-- [ ] Update leads.submit to accept new payload (name, phone OR email, price_range string, source field)
-- [ ] Replace notifyOwner() with Resend alert to ops@apollohomebuilders.com on new lead
-- [ ] Remove notifyOwner import from leads router
-- [ ] Rewrite GetInTouch.tsx: 3-step flow (Step1: name+contact, Step2: timeline/price/financing/message, Step3: Calendly)
-- [ ] Add Plausible event: Lead Form Step 1 Complete (on Step 1 CTA click)
-- [ ] Add Plausible event: Lead Form Step 2 Complete (on successful submit, before Step 3 render)
-- [ ] Add Plausible event: Lead Form Step 3 Viewed (on Step 3 render)
-- [ ] Add Plausible event: Lead Form Meeting Booked (on Calendly event_scheduled message)
-- [ ] Only render Step 3 / Calendly after successful /api/leads response
-- [ ] Show error state on API failure, do NOT advance to Step 3
-- [ ] Write vitest test for new submit payload validation
-- [ ] Verify lead appears in SCOPS after submission
-- [ ] Confirm no Manus emails sent (notifyOwner removed)
+- [x] Update leads.submit to accept new payload (name, phone OR email, price_range string, source field)
+- [x] Replace notifyOwner() with Resend alert to ops@apollohomebuilders.com on new lead
+- [x] Remove notifyOwner import from leads router
+- [x] Rewrite GetInTouch.tsx: 3-step flow (Step1: name+contact, Step2: timeline/price/financing/message, Step3: Calendly)
+- [x] Add Plausible event: Lead Form Step 1 Complete (on Step 1 CTA click)
+- [x] Add Plausible event: Lead Form Step 2 Complete (on successful submit, before Step 3 render)
+- [x] Add Plausible event: Lead Form Step 3 Viewed (on Step 3 render)
+- [x] Add Plausible event: Lead Form Meeting Booked (on Calendly event_scheduled message)
+- [x] Only render Step 3 / Calendly after successful /api/leads response
+- [x] Show error state on API failure, do NOT advance to Step 3
+- [x] Write vitest test for new submit payload validation
+- [x] Verify lead appears in SCOPS after submission
+- [x] Confirm no Manus emails sent (notifyOwner removed)
 
-## Remove Manus + Plausible Funnel Tracking (Apr 7 2026)
-- [ ] Update leads.submit to accept new payload (name, phone OR email, price_range string, source field)
-- [ ] Replace notifyOwner() with Resend alert to ops@apollohomebuilders.com on new lead
-- [ ] Remove notifyOwner import from leads router
-- [ ] Rewrite GetInTouch.tsx: 3-step flow (Step1: name+contact, Step2: timeline/price/financing/message, Step3: Calendly)
-- [ ] Add Plausible event: Lead Form Step 1 Complete (on Step 1 CTA click)
-- [ ] Add Plausible event: Lead Form Step 2 Complete (on successful submit, before Step 3 render)
-- [ ] Add Plausible event: Lead Form Step 3 Viewed (on Step 3 render)
-- [ ] Add Plausible event: Lead Form Meeting Booked (on Calendly event_scheduled message)
-- [ ] Only render Step 3 / Calendly after successful /api/leads response
-- [ ] Show error state on API failure, do NOT advance to Step 3
-- [ ] Write vitest test for new submit payload validation
-- [ ] Verify lead appears in SCOPS after submission
-- [ ] Confirm no Manus emails sent (notifyOwner removed)
+## SCOPS White SaaS Refactor + Logo (Apr 7 2026)
+- [x] Move Instagram icon from bottom bar to Resources column in GlobalFooter
+- [x] Wire UTM passthrough to GetInTouch.tsx handleFinalSubmit
+- [x] Update SCOPS alert email subject to include price range and timeline
+- [x] Full SCOPS UI refactor: replace dark liquid-glass with clean white SaaS design system
+- [x] Update SCOPSNav: Homes by Apollo logo, 80px bar height, 20px clock font, 15px date font

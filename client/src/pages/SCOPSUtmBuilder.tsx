@@ -55,7 +55,7 @@ function buildUrl(params: { landingPage: string; source: string; medium: string;
 }
 function GlassCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <div style={{ background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 16, boxShadow: "0 4px 24px rgba(100,130,200,0.12)", overflow: "hidden", ...style }}>
+    <div style={{ background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 16, boxShadow: "0 4px 24px rgba(100,130,200,0.12)", overflow: "hidden", ...style }}>
       {children}
     </div>
   );
@@ -91,12 +91,12 @@ export default function SCOPSUtmBuilder() {
     <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="utm-builder" />
       {/* Filter Bar */}
-      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.50)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.75)", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ padding: "10px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         {["All Inventory ▾", "Performance ▾", "Map View ▾", "Marketing Readiness ▾"].map((label, i) => (
           <button key={label} style={{ padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.65)", border: i === 0 ? "1px solid rgba(99,102,241,0.40)" : "1px solid rgba(255,255,255,0.80)", color: i === 0 ? "#6366f1" : "rgba(15,32,68,0.55)", cursor: "pointer" }}>{label}</button>
         ))}
         <div style={{ flex: 1, minWidth: 200, maxWidth: 280, marginLeft: "auto" }}>
-          <input placeholder="Search address, city or zip…" style={{ width: "100%", padding: "6px 14px", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
+          <input placeholder="Search address, city or zip…" style={{ width: "100%", padding: "6px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
         </div>
       </div>
       {/* 3-Column Body */}
@@ -233,7 +233,7 @@ export default function SCOPSUtmBuilder() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {selectedChannel ? (
             <GlassCard>
-              <SH title={selectedChannel} action={<button onClick={() => setSelectedChannel(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.40)", fontSize: 16 }}>×</button>} />
+              <SH title={selectedChannel} action={<button onClick={() => setSelectedChannel(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: 16 }}>×</button>} />
               <div style={{ padding: 16 }}>
                 {(() => {
                   const ch = CAMPAIGN_DATA.find(c => c.name === selectedChannel);
@@ -246,7 +246,7 @@ export default function SCOPSUtmBuilder() {
                         { label: "Contracts", value: ch.contracts, color: "#f59e0b" },
                         { label: "Revenue", value: ch.revenue, color: "#6366f1" },
                       ].map(stat => (
-                        <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "rgba(255,255,255,0.70)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.85)" }}>
+                        <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "#ffffff", borderRadius: 10, border: "1px solid #e2e6ed" }}>
                           <span style={{ fontSize: 12, color: "rgba(15,32,68,0.50)" }}>{stat.label}</span>
                           <span style={{ fontSize: 16, fontWeight: 800, color: stat.color }}>{stat.value}</span>
                         </div>

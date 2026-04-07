@@ -265,29 +265,28 @@ function PropertyCard({ property, selected, onClick }: { property: Property; sel
     <div
       onClick={onClick}
       style={{
-        background: selected ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.10)",
-        border: selected ? "1.5px solid rgba(255,255,255,0.50)" : "1px solid rgba(255,255,255,0.14)",
+        background: selected ? "#eff6ff" : "#ffffff",
+        border: selected ? "1.5px solid #bfdbfe" : "1px solid #e2e6ed",
         borderRadius: 14, cursor: "pointer", overflow: "hidden",
-        backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-        boxShadow: selected ? "0 4px 20px rgba(0,0,0,0.20)" : "0 2px 8px rgba(0,0,0,0.10)",
+        boxShadow: selected ? "0 4px 20px rgba(37,99,235,0.12)" : "0 1px 4px rgba(15,23,42,0.06)",
         transition: "all 0.15s ease", marginBottom: 8,
       }}
     >
       {property.imageUrl && (
         <div style={{ position: "relative", height: 80 }}>
           <img src={property.imageUrl} alt={property.address} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-          <div style={{ position: "absolute", top: 6, left: 6, background: tagColor, color: "white", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>{property.tag}</div>
+          <div style={{ position: "absolute", top: 6, left: 6, background: tagColor, color: "#ffffff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>{property.tag}</div>
           {property.featured === 1 && (
-            <div style={{ position: "absolute", top: 6, right: 6, background: "#f59e0b", color: "white", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 20 }}>★</div>
+            <div style={{ position: "absolute", top: 6, right: 6, background: "#f59e0b", color: "#ffffff", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 20 }}>★</div>
           )}
         </div>
       )}
       <div style={{ padding: "10px 12px" }}>
-        <div style={{ fontWeight: 700, fontSize: 13, color: "white", marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{property.address}</div>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.50)", marginBottom: 6 }}>{property.city}, {property.state}</div>
+        <div style={{ fontWeight: 700, fontSize: 13, color: "#111827", marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{property.address}</div>
+        <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 6 }}>{property.city}, {property.state}</div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 13, fontWeight: 800, color: "white" }}>{property.price}</span>
-          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.50)" }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: "#111827" }}>{property.price}</span>
+          <span style={{ fontSize: 10, color: "#6b7280" }}>
             {property.propertyType === "HOME"
               ? `${property.beds ?? "—"} bd · ${property.baths ?? "—"} ba · ${property.sqft ?? "—"} sqft`
               : property.lotSize ?? "Lot"}
@@ -309,66 +308,66 @@ function PropertyDetailPanel({ property, onClose, onEdit, onDelete }: {
   const priceNum = property.priceValue ?? parseInt(property.price.replace(/[^0-9]/g, "")) ?? 0;
 
   return (
-    <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.10)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.16)", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: 300, flexShrink: 0, background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div style={{ position: "relative", height: 180, flexShrink: 0 }}>
         <img src={property.imageUrl ?? "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80"} alt={property.address} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", top: 10, left: 10, background: tagColor, color: "white", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>{property.tag}</div>
-        <button onClick={onClose} style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.50)", border: "none", color: "white", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+        <div style={{ position: "absolute", top: 10, left: 10, background: tagColor, color: "#ffffff", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>{property.tag}</div>
+        <button onClick={onClose} style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.4)", border: "none", color: "#ffffff", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
       </div>
       <div style={{ padding: "16px 16px 0" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{property.address}</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.50)", marginTop: 2 }}>{property.city}, {property.state}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#111827", lineHeight: 1.2 }}>{property.address}</div>
+            <div style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>{property.city}, {property.state}</div>
           </div>
           {property.featured === 1 && (
-            <div style={{ background: "#f59e0b", color: "white", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 8, flexShrink: 0, marginLeft: 8 }}>★ Featured</div>
+            <div style={{ background: "#f59e0b", color: "#ffffff", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 8, flexShrink: 0, marginLeft: 8 }}>★ Featured</div>
           )}
         </div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: "white", marginBottom: 12 }}>${priceNum.toLocaleString()}</div>
-        <div style={{ display: "flex", gap: 10, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: "#111827", marginBottom: 12 }}>${priceNum.toLocaleString()}</div>
+        <div style={{ display: "flex", gap: 10, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid #e2e6ed" }}>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Type</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.propertyType === "HOME" ? "Home" : "Lot"}</div>
+            <div style={{ fontSize: 11, color: "#9ca3af" }}>Type</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.propertyType === "HOME" ? "Home" : "Lot"}</div>
           </div>
           {property.propertyType === "HOME" && property.beds && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Beds</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.beds}</div>
+              <div style={{ fontSize: 11, color: "#9ca3af" }}>Beds</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.beds}</div>
             </div>
           )}
           {property.propertyType === "HOME" && property.baths && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Baths</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.baths}</div>
+              <div style={{ fontSize: 11, color: "#9ca3af" }}>Baths</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.baths}</div>
             </div>
           )}
           {property.propertyType === "HOME" && property.sqft && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Sq Ft</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.sqft}</div>
+              <div style={{ fontSize: 11, color: "#9ca3af" }}>Sq Ft</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.sqft}</div>
             </div>
           )}
           {property.propertyType === "LOT" && property.lotSize && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>Lot Size</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>{property.lotSize}</div>
+              <div style={{ fontSize: 11, color: "#9ca3af" }}>Lot Size</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.lotSize}</div>
             </div>
           )}
         </div>
         {property.description && (
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, marginBottom: 14 }}>{property.description}</div>
+          <div style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5, marginBottom: 14 }}>{property.description}</div>
         )}
         {property.utilities && (
-          <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, padding: "8px 10px", marginBottom: 14 }}>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", marginBottom: 2 }}>Utilities</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.70)" }}>{property.utilities}</div>
+          <div style={{ background: "#f8f9fb", borderRadius: 8, padding: "8px 10px", marginBottom: 14 }}>
+            <div style={{ fontSize: 10, color: "#9ca3af", marginBottom: 2 }}>Utilities</div>
+            <div style={{ fontSize: 11, color: "#374151" }}>{property.utilities}</div>
           </div>
         )}
       </div>
       <div style={{ padding: "0 16px 16px", display: "flex", gap: 8 }}>
-        <button onClick={onEdit} style={{ flex: 1, padding: "10px", borderRadius: 10, background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.30)", color: "#a5b4fc", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Edit</button>
-        <button onClick={onDelete} style={{ flex: 1, padding: "10px", borderRadius: 10, background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.25)", color: "#fca5a5", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Delete</button>
+        <button onClick={onEdit} style={{ flex: 1, padding: "10px", borderRadius: 10, background: "#eef2ff", border: "1px solid #c7d2fe", color: "#4f46e5", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Edit</button>
+        <button onClick={onDelete} style={{ flex: 1, padding: "10px", borderRadius: 10, background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Delete</button>
       </div>
     </div>
   );
@@ -515,7 +514,7 @@ export default function SCOPSProperties() {
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="properties" />
 
       {/* ── KPI Stats Bar ── */}
-      <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.50)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ padding: "10px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         {[
           { label: "Available", value: availableCount, color: "#22c55e" },
           { label: "Under Contract", value: underContractCount, color: "#f59e0b" },
@@ -523,22 +522,22 @@ export default function SCOPSProperties() {
           { label: "Featured", value: featuredCount, color: "#6366f1" },
           { label: "Total", value: properties.length, color: "#374151" },
         ].map(stat => (
-          <div key={stat.label} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", background: "rgba(255,255,255,0.70)", borderRadius: 20, border: "1px solid rgba(255,255,255,0.85)" }}>
+          <div key={stat.label} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", background: "#ffffff", borderRadius: 20, border: "1px solid #e2e6ed" }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: stat.color }} />
             <span style={{ fontSize: 12, fontWeight: 700, color: stat.color }}>{stat.value}</span>
             <span style={{ fontSize: 11, color: "rgba(15,32,68,0.50)" }}>{stat.label}</span>
           </div>
         ))}
         <div style={{ flex: 1, minWidth: 200, maxWidth: 300, marginLeft: "auto", display: "flex", gap: 8 }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address or city…" style={{ flex: 1, padding: "7px 14px", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
-          <button onClick={() => setEditingId("new")} style={{ padding: "7px 16px", borderRadius: 20, background: "#0f2044", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Add</button>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address or city…" style={{ flex: 1, padding: "7px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
+          <button onClick={() => setEditingId("new")} style={{ padding: "7px 16px", borderRadius: 20, background: "#0f2044", border: "none", color: "#ffffff", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Add</button>
         </div>
       </div>
 
       {/* ── Filter Bar ── */}
-      <div style={{ padding: "8px 20px", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.70)", display: "flex", gap: 8, alignItems: "center" }}>
+      <div style={{ padding: "8px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 8, alignItems: "center" }}>
         {["ALL", "HOME", "LOT"].map(t => (
-          <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: typeFilter === t ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.65)", border: typeFilter === t ? "1px solid rgba(99,102,241,0.40)" : "1px solid rgba(255,255,255,0.80)", color: typeFilter === t ? "#6366f1" : "rgba(15,32,68,0.55)" }}>
+          <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: typeFilter === t ? "#eef2ff" : "#ffffff", border: typeFilter === t ? "1px solid #c7d2fe" : "1px solid #e2e6ed", color: typeFilter === t ? "#6366f1" : "#374151" }}>
             {t === "ALL" ? "All Types" : t === "HOME" ? "Homes" : "Lots"}
           </button>
         ))}
@@ -546,7 +545,7 @@ export default function SCOPSProperties() {
         {["ALL", "Available", "Under Contract", "Sold", "Coming Soon"].map(tag => {
           const color = tag === "ALL" ? "rgba(15,32,68,0.60)" : TAG_PIN_COLORS[tag] ?? "rgba(15,32,68,0.60)";
           return (
-            <button key={tag} onClick={() => setTagFilter(tag)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: tagFilter === tag ? `${color}18` : "rgba(255,255,255,0.65)", border: tagFilter === tag ? `1px solid ${color}50` : "1px solid rgba(255,255,255,0.80)", color: tagFilter === tag ? color : "rgba(15,32,68,0.50)" }}>
+            <button key={tag} onClick={() => setTagFilter(tag)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: tagFilter === tag ? `${color}18` : "#ffffff", border: tagFilter === tag ? `1px solid ${color}50` : "1px solid #e2e6ed", color: tagFilter === tag ? color : "#374151" }}>
               {tag === "ALL" ? "All Status" : tag}
             </button>
           );
@@ -556,7 +555,7 @@ export default function SCOPSProperties() {
       {/* ── 3-Panel Body ── */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
         {/* LEFT: Property list */}
-        <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.40)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderRight: "1px solid rgba(255,255,255,0.70)", overflowY: "auto", padding: "12px" }}>
+        <div style={{ width: 300, flexShrink: 0, background: "#ffffff", borderRight: "1px solid #e2e6ed", overflowY: "auto", padding: "12px" }}>
           <div style={{ marginBottom: 10 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(15,32,68,0.90)", marginBottom: 2 }}>
               {filtered.length} Listing{filtered.length !== 1 ? "s" : ""}
@@ -586,7 +585,7 @@ export default function SCOPSProperties() {
         <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
           <MapView initialCenter={PAHRUMP_CENTER} initialZoom={12} onMapReady={handleMapReady} className="w-full h-full" />
           {/* Legend */}
-          <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)",          background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "8px 16px", display: "flex", gap: 16, alignItems: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.15)", fontSize: 12, fontWeight: 600 }}>
+          <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)",          background: "#ffffff", borderRadius: 20, padding: "8px 16px", display: "flex", gap: 16, alignItems: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.15)", fontSize: 12, fontWeight: 600 }}>
             {[{ color: "#22c55e", label: "Available" }, { color: "#f59e0b", label: "Under Contract" }, { color: "#ef4444", label: "Sold" }, { color: "#6366f1", label: "Coming Soon" }].map(({ color, label }) => (
               <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <div style={{ width: 10, height: 10, borderRadius: "50%", background: color }} />
@@ -597,7 +596,7 @@ export default function SCOPSProperties() {
 
         {/* RIGHT: Detail panel */}
         {selectedProperty ? (
-          <div style={{ padding: "12px", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderLeft: "1px solid rgba(255,255,255,0.75)", overflowY: "auto" }}>
+          <div style={{ padding: "12px", background: "#ffffff", borderLeft: "1px solid #e2e6ed", overflowY: "auto" }}>
             <PropertyDetailPanel
               property={selectedProperty}
               onClose={() => setSelectedProperty(null)}
@@ -606,8 +605,8 @@ export default function SCOPSProperties() {
             />
           </div>
         ) : (
-          <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.25)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderLeft: "1px solid rgba(255,255,255,0.40)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ textAlign: "center", color: "rgba(0,0,0,0.30)", fontSize: 13 }}>
+          <div style={{ width: 300, flexShrink: 0, background: "#ffffff", borderLeft: "1px solid #e2e6ed", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📍</div>
               <div>Click a pin or listing<br />to see details</div>
             </div>

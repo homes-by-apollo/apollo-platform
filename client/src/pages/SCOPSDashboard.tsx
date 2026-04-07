@@ -111,12 +111,10 @@ function GC({
 }: { children: React.ReactNode; className?: string; style?: React.CSSProperties; noPad?: boolean }) {
   return (
     <div className={className} style={{
-      background:"rgba(255,255,255,0.08)",
-      backdropFilter:"blur(20px)",
-      WebkitBackdropFilter:"blur(20px)",
-      border:"1px solid rgba(255,255,255,0.12)",
-      borderRadius:18,
-      boxShadow:"0 8px 32px rgba(0,0,0,0.15)",
+      background: "#ffffff",
+      border: "1px solid #e2e6ed",
+      borderRadius: 12,
+      boxShadow: "0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)",
       padding: noPad ? 0 : "16px 18px",
       ...style,
     }}>
@@ -131,7 +129,7 @@ function SH({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
     <div className="flex items-baseline gap-2 mb-3">
       <span className="crm-section-header">{children}</span>
-      {sub && <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.45)" }}>{sub}</span>}
+      {sub && <span className="text-[11px] font-medium text-gray-400">{sub}</span>}
     </div>
   );
 }
@@ -150,11 +148,11 @@ function KpiCard({
     <GC style={{ padding:"14px 16px" }}>
       <div className="crm-card-label mb-1.5 leading-tight">{label}</div>
       {loading ? (
-        <div className="h-7 w-16 rounded-lg animate-pulse mb-2" style={{ background: "rgba(255,255,255,0.12)" }} />
+        <div className="h-7 w-16 rounded-lg animate-pulse mb-2 bg-gray-100" />
       ) : (
         <div className="flex items-baseline gap-1 mb-1.5">
           <span className="crm-metric-primary" style={{ fontSize: 26 }}>{value}</span>
-          {unit && <span className="text-[12px] font-semibold" style={{ color: "rgba(255,255,255,0.45)" }}>{unit}</span>}
+          {unit && <span className="text-[12px] font-semibold text-gray-400">{unit}</span>}
         </div>
       )}
       {/* Micro-signal */}
@@ -166,7 +164,7 @@ function KpiCard({
           {deltaLabel && <span className="crm-metric-supporting text-[10px] mt-0">{deltaLabel}</span>}
         </div>
       )}
-      <div style={{ height:3, borderRadius:3, background:"rgba(0,0,0,.06)", overflow:"hidden" }}>
+      <div style={{ height:3, borderRadius:3, background:"#f1f3f7", overflow:"hidden" }}>
         <div style={{
           height:"100%", width:`${Math.min(barPct??60,100)}%`,
           background: KPI_BAR_COLORS[colorIdx % KPI_BAR_COLORS.length],
@@ -190,15 +188,15 @@ function DealsAtRisk({
 }: { deals: RiskDeal[]; loading?: boolean; onView: (id: number) => void }) {
   if (loading) return (
     <div className="space-y-2">
-      {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-white/40 animate-pulse" />)}
+      {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-gray-100 animate-pulse" />)}
     </div>
   );
   if (deals.length === 0) return (
-    <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"rgba(34,197,94,.08)", border:"1px solid rgba(34,197,94,.2)" }}>
+    <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"#f0fdf4", border:"1px solid #bbf7d0" }}>
       <span className="text-[18px]">✅</span>
       <div>
-        <div className="text-[12px] font-bold" style={{ color: "#34d399" }}>Pipeline is healthy</div>
-        <div className="text-[11px]" style={{ color: "#6ee7b7" }}>All active leads contacted within 48 hours</div>
+        <div className="text-[12px] font-bold text-green-700">Pipeline is healthy</div>
+        <div className="text-[11px] text-green-600">All active leads contacted within 48 hours</div>
       </div>
     </div>
   );
@@ -224,21 +222,21 @@ function DealsAtRisk({
             {/* Lead info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.92)" }}>{d.name}</span>
+                <span className="text-[13px] font-bold text-gray-900">{d.name}</span>
                 {scoreP && (
                   <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full" style={{ background: scoreP.bg, color: scoreP.text }}>
                     {d.leadScore}
                   </span>
                 )}
-                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background:"rgba(255,255,255,.10)", color:"rgba(255,255,255,0.60)" }}>
+                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
                   {STAGE_LABELS[d.stage] ?? d.stage}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-[11px]" style={{ color: "rgba(255,255,255,0.50)" }}>
+              <div className="flex items-center gap-2 text-[11px] text-gray-500">
                 <span className="font-semibold" style={{ color: urg.badge }}>{d.issue}</span>
                 {d.primaryPropertyAddress && (
                   <>
-                    <span style={{ color: "rgba(255,255,255,0.30)" }}>·</span>
+                    <span className="text-gray-300">·</span>
                     <span className="truncate max-w-[160px]">🏠 {d.primaryPropertyAddress}</span>
                   </>
                 )}
@@ -247,8 +245,8 @@ function DealsAtRisk({
 
             {/* Last contact */}
             <div className="flex-shrink-0 text-right">
-              <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.40)" }}>Last contact</div>
-              <div className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.70)" }}>{timeAgo(d.lastContactedAt)}</div>
+              <div className="text-[10px] text-gray-400">Last contact</div>
+              <div className="text-[11px] font-bold text-gray-600">{timeAgo(d.lastContactedAt)}</div>
             </div>
 
             {/* CTA */}
@@ -295,7 +293,7 @@ function PipelineFunnel({ stageCounts }: { stageCounts: { stage: string; count: 
               {/* Conversion indicator between stages */}
               {convFromPrev !== null && (
                 <div className="flex items-center gap-1.5 mb-1 ml-1">
-                  <div className="w-px h-3" style={{ background:"rgba(0,0,0,.1)" }} />
+                  <div className="w-px h-3 bg-gray-200" />
                   <span
                     className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                     style={{
@@ -313,7 +311,7 @@ function PipelineFunnel({ stageCounts }: { stageCounts: { stage: string; count: 
                   style={{
                     width:`${Math.max(pct, count > 0 ? 20 : 6)}%`,
                     minWidth:100, height:28,
-                    background: count > 0 ? STAGE_COLORS[stage] : "rgba(0,0,0,.05)",
+                    background: count > 0 ? STAGE_COLORS[stage] : "#f1f3f7",
                     color: count > 0 ? "white" : "#94a3b8",
                   }}
                 >
@@ -325,7 +323,7 @@ function PipelineFunnel({ stageCounts }: { stageCounts: { stage: string; count: 
           );
         })}
       </div>
-      <div className="flex items-center justify-between pt-2.5 border-t border-white/40">
+      <div className="flex items-center justify-between pt-2.5 border-t border-gray-100">
         <div>
           <div className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">Overall Conv.</div>
           <div className="text-[18px] font-black text-slate-700">{conversionPct}%</div>
@@ -356,7 +354,7 @@ function RevenueForecast({
   if (total === 0) {
     return (
       <div className="space-y-3">
-        <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"rgba(100,116,139,.08)", border:"1px solid rgba(100,116,139,.15)" }}>
+        <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"#f8f9fb", border:"1px solid #e2e6ed" }}>
           <span className="text-[16px]">📋</span>
           <div>
             <div className="text-[12px] font-bold text-slate-600">No upcoming closings</div>
@@ -364,7 +362,7 @@ function RevenueForecast({
           </div>
         </div>
         {activeDeals > 0 && (
-          <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"rgba(59,130,246,.08)", border:"1px solid rgba(59,130,246,.15)" }}>
+          <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"#eff6ff", border:"1px solid #bfdbfe" }}>
             <span className="text-[16px]">🔄</span>
             <div>
               <div className="text-[12px] font-bold text-[#2563eb]">{activeDeals} active deal{activeDeals !== 1 ? "s" : ""} in pipeline</div>
@@ -400,7 +398,7 @@ function RevenueForecast({
               <div className="w-full flex items-end" style={{ height:72 }}>
                 <div className="w-full rounded-t-lg transition-all duration-700" style={{
                   height:`${h}%`,
-                  background: b.value > 0 ? b.color : "rgba(0,0,0,.06)",
+                  background: b.value > 0 ? b.color : "#f1f3f7",
                   minHeight: b.value > 0 ? 6 : 0,
                   boxShadow: b.value > 0 ? "0 -2px 8px rgba(74,144,217,.3)" : "none",
                 }} />
@@ -410,7 +408,7 @@ function RevenueForecast({
           );
         })}
       </div>
-      <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl" style={{ background:"rgba(74,144,217,.08)", border:"1px solid rgba(74,144,217,.15)" }}>
+      <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl" style={{ background:"#eff6ff", border:"1px solid #bfdbfe" }}>
         <span className="text-[10px] text-slate-500 font-semibold">Total · {activeDeals} deal{activeDeals !== 1 ? "s" : ""}</span>
         <span className="text-[13px] font-black text-[#2563eb]">{fmt$(total)}</span>
       </div>
@@ -442,7 +440,7 @@ function InventoryHealth({ items, loading }: { items: InvItem[]; loading?: boole
   const issues = items.filter(p => p.healthFlag !== "ok");
   if (items.length === 0 || issues.length === 0) {
     return (
-      <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"rgba(34,197,94,.08)", border:"1px solid rgba(34,197,94,.2)" }}>
+      <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"#f0fdf4", border:"1px solid #bbf7d0" }}>
         <span className="text-[18px]">✅</span>
         <div>
           <div className="text-[12px] font-bold text-emerald-700">All inventory performing normally</div>
@@ -457,16 +455,16 @@ function InventoryHealth({ items, loading }: { items: InvItem[]; loading?: boole
       {issues.map(p => {
         const meta = HEALTH_FLAG_META[p.healthFlag];
         return (
-          <div key={p.id} className="flex items-center gap-2.5 p-2.5 rounded-xl" style={{ background:"rgba(255,255,255,.5)", border:"1px solid rgba(255,255,255,.7)" }}>
+          <div key={p.id} className="flex items-center gap-2.5 p-2.5 rounded-xl" style={{ background:"#f8f9fb", border:"1px solid #e2e6ed" }}>
             <img
               src={p.imageUrl || PLACEHOLDER_IMG}
               alt={p.address}
               className="w-12 h-9 rounded-lg object-cover flex-shrink-0"
-              style={{ border:"1px solid rgba(255,255,255,.6)" }}
+              style={{ border:"1px solid #e2e6ed" }}
               onError={e => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG; }}
             />
             <div className="flex-1 min-w-0">
-              <div className="text-[11px] font-semibold truncate" style={{ color: "rgba(255,255,255,0.90)" }}>{p.address}</div>
+              <div className="text-[11px] font-semibold truncate text-gray-800">{p.address}</div>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: meta.bg, color: meta.color }}>
                   {meta.label}
@@ -489,41 +487,41 @@ function InventoryHealth({ items, loading }: { items: InvItem[]; loading?: boole
 // ─── Source Performance ───────────────────────────────────────────────────────
 
 function SourcePerf({ rows, loading }: { rows: { source:string; label:string; leads:number; tours:number; contracts:number }[]; loading?: boolean }) {
-  if (loading) return <div className="text-sm" style={{ color: "rgba(255,255,255,0.40)" }}>Loading…</div>;
+  if (loading) return <div className="text-sm text-gray-400">Loading…</div>;
   const active = rows.filter(r => r.leads > 0);
-  if (active.length === 0) return <div className="text-[12px] py-2" style={{ color: "rgba(255,255,255,0.40)" }}>No leads yet.</div>;
+  if (active.length === 0) return <div className="text-[12px] py-2 text-gray-400">No leads yet.</div>;
   const totalLeads = active.reduce((s,r) => s+r.leads, 0);
   const totalContracts = active.reduce((s,r) => s+r.contracts, 0);
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-[11px]">
         <thead>
-          <tr style={{ borderBottom:"1px solid rgba(255,255,255,.5)" }}>
+          <tr style={{ borderBottom:"1px solid #e2e6ed" }}>
             {["","LEADS","TOURS","CONTRACTS","REV"].map(h => (
-              <th key={h} className="text-left text-[9px] font-bold uppercase tracking-wider px-3 py-2" style={{ color: "rgba(255,255,255,0.45)" }}>{h}</th>
+              <th key={h} className="text-left text-[9px] font-bold uppercase tracking-wider px-3 py-2 text-gray-400">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {active.map(s => (
-            <tr key={s.source} style={{ borderBottom:"1px solid rgba(255,255,255,.4)" }} className="last:border-0">
+            <tr key={s.source} style={{ borderBottom:"1px solid #f1f3f7" }} className="last:border-0">
               <td className="px-3 py-2">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[12px]">{SOURCE_ICONS[s.source] ?? "📊"}</span>
-                  <span className="font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>{s.label}</span>
+                  <span className="font-semibold text-gray-700">{s.label}</span>
                 </div>
               </td>
-              <td className="px-3 py-2 font-black" style={{ color: "rgba(255,255,255,0.90)" }}>{s.leads}</td>
-              <td className="px-3 py-2" style={{ color: "rgba(255,255,255,0.65)" }}>{s.tours}</td>
+              <td className="px-3 py-2 font-black text-gray-900">{s.leads}</td>
+              <td className="px-3 py-2 text-gray-500">{s.tours}</td>
               <td className="px-3 py-2 font-semibold" style={{ color: "#34d399" }}>{s.contracts}</td>
               <td className="px-3 py-2 font-bold" style={{ color: "#60a5fa" }}>{s.contracts > 0 ? fmt$(s.contracts*425_000) : "—"}</td>
             </tr>
           ))}
           {active.length > 1 && (
-            <tr style={{ borderTop:"1px solid rgba(255,255,255,.6)", background:"rgba(255,255,255,.25)" }}>
-              <td className="px-3 py-2 text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.45)" }}>TOTAL</td>
-              <td className="px-3 py-2 font-black" style={{ color: "rgba(255,255,255,0.90)" }}>{totalLeads}</td>
-              <td className="px-3 py-2" style={{ color: "rgba(255,255,255,0.65)" }}>{active.reduce((s,r)=>s+r.tours,0)}</td>
+            <tr style={{ borderTop:"1px solid #e2e6ed", background:"#f8f9fb" }}>
+              <td className="px-3 py-2 text-[10px] font-bold text-gray-400">TOTAL</td>
+              <td className="px-3 py-2 font-black text-gray-900">{totalLeads}</td>
+              <td className="px-3 py-2 text-gray-500">{active.reduce((s,r)=>s+r.tours,0)}</td>
               <td className="px-3 py-2 font-black" style={{ color: "#34d399" }}>{totalContracts}</td>
               <td className="px-3 py-2 font-black" style={{ color: "#60a5fa" }}>{totalContracts > 0 ? fmt$(totalContracts*425_000) : "—"}</td>
             </tr>
@@ -540,23 +538,23 @@ function ActivityFeed({ items, loading }: {
   items: { id:number; activityType:string; description:string; firstName?:string|null; lastName?:string|null; createdAt:Date|string }[];
   loading?: boolean;
 }) {
-  if (loading) return <div className="space-y-2">{[1,2,3].map(i=><div key={i} className="h-10 rounded-xl animate-pulse" style={{ background: "rgba(255,255,255,0.08)" }}/>)}</div>;
-  if (items.length === 0) return <div className="text-[12px] py-2" style={{ color: "rgba(255,255,255,0.40)" }}>No recent activity.</div>;
+  if (loading) return <div className="space-y-2">{[1,2,3].map(i=><div key={i} className="h-10 rounded-xl animate-pulse bg-gray-100" />)}</div>;
+  if (items.length === 0) return <div className="text-[12px] py-2 text-gray-400">No recent activity.</div>;
   return (
     <div className="space-y-2">
       {items.slice(0,8).map(a => (
-        <div key={a.id} className="flex items-center gap-2.5 p-2 rounded-xl" style={{ background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.10)" }}>
+        <div key={a.id} className="flex items-center gap-2.5 p-2 rounded-xl" style={{ background:"#f8f9fb", border:"1px solid #e2e6ed" }}>
           <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
             style={{ background:"linear-gradient(135deg,#4a90d9,#2563eb)" }}>
             {a.firstName ? a.firstName.charAt(0).toUpperCase() : "?"}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-semibold truncate" style={{ color: "rgba(255,255,255,0.90)" }}>
+            <div className="text-[11px] font-semibold truncate text-gray-800">
               {a.firstName && a.lastName ? `${a.firstName} ${a.lastName}` : "System"}
             </div>
-            <div className="text-[10px] truncate" style={{ color: "rgba(255,255,255,0.50)" }}>{a.description}</div>
+            <div className="text-[10px] truncate text-gray-500">{a.description}</div>
           </div>
-          <div className="text-[9px] flex-shrink-0" style={{ color: "rgba(255,255,255,0.40)" }}>{timeAgo(a.createdAt)}</div>
+          <div className="text-[9px] flex-shrink-0 text-gray-400">{timeAgo(a.createdAt)}</div>
         </div>
       ))}
     </div>
@@ -613,9 +611,8 @@ export default function SCOPSDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen"
-        style={{ background:"radial-gradient(circle at top left, #1f2937, #0f172a)" }}>
-        <div className="text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>Loading…</div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-sm text-gray-400">Loading…</div>
       </div>
     );
   }
@@ -659,7 +656,7 @@ export default function SCOPSDashboard() {
   const absorptionPct = Math.min((dash?.absorptionRate ?? 0), 100);
 
   return (
-    <div className="scops-bg">
+    <div className="scops-bg bg-gray-50 min-h-screen">
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="dashboard" />
 
       <div className="px-4 py-4 max-w-screen-2xl mx-auto space-y-4">
@@ -685,7 +682,7 @@ export default function SCOPSDashboard() {
                 </span>
               )}
             </div>
-            <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.45)" }}>Leads not contacted in 48+ hours · sorted by urgency</span>
+            <span className="text-[10px] text-gray-400">Leads not contacted in 48+ hours · sorted by urgency</span>
           </div>
           <DealsAtRisk deals={atRisk} loading={dashboardQuery.isLoading} onView={setSelectedId} />
         </GC>
@@ -727,7 +724,7 @@ export default function SCOPSDashboard() {
           <div className="px-4 pt-4 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-baseline gap-2">
               <SH>Today's Focus</SH>
-              <span className="text-[10px] font-medium -mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>sorted by urgency · {filtered.length} contacts</span>
+              <span className="text-[10px] font-medium -mt-1 text-gray-400">sorted by urgency · {filtered.length} contacts</span>
             </div>
             <div className="flex flex-wrap gap-2">
               <Input
@@ -735,10 +732,10 @@ export default function SCOPSDashboard() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="h-7 text-[11px] w-36"
-                style={{ background:"rgba(255,255,255,.7)", border:"1px solid rgba(255,255,255,.8)" }}
+                style={{ background:"#ffffff", border:"1px solid #e2e6ed" }}
               />
               <Select value={stageFilter} onValueChange={setStageFilter}>
-                <SelectTrigger className="h-7 text-[11px] w-32" style={{ background:"rgba(255,255,255,.7)", border:"1px solid rgba(255,255,255,.8)" }}>
+                <SelectTrigger className="h-7 text-[11px] w-32" style={{ background:"#ffffff", border:"1px solid #e2e6ed" }}>
                   <SelectValue placeholder="All Stages" />
                 </SelectTrigger>
                 <SelectContent>
@@ -747,7 +744,7 @@ export default function SCOPSDashboard() {
                 </SelectContent>
               </Select>
               <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                <SelectTrigger className="h-7 text-[11px] w-24" style={{ background:"rgba(255,255,255,.7)", border:"1px solid rgba(255,255,255,.8)" }}>
+                <SelectTrigger className="h-7 text-[11px] w-24" style={{ background:"#ffffff", border:"1px solid #e2e6ed" }}>
                   <SelectValue placeholder="Score" />
                 </SelectTrigger>
                 <SelectContent>
@@ -761,18 +758,18 @@ export default function SCOPSDashboard() {
           </div>
 
           {contactsQuery.isLoading ? (
-            <div className="text-sm px-4 pb-4" style={{ color: "rgba(255,255,255,0.40)" }}>Loading contacts…</div>
+            <div className="text-sm px-4 pb-4 text-gray-400">Loading contacts…</div>
           ) : filtered.length === 0 ? (
-            <div className="text-sm px-4 pb-6 text-center py-8" style={{ color: "rgba(255,255,255,0.40)" }}>
+            <div className="text-sm px-4 pb-6 text-center py-8 text-gray-400">
               {contacts.length === 0 ? "No contacts yet." : "No contacts match the current filters."}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-[11px]">
                 <thead>
-                  <tr style={{ borderBottom:"1px solid rgba(255,255,255,.5)", background:"rgba(255,255,255,.25)" }}>
+                  <tr style={{ borderBottom:"1px solid #e2e6ed", background:"#f8f9fb" }}>
                     {["Name","Stage","Score","Primary Property","Timeline","Last Activity","Next Action",""].map(h => (
-                      <th key={h} className="text-left text-[9px] font-bold uppercase tracking-wider px-4 py-2.5 whitespace-nowrap" style={{ color: "rgba(255,255,255,0.45)" }}>{h}</th>
+                      <th key={h} className="text-left text-[9px] font-bold uppercase tracking-wider px-4 py-2.5 whitespace-nowrap text-gray-400">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -785,8 +782,8 @@ export default function SCOPSDashboard() {
                       <tr
                         key={c.id}
                         className="cursor-pointer transition-colors"
-                        style={{ borderBottom:"1px solid rgba(255,255,255,.4)" }}
-                        onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,.35)")}
+                        style={{ borderBottom:"1px solid #f1f3f7" }}
+                        onMouseEnter={e => (e.currentTarget.style.background = "#f8f9fb")}
                         onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                         onClick={() => setSelectedId(c.id)}
                       >
@@ -795,8 +792,8 @@ export default function SCOPSDashboard() {
                             {uScore >= 60 && <div className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" title="High urgency" />}
                             {uScore >= 30 && uScore < 60 && <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" title="Medium urgency" />}
                             <div>
-                              <div className="font-semibold" style={{ color: "rgba(255,255,255,0.90)" }}>{c.firstName} {c.lastName}</div>
-                              <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.45)" }}>{c.email}</div>
+                              <div className="font-semibold text-gray-900">{c.firstName} {c.lastName}</div>
+                              <div className="text-[10px] text-gray-400">{c.email}</div>
                             </div>
                           </div>
                         </td>
@@ -810,18 +807,18 @@ export default function SCOPSDashboard() {
                             <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background:sc.bg, color:sc.text }}>
                               {c.leadScore}
                             </span>
-                          ) : <span style={{ color: "rgba(255,255,255,0.30)" }}>—</span>}
+                          ) : <span className="text-gray-300">—</span>}
                         </td>
-                        <td className="px-4 py-2.5 max-w-[120px] truncate" style={{ color: "rgba(255,255,255,0.60)" }}>
+                        <td className="px-4 py-2.5 max-w-[120px] truncate text-gray-500">
                           {(c as any).primaryPropertyId ? `#${(c as any).primaryPropertyId}` : "—"}
                         </td>
-                        <td className="px-4 py-2.5" style={{ color: "rgba(255,255,255,0.60)" }}>{fmtTimeline(c.timeline)}</td>
-                        <td className="px-4 py-2.5" style={{ color: "rgba(255,255,255,0.45)" }}>{timeAgo((c as any).lastContactedAt ?? c.updatedAt)}</td>
-                        <td className="px-4 py-2.5 max-w-[140px] truncate" style={{ color: "rgba(255,255,255,0.60)" }}>{(c as any).nextAction ?? "—"}</td>
+                        <td className="px-4 py-2.5 text-gray-500">{fmtTimeline(c.timeline)}</td>
+                        <td className="px-4 py-2.5 text-gray-400">{timeAgo((c as any).lastContactedAt ?? c.updatedAt)}</td>
+                        <td className="px-4 py-2.5 max-w-[140px] truncate text-gray-500">{(c as any).nextAction ?? "—"}</td>
                         <td className="px-4 py-2.5">
                           <button
                             className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all"
-                            style={{ background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.15)", color:"rgba(255,255,255,0.75)" }}
+                            style={{ background:"#f1f3f7", border:"1px solid #e2e6ed", color:"#374151" }}
                             onClick={e => { e.stopPropagation(); setSelectedId(c.id); }}
                           >
                             Open →

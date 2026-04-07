@@ -135,9 +135,9 @@ function PreviewModal({
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#ff5f57" }} />
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#febc2e" }} />
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#28c840" }} />
-            <span style={{ marginLeft: 8, fontSize: 12, color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>apollohomebuilders.com/blog/preview</span>
+            <span style={{ marginLeft: 8, fontSize: 12, color: "rgba(255,255,255,0.7)", fontFamily: "monospace" }}>apollohomebuilders.com/blog/preview</span>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontSize: 18, cursor: "pointer", lineHeight: 1 }}>×</button>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.8)", fontSize: 18, cursor: "pointer", lineHeight: 1 }}>×</button>
         </div>
 
         {/* Scrollable content */}
@@ -161,7 +161,7 @@ function PreviewModal({
             {/* Meta */}
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 28, paddingBottom: 20, borderBottom: `1px solid ${BOR}` }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 30, height: 30, borderRadius: "50%", background: G, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 12, fontWeight: 800 }}>
+                <div style={{ width: 30, height: 30, borderRadius: "50%", background: G, display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: 12, fontWeight: 800 }}>
                   {(post.author || "A")[0].toUpperCase()}
                 </div>
                 <span style={{ fontSize: 13, fontWeight: 700, color: TXT }}>{post.author || "Apollo Home Builders"}</span>
@@ -177,7 +177,7 @@ function PreviewModal({
         </div>
 
         <div style={{ padding: "12px 20px", borderTop: `1px solid ${BOR}`, background: "white", display: "flex", justifyContent: "flex-end" }}>
-          <button onClick={onClose} style={{ background: NAVY, color: "white", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+          <button onClick={onClose} style={{ background: NAVY, color: "#ffffff", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
             Close Preview
           </button>
         </div>
@@ -603,22 +603,22 @@ export default function SCOPSBlog() {
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="blog" />
 
       {/* ── KPI Row ── */}
-      <div style={{ padding: "14px 20px", background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.50)", display: "flex", gap: 12, alignItems: "stretch", flexWrap: "wrap" }}>
+      <div style={{ padding: "14px 20px", background: "#f8f9fb", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 12, alignItems: "stretch", flexWrap: "wrap" }}>
         {[
           { icon: "✈️", label: "Total Posts", value: `${totalPosts} posts` },
           { icon: "⭐", label: "Featured", value: `${featuredCount}` },
           { icon: "👤", label: "Leads Generated", value: `${publishedCount * 8} leads` },
           { icon: "👁", label: "Traffic", value: `${(totalPosts * 452).toLocaleString()} views` },
         ].map(kpi => (
-          <div key={kpi.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 18px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 12, flex: "1 1 160px", minWidth: 140 }}>
+          <div key={kpi.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 18px", background: "#f8f9fb", border: "1px solid #e2e6ed", borderRadius: 12, flex: "1 1 160px", minWidth: 140 }}>
             <span style={{ fontSize: 20 }}>{kpi.icon}</span>
             <div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)", fontWeight: 600, letterSpacing: 0.5 }}>{kpi.label}</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "rgba(255,255,255,0.90)", lineHeight: 1.2 }}>{kpi.value}</div>
+              <div style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, letterSpacing: 0.5 }}>{kpi.label}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#111827", lineHeight: 1.2 }}>{kpi.value}</div>
             </div>
           </div>
         ))}
-        <button onClick={() => setShowModal(true)} style={{ marginLeft: "auto", padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 700, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(0,0,0,0.12)", color: "rgba(255,255,255,0.90)", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>+ New Post</button>
+        <button onClick={() => setShowModal(true)} style={{ marginLeft: "auto", padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 700, background: "#f8f9fb", border: "1px solid rgba(0,0,0,0.12)", color: "#111827", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>+ New Post</button>
       </div>
 
       {/* ── Main Body ── */}
@@ -628,26 +628,26 @@ export default function SCOPSBlog() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
           {/* Blog Posts Table */}
-          <div style={{ background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16, boxShadow: "0 4px 24px rgba(255,255,255,0.05)", overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>Blog Posts</span>
-              <input placeholder="Search content..." style={{ padding: "5px 12px", background: "rgba(255,255,255,0.80)", border: "1px solid rgba(0,0,0,0.10)", borderRadius: 20, fontSize: 11, color: "rgba(255,255,255,0.90)", outline: "none", width: 160 }} />
+          <div style={{ background: "#f8f9fb", border: "1px solid #e2e6ed", borderRadius: 16, boxShadow: "0 2px 12px rgba(15,23,42,0.06)", overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid #e2e6ed" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>Blog Posts</span>
+              <input placeholder="Search content..." style={{ padding: "5px 12px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, fontSize: 11, color: "#111827", outline: "none", width: 160 }} />
             </div>
             {isLoading ? (
-              <div style={{ padding: 32, textAlign: "center", color: "rgba(255,255,255,0.40)", fontSize: 13 }}>Loading posts...</div>
+              <div style={{ padding: 32, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>Loading posts...</div>
             ) : !posts?.length ? (
               <div style={{ padding: 32, textAlign: "center" }}>
-                <p style={{ color: "rgba(255,255,255,0.90)", fontWeight: 600, marginBottom: 6 }}>No blog posts yet</p>
-                <p style={{ color: "rgba(255,255,255,0.40)", fontSize: 12, marginBottom: 16 }}>Add your first post to start populating the homepage blog section.</p>
-                <button onClick={() => setShowModal(true)} style={{ padding: "8px 18px", borderRadius: 8, fontSize: 12, fontWeight: 700, background: "#0f2044", color: "white", border: "none", cursor: "pointer" }}>+ Add Post</button>
+                <p style={{ color: "#111827", fontWeight: 600, marginBottom: 6 }}>No blog posts yet</p>
+                <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 16 }}>Add your first post to start populating the homepage blog section.</p>
+                <button onClick={() => setShowModal(true)} style={{ padding: "8px 18px", borderRadius: 8, fontSize: 12, fontWeight: 700, background: "#0f2044", color: "#ffffff", border: "none", cursor: "pointer" }}>+ Add Post</button>
               </div>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead>
-                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.05)" }}>
+                    <tr style={{ borderBottom: "1px solid #e2e6ed", background: "#f8f9fb" }}>
                       {["Title", "Status ↕", "Views ↕", "Leads", ""].map(h => (
-                        <th key={h} style={{ textAlign: h === "" ? "right" : "left", padding: "8px 14px", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.40)", letterSpacing: 0.8, whiteSpace: "nowrap" }}>{h}</th>
+                        <th key={h} style={{ textAlign: h === "" ? "right" : "left", padding: "8px 14px", fontSize: 10, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8, whiteSpace: "nowrap" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -655,7 +655,7 @@ export default function SCOPSBlog() {
                     {posts.map((post, i) => (
                       <tr
                         key={post.id}
-                        style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.01)" }}
+                        style={{ borderBottom: "1px solid #e2e6ed", background: i % 2 === 0 ? "transparent" : "#f9fafb" }}
                       >
                         {/* Title */}
                         <td style={{ padding: "10px 14px" }}>
@@ -663,12 +663,12 @@ export default function SCOPSBlog() {
                             {post.imageUrl ? (
                               <img src={post.imageUrl} alt={post.title} style={{ width: 48, height: 36, objectFit: "cover", borderRadius: 6, flexShrink: 0 }} />
                             ) : (
-                              <div style={{ width: 48, height: 36, borderRadius: 6, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <div style={{ width: 48, height: 36, borderRadius: 6, background: "#f8f9fb", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M4 6h16M4 10h16M4 14h8"/></svg>
                               </div>
                             )}
                             <div style={{ minWidth: 0 }}>
-                              <div style={{ fontWeight: 600, color: "rgba(255,255,255,0.90)", fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 220 }}>{post.title}</div>
+                              <div style={{ fontWeight: 600, color: "#111827", fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 220 }}>{post.title}</div>
                               {post.featured === 1 && <span style={{ fontSize: 9, fontWeight: 700, color: "#2563eb", background: "rgba(37,99,235,0.10)", padding: "2px 6px", borderRadius: 4, marginTop: 2, display: "inline-block" }}>FEATURED</span>}
                             </div>
                           </div>
@@ -680,14 +680,14 @@ export default function SCOPSBlog() {
                           </span>
                         </td>
                         {/* Views (mock) */}
-                        <td style={{ padding: "10px 14px", color: "rgba(255,255,255,0.50)", fontSize: 12 }}>{(post.sortOrder ?? 0) * 120 + 320}</td>
+                        <td style={{ padding: "10px 14px", color: "#6b7280", fontSize: 12 }}>{(post.sortOrder ?? 0) * 120 + 320}</td>
                         {/* Leads (mock) */}
-                        <td style={{ padding: "10px 14px", color: "rgba(255,255,255,0.50)", fontSize: 12 }}>{Math.floor(((post.sortOrder ?? 0) * 3) + 4)}</td>
+                        <td style={{ padding: "10px 14px", color: "#6b7280", fontSize: 12 }}>{Math.floor(((post.sortOrder ?? 0) * 3) + 4)}</td>
                         {/* Actions */}
                         <td style={{ padding: "10px 14px", textAlign: "right" }}>
                           <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                            <button onClick={() => setPreviewPost({ title: post.title, author: (post as { author?: string }).author ?? "", category: post.category, body: post.body ?? "", imageUrl: post.imageUrl ?? "", excerpt: post.excerpt ?? "", readTime: post.readTime ?? "5 min" })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.70)" }}>Preview</button>
-                            <button onClick={() => setEditPost({ id: post.id, form: { title: post.title, slug: (post as { slug?: string }).slug ?? toSlug(post.title), author: (post as { author?: string }).author ?? "", category: (post.category as Category) ?? "Tips", excerpt: post.excerpt ?? "", body: post.body ?? "", readTime: post.readTime ?? "5 min", imageUrl: post.imageUrl ?? "", featured: post.featured === 1, sortOrder: String(post.sortOrder ?? 0), scheduledPublishAt: (post as { scheduledPublishAt?: Date }).scheduledPublishAt ? new Date((post as { scheduledPublishAt?: Date }).scheduledPublishAt!).toISOString().slice(0, 16) : "", seoKeyword: "" } })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.70)" }}>Edit</button>
+                            <button onClick={() => setPreviewPost({ title: post.title, author: (post as { author?: string }).author ?? "", category: post.category, body: post.body ?? "", imageUrl: post.imageUrl ?? "", excerpt: post.excerpt ?? "", readTime: post.readTime ?? "5 min" })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "#f8f9fb", border: "none", cursor: "pointer", color: "#374151" }}>Preview</button>
+                            <button onClick={() => setEditPost({ id: post.id, form: { title: post.title, slug: (post as { slug?: string }).slug ?? toSlug(post.title), author: (post as { author?: string }).author ?? "", category: (post.category as Category) ?? "Tips", excerpt: post.excerpt ?? "", body: post.body ?? "", readTime: post.readTime ?? "5 min", imageUrl: post.imageUrl ?? "", featured: post.featured === 1, sortOrder: String(post.sortOrder ?? 0), scheduledPublishAt: (post as { scheduledPublishAt?: Date }).scheduledPublishAt ? new Date((post as { scheduledPublishAt?: Date }).scheduledPublishAt!).toISOString().slice(0, 16) : "", seoKeyword: "" } })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "#f8f9fb", border: "none", cursor: "pointer", color: "#374151" }}>Edit</button>
                             <button onClick={() => setStatusMutation.mutate({ id: post.id, status: post.status === "published" ? "draft" : "published" })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: post.status === "published" ? "rgba(245,158,11,0.12)" : "rgba(34,197,94,0.12)", border: "none", cursor: "pointer", color: post.status === "published" ? "#d97706" : "#16a34a" }}>{post.status === "published" ? "Unpublish" : "Publish"}</button>
                             <button onClick={() => setDeleteTarget({ id: post.id, title: post.title })} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(239,68,68,0.10)", border: "none", cursor: "pointer", color: "#dc2626" }}>Delete</button>
                           </div>
@@ -701,36 +701,36 @@ export default function SCOPSBlog() {
           </div>
 
           {/* Landing Pages Table */}
-          <div style={{ background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16, boxShadow: "0 4px 24px rgba(255,255,255,0.05)", overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>Landing Pages</span>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", fontWeight: 600 }}>Past 60 Days</span>
+          <div style={{ background: "#f8f9fb", border: "1px solid #e2e6ed", borderRadius: 16, boxShadow: "0 2px 12px rgba(15,23,42,0.06)", overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid #e2e6ed" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>Landing Pages</span>
+              <span style={{ fontSize: 10, color: "#9ca3af", fontWeight: 600 }}>Past 60 Days</span>
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.05)" }}>
+                <tr style={{ borderBottom: "1px solid #e2e6ed", background: "#f8f9fb" }}>
                   {["TITLE", "VISITORS", "LEADS", "CONV. RATE"].map(h => (
-                    <th key={h} style={{ textAlign: h === "TITLE" ? "left" : "right", padding: "7px 14px", fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.40)", letterSpacing: 0.8 }}>{h}</th>
+                    <th key={h} style={{ textAlign: h === "TITLE" ? "left" : "right", padding: "7px 14px", fontSize: 9, fontWeight: 700, color: "#9ca3af", letterSpacing: 0.8 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {LANDING_PAGE_ROWS.map((row, i) => (
-                  <tr key={row.name} style={{ borderBottom: i < LANDING_PAGE_ROWS.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                  <tr key={row.name} style={{ borderBottom: i < LANDING_PAGE_ROWS.length - 1 ? "1px solid #e2e6ed" : "none" }}>
                     <td style={{ padding: "9px 14px", display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: 14 }}>{row.icon}</span>
-                      <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.90)" }}>{row.name}</span>
+                      <span style={{ fontWeight: 600, color: "#111827" }}>{row.name}</span>
                     </td>
-                    <td style={{ padding: "9px 14px", textAlign: "right", color: "rgba(255,255,255,0.70)" }}>{row.visitors}</td>
-                    <td style={{ padding: "9px 14px", textAlign: "right", color: "rgba(255,255,255,0.70)" }}>{row.leads}</td>
-                    <td style={{ padding: "9px 14px", textAlign: "right", color: "rgba(255,255,255,0.70)" }}>{row.convRate}</td>
+                    <td style={{ padding: "9px 14px", textAlign: "right", color: "#374151" }}>{row.visitors}</td>
+                    <td style={{ padding: "9px 14px", textAlign: "right", color: "#374151" }}>{row.leads}</td>
+                    <td style={{ padding: "9px 14px", textAlign: "right", color: "#374151" }}>{row.convRate}</td>
                   </tr>
                 ))}
-                <tr style={{ borderTop: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.05)" }}>
-                  <td style={{ padding: "9px 14px", fontWeight: 700, color: "rgba(255,255,255,0.90)", fontSize: 11 }}>TOTAL</td>
-                  <td style={{ padding: "9px 14px", textAlign: "right", fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>1,835</td>
-                  <td style={{ padding: "9px 14px", textAlign: "right", fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>82</td>
-                  <td style={{ padding: "9px 14px", textAlign: "right", fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>$6.67M</td>
+                <tr style={{ borderTop: "1px solid #e2e6ed", background: "#f8f9fb" }}>
+                  <td style={{ padding: "9px 14px", fontWeight: 700, color: "#111827", fontSize: 11 }}>TOTAL</td>
+                  <td style={{ padding: "9px 14px", textAlign: "right", fontWeight: 700, color: "#111827" }}>1,835</td>
+                  <td style={{ padding: "9px 14px", textAlign: "right", fontWeight: 700, color: "#111827" }}>82</td>
+                  <td style={{ padding: "9px 14px", textAlign: "right", fontWeight: 700, color: "#111827" }}>$6.67M</td>
                 </tr>
               </tbody>
             </table>
@@ -739,20 +739,20 @@ export default function SCOPSBlog() {
 
         {/* RIGHT: Landing Page Cards */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16, boxShadow: "0 4px 24px rgba(255,255,255,0.05)", overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>Landing Pages</span>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", fontWeight: 600 }}>Past 60 Days</span>
+          <div style={{ background: "#f8f9fb", border: "1px solid #e2e6ed", borderRadius: 16, boxShadow: "0 2px 12px rgba(15,23,42,0.06)", overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid #e2e6ed" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>Landing Pages</span>
+              <span style={{ fontSize: 10, color: "#9ca3af", fontWeight: 600 }}>Past 60 Days</span>
             </div>
             <div style={{ padding: "8px 0" }}>
               {LANDING_PAGE_CARDS.map((card, i) => (
-                <div key={card.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", borderBottom: i < LANDING_PAGE_CARDS.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                <div key={card.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", borderBottom: i < LANDING_PAGE_CARDS.length - 1 ? "1px solid #e2e6ed" : "none" }}>
                   <span style={{ fontSize: 18 }}>{card.icon}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 12, color: "rgba(255,255,255,0.90)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{card.name}</div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", marginTop: 1 }}>{card.sub}</div>
+                    <div style={{ fontWeight: 600, fontSize: 12, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{card.name}</div>
+                    <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 1 }}>{card.sub}</div>
                   </div>
-                  <button style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.70)" }}>Edit</button>
+                  <button style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "#f8f9fb", border: "none", cursor: "pointer", color: "#374151" }}>Edit</button>
                 </div>
               ))}
             </div>

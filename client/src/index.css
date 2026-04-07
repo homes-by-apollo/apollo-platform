@@ -176,215 +176,186 @@
   }
 }
 /* ============================================================
-   SCOPS — Liquid Glass Design System (v2)
-   Full token system: glass, status, pipeline stage tokens.
+   SCOPS — Clean White SaaS Design System (v3)
+   Replaces dark liquid-glass with a high-contrast, white-based
+   professional CRM / analytics interface.
    ============================================================ */
 
-/* ── Liquid Glass Tokens ── */
+/* ── SCOPS Design Tokens ── */
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-bg-strong: rgba(255, 255, 255, 0.14);
-  --glass-bg-soft: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.22);
-  --glass-border-soft: rgba(255, 255, 255, 0.12);
-  --glass-highlight: rgba(255, 255, 255, 0.35);
-  --glass-shadow-sm: 0 4px 20px rgba(15, 23, 42, 0.08);
-  --glass-shadow-md: 0 10px 30px rgba(15, 23, 42, 0.12);
-  --glass-shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.18);
-  --glass-blur: 20px;
-  --glass-saturate: 140%;
+  /* Surfaces */
+  --scops-bg-page:    #f8f9fb;
+  --scops-bg-card:    #ffffff;
+  --scops-bg-subtle:  #f1f3f7;
+  --scops-border:     #e2e6ed;
+  --scops-border-soft:#edf0f4;
 
-  /* Status tokens */
-  --status-hot: oklch(0.68 0.18 28);
-  --status-hot-bg: oklch(0.94 0.05 28 / 0.65);
-  --status-warm: oklch(0.8 0.14 82);
-  --status-warm-bg: oklch(0.96 0.04 82 / 0.7);
-  --status-cold: oklch(0.68 0.08 245);
-  --status-cold-bg: oklch(0.94 0.03 245 / 0.7);
-  --status-success: oklch(0.72 0.16 155);
-  --status-success-bg: oklch(0.95 0.04 155 / 0.7);
-  --status-warning: oklch(0.82 0.15 85);
-  --status-warning-bg: oklch(0.97 0.05 85 / 0.72);
-  --status-risk: oklch(0.63 0.22 25);
-  --status-risk-bg: oklch(0.95 0.05 25 / 0.7);
-  --status-info: oklch(0.67 0.13 255);
-  --status-info-bg: oklch(0.94 0.03 255 / 0.7);
+  /* Shadows */
+  --scops-shadow-sm:  0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --scops-shadow-md:  0 4px 12px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
+  --scops-shadow-lg:  0 8px 24px rgba(15,23,42,0.10), 0 4px 8px rgba(15,23,42,0.06);
+
+  /* Typography */
+  --scops-text-primary:   #111827;
+  --scops-text-secondary: #374151;
+  --scops-text-muted:     #6b7280;
+  --scops-text-faint:     #9ca3af;
+  --scops-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Brand accent */
+  --scops-accent:         #2563eb;
+  --scops-accent-hover:   #1d4ed8;
+  --scops-accent-light:   #eff6ff;
+
+  /* Status tokens — flat, clean */
+  --status-hot:        #dc2626;
+  --status-hot-bg:     #fef2f2;
+  --status-warm:       #d97706;
+  --status-warm-bg:    #fffbeb;
+  --status-cold:       #2563eb;
+  --status-cold-bg:    #eff6ff;
+  --status-success:    #16a34a;
+  --status-success-bg: #f0fdf4;
+  --status-warning:    #ca8a04;
+  --status-warning-bg: #fefce8;
+  --status-risk:       #dc2626;
+  --status-risk-bg:    #fef2f2;
+  --status-info:       #0891b2;
+  --status-info-bg:    #ecfeff;
 
   /* Pipeline stage accent colors */
-  --stage-new-inquiry: oklch(0.68 0.12 255);
-  --stage-qualified: oklch(0.66 0.11 230);
-  --stage-tour-scheduled: oklch(0.7 0.13 200);
-  --stage-toured: oklch(0.72 0.14 180);
-  --stage-offer-submitted: oklch(0.8 0.14 75);
-  --stage-under-contract: oklch(0.72 0.15 145);
-  --stage-closed: oklch(0.68 0.17 160);
-  --stage-lost: oklch(0.64 0.2 25);
+  --stage-new-inquiry:      #3b82f6;
+  --stage-qualified:        #06b6d4;
+  --stage-tour-scheduled:   #8b5cf6;
+  --stage-toured:           #10b981;
+  --stage-offer-submitted:  #f59e0b;
+  --stage-under-contract:   #22c55e;
+  --stage-closed:           #16a34a;
+  --stage-lost:             #ef4444;
 }
 
-/* Dark Liquid Glass tokens for SCOPS */
-.scops-bg,
-[data-scops] {
-  --glass-bg: rgba(255, 255, 255, 0.10);
-  --glass-bg-strong: rgba(255, 255, 255, 0.16);
-  --glass-bg-soft: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.20);
-  --glass-border-soft: rgba(255, 255, 255, 0.10);
-  --glass-highlight: rgba(255, 255, 255, 0.30);
-  --glass-shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.30), 0 1px 3px rgba(0, 0, 0, 0.20);
-  --glass-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.25);
-  --glass-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.50), 0 4px 16px rgba(0, 0, 0, 0.30);
-  --glass-blur: 28px;
-  --glass-saturate: 180%;
-  /* Text colors for dark glass */
-  --glass-text: rgba(255, 255, 255, 0.92);
-  --glass-text-muted: rgba(255, 255, 255, 0.55);
-  --glass-text-faint: rgba(255, 255, 255, 0.35);
+/* ── SCOPS page background ── */
+.scops-bg {
+  background: var(--scops-bg-page);
+  min-height: 100vh;
 }
 
-/* ── Glass surface primitives ── */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  border: 1px solid var(--glass-border);
+/* ── Card primitives (replace glass-card / glass-panel / glass-surface) ── */
+.glass,
+.glass-surface,
+.glass-card,
+.glass-panel,
+.glass-soft {
+  background: var(--scops-bg-card);
+  border: 1px solid var(--scops-border);
+  box-shadow: var(--scops-shadow-sm);
+  border-radius: 0.75rem;
+  /* remove all blur/glass effects */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
-
-.glass-surface {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow-md);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  border-radius: var(--radius-xl, 1.25rem);
-}
-
-.glass-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow-sm);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+.glass-panel {
+  padding: 1.5rem;
   border-radius: 1rem;
+  box-shadow: var(--scops-shadow-md);
+}
+.glass-card {
   padding: 1rem;
 }
 
-.glass-panel {
-  background: var(--glass-bg-strong);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow-md);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  border-radius: 1.5rem;
-  padding: 1.5rem;
-}
-
-.glass-soft {
-  background: var(--glass-bg-soft);
-  border: 1px solid var(--glass-border-soft);
-  backdrop-filter: blur(calc(var(--glass-blur) * 0.8)) saturate(var(--glass-saturate));
-  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.8)) saturate(var(--glass-saturate));
-  border-radius: 0.875rem;
-}
-
 .glass-hover {
-  transition:
-    background-color 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
+  transition: box-shadow 150ms ease, background-color 150ms ease;
 }
 .glass-hover:hover {
-  background: var(--glass-bg-strong);
-  box-shadow: var(--glass-shadow-md);
-  transform: translateY(-1px);
+  box-shadow: var(--scops-shadow-md);
+  background: var(--scops-bg-card);
 }
 
 .glass-selected {
-  background: rgba(99, 179, 237, 0.15);
-  border-color: rgba(99, 179, 237, 0.40);
-  box-shadow: 0 0 0 1px rgba(99, 179, 237, 0.30), var(--glass-shadow-sm);
-}
-
-/* ── SCOPS background — Dark Liquid Glass ── */
-.scops-bg {
-  background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/dark-liquid-glass-scops-bg-v2_298e7b85.webp');
-  background-size: cover;
-  background-position: center top;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  min-height: 100vh;
+  background: var(--scops-accent-light);
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
 }
 
 /* ── Nav ── */
 .glass-nav {
-  background: rgba(255, 255, 255, 0.60);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.75);
+  background: #ffffff;
+  border-bottom: 1px solid var(--scops-border);
+  box-shadow: var(--scops-shadow-sm);
 }
 
 /* ── Table rows ── */
 .glass-row:hover {
-  background: var(--glass-bg);
+  background: var(--scops-bg-subtle);
 }
 
 /* ── Typography helpers ── */
 .glass-muted {
-  color: rgba(15, 32, 68, 0.50);
+  color: var(--scops-text-muted);
 }
 
 /* ── Form elements ── */
-.glass-input {
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.70);
+.glass-input,
+.crm-input {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
   border-radius: 0.5rem;
-  color: rgba(15, 32, 68, 0.90);
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: var(--scops-font);
+  color: var(--scops-text-primary);
   outline: none;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.glass-input:focus {
-  border-color: rgba(99, 150, 220, 0.60);
-  box-shadow: 0 0 0 2px rgba(99, 150, 220, 0.15);
-}
-.glass-input::placeholder {
-  color: rgba(15, 32, 68, 0.35);
+.glass-input::placeholder,
+.crm-input::placeholder { color: var(--scops-text-faint); }
+.glass-input:focus,
+.crm-input:focus {
+  border-color: var(--scops-accent);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
 }
 
 /* ── Buttons ── */
-.glass-btn {
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.70);
+.glass-btn,
+.crm-btn {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  color: rgba(15, 32, 68, 0.85);
+  color: var(--scops-text-secondary);
+  font-family: var(--scops-font);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
   cursor: pointer;
   transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
-.glass-btn:hover {
-  background: rgba(255, 255, 255, 0.80);
-  border-color: rgba(255, 255, 255, 0.90);
-  box-shadow: 0 4px 16px rgba(100, 130, 200, 0.15);
+.glass-btn:hover,
+.crm-btn:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  box-shadow: var(--scops-shadow-sm);
 }
 
 /* ── Badges ── */
 .glass-badge {
-  background: rgba(255, 255, 255, 0.60);
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
   border-radius: 9999px;
   font-size: 0.65rem;
   font-weight: 700;
   padding: 2px 8px;
-  color: rgba(15, 32, 68, 0.75);
+  color: var(--scops-text-secondary);
   letter-spacing: 0.04em;
 }
 
 /* ── Status badge variants ── */
-.status-hot   { background: var(--status-hot-bg);     color: var(--status-hot);     border: 1px solid var(--status-hot); }
-.status-warm  { background: var(--status-warm-bg);    color: var(--status-warm);    border: 1px solid var(--status-warm); }
-.status-cold  { background: var(--status-cold-bg);    color: var(--status-cold);    border: 1px solid var(--status-cold); }
-.status-risk  { background: var(--status-risk-bg);    color: var(--status-risk);    border: 1px solid var(--status-risk); }
-.status-ok    { background: var(--status-success-bg); color: var(--status-success); border: 1px solid var(--status-success); }
-.status-warn  { background: var(--status-warning-bg); color: var(--status-warning); border: 1px solid var(--status-warning); }
-.status-info  { background: var(--status-info-bg);    color: var(--status-info);    border: 1px solid var(--status-info); }
+.status-hot   { background: var(--status-hot-bg);        color: var(--status-hot);        border: 1px solid #fecaca; }
+.status-warm  { background: var(--status-warm-bg);       color: var(--status-warm);       border: 1px solid #fde68a; }
+.status-cold  { background: var(--status-cold-bg);       color: var(--status-cold);       border: 1px solid #bfdbfe; }
+.status-risk  { background: var(--status-risk-bg);       color: var(--status-risk);       border: 1px solid #fecaca; }
+.status-ok    { background: var(--status-success-bg);    color: var(--status-success);    border: 1px solid #bbf7d0; }
+.status-warn  { background: var(--status-warning-bg);    color: var(--status-warning);    border: 1px solid #fde68a; }
+.status-info  { background: var(--status-info-bg);       color: var(--status-info);       border: 1px solid #a5f3fc; }
 
 /* ── Pipeline stage dots ── */
 .stage-dot-NEW_INQUIRY      { background: var(--stage-new-inquiry); }
@@ -400,71 +371,63 @@
 .pipeline-card-dragging {
   opacity: 0.5;
   transform: scale(0.97);
-  box-shadow: var(--glass-shadow-lg);
+  box-shadow: var(--scops-shadow-lg);
 }
 .pipeline-drop-zone-active {
-  background: rgba(99, 150, 220, 0.10);
-  border: 2px dashed rgba(99, 150, 220, 0.45);
-}
-
-/* ── Glass selected state (light) ── */
-.glass-selected {
-  background: rgba(99, 150, 220, 0.18);
-  border-color: rgba(99, 150, 220, 0.50);
-  box-shadow: 0 0 0 1px rgba(99, 150, 220, 0.30), var(--glass-shadow-sm);
+  background: var(--scops-accent-light);
+  border: 2px dashed #93c5fd;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   CRM PRO TYPOGRAPHY SYSTEM — SCOPS
-   Spec: pasted_content_3.txt / pasted_content_4.txt
+   SCOPS TYPOGRAPHY SYSTEM
 ═══════════════════════════════════════════════════════════ */
 
 /* Global type tokens */
 .scops-bg,
 [data-scops] {
-  --crm-text-primary: rgba(255, 255, 255, 1.0);
-  --crm-text-secondary: rgba(255, 255, 255, 0.70);
-  --crm-text-muted: rgba(255, 255, 255, 0.50);
+  --crm-text-primary:   #111827;
+  --crm-text-secondary: #374151;
+  --crm-text-muted:     #6b7280;
   --crm-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Page title — 30px / semibold / -0.02em */
+/* Page title — 28px / semibold */
 .crm-page-title {
   font-family: var(--crm-font);
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: var(--crm-text-primary);
-  line-height: 1.15;
-}
-
-/* Section header — 16px / semibold / 0.9 opacity */
-.crm-section-header {
-  font-family: var(--crm-font);
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.90);
-  line-height: 1.3;
-}
-
-/* Card label — 12px / medium / uppercase / 0.6 opacity */
-.crm-card-label {
-  font-family: var(--crm-font);
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.60);
+  color: #111827;
   line-height: 1.2;
 }
 
-/* Primary metric — 28px / bold / -0.01em */
+/* Section header — 15px / semibold */
+.crm-section-header {
+  font-family: var(--crm-font);
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
+}
+
+/* Card label — 11px / medium / uppercase */
+.crm-card-label {
+  font-family: var(--crm-font);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+/* Primary metric — 26px / bold */
 .crm-metric-primary {
   font-family: var(--crm-font);
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--crm-text-primary);
+  color: #111827;
   line-height: 1.1;
   margin-top: 4px;
 }
@@ -474,11 +437,11 @@
   font-family: var(--crm-font);
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.70);
+  color: #6b7280;
   margin-top: 4px;
 }
-.crm-metric-positive { color: #34d399; }
-.crm-metric-negative { color: #f87171; }
+.crm-metric-positive { color: #16a34a; }
+.crm-metric-negative { color: #dc2626; }
 
 /* Table header — 11px / semibold / uppercase */
 .crm-table-header {
@@ -487,7 +450,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.50);
+  color: #6b7280;
 }
 
 /* Table body — 14px / medium */
@@ -495,51 +458,15 @@
   font-family: var(--crm-font);
   font-size: 14px;
   font-weight: 500;
-  color: var(--crm-text-primary);
+  color: #111827;
 }
 .crm-table-secondary {
   font-family: var(--crm-font);
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.60);
+  color: #6b7280;
 }
 
-/* Input — dark glass style */
-.crm-input {
-  background: rgba(255, 255, 255, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 0.5rem;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-family: var(--crm-font);
-  color: var(--crm-text-primary);
-  outline: none;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
-}
-.crm-input::placeholder { color: rgba(255, 255, 255, 0.50); }
-.crm-input:focus {
-  border-color: rgba(255, 255, 255, 0.30);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.10);
-}
-
-/* Button — CRM Pro primary */
-.crm-btn {
-  background: rgba(255, 255, 255, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 0.5rem;
-  color: var(--crm-text-primary);
-  font-family: var(--crm-font);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
-}
-.crm-btn:hover {
-  background: rgba(255, 255, 255, 0.20);
-  border-color: rgba(255, 255, 255, 0.20);
-}
-
-/* Hierarchy stack helper — use inside .glass-card */
+/* Hierarchy stack helper */
 .crm-metric-stack {
   display: flex;
   flex-direction: column;

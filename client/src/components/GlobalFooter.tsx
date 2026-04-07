@@ -125,7 +125,7 @@ export function GlobalFooter() {
             {([
               ["Company",  [["Home","/"],["About Us","/"],["Contact","/get-in-touch"]]],
               ["Properties",[["Homes","/find-your-home"],["Lots","/find-your-home"]]],
-              ["Resources", [["Blog","/blog"],["FAQ","/"]]],
+              ["Resources", [["Blog","/blog"],["FAQ","/"],["Instagram","https://www.instagram.com/homesby.apollo/"]]],
             ] as [string, [string, string][]][]).map(([heading, links])=>(
               <div key={heading}>
                 <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>
@@ -148,18 +148,6 @@ export function GlobalFooter() {
         <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
           <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
           <div style={{ display:"flex", gap:20, alignItems:"center" }}>
-            {/* Instagram icon */}
-            <a href="https://www.instagram.com/homesby.apollo/" target="_blank" rel="noopener noreferrer"
-              aria-label="Follow us on Instagram"
-              style={{ display:"flex", alignItems:"center", justifyContent:"center", width:32, height:32, borderRadius:8, background:"rgba(255,255,255,0.08)", transition:"background 0.15s", flexShrink:0 }}
-              onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.18)"}}
-              onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,0.08)"}}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                <circle cx="12" cy="12" r="4"/>
-                <circle cx="17.5" cy="6.5" r="0.5" fill="rgba(255,255,255,0.55)" stroke="none"/>
-              </svg>
-            </a>
             <a href="/admin-login" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px", letterSpacing:"0.01em", transition:"background 0.15s, color 0.15s" }}
               onMouseEnter={e=>{ e.currentTarget.style.background="#e07b39"; e.currentTarget.style.color="white"; }}
               onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#e07b39"; }}>

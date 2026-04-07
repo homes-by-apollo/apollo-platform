@@ -6,10 +6,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 const CARD_STYLE: React.CSSProperties = {
-  background: "rgba(255,255,255,0.72)",
-  backdropFilter: "blur(20px) saturate(160%)",
-  WebkitBackdropFilter: "blur(20px) saturate(160%)",
-  border: "1px solid rgba(255,255,255,0.85)",
+  background: "#ffffff",
+  border: "1px solid #e2e6ed",
   boxShadow: "0 4px 24px rgba(100,130,200,0.10)",
   borderRadius: 16,
   padding: "24px",
@@ -89,7 +87,7 @@ export default function SCOPSSettings() {
         {/* Page header */}
         <div className="mb-8">
           <h1 className="crm-page-title">SCOPS Settings</h1>
-          <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.55)" }}>Configure operational parameters for the Apollo CRM.</p>
+          <p className="text-sm mt-1" style={{ color: "#6b7280" }}>Configure operational parameters for the Apollo CRM.</p>
         </div>
 
         {/* ── Stale Lead Threshold Card ── */}
@@ -142,7 +140,7 @@ export default function SCOPSSettings() {
                 onChange={(e) => setInputHours(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
                 className="pr-14 text-sm"
-                style={{ background: "rgba(255,255,255,0.85)" }}
+                style={{ background: "#ffffff" }}
               />
               <span
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium pointer-events-none"
@@ -324,7 +322,7 @@ export default function SCOPSSettings() {
           style={{
             ...CARD_STYLE,
             opacity: 0.5,
-            background: "rgba(255,255,255,0.45)",
+            background: "#ffffff",
           }}
         >
           <h2 className="text-base font-semibold text-[#0f2044] mb-1">More Settings</h2>

@@ -133,10 +133,8 @@ export default function SCOPSUsers() {
   const selectedAdmin = admins?.find(a => a.email === selectedUser);
 
   const glassCard: React.CSSProperties = {
-    background: "rgba(255,255,255,0.65)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    border: "1px solid rgba(255,255,255,0.80)",
+    background: "#ffffff",
+    border: "1px solid #e2e6ed",
     borderRadius: 16,
     boxShadow: "0 4px 20px rgba(100,130,200,0.10)",
   };
@@ -188,7 +186,7 @@ export default function SCOPSUsers() {
           {adminsLoading ? (
             <div className="space-y-3">
               {[1,2,3].map(i => (
-                <div key={i} className="h-16 rounded-2xl animate-pulse" style={{ background: "rgba(255,255,255,0.40)" }} />
+                <div key={i} className="h-16 rounded-2xl animate-pulse" style={{ background: "#ffffff" }} />
               ))}
             </div>
           ) : (
@@ -305,7 +303,7 @@ export default function SCOPSUsers() {
                   <button
                     onClick={() => { setPwForm({ email: selectedAdmin.email, newPassword: "" }); setPwOpen(true); }}
                     className="px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-                    style={{ background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.85)", color: "rgba(15,32,68,0.70)" }}
+                    style={{ background: "#ffffff", border: "1px solid #e2e6ed", color: "rgba(15,32,68,0.70)" }}
                   >
                     Change Password
                   </button>

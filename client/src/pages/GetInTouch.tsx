@@ -1,7 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { GlobalFooter } from "@/components/GlobalFooter";
 import { useLocation } from "wouter";
+
+// ── UTM helper — reads params from URL and persists to sessionStorage ───────
+function useUtmParams() {
+  return useMemo(() => {
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const params = new URLSearchParams(search);
+    const fromUrl = {
+      utmSource: params.get("utm_source") ?? undefined,
+      utmMedium: params.get("utm_medium") ?? undefined,
+      utmCampaign: params.get("utm_campaign") ?? undefined,
+      utmContent: params.get("utm_content") ?? undefined,
+      utmTerm: params.get("utm_term") ?? undefined,
+    };
+    if (fromUrl.utmSource && typeof window !== "undefined") {
+      sessionStorage.setItem("apollo_utm", JSON.stringify(fromUrl));
+    }
+    if (!fromUrl.utmSource && typeof window !== "undefined") {
+      try {
+        const stored = sessionStorage.getItem("apollo_utm");
+        if (stored) return JSON.parse(stored) as typeof fromUrl;
+      } catch {}
+    }
+    return fromUrl;
+  }, []);
+}
 
 const LOGO_OWL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png";
 const NAVY = "#0f2044";
@@ -33,6 +58,7 @@ function CheckIcon() {
 
 export default function GetInTouch() {
   const [, setLocation] = useLocation();
+  const utmParams = useUtmParams();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [step1, setStep1] = useState<Step1>({ name: "", contact: "" });
   const [step2, setStep2] = useState<Step2>({ timeline: "", priceRange: "", financing: "", message: "" });
@@ -112,6 +138,7 @@ export default function GetInTouch() {
       financing: step2.financing || undefined,
       message: messageBody || undefined,
       source: "website_get_in_touch",
+      ...utmParams,
       landingPage: "/get-in-touch",
     });
   }
