@@ -7,7 +7,7 @@ import { z } from "zod";
 import { getDb } from "../db";
 import { adminCredentials, passwordResetTokens } from "../../drizzle/schema";
 import { ENV } from "../_core/env";
-import { publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, router, superAdminProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -208,15 +208,11 @@ export const adminAuthRouter = router({
       return { success: true };
     }),
 
-  /** Delete an admin user — requires valid admin session, cannot delete yourself */
-  deleteAdmin: publicProcedure
+  /** Delete an admin user — requires super_admin role, cannot delete yourself */
+  deleteAdmin: superAdminProcedure
     .input(z.object({ email: z.string().email() }))
     .mutation(async ({ input, ctx }) => {
-      const token = ctx.req.cookies?.[ADMIN_COOKIE];
-      if (!token) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
-      const payload = await verifyAdminToken(token);
-      if (!payload) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid session" });
-      if (payload.email.toLowerCase() === input.email.toLowerCase()) {
+      if (ctx.user?.email?.toLowerCase() === input.email.toLowerCase()) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "You cannot delete your own account." });
       }
       const db = await getDb();
@@ -269,17 +265,13 @@ export const adminAuthRouter = router({
       return { success: true };
     }),
 
-  /** Update an admin user's role */
-  updateRole: publicProcedure
+  /** Update an admin user's role — requires super_admin */
+  updateRole: superAdminProcedure
     .input(z.object({
       email: z.string().email(),
       role: z.enum(["super_admin", "admin", "marketing", "sales"]),
     }))
-    .mutation(async ({ input, ctx }) => {
-      const token = ctx.req.cookies?.[ADMIN_COOKIE];
-      if (!token) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
-      const payload = await verifyAdminToken(token);
-      if (!payload) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid session" });
+    .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable." });
       await db

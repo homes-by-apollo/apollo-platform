@@ -1,0 +1,1 @@
+ALTER TABLE `adminCredentials` ADD `receiveStaleAlerts` boolean DEFAULT true NOT NULL;

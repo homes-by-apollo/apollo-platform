@@ -823,3 +823,8 @@
 - [x] SCOPS nav: bump user chip first-name font from 13px to 15px
 - [x] SCOPS nav: add amber/gold 2px bottom border accent on active tab
 - [x] Promote Kyle to Super Admin role in adminCredentials
+
+## Apr 7 2026 — Super Admin Gating, Nav Polish, Per-Rep Notifications
+- [x] Gate destructive server procedures (blog.delete, properties.delete, adminAuth.deleteAdmin, adminAuth.updateRole) behind superAdminProcedure
+- [x] SCOPS nav: move active indicator to thin underline below pill (absolute positioned, 80% width, amber glow)
+- [x] Per-rep notification preferences: add receiveStaleAlerts column to adminCredentials, getMyAlertPref/setMyAlertPref procedures, toggle card in SCOPS Settings

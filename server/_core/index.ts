@@ -191,9 +191,9 @@ function scheduleLeadReengagement() {
 
       if (overdueLeads.length === 0) return;
 
-      // Get fallback admin emails for unassigned leads
+      // Get fallback admin emails for unassigned leads (only those who opted in)
       const allAdmins = await db
-        .select({ email: adminCredentials.email, name: adminCredentials.name })
+        .select({ email: adminCredentials.email, name: adminCredentials.name, receiveStaleAlerts: adminCredentials.receiveStaleAlerts })
         .from(adminCredentials);
 
       // Check if email alerts are enabled before sending
@@ -215,9 +215,14 @@ function scheduleLeadReengagement() {
         flagged++;
 
         const leadName = `${lead.firstName} ${lead.lastName}`.trim();
+        // Per-rep opt-in: only include reps who have receiveStaleAlerts = true
+        const assignedRepRow = lead.repEmail
+          ? allAdmins.find(a => a.email === lead.repEmail)
+          : null;
+        const assignedRepOptedIn = assignedRepRow ? assignedRepRow.receiveStaleAlerts !== false : true;
         const recipients: { email: string; name: string }[] = lead.repEmail
-          ? [{ email: lead.repEmail, name: lead.repName ?? "Rep" }]
-          : allAdmins;
+          ? (assignedRepOptedIn ? [{ email: lead.repEmail, name: lead.repName ?? "Rep" }] : [])
+          : allAdmins.filter(a => a.receiveStaleAlerts !== false);
 
         if (!alertEnabled) continue; // alerts disabled via SCOPS Settings
 

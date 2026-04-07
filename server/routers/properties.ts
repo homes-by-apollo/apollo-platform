@@ -7,7 +7,7 @@ import {
   getPropertyById,
   updateProperty,
 } from "../db";
-import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
+import { protectedProcedure, publicProcedure, router, superAdminProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 
 const propertyTypeEnum = z.enum(["HOME", "LOT"]);
@@ -81,8 +81,8 @@ export const propertiesRouter = router({
       return { success: true };
     }),
 
-  // Admin: delete
-  delete: adminOnly
+  // Admin: delete — super_admin only
+  delete: superAdminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       await deleteProperty(input.id);

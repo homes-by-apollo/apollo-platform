@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { adminProcedure, publicProcedure, router } from "../_core/trpc";
+import { adminProcedure, publicProcedure, router, superAdminProcedure } from "../_core/trpc";
 import {
   createBlogPost,
   deleteBlogPost,
@@ -144,7 +144,7 @@ export const blogRouter = router({
       return { success: true };
     }),
 
-  delete: adminProcedure
+  delete: superAdminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       await deleteBlogPost(input.id);

@@ -128,25 +128,36 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
                 if (section.path) setLocation(section.path);
               }}
               className="relative px-3.5 py-1.5 rounded-lg text-[17px] font-medium transition-all whitespace-nowrap"
-          style={{
-            color: isActive ? "rgba(255,255,255,0.95)" : section.soon ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.60)",
-            background: isActive
-              ? "rgba(255,255,255,0.15)"
-              : "transparent",
-            border: isActive
-              ? "1px solid rgba(255,255,255,0.30)"
-              : "1px solid transparent",
-            borderBottom: isActive
-              ? "2px solid #e8a020"
-              : "2px solid transparent",
-            backdropFilter: isActive ? "blur(12px)" : "none",
-            cursor: section.soon ? "default" : "pointer",
-            boxShadow: isActive ? "0 2px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20)" : "none",
-            fontWeight: isActive ? 600 : 500,
-          }}
+              style={{
+                color: isActive ? "rgba(255,255,255,0.95)" : section.soon ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.60)",
+                background: isActive ? "rgba(255,255,255,0.15)" : "transparent",
+                border: "1px solid transparent",
+                borderColor: isActive ? "rgba(255,255,255,0.25)" : "transparent",
+                backdropFilter: isActive ? "blur(12px)" : "none",
+                cursor: section.soon ? "default" : "pointer",
+                boxShadow: isActive ? "0 2px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20)" : "none",
+                fontWeight: isActive ? 600 : 500,
+                paddingBottom: "calc(0.375rem + 4px)",
+              }}
               title={section.soon ? "Coming soon" : undefined}
             >
               {section.label}
+              {/* Amber underline — absolute, below pill, full-width */}
+              {isActive && (
+                <span
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: "10%",
+                    width: "80%",
+                    height: 2,
+                    borderRadius: 2,
+                    background: "#e8a020",
+                    boxShadow: "0 0 6px rgba(232,160,32,0.60)",
+                  }}
+                />
+              )}
             </button>
           );
         })}

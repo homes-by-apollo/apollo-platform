@@ -19,6 +19,7 @@ export default function SCOPSSettings() {
   const { data: adminUser } = trpc.adminAuth.me.useQuery();
   const { data: thresholdData, isLoading } = trpc.settings.getStaleThreshold.useQuery();
   const { data: alertData, isLoading: alertLoading } = trpc.settings.getStaleAlertEnabled.useQuery();
+  const { data: myAlertPref, isLoading: myAlertLoading } = trpc.settings.getMyAlertPref.useQuery();
   const [inputHours, setInputHours] = useState<string>("");
   const [saved, setSaved] = useState(false);
 
@@ -46,8 +47,19 @@ export default function SCOPSSettings() {
     },
   });
 
+  const setMyAlertPref = trpc.settings.setMyAlertPref.useMutation({
+    onSuccess: (data) => {
+      utils.settings.getMyAlertPref.invalidate();
+      toast.success(data.receiveStaleAlerts ? "You will receive stale-lead alerts" : "You will no longer receive stale-lead alerts");
+    },
+    onError: (err) => {
+      toast.error(`Failed to update: ${err.message}`);
+    },
+  });
+
   const currentHours = thresholdData?.hours ?? 48;
   const alertEnabled = alertData?.enabled ?? true;
+  const myReceive = myAlertPref?.receiveStaleAlerts ?? true;
 
   function handleSave() {
     const h = parseInt(inputHours, 10);
@@ -203,6 +215,66 @@ export default function SCOPSSettings() {
               {alertLoading ? "Loading…" : alertEnabled ? "Alerts ON" : "Alerts OFF"}
             </span>
             {setAlertEnabled.isPending && (
+              <span className="text-xs text-gray-400">Saving…</span>
+            )}
+          </div>
+        </div>
+
+        {/* ── My Alert Preferences Card ── */}
+        <div style={CARD_STYLE}>
+          <div className="flex items-center justify-between">
+            <div className="flex-1 pr-6">
+              <h2 className="text-base font-semibold text-[#0f2044]">My Alert Preferences</h2>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Control whether <strong>you</strong> personally receive stale-lead email alerts. This setting is per-rep and independent of the system-wide toggle above.
+              </p>
+            </div>
+            {/* Per-rep toggle */}
+            <button
+              type="button"
+              disabled={myAlertLoading || setMyAlertPref.isPending}
+              onClick={() => setMyAlertPref.mutate({ receiveStaleAlerts: !myReceive })}
+              aria-checked={myReceive}
+              role="switch"
+              style={{
+                flexShrink: 0,
+                width: 52,
+                height: 28,
+                borderRadius: 14,
+                border: "none",
+                cursor: myAlertLoading || setMyAlertPref.isPending ? "not-allowed" : "pointer",
+                background: myReceive ? "#0f2044" : "#d1d5db",
+                position: "relative",
+                transition: "background 0.2s",
+                outline: "none",
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  top: 3,
+                  left: myReceive ? 27 : 3,
+                  width: 22,
+                  height: 22,
+                  borderRadius: "50%",
+                  background: "white",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+                  transition: "left 0.2s",
+                }}
+              />
+            </button>
+          </div>
+          <div className="flex items-center gap-2 mt-3">
+            <span
+              className="text-xs font-semibold px-2 py-0.5 rounded-full"
+              style={{
+                background: myReceive ? "rgba(15,32,68,0.08)" : "rgba(107,114,128,0.10)",
+                color: myReceive ? "#0f2044" : "#6b7280",
+              }}
+            >
+              {myAlertLoading ? "Loading…" : myReceive ? "Receiving alerts" : "Opted out"}
+            </span>
+            {setMyAlertPref.isPending && (
               <span className="text-xs text-gray-400">Saving…</span>
             )}
           </div>

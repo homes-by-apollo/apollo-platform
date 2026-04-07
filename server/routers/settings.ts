@@ -9,7 +9,7 @@ import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { systemSettings } from "../../drizzle/schema";
+import { systemSettings, adminCredentials } from "../../drizzle/schema";
 
 export const STALE_THRESHOLD_KEY = "staleLeadThresholdHours";
 export const STALE_ALERT_KEY = "staleAlertEnabled";
@@ -75,5 +75,34 @@ export const settingsRouter = router({
         .values({ key: STALE_ALERT_KEY, value: input.enabled ? "true" : "false" })
         .onDuplicateKeyUpdate({ set: { value: input.enabled ? "true" : "false" } });
       return { enabled: input.enabled };
+    }),
+
+  /** Get the current admin's per-rep alert preference. */
+  getMyAlertPref: protectedProcedure.query(async ({ ctx }) => {
+    const email = ctx.user?.email;
+    if (!email) return { receiveStaleAlerts: true };
+    const db = await getDb();
+    if (!db) return { receiveStaleAlerts: true };
+    const rows = await db
+      .select({ receiveStaleAlerts: adminCredentials.receiveStaleAlerts })
+      .from(adminCredentials)
+      .where(eq(adminCredentials.email, email.toLowerCase()))
+      .limit(1);
+    return { receiveStaleAlerts: rows[0]?.receiveStaleAlerts ?? true };
+  }),
+
+  /** Update the current admin's per-rep alert preference. */
+  setMyAlertPref: protectedProcedure
+    .input(z.object({ receiveStaleAlerts: z.boolean() }))
+    .mutation(async ({ input, ctx }) => {
+      const email = ctx.user?.email;
+      if (!email) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      await db
+        .update(adminCredentials)
+        .set({ receiveStaleAlerts: input.receiveStaleAlerts })
+        .where(eq(adminCredentials.email, email.toLowerCase()));
+      return { receiveStaleAlerts: input.receiveStaleAlerts };
     }),
 });
