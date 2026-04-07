@@ -150,10 +150,7 @@ function initials(first: string, last: string) {
 }
 
 // ─── Lead Card ────────────────────────────────────────────────────────────────
-function LeadCard({ lead, selected, onClick, onDragStart }: {
-  lead: Lead; selected: boolean; onClick: () => void;
-  onDragStart?: (e: DragEvent<HTMLDivElement>, lead: Lead) => void;
-}) {
+function LeadCard({ lead, selected, dimmed, onClick, onDragStart }: { lead: Lead; selected: boolean; dimmed?: boolean; onClick: () => void; onDragStart?: (e: DragEvent<HTMLDivElement>, lead: Lead) => void }) {
   const budget = fmtBudget(lead.priceRangeMin, lead.priceRangeMax);
   const financing = fmtFinancing(lead.financingStatus);
   const timeline = fmtTimeline(lead.timeline);
@@ -174,6 +171,8 @@ function LeadCard({ lead, selected, onClick, onDragStart }: {
         backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         boxShadow: selected ? "0 4px 20px rgba(100,130,200,0.18)" : "0 2px 8px rgba(100,130,200,0.08)",
         transition: "all 0.15s ease", marginBottom: 8, position: "relative",
+        opacity: dimmed ? 0.28 : 1,
+        pointerEvents: dimmed ? "none" : "auto",
       }}
     >
       {lead.isOverdue && (
@@ -348,9 +347,29 @@ function ScheduleTourForm({ lead, onClose, onSuccess }: { lead: Lead; onClose: (
 
 // ─── Lead Detail Panel ────────────────────────────────────────────────────────
 function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: () => void; onMoveStage: (id: number, stage: string) => void }) {
+  const utils = trpc.useUtils();
   const detailQ = trpc.pipeline.detail.useQuery({ id: lead.id });
   const detail = detailQ.data;
   const [showTourForm, setShowTourForm] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({
+    firstName: lead.firstName,
+    lastName: lead.lastName,
+    phone: lead.phone,
+    priceRangeMin: lead.priceRangeMin != null ? String(lead.priceRangeMin) : "",
+    priceRangeMax: lead.priceRangeMax != null ? String(lead.priceRangeMax) : "",
+    financingStatus: (lead.financingStatus ?? "") as "" | "PRE_APPROVED" | "IN_PROCESS" | "NOT_STARTED" | "CASH_BUYER",
+  });
+
+  const updateLead = trpc.pipeline.updateLead.useMutation({
+    onSuccess: () => {
+      utils.pipeline.list.invalidate();
+      utils.pipeline.detail.invalidate({ id: lead.id });
+      toast.success("Lead updated");
+      setEditMode(false);
+    },
+    onError: (e) => toast.error(e.message),
+  });
 
   const tours = detail?.tours ?? [];
   const activity = detail?.activity ?? [];
@@ -370,31 +389,86 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
             <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)", marginTop: 1 }}>{STAGES.find(s => s.key === lead.pipelineStage)?.label}</div>
           </div>
         </div>
-        <button onClick={onClose} style={{ background: "rgba(15,32,68,0.06)", border: "1px solid rgba(15,32,68,0.12)", color: "rgba(15,32,68,0.50)", borderRadius: 8, width: 30, height: 30, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={() => setEditMode(e => !e)} style={{ background: editMode ? "rgba(37,99,235,0.12)" : "rgba(15,32,68,0.06)", border: `1px solid ${editMode ? "rgba(37,99,235,0.30)" : "rgba(15,32,68,0.12)"}`, color: editMode ? "#2563eb" : "rgba(15,32,68,0.50)", borderRadius: 8, padding: "0 10px", height: 30, cursor: "pointer", fontSize: 11, fontWeight: 600 }}>{editMode ? "Cancel" : "Edit"}</button>
+          <button onClick={onClose} style={{ background: "rgba(15,32,68,0.06)", border: "1px solid rgba(15,32,68,0.12)", color: "rgba(15,32,68,0.50)", borderRadius: 8, width: 30, height: 30, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+        </div>
       </div>
 
       <div style={{ padding: "14px 16px", flex: 1, overflowY: "auto" }}>
-        {/* Contact info */}
-        <div style={{ background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
-          <div style={{ fontSize: 11, color: "rgba(15,32,68,0.55)", marginBottom: 3 }}>{lead.email}</div>
-          <div style={{ fontSize: 11, color: "rgba(15,32,68,0.55)" }}>{lead.phone}</div>
-        </div>
+        {/* Edit Form */}
+        {editMode ? (
+          <div style={{ background: "rgba(37,99,235,0.05)", border: "1px solid rgba(37,99,235,0.18)", borderRadius: 12, padding: "12px", marginBottom: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#2563eb", marginBottom: 10 }}>EDIT LEAD</div>
+            {([
+              { label: "First Name", key: "firstName" as const },
+              { label: "Last Name", key: "lastName" as const },
+              { label: "Phone", key: "phone" as const },
+              { label: "Budget Min ($)", key: "priceRangeMin" as const },
+              { label: "Budget Max ($)", key: "priceRangeMax" as const },
+            ] as { label: string; key: keyof typeof editForm }[]).map(({ label, key }) => (
+              <div key={key} style={{ marginBottom: 8 }}>
+                <div style={{ fontSize: 10, color: "rgba(15,32,68,0.45)", marginBottom: 3 }}>{label}</div>
+                <input
+                  value={editForm[key] as string}
+                  onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
+                  style={{ width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid rgba(37,99,235,0.25)", fontSize: 12, background: "rgba(255,255,255,0.80)", color: "rgba(15,32,68,0.85)", boxSizing: "border-box" }}
+                />
+              </div>
+            ))}
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 10, color: "rgba(15,32,68,0.45)", marginBottom: 3 }}>Financing Status</div>
+              <select
+                value={editForm.financingStatus}
+                onChange={e => setEditForm(f => ({ ...f, financingStatus: e.target.value as typeof f.financingStatus }))}
+                style={{ width: "100%", padding: "6px 8px", borderRadius: 7, border: "1px solid rgba(37,99,235,0.25)", fontSize: 12, background: "rgba(255,255,255,0.80)", color: "rgba(15,32,68,0.85)" }}
+              >
+                <option value="">— Not set —</option>
+                <option value="PRE_APPROVED">Pre-Approved</option>
+                <option value="IN_PROCESS">In Process</option>
+                <option value="NOT_STARTED">Not Started</option>
+                <option value="CASH_BUYER">Cash Buyer</option>
+              </select>
+            </div>
+            <button
+              disabled={updateLead.isPending}
+              onClick={() => updateLead.mutate({
+                id: lead.id,
+                firstName: editForm.firstName || undefined,
+                lastName: editForm.lastName || undefined,
+                phone: editForm.phone || undefined,
+                priceRangeMin: editForm.priceRangeMin ? Number(editForm.priceRangeMin) : undefined,
+                priceRangeMax: editForm.priceRangeMax ? Number(editForm.priceRangeMax) : undefined,
+                financingStatus: (editForm.financingStatus || null) as "PRE_APPROVED" | "IN_PROCESS" | "NOT_STARTED" | "CASH_BUYER" | null | undefined,
+              })}
+              style={{ width: "100%", padding: "8px", borderRadius: 8, background: "linear-gradient(135deg, #2563eb, #1d4ed8)", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: updateLead.isPending ? "not-allowed" : "pointer", opacity: updateLead.isPending ? 0.7 : 1 }}
+            >
+              {updateLead.isPending ? "Saving…" : "Save Changes"}
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Contact info */}
+            <div style={{ background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "10px 12px", marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: "rgba(15,32,68,0.55)", marginBottom: 3 }}>{lead.email}</div>
+              <div style={{ fontSize: 11, color: "rgba(15,32,68,0.55)" }}>{lead.phone}</div>
+            </div>
 
-        {/* Budget + Financing */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-          {fmtBudget(lead.priceRangeMin, lead.priceRangeMax) && (
-            <div style={{ flex: 1, background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "8px 10px" }}>
-              <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginBottom: 2 }}>Budget</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{fmtBudget(lead.priceRangeMin, lead.priceRangeMax)}</div>
+            {/* Budget + Financing */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+              {fmtBudget(lead.priceRangeMin, lead.priceRangeMax) && (
+                <div style={{ flex: 1, background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "8px 10px" }}>
+                  <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginBottom: 2 }}>Budget</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{fmtBudget(lead.priceRangeMin, lead.priceRangeMax)}</div>
+                </div>
+              )}
+              {fmtFinancing(lead.financingStatus) && (
+                <div style={{ flex: 1, background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "8px 10px" }}>
+                  <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginBottom: 2 }}>Finance</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{fmtFinancing(lead.financingStatus)}</div>
+                </div>
+              )}
             </div>
-          )}
-          {fmtFinancing(lead.financingStatus) && (
-            <div style={{ flex: 1, background: "rgba(15,32,68,0.04)", borderRadius: 10, padding: "8px 10px" }}>
-              <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginBottom: 2 }}>Finance</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{fmtFinancing(lead.financingStatus)}</div>
-            </div>
-          )}
-        </div>
 
         {/* Assigned rep */}
         {lead.assignedUserName && (
@@ -486,6 +560,8 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
             ))}
           </div>
         </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -536,15 +612,25 @@ export default function SCOPSPipeline() {
   const allLeads: Lead[] = (pipelineQ.data ?? []) as Lead[];
   const summary = summaryQ.data;
 
-  const filtered = useMemo(() => {
+  // Build a set of matching IDs for dimming non-matches
+  const matchingIds = useMemo(() => {
     const q = search.toLowerCase();
-    return allLeads.filter(l => {
-      if (q && !`${l.firstName} ${l.lastName} ${l.email} ${l.phone} ${l.propertyAddress ?? ""}`.toLowerCase().includes(q)) return false;
-      if (filterStage && l.pipelineStage !== filterStage) return false;
-      if (filterScore && l.leadScore !== filterScore) return false;
-      return true;
-    });
+    const hasQuery = q.length > 0 || filterStage !== "" || filterScore !== "";
+    if (!hasQuery) return null; // null = all match
+    return new Set(
+      allLeads
+        .filter(l => {
+          if (q && !`${l.firstName} ${l.lastName} ${l.email} ${l.phone} ${l.propertyAddress ?? ""}`.toLowerCase().includes(q)) return false;
+          if (filterStage && l.pipelineStage !== filterStage) return false;
+          if (filterScore && l.leadScore !== filterScore) return false;
+          return true;
+        })
+        .map(l => l.id)
+    );
   }, [allLeads, search, filterStage, filterScore]);
+
+  // filtered is now all leads (for Kanban columns); dimming handled per-card
+  const filtered = allLeads;
 
   if (adminMeQuery.isLoading) return null;
   if (!adminUser) { window.location.href = getLoginUrl(); return null; }
@@ -666,6 +752,7 @@ export default function SCOPSPipeline() {
                         <>
                           {visibleLeads.map(lead => (
                             <LeadCard key={lead.id} lead={lead} selected={selectedLead?.id === lead.id}
+                              dimmed={matchingIds !== null && !matchingIds.has(lead.id)}
                               onClick={() => { setSelectedLead(selectedLead?.id === lead.id ? null : lead); }}
                               onDragStart={handleLeadDragStart}
                             />

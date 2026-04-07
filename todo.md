@@ -766,3 +766,9 @@
 - [x] Per-column Add Lead (+) button in Kanban column header (pre-fills QuickAddSheet with stage)
 - [x] Kanban card collapse/expand: show top 5 by urgencyScore, "Show N more" expand button for 10+ leads
 - [x] Role-gated nav items: hide Marketing/Content from sales role, hide Pipeline/Scheduling from marketing role
+
+## Apr 7 2026 — Edit Lead Panel, Search Dimming, Tour Email
+- [x] Edit Lead inline form in LeadDetailPanel (name, phone, budget, financing, assigned rep)
+- [x] Kanban search highlight dimming (dim non-matching cards, don't hide them)
+- [x] Tour confirmation email via Resend with .ics calendar attachment on Schedule Tour
+- [x] Update phone number to (775) 363-1616 throughout Buyers Guide PDF and re-upload to CDN

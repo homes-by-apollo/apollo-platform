@@ -48,6 +48,144 @@ async function getCalendlyEventTypes() {
   }
 }
 
+// ─── Tour Confirmation Email ─────────────────────────────────────────────────
+
+/**
+ * Generates an iCalendar (.ics) string for a scheduled tour.
+ */
+function buildIcs(params: {
+  uid: string;
+  summary: string;
+  description: string;
+  location: string;
+  startTime: Date;
+  endTime: Date;
+  organizerEmail: string;
+  attendeeEmail: string;
+  attendeeName: string;
+}): string {
+  const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Homes by Apollo//Tour Scheduler//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:REQUEST",
+    "BEGIN:VEVENT",
+    `UID:${params.uid}`,
+    `DTSTAMP:${fmt(new Date())}`,
+    `DTSTART:${fmt(params.startTime)}`,
+    `DTEND:${fmt(params.endTime)}`,
+    `SUMMARY:${params.summary}`,
+    `DESCRIPTION:${params.description.replace(/\n/g, "\\n")}`,
+    `LOCATION:${params.location}`,
+    `ORGANIZER;CN=Homes by Apollo:mailto:${params.organizerEmail}`,
+    `ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;CN=${params.attendeeName}:mailto:${params.attendeeEmail}`,
+    "STATUS:CONFIRMED",
+    "SEQUENCE:0",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+}
+
+/**
+ * Sends a tour confirmation email with .ics calendar attachment via Resend.
+ */
+async function sendTourConfirmationEmail(params: {
+  toEmail: string;
+  toName: string;
+  startTime: Date;
+  endTime: Date;
+  location: string;
+  propertyAddress?: string;
+  tourId: string;
+}): Promise<void> {
+  const resendApiKey = ENV.resendApiKey;
+  if (!resendApiKey) {
+    console.warn("[TourEmail] RESEND_API_KEY not set — skipping tour confirmation");
+    return;
+  }
+
+  const dateStr = params.startTime.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const timeStr = params.startTime.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+  const address = params.propertyAddress ?? params.location ?? "Pahrump, NV";
+
+  const icsContent = buildIcs({
+    uid: `tour-${params.tourId}@apollohomebuilders.com`,
+    summary: `Home Tour — ${address}`,
+    description: `Your home tour with Homes by Apollo has been scheduled.\n\nProperty: ${address}\nDate: ${dateStr}\nTime: ${timeStr}\n\nQuestions? Call us at (775) 363-1616 or visit apollohomebuilders.com`,
+    location: address,
+    startTime: params.startTime,
+    endTime: params.endTime,
+    organizerEmail: "hello@apollohomebuilders.com",
+    attendeeEmail: params.toEmail,
+    attendeeName: params.toName,
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+    <body style="margin:0;padding:0;background:#f5f4f0;font-family:'Georgia',serif;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f4f0;padding:48px 0;">
+        <tr><td align="center">
+          <table width="560" cellpadding="0" cellspacing="0" style="background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+            <tr><td style="background:#0f2044;padding:36px 48px;text-align:center;">
+              <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.2em;color:rgba(255,255,255,0.45);text-transform:uppercase;">Homes by Apollo</p>
+              <p style="margin:0;font-size:28px;font-weight:900;letter-spacing:0.04em;color:white;">APOLLO</p>
+            </td></tr>
+            <tr><td style="padding:48px 48px 36px;">
+              <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#0f2044;">Your Tour is Confirmed</h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#666;line-height:1.7;">Hi ${params.toName}, your home tour has been scheduled. We look forward to seeing you!</p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f7f4;border-radius:10px;margin-bottom:28px;">
+                <tr><td style="padding:20px 24px;">
+                  <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.1em;color:#999;text-transform:uppercase;">Property</p>
+                  <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#0f2044;">${address}</p>
+                  <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.1em;color:#999;text-transform:uppercase;">Date &amp; Time</p>
+                  <p style="margin:0;font-size:16px;font-weight:700;color:#0f2044;">${dateStr} at ${timeStr}</p>
+                </td></tr>
+              </table>
+              <p style="margin:0 0 8px;font-size:14px;color:#666;line-height:1.6;">A calendar invite is attached to this email. Add it to your calendar to get a reminder.</p>
+              <p style="margin:0;font-size:14px;color:#666;line-height:1.6;">Questions? Call us at <strong>(775) 363-1616</strong> or visit <a href="https://apollohomebuilders.com" style="color:#c9a84c;">apollohomebuilders.com</a>.</p>
+            </td></tr>
+            <tr><td style="border-top:1px solid #eee;padding:24px 48px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#aaa;line-height:1.6;">Homes by Apollo &middot; Pahrump, Nevada</p>
+            </td></tr>
+          </table>
+        </td></tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  const icsBase64 = Buffer.from(icsContent).toString("base64");
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "hello@apollohomebuilders.com",
+      to: [params.toEmail],
+      subject: `Your Home Tour is Confirmed — ${dateStr}`,
+      html,
+      attachments: [{
+        filename: "home-tour.ics",
+        content: icsBase64,
+      }],
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    console.error("[TourEmail] Resend error:", res.status, body);
+  } else {
+    console.log(`[TourEmail] Confirmation sent to ${params.toEmail}`);
+  }
+}
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 export const schedulingRouter = router({
@@ -131,7 +269,19 @@ export const schedulingRouter = router({
         });
       }
 
-      return { id: (result as { insertId: number }).insertId };
+      const tourId = String((result as { insertId: number }).insertId);
+
+      // Fire-and-forget tour confirmation email with .ics attachment
+      sendTourConfirmationEmail({
+        toEmail: input.inviteeEmail,
+        toName: input.inviteeName,
+        startTime: input.startTime,
+        endTime: input.endTime,
+        location: input.location ?? "Pahrump, NV",
+        tourId,
+      }).catch(err => console.error("[TourEmail] Failed to send confirmation:", err));
+
+      return { id: Number(tourId) };
     }),
 
   /** Cancel a tour */

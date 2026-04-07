@@ -251,6 +251,34 @@ export const pipelineRouter = router({
     }),
 
   /**
+   * Update lead contact details (name, phone, budget, financing, assigned rep).
+   */
+  updateLead: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      firstName: z.string().min(1).optional(),
+      lastName: z.string().min(1).optional(),
+      phone: z.string().optional(),
+      priceRangeMin: z.number().nullable().optional(),
+      priceRangeMax: z.number().nullable().optional(),
+      financingStatus: z.enum(["PRE_APPROVED", "IN_PROCESS", "NOT_STARTED", "CASH_BUYER"]).nullable().optional(),
+      assignedTo: z.number().nullable().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...data } = input;
+      const existing = await getContactById(id);
+      if (!existing) throw new TRPCError({ code: "NOT_FOUND" });
+      await updateContact(id, data);
+      await logActivity({
+        contactId: id,
+        userId: ctx.user.id,
+        activityType: "NOTE_ADDED",
+        description: `Lead details updated by ${ctx.user.name ?? "admin"}`,
+      });
+      return { success: true };
+    }),
+
+  /**
    * Update next action for a lead.
    */
   updateNextAction: protectedProcedure
