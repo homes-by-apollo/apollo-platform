@@ -512,7 +512,7 @@ export async function getAbsorptionRate() {
 
 export async function getRevenueForecast() {
   const db = await getDb();
-  if (!db) return { days30: 0, days60: 0, days90: 0 };
+  if (!db) return { days30: 0, days60: 0, days90: 0, activeDeals: 0, totalForecast: 0 };
 
   const now = new Date();
   const d30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -525,21 +525,28 @@ export async function getRevenueForecast() {
     .where(
       and(
         sql`${deals.stage} IN ('OFFER_SUBMITTED', 'UNDER_CONTRACT')`,
-        isNotNull(deals.expectedCloseDate),
         isNotNull(deals.amount)
       )
     );
 
+  // Count all active deals (regardless of close date)
+  const activeDeals = rows.length;
+
   let days30 = 0, days60 = 0, days90 = 0;
   for (const row of rows) {
-    if (!row.expectedCloseDate || !row.amount) continue;
+    if (!row.amount) continue;
+    if (!row.expectedCloseDate) {
+      // No close date — count toward 90-day bucket
+      days90 += row.amount;
+      continue;
+    }
     const closeDate = new Date(row.expectedCloseDate);
     if (closeDate <= d30) days30 += row.amount;
     else if (closeDate <= d60) days60 += row.amount;
-    else if (closeDate <= d90) days90 += row.amount;
+    else days90 += row.amount;
   }
 
-  return { days30, days60, days90 };
+  return { days30, days60, days90, activeDeals, totalForecast: days30 + days60 + days90 };
 }
 
 // ─── Dashboard: Deals At Risk ─────────────────────────────────────────────────
@@ -559,6 +566,7 @@ export async function getDealsAtRisk() {
       pipelineStage: contacts.pipelineStage,
       lastContactedAt: contacts.lastContactedAt,
       primaryPropertyId: contacts.primaryPropertyId,
+      leadScore: contacts.leadScore,
     })
     .from(contacts)
     .where(
@@ -573,16 +581,40 @@ export async function getDealsAtRisk() {
     .orderBy(contacts.lastContactedAt)
     .limit(10);
 
-  return notContacted.map(c => ({
-    id: c.id,
-    name: `${c.firstName} ${c.lastName}`,
-    stage: c.pipelineStage,
-    issue: c.lastContactedAt
-      ? `No contact in ${Math.floor((Date.now() - new Date(c.lastContactedAt).getTime()) / (1000 * 60 * 60))}h`
-      : "Never contacted",
-    lastContactedAt: c.lastContactedAt,
-    primaryPropertyId: c.primaryPropertyId,
-  }));
+  // Fetch property addresses for each at-risk lead
+  const propertyIds = notContacted
+    .map(c => c.primaryPropertyId)
+    .filter((id): id is number => id !== null && id !== undefined);
+
+  const propRows = propertyIds.length > 0
+    ? await db.select({ id: properties.id, address: properties.address })
+        .from(properties)
+        .where(sql`${properties.id} IN (${sql.join(propertyIds.map(id => sql`${id}`), sql`, `)})`)
+    : [];
+
+  const propMap = Object.fromEntries(propRows.map(p => [p.id, p.address]));
+
+  return notContacted.map(c => {
+    const hoursAgo = c.lastContactedAt
+      ? Math.floor((Date.now() - new Date(c.lastContactedAt).getTime()) / (1000 * 60 * 60))
+      : null;
+    const issueType = !c.lastContactedAt
+      ? "Never contacted"
+      : hoursAgo! > 168
+      ? `Silent ${Math.floor(hoursAgo! / 24)}d — needs outreach`
+      : `No follow-up in ${hoursAgo}h`;
+    return {
+      id: c.id,
+      name: `${c.firstName} ${c.lastName}`,
+      stage: c.pipelineStage,
+      leadScore: c.leadScore,
+      issue: issueType,
+      hoursStale: hoursAgo ?? 9999,
+      lastContactedAt: c.lastContactedAt,
+      primaryPropertyId: c.primaryPropertyId,
+      primaryPropertyAddress: c.primaryPropertyId ? (propMap[c.primaryPropertyId] ?? null) : null,
+    };
+  });
 }
 
 // ─── Dashboard: Inventory Health ─────────────────────────────────────────────
@@ -610,16 +642,39 @@ export async function getInventoryHealth() {
 
   const leadMap = Object.fromEntries(leadCounts.map(r => [r.propertyId, r.count]));
 
+  // Get tour counts per property via contact's primaryPropertyId
+  const tourCounts = await db
+    .select({
+      propertyId: contacts.primaryPropertyId,
+      count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(scheduledTours)
+    .innerJoin(contacts, eq(scheduledTours.contactId, contacts.id))
+    .where(isNotNull(contacts.primaryPropertyId))
+    .groupBy(contacts.primaryPropertyId);
+
+  const tourMap = Object.fromEntries(tourCounts.map(r => [r.propertyId, r.count]));
+
   return props.map(p => {
     const createdDate = new Date(p.createdAt);
     const dom = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+    const leadCount = leadMap[p.id] ?? 0;
+    const tourCount = tourMap[p.id] ?? 0;
+    // Classify the health issue
+    let healthFlag: "high_dom" | "zero_tours" | "high_interest_no_offer" | "ok" = "ok";
+    if (dom > 60) healthFlag = "high_dom";
+    else if (leadCount > 3 && tourCount === 0) healthFlag = "zero_tours";
+    else if (tourCount > 2 && leadCount > 4) healthFlag = "high_interest_no_offer";
     return {
       id: p.id,
       address: p.address,
       price: p.price,
       priceValue: p.priceValue,
       dom,
-      leadCount: leadMap[p.id] ?? 0,
+      leadCount,
+      tourCount,
+      healthFlag,
+      imageUrl: p.imageUrl ?? null,
     };
   });
 }

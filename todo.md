@@ -664,3 +664,12 @@
 - [x] Active Pipeline table with glass-style row hover
 - [x] SCOPSNav: frosted glass bar, live clock + date top-left, centered tabs with glass active state, no Apple logo
 - [x] All 35 tests passing, zero TypeScript errors
+
+## Operator Priority Dashboard Upgrade (Apr 6 2026)
+- [x] Elevate Deals at Risk as primary action center (below KPI row, full-width, alert styling, lead name + property + issue + time + CTA)
+- [x] Pipeline Funnel: add conversion % between stages, drop-off indicators, bottleneck highlights
+- [x] Revenue Forecast: fix empty states — show "No upcoming closings" + active deal count if no data
+- [x] Inventory Health: fix passive empty states, add DOM/leads/tours per row, highlight zero-tour and high-DOM
+- [x] Rename Active Pipeline → "Today's Focus", sort by urgency/score/recency, add primary property + last activity + next action columns
+- [x] KPI cards: add micro-signals (trend indicator, vs last period context)
+- [x] Increase information density, reduce vertical whitespace
