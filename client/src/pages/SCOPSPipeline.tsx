@@ -2,7 +2,6 @@ import { useState, useMemo, useRef, useCallback, DragEvent } from "react";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import SCOPSNav from "@/components/SCOPSNav";
-import { MapView } from "@/components/Map";
 import { toast } from "sonner";
 
 // ─── Quick Add Sheet ──────────────────────────────────────────────────────────
@@ -199,13 +198,24 @@ function LeadCard({ lead, selected, onClick, onDragStart }: {
             </div>
           )}
         </div>
-        <span style={{
-          fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20, flexShrink: 0,
-          background: `${SCORE_COLORS[score]}22`, color: SCORE_COLORS[score],
-          border: `1px solid ${SCORE_COLORS[score]}44`,
-        }}>
-          {score}
-        </span>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
+          {/* Numeric urgency score badge */}
+          <div style={{
+            width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+            background: lead.urgencyScore >= 80 ? "#ef4444" : lead.urgencyScore >= 60 ? "#f59e0b" : "#6366f1",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 11, fontWeight: 800, color: "white",
+          }}>
+            {lead.urgencyScore}
+          </div>
+          {/* HOT/WARM/COLD label */}
+          <span style={{
+            fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 6,
+            background: `${SCORE_COLORS[score]}22`, color: SCORE_COLORS[score],
+          }}>
+            {score}
+          </span>
+        </div>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
         {budget && <span style={{ fontSize: 10, color: "rgba(15,32,68,0.80)", background: "rgba(15,32,68,0.07)", padding: "2px 7px", borderRadius: 6, fontWeight: 600 }}>{budget}</span>}
@@ -490,12 +500,12 @@ export default function SCOPSPipeline() {
   const [filterScore, setFilterScore] = useState("");
   const [search, setSearch] = useState("");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  // Kanban: always fetch all stages; client-side filter handles search + score
   const pipelineQ = trpc.pipeline.list.useQuery(
-    { stage: (filterStage || undefined) as "NEW_INQUIRY" | "QUALIFIED" | "TOUR_SCHEDULED" | "TOURED" | "OFFER_SUBMITTED" | "UNDER_CONTRACT" | "CLOSED" | "LOST" | undefined, search: search || undefined },
+    { search: search || undefined },
     { refetchInterval: 30_000 }
   );
   const summaryQ = trpc.pipeline.summary.useQuery(undefined, { refetchInterval: 60_000 });
-  const propertiesQ = trpc.properties.getAll.useQuery();
   const utils = trpc.useUtils();
   const updateStage = trpc.pipeline.updateStage.useMutation({
     onSuccess: () => { utils.pipeline.list.invalidate(); utils.pipeline.summary.invalidate(); toast.success("Stage updated"); },
@@ -503,12 +513,8 @@ export default function SCOPSPipeline() {
   });
 
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
   const dragLeadRef = useRef<Lead | null>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
-
   const handleLeadDragStart = useCallback((e: DragEvent<HTMLDivElement>, lead: Lead) => {
     dragLeadRef.current = lead;
     e.dataTransfer.effectAllowed = "move";
@@ -523,7 +529,6 @@ export default function SCOPSPipeline() {
   }, [updateStage]);
 
   const allLeads: Lead[] = (pipelineQ.data ?? []) as Lead[];
-  const allProperties: Property[] = (propertiesQ.data ?? []) as Property[];
   const summary = summaryQ.data;
 
   const filtered = useMemo(() => {
@@ -536,32 +541,10 @@ export default function SCOPSPipeline() {
     });
   }, [allLeads, search, filterStage, filterScore]);
 
-  const handleMapReady = useCallback((map: google.maps.Map) => {
-    mapRef.current = map;
-    markersRef.current.forEach(m => { m.map = null; });
-    markersRef.current = [];
-    const geocoder = new google.maps.Geocoder();
-    allProperties.forEach(prop => {
-      const fullAddress = `${prop.address}, ${prop.city}, ${prop.state}`;
-      geocoder.geocode({ address: fullAddress }, (results, status) => {
-        if (status === "OK" && results?.[0]) {
-          const pinColor = TAG_PIN_COLORS[prop.tag] ?? "#6366f1";
-          const pinEl = document.createElement("div");
-          pinEl.style.cssText = `width:24px;height:24px;border-radius:50% 50% 50% 0;background:${pinColor};border:2px solid white;transform:rotate(-45deg);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);`;
-          const marker = new google.maps.marker.AdvancedMarkerElement({ map, position: results[0].geometry.location, content: pinEl, title: prop.address });
-          marker.addListener("click", () => { setSelectedProperty(prop); setSelectedLead(null); });
-          markersRef.current.push(marker);
-        }
-      });
-    });
-  }, [allProperties]);
-
   if (adminMeQuery.isLoading) return null;
   if (!adminUser) { window.location.href = getLoginUrl(); return null; }
 
-  const rightPanel = selectedProperty
-    ? <PropertyDetailPanel property={selectedProperty} leads={allLeads} onClose={() => setSelectedProperty(null)} />
-    : selectedLead
+  const rightPanel = selectedLead
     ? <LeadDetailPanel lead={selectedLead} onClose={() => setSelectedLead(null)} onMoveStage={(id, stage) => updateStage.mutate({ id, stage: stage as Parameters<typeof updateStage.mutate>[0]["stage"] })} />
     : null;
 
@@ -614,78 +597,66 @@ export default function SCOPSPipeline() {
         </div>
       </div>
 
-      {/* 3-Panel Body */}
+      {/* Kanban + Detail Panel Body */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
-        {/* LEFT: Lead list */}
-        <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.40)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderRight: "1px solid rgba(255,255,255,0.70)", overflowY: "auto", padding: "12px" }}>
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(15,32,68,0.90)" }}>
-                {filterStage ? (STAGES.find(s => s.key === filterStage)?.label ?? "All Leads") : "All Leads"}
+        {/* KANBAN COLUMNS */}
+        <div style={{ flex: 1, overflowX: "auto", overflowY: "hidden", display: "flex", gap: 0, padding: "16px 16px 0", alignItems: "flex-start" }}>
+          {STAGES.map(stage => {
+            const colLeads = filtered.filter(l => l.pipelineStage === stage.key);
+            const isDragTarget = dragOverStage === stage.key;
+            return (
+              <div
+                key={stage.key}
+                onDragOver={(e) => { e.preventDefault(); setDragOverStage(stage.key); }}
+                onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStage(null); }}
+                onDrop={() => handleStageDrop(stage.key)}
+                style={{
+                  width: 230, flexShrink: 0, marginRight: 10,
+                  background: isDragTarget ? `${stage.color}10` : "rgba(255,255,255,0.40)",
+                  backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+                  border: isDragTarget ? `2px solid ${stage.color}60` : "1px solid rgba(255,255,255,0.75)",
+                  borderRadius: 16, display: "flex", flexDirection: "column",
+                  maxHeight: "calc(100vh - 180px)",
+                  transition: "border-color 0.15s, background 0.15s",
+                  boxShadow: isDragTarget ? `0 0 0 3px ${stage.color}20` : "0 2px 12px rgba(100,130,200,0.08)",
+                }}
+              >
+                {/* Column header */}
+                <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid rgba(255,255,255,0.70)", flexShrink: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>{stage.label}</div>
+                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: `${stage.color}20`, border: `1px solid ${stage.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: stage.color }}>
+                      {colLeads.length}
+                    </div>
+                  </div>
+                  <div style={{ width: 28, height: 2, background: stage.color, borderRadius: 2, marginTop: 6, opacity: 0.7 }} />
+                </div>
+                {/* Cards */}
+                <div style={{ flex: 1, overflowY: "auto", padding: "10px 10px 10px" }}>
+                  {pipelineQ.isLoading ? (
+                    <div style={{ color: "rgba(15,32,68,0.30)", textAlign: "center", padding: 20, fontSize: 12 }}>Loading…</div>
+                  ) : colLeads.length === 0 ? (
+                    <div style={{ color: "rgba(15,32,68,0.20)", textAlign: "center", padding: "20px 10px", fontSize: 11, border: "2px dashed rgba(15,32,68,0.10)", borderRadius: 10 }}>
+                      Drop here
+                    </div>
+                  ) : (
+                    colLeads.map(lead => (
+                      <LeadCard key={lead.id} lead={lead} selected={selectedLead?.id === lead.id}
+                        onClick={() => { setSelectedLead(selectedLead?.id === lead.id ? null : lead); }}
+                        onDragStart={handleLeadDragStart}
+                      />
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
-            <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)" }}>{filtered.length} lead{filtered.length !== 1 ? "s" : ""} · {filtered.filter(l => l.tourDate).length} tours</div>
-          </div>
-          <div style={{ display: "flex", gap: 5, marginBottom: 12, overflowX: "auto", paddingBottom: 2 }}>
-            {STAGES.slice(0, 5).map(s => {
-              const count = allLeads.filter(l => l.pipelineStage === s.key).length;
-              const isDragTarget = dragOverStage === s.key;
-              return (
-                <button key={s.key}
-                  onClick={() => setFilterStage(filterStage === s.key ? "" : s.key)}
-                  onDragOver={(e) => { e.preventDefault(); setDragOverStage(s.key); }}
-                  onDragLeave={() => setDragOverStage(null)}
-                  onDrop={() => handleStageDrop(s.key)}
-                  style={{ flexShrink: 0, padding: "3px 8px", borderRadius: 8,
-                    background: isDragTarget ? `${s.color}30` : filterStage === s.key ? `${s.color}20` : "rgba(255,255,255,0.60)",
-                    border: isDragTarget ? `2px solid ${s.color}` : filterStage === s.key ? `1px solid ${s.color}60` : "1px solid rgba(255,255,255,0.80)",
-                    fontSize: 10, fontWeight: 600, cursor: "pointer", color: filterStage === s.key || isDragTarget ? s.color : "rgba(15,32,68,0.50)",
-                    display: "flex", alignItems: "center", gap: 4, transition: "all 0.12s ease",
-                    transform: isDragTarget ? "scale(1.08)" : "scale(1)",
-                  }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.color, display: "inline-block" }} />{count}
-                </button>
-              );
-            })}
-          </div>
-          {pipelineQ.isLoading ? (
-            <div style={{ color: "rgba(15,32,68,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
-          ) : filtered.length === 0 ? (
-            <div style={{ color: "rgba(15,32,68,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No leads found</div>
-          ) : (
-            filtered.map(lead => (
-              <LeadCard key={lead.id} lead={lead} selected={selectedLead?.id === lead.id}
-                onClick={() => { setSelectedLead(selectedLead?.id === lead.id ? null : lead); setSelectedProperty(null); }}
-                onDragStart={handleLeadDragStart}
-              />
-            ))
-          )}
-        </div>
-
-        {/* CENTER: Map */}
-        <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-          <MapView initialCenter={PAHRUMP_CENTER} initialZoom={12} onMapReady={handleMapReady} className="w-full h-full" />
-          <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "8px 16px", display: "flex", gap: 16, alignItems: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.15)", fontSize: 12, fontWeight: 600 }}>
-            {[{ color: "#22c55e", label: "Available" }, { color: "#f59e0b", label: "Under Contract" }, { color: "#ef4444", label: "Sold" }].map(({ color, label }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 10, height: 10, borderRadius: "50%", background: color }} />
-                <span style={{ color: "#374151" }}>{label}</span>
-              </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
         {/* RIGHT: Detail panel */}
-        {rightPanel ? (
-          <div style={{ padding: "12px", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderLeft: "1px solid rgba(255,255,255,0.75)", overflowY: "auto" }}>
+        {rightPanel && (
+          <div style={{ width: 320, flexShrink: 0, background: "rgba(255,255,255,0.45)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderLeft: "1px solid rgba(255,255,255,0.75)", overflowY: "auto", padding: "12px" }}>
             {rightPanel}
-          </div>
-        ) : (
-          <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.35)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderLeft: "1px solid rgba(255,255,255,0.70)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ textAlign: "center", color: "rgba(15,32,68,0.30)", fontSize: 13 }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>🏠</div>
-              <div>Click a pin or lead<br />to see details</div>
-            </div>
           </div>
         )}
       </div>

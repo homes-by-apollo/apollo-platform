@@ -1,0 +1,1 @@
+ALTER TABLE `adminCredentials` ADD `adminRole` enum('super_admin','admin','marketing','sales') DEFAULT 'admin' NOT NULL;

@@ -292,6 +292,7 @@ export const adminCredentials = mysqlTable("adminCredentials", {
   email: varchar("email", { length: 320 }).notNull().unique(),
   passwordHash: varchar("passwordHash", { length: 256 }).notNull(),
   name: varchar("name", { length: 128 }).notNull(),
+  adminRole: mysqlEnum("adminRole", ["super_admin", "admin", "marketing", "sales"]).notNull().default("admin"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

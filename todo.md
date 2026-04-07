@@ -744,9 +744,9 @@
 - [x] Wire pipeline.leadDetail to click-to-select right panel
 - [x] Add drag-to-move stage on Pipeline lead cards (onDragEnd → pipeline.updateStage)
 - [x] Add Schedule Tour quick action to LeadDetailPanel
-- [ ] Refactor Admin tab into user dropdown with Admin Controls section
-- [ ] Build Admin Users workspace (AdminUsersTable, AdminInspectorPanel, InviteAdminSheet)
-- [ ] Add roles system (Super Admin, Admin, Marketing, Sales) with permissions
+- [x] Refactor Admin tab into user dropdown with Admin Controls section
+- [x] Build Admin Users workspace (AdminUsersTable, AdminInspectorPanel, InviteAdminSheet)
+- [x] Add roles system (Super Admin, Admin, Marketing, Sales) with permissions
 
 ## Apr 7 2026 — Pipeline Kanban + Inventory Redesign (from mockups)
 - [x] Redesign Pipeline tab as Kanban board (horizontal stage columns, liquid glass cards, drag-to-move)
@@ -754,3 +754,10 @@
 - [x] Add Schedule Tour quick action button to LeadDetailPanel
 - [x] Redesign Inventory tab: Channel Performance + Campaign Leaderboard + UTM Builder + Map layout
 - [x] Apply light Apple liquid glass background to ALL SCOPS pages (Dashboard, Pipeline, Inventory, Marketing, Content, Scheduling, Users)
+
+## Apr 7 2026 — Admin Refactor, Kanban Columns, Score Badges
+- [x] Move Admin nav item into user dropdown in SCOPSNav
+- [x] Build SCOPSAdmin page with AdminUsersTable + InviteAdminSheet
+- [x] Add roles system (Super Admin, Admin, Marketing, Sales) to user table + procedures
+- [x] Redesign Pipeline as true horizontal Kanban (one column per stage, all visible simultaneously)
+- [x] Add lead score badge chip to Pipeline Kanban cards

@@ -156,7 +156,7 @@ export const adminAuthRouter = router({
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable." });
     const admins = await db
-      .select({ id: adminCredentials.id, email: adminCredentials.email, name: adminCredentials.name, createdAt: adminCredentials.createdAt })
+      .select({ id: adminCredentials.id, email: adminCredentials.email, name: adminCredentials.name, adminRole: adminCredentials.adminRole, createdAt: adminCredentials.createdAt })
       .from(adminCredentials)
       .orderBy(adminCredentials.name);
     return admins;
@@ -252,6 +252,26 @@ export const adminAuthRouter = router({
         .set({ usedAt: now })
         .where(eq(passwordResetTokens.id, resetToken.id));
 
+      return { success: true };
+    }),
+
+  /** Update an admin user's role */
+  updateRole: publicProcedure
+    .input(z.object({
+      email: z.string().email(),
+      role: z.enum(["super_admin", "admin", "marketing", "sales"]),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const token = ctx.req.cookies?.[ADMIN_COOKIE];
+      if (!token) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+      const payload = await verifyAdminToken(token);
+      if (!payload) throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid session" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable." });
+      await db
+        .update(adminCredentials)
+        .set({ adminRole: input.role })
+        .where(eq(adminCredentials.email, input.email.toLowerCase()));
       return { success: true };
     }),
 });
