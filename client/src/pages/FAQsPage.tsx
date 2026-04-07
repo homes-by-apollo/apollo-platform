@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { GlobalFooter } from "@/components/GlobalFooter";
 
 const LOGO_OWL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png";
@@ -146,8 +147,29 @@ export default function FAQsPage() {
     ? allFaqs.filter(f => f.category === activeCategory)
     : allFaqs;
 
+  // Build JSON-LD FAQ schema from all Q&A pairs
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: allFaqs.flatMap(cat =>
+      cat.items.map(([q, a]) => ({
+        "@type": "Question",
+        name: q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: a,
+        },
+      }))
+    ),
+  };
+
   return (
     <div style={{ minHeight: "100vh", background: "white", fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+      <Helmet>
+        <title>FAQs | Apollo Home Builders — Pahrump, NV</title>
+        <meta name="description" content="Answers to the most common questions about building a new home with Apollo in Pahrump, Nevada. Pricing, financing, build timeline, lots, and warranty." />
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      </Helmet>
       {/* ── Nav ── */}
       <nav style={{ borderBottom: `1px solid ${BOR}`, padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "white", zIndex: 100 }}>
         <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>

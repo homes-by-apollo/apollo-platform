@@ -7,9 +7,12 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { Resend } from "resend";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { systemSettings, adminCredentials } from "../../drizzle/schema";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const STALE_THRESHOLD_KEY = "staleLeadThresholdHours";
 export const STALE_ALERT_KEY = "staleAlertEnabled";
@@ -105,4 +108,46 @@ export const settingsRouter = router({
         .where(eq(adminCredentials.email, email.toLowerCase()));
       return { receiveStaleAlerts: input.receiveStaleAlerts };
     }),
+
+  /**
+   * Send a test stale-lead alert email to the currently logged-in rep.
+   * Useful for verifying Resend delivery before the cron fires.
+   */
+  sendTestAlert: protectedProcedure.mutation(async ({ ctx }) => {
+    const email = ctx.user?.email;
+    const name = ctx.user?.name ?? "Rep";
+    if (!email) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+
+    const { error } = await resend.emails.send({
+      from: "Apollo SCOPS <hello@apollohomebuilders.com>",
+      to: email,
+      subject: "[Test] Stale Lead Alert — Apollo SCOPS",
+      html: `
+        <div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
+          <h2 style="color:#0f2044;margin-bottom:8px;">🔔 Stale Lead Alert (Test)</h2>
+          <p style="color:#374151;font-size:15px;line-height:1.6;">Hi ${name},</p>
+          <p style="color:#374151;font-size:15px;line-height:1.6;">
+            This is a <strong>test email</strong> from Apollo SCOPS to confirm that stale-lead
+            alerts are correctly routed to your inbox.
+          </p>
+          <p style="color:#374151;font-size:15px;line-height:1.6;">
+            When a real lead's <em>Next Action Due</em> date passes without an update,
+            you'll receive an email like this one listing the overdue leads and their
+            assigned stages.
+          </p>
+          <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
+          <p style="color:#9ca3af;font-size:12px;">Apollo SCOPS · Pahrump, NV · This is an automated test message.</p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `Failed to send test alert: ${error.message}`,
+      });
+    }
+
+    return { sent: true, to: email };
+  }),
 });

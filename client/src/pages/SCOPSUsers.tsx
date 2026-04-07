@@ -213,6 +213,13 @@ export default function SCOPSUsers() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm font-semibold truncate" style={{ color: "rgba(15,32,68,0.90)" }}>{admin.name}</span>
+                          {role === "super_admin" && (
+                            <span title="Super Admin" style={{ display: "inline-flex", alignItems: "center", color: "#7c3aed" }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 14l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/>
+                              </svg>
+                            </span>
+                          )}
                           {isYou && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600 font-semibold">You</span>}
                         </div>
                         <div className="text-[11px] truncate mt-0.5" style={{ color: "rgba(15,32,68,0.45)" }}>{admin.email}</div>

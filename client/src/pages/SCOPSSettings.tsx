@@ -47,6 +47,15 @@ export default function SCOPSSettings() {
     },
   });
 
+  const sendTestAlert = trpc.settings.sendTestAlert.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Test alert sent to ${data.to}`);
+    },
+    onError: (err) => {
+      toast.error(`Failed to send: ${err.message}`);
+    },
+  });
+
   const setMyAlertPref = trpc.settings.setMyAlertPref.useMutation({
     onSuccess: (data) => {
       utils.settings.getMyAlertPref.invalidate();
@@ -278,6 +287,36 @@ export default function SCOPSSettings() {
               <span className="text-xs text-gray-400">Saving…</span>
             )}
           </div>
+        </div>
+
+        {/* ── Send Test Alert Card ── */}
+        <div style={CARD_STYLE}>
+          <div className="flex items-start justify-between">
+            <div className="flex-1 pr-6">
+              <h2 className="text-base font-semibold text-[#0f2044]">Send Test Alert</h2>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Fire a sample stale-lead email to your inbox right now to confirm Resend is delivering alerts correctly.
+              </p>
+            </div>
+            <Button
+              onClick={() => sendTestAlert.mutate()}
+              disabled={sendTestAlert.isPending}
+              style={{
+                flexShrink: 0,
+                background: sendTestAlert.isSuccess ? "#16a34a" : "#e8a020",
+                color: "#fff",
+                fontWeight: 600,
+                transition: "background 0.3s",
+              }}
+            >
+              {sendTestAlert.isPending ? "Sending…" : sendTestAlert.isSuccess ? "Sent ✓" : "Send Test"}
+            </Button>
+          </div>
+          {sendTestAlert.isSuccess && (
+            <p className="text-xs mt-3" style={{ color: "#16a34a" }}>
+              Test email sent to <strong>{sendTestAlert.data?.to}</strong>. Check your inbox.
+            </p>
+          )}
         </div>
 
         {/* Future settings placeholder */}

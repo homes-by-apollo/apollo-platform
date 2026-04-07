@@ -828,3 +828,8 @@
 - [x] Gate destructive server procedures (blog.delete, properties.delete, adminAuth.deleteAdmin, adminAuth.updateRole) behind superAdminProcedure
 - [x] SCOPS nav: move active indicator to thin underline below pill (absolute positioned, 80% width, amber glow)
 - [x] Per-rep notification preferences: add receiveStaleAlerts column to adminCredentials, getMyAlertPref/setMyAlertPref procedures, toggle card in SCOPS Settings
+
+## Apr 7 2026 — Super Admin Badge, Test Alert, FAQ Schema
+- [x] SCOPS Users: add Super Admin shield badge next to name in users table
+- [x] SCOPS Settings: add "Send Test Alert" button that fires a sample Resend email to the logged-in rep
+- [x] /faqs page: add application/ld+json FAQ schema markup for Google rich results
