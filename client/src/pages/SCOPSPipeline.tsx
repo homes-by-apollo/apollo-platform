@@ -809,16 +809,24 @@ export default function SCOPSPipeline() {
               {conversions.map(c => {
                 const barH = Math.max(4, Math.round((c.rate / maxRate) * 36));
                 const barColor = c.rate >= 60 ? "#10b981" : c.rate >= 35 ? "#f59e0b" : "#ef4444";
+                // Map label back to stage key for filtering
+                const fromKey = FUNNEL.find(f => f.label === c.from)?.key ?? "";
+                const isActive = filterStage === fromKey;
                 return (
-                  <div key={c.from + c.to} title={`${c.from} → ${c.to}: ${c.rate}% (${c.toCount}/${c.fromCount})`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "default", minWidth: 54 }}>
+                  <div
+                    key={c.from + c.to}
+                    title={`Click to filter: ${c.from} → ${c.to}: ${c.rate}% (${c.toCount}/${c.fromCount})`}
+                    onClick={() => setFilterStage(isActive ? "" : fromKey)}
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "pointer", minWidth: 54, borderRadius: 6, padding: "4px 2px", background: isActive ? `${barColor}18` : "transparent", outline: isActive ? `1.5px solid ${barColor}` : "none", transition: "background 0.15s" }}
+                  >
                     {/* Rate label above bar */}
                     <div style={{ fontSize: 10, fontWeight: 700, color: barColor }}>{c.rate}%</div>
                     {/* Bar */}
-                    <div style={{ width: 36, height: barH, background: barColor, borderRadius: "3px 3px 0 0", opacity: 0.85, transition: "height 0.3s" }} />
+                    <div style={{ width: 36, height: barH, background: barColor, borderRadius: "3px 3px 0 0", opacity: isActive ? 1 : 0.75, transition: "height 0.3s, opacity 0.15s" }} />
                     {/* Baseline */}
                     <div style={{ width: 36, height: 1, background: "rgba(15,32,68,0.15)" }} />
                     {/* Stage label */}
-                    <div style={{ fontSize: 9, color: "rgba(15,32,68,0.40)", textAlign: "center", lineHeight: 1.2, maxWidth: 52, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.from}</div>
+                    <div style={{ fontSize: 9, color: isActive ? "rgba(15,32,68,0.70)" : "rgba(15,32,68,0.40)", textAlign: "center", lineHeight: 1.2, maxWidth: 52, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: isActive ? 700 : 400 }}>{c.from}</div>
                     <div style={{ fontSize: 8, color: "rgba(15,32,68,0.25)", textAlign: "center" }}>→ {c.to}</div>
                   </div>
                 );

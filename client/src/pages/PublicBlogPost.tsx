@@ -385,17 +385,17 @@ export default function PublicBlogPost() {
           )}
 
           {/* CTA */}
-          <div style={{ marginTop: 56, background: NAVY, borderRadius: 16, padding: "40px 36px", textAlign: "center" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", marginBottom: 12 }}>Ready to Build?</div>
-            <h3 style={{ fontSize: 26, fontWeight: 900, color: "white", marginBottom: 12, lineHeight: 1.2 }}>Start Your Apollo Home Journey</h3>
-            <p style={{ fontSize: 15, color: "rgba(255,255,255,0.65)", marginBottom: 28, maxWidth: 480, margin: "0 auto 28px" }}>
+          <div style={{ marginTop: 56, background: "linear-gradient(135deg, #e8a020 0%, #f5c842 55%, #e8a020 100%)", borderRadius: 16, padding: "40px 36px", textAlign: "center", boxShadow: "0 8px 40px rgba(232,160,32,0.38)" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(15,32,68,0.50)", marginBottom: 12 }}>Ready to Build?</div>
+            <h3 style={{ fontSize: 26, fontWeight: 900, color: NAVY, marginBottom: 12, lineHeight: 1.2 }}>Start Your Apollo Home Journey</h3>
+            <p style={{ fontSize: 15, color: "rgba(15,32,68,0.68)", marginBottom: 28, maxWidth: 480, margin: "0 auto 28px" }}>
               Schedule a free consultation with our team and find the perfect lot in Pahrump.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              <button onClick={() => setLocation("/find-your-home")} style={{ background: "white", color: G, border: "none", borderRadius: 8, padding: "12px 28px", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.04em" }}>
+              <button onClick={() => setLocation("/find-your-home")} style={{ background: NAVY, color: "white", border: "none", borderRadius: 8, padding: "12px 28px", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.04em" }}>
                 FIND YOUR HOME
               </button>
-              <button onClick={() => setLocation("/get-in-touch")} style={{ background: "transparent", color: "white", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 8, padding: "12px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.04em" }}>
+              <button onClick={() => setLocation("/get-in-touch")} style={{ background: "rgba(255,255,255,0.55)", color: NAVY, border: "1.5px solid rgba(15,32,68,0.18)", borderRadius: 8, padding: "12px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.04em" }}>
                 GET IN TOUCH
               </button>
             </div>

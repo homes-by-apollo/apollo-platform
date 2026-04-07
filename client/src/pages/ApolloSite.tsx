@@ -240,7 +240,10 @@ function FilterBtn({ children, active, onClick }: { children: React.ReactNode; a
 
 function NewsletterForm() {
   const [nlEmail, setNlEmail] = useState("");
-  const subscribeMutation = trpc.newsletter.subscribe.useMutation();
+  const [, setLocation] = useLocation();
+  const subscribeMutation = trpc.newsletter.subscribe.useMutation({
+    onSuccess: () => { setLocation("/buyers-guide-thank-you"); },
+  });
 
   const handleNlSubmit = (e: React.FormEvent) => {
     e.preventDefault();

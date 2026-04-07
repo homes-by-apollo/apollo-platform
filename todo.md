@@ -786,3 +786,9 @@
 - [x] Lead re-engagement cron job: flag stale leads + Resend alert to assigned rep
 - [x] Bulk stage-move: checkboxes on Kanban cards + Move Selected to Stage action bar
 - [x] Pipeline analytics conversion rate widget above Kanban columns
+
+## Apr 7 2026 — Thank-You Page, Blog CTA Rebrand, Conversion Drill-Down
+- [x] Add /buyers-guide-thank-you page (PDF cover preview, what's-inside strip, three blog posts, bottom CTA)
+- [x] Wire newsletter form success to redirect to /buyers-guide-thank-you
+- [x] Rebrand blog CTA background from dark navy to bright amber/gold gradient on PublicBlogPost.tsx
+- [x] Conversion rate drill-down: clicking a bar in analytics widget filters Kanban to that stage (click again to clear)
