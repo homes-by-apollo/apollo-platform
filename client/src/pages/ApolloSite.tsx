@@ -611,8 +611,8 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
 
           /* ── Newsletter section ── */
           .newsletter-panel      { flex-direction: column !important; border-radius: 16px !important; width: 100% !important; box-sizing: border-box !important; }
-          .nl-book-col           { flex: none !important; width: 100% !important; padding: 32px 24px 0 !important; align-items: center !important; justify-content: center !important; }
-          .nl-book-col img       { width: 180px !important; transform: rotate(0deg) !important; }
+          .nl-book-col           { flex: none !important; width: 100% !important; padding: 0 !important; align-items: stretch !important; justify-content: center !important; min-height: 280px !important; }
+          .nl-book-col img       { width: 100% !important; height: 280px !important; object-fit: cover !important; object-position: center top !important; transform: none !important; }
           .nl-copy-col           { flex: none !important; width: 100% !important; padding: 28px 24px 40px !important; box-sizing: border-box !important; }
           .nl-copy-col h2        { font-size: 26px !important; line-height: 1.15 !important; margin-bottom: 16px !important; }
           .nl-copy-col p         { font-size: 16px !important; line-height: 1.6 !important; margin-bottom: 20px !important; }
@@ -1157,27 +1157,25 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
               }}>
                 {/* LEFT — Book image on marble */}
                 <div className="nl-book-col" style={{
-                  flex:"0 0 480px",
+                  flex:"0 0 520px",
                   display:"flex",
                   alignItems:"flex-end",
                   justifyContent:"center",
-                  padding:"24px 16px 0 40px",
-                  background:"#f5f3ef",
+                  padding:"0 0 0 0",
+                  background:"#f0ece4",
                   borderRadius:"20px 0 0 20px",
                   overflow:"hidden",
+                  position:"relative",
                 }}>
                   <img
-                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-book-v2-8rmxs45j86pyJ7mYRWjkdj.webp"
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-book-gold-4G9ZPLDvAcuGutzHojeejv.webp"
                     alt="2026 Pahrump Home Buyer's Guide"
                     style={{
                       width:"100%",
-                      maxWidth:460,
-                      height:"auto",
-                      objectFit:"contain",
+                      height:"100%",
+                      objectFit:"cover",
+                      objectPosition:"center top",
                       display:"block",
-                      filter:"drop-shadow(0 24px 56px rgba(0,0,0,0.30))",
-                      transform:"rotate(-4deg) translateY(12px)",
-                      borderRadius:4,
                     }}
                   />
                 </div>
