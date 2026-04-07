@@ -5,6 +5,43 @@ import SCOPSNav from "@/components/SCOPSNav";
 import { MapView } from "@/components/Map";
 import { toast } from "sonner";
 
+// ─── Quick Add Sheet ──────────────────────────────────────────────────────────
+function QuickAddSheet({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+  const utils = trpc.useUtils();
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", priceRangeMax: "", financingStatus: "" as "" | "PRE_APPROVED" | "IN_PROCESS" | "NOT_STARTED" | "CASH_BUYER", source: "" as "" | "WEBSITE" | "ZILLOW" | "MLS" | "REFERRAL" | "AGENT" | "BILLBOARD" | "WALK_IN" | "OTHER", notes: "" });
+  const create = trpc.pipeline.quickCreate.useMutation({
+    onSuccess: () => { utils.pipeline.list.invalidate(); utils.pipeline.summary.invalidate(); toast.success(`${form.firstName} ${form.lastName} added to pipeline`); onSuccess(); },
+    onError: (err) => toast.error(err.message),
+  });
+  const inputStyle: React.CSSProperties = { width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "10px", color: "#fff", padding: "9px 12px", fontSize: "13px", boxSizing: "border-box" };
+  const labelStyle: React.CSSProperties = { color: "rgba(255,255,255,0.5)", fontSize: "11px", fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", display: "block", marginBottom: "4px" };
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ background: "linear-gradient(135deg, rgba(30,41,59,0.98), rgba(15,23,42,0.98))", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "24px 24px 0 0", padding: "24px", width: "100%", maxWidth: "480px", maxHeight: "85vh", overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+          <div style={{ color: "#fff", fontWeight: 700, fontSize: "18px" }}>Quick Add Lead</div>
+          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "8px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "6px 12px", fontSize: "14px" }}>✕</button>
+        </div>
+        <form onSubmit={(e) => { e.preventDefault(); create.mutate({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, priceRangeMax: form.priceRangeMax ? Number(form.priceRangeMax) : undefined, financingStatus: form.financingStatus || undefined, source: form.source || undefined, notes: form.notes || undefined }); }} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div><label style={labelStyle}>First Name *</label><input required value={form.firstName} onChange={(e) => setForm(f => ({ ...f, firstName: e.target.value }))} placeholder="Ryan" style={inputStyle} /></div>
+            <div><label style={labelStyle}>Last Name *</label><input required value={form.lastName} onChange={(e) => setForm(f => ({ ...f, lastName: e.target.value }))} placeholder="Turner" style={inputStyle} /></div>
+          </div>
+          <div><label style={labelStyle}>Email *</label><input required type="email" value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))} placeholder="ryan@example.com" style={inputStyle} /></div>
+          <div><label style={labelStyle}>Phone *</label><input required value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(702) 555-0100" style={inputStyle} /></div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div><label style={labelStyle}>Max Budget</label><input type="number" value={form.priceRangeMax} onChange={(e) => setForm(f => ({ ...f, priceRangeMax: e.target.value }))} placeholder="500000" style={inputStyle} /></div>
+            <div><label style={labelStyle}>Financing</label><select value={form.financingStatus} onChange={(e) => setForm(f => ({ ...f, financingStatus: e.target.value as typeof form.financingStatus }))} style={{ ...inputStyle, cursor: "pointer" }}><option value="" style={{ background: "#1e293b" }}>Select…</option><option value="PRE_APPROVED" style={{ background: "#1e293b" }}>Pre-Approved</option><option value="IN_PROCESS" style={{ background: "#1e293b" }}>In Process</option><option value="NOT_STARTED" style={{ background: "#1e293b" }}>Not Started</option><option value="CASH_BUYER" style={{ background: "#1e293b" }}>Cash Buyer</option></select></div>
+          </div>
+          <div><label style={labelStyle}>Source</label><select value={form.source} onChange={(e) => setForm(f => ({ ...f, source: e.target.value as typeof form.source }))} style={{ ...inputStyle, cursor: "pointer" }}><option value="" style={{ background: "#1e293b" }}>Select source…</option><option value="WEBSITE" style={{ background: "#1e293b" }}>Website</option><option value="ZILLOW" style={{ background: "#1e293b" }}>Zillow</option><option value="MLS" style={{ background: "#1e293b" }}>MLS</option><option value="REFERRAL" style={{ background: "#1e293b" }}>Referral</option><option value="AGENT" style={{ background: "#1e293b" }}>Agent</option><option value="BILLBOARD" style={{ background: "#1e293b" }}>Billboard</option><option value="WALK_IN" style={{ background: "#1e293b" }}>Walk-In</option><option value="OTHER" style={{ background: "#1e293b" }}>Other</option></select></div>
+          <div><label style={labelStyle}>Notes</label><textarea value={form.notes} onChange={(e) => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Initial notes…" rows={3} style={{ ...inputStyle, resize: "none" }} /></div>
+          <button type="submit" disabled={create.isPending} style={{ background: "linear-gradient(135deg, #3b82f6, #2563eb)", border: "none", borderRadius: "12px", color: "#fff", cursor: create.isPending ? "not-allowed" : "pointer", padding: "12px", fontSize: "14px", fontWeight: 700, opacity: create.isPending ? 0.7 : 1 }}>{create.isPending ? "Adding…" : "Add to Pipeline"}</button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Lead = {
   id: number;
@@ -314,23 +351,31 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
 export default function SCOPSPipeline() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
-  const kanbanQ = trpc.dashboard.pipelineKanban.useQuery();
+  // Use new pipeline.list for live data with stage/search filtering
+  const [filterStage, setFilterStage] = useState("");
+  const [filterScore, setFilterScore] = useState("");
+  const [search, setSearch] = useState("");
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const pipelineQ = trpc.pipeline.list.useQuery(
+    { stage: (filterStage || undefined) as "NEW_INQUIRY" | "QUALIFIED" | "TOUR_SCHEDULED" | "TOURED" | "OFFER_SUBMITTED" | "UNDER_CONTRACT" | "CLOSED" | "LOST" | undefined, search: search || undefined },
+    { refetchInterval: 30_000 }
+  );
+  const summaryQ = trpc.pipeline.summary.useQuery(undefined, { refetchInterval: 60_000 });
   const propertiesQ = trpc.properties.getAll.useQuery();
+  const utils = trpc.useUtils();
   const updateStage = trpc.leads.updateStage.useMutation({
-    onSuccess: () => { kanbanQ.refetch(); toast.success("Stage updated"); },
+    onSuccess: () => { utils.pipeline.list.invalidate(); utils.pipeline.summary.invalidate(); toast.success("Stage updated"); },
     onError: (e) => toast.error(e.message),
   });
 
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [search, setSearch] = useState("");
-  const [filterStage, setFilterStage] = useState("");
-  const [filterScore, setFilterScore] = useState("");
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
 
-  const allLeads: Lead[] = kanbanQ.data ?? [];
+  const allLeads: Lead[] = (pipelineQ.data ?? []) as Lead[];
   const allProperties: Property[] = (propertiesQ.data ?? []) as Property[];
+  const summary = summaryQ.data;
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -373,7 +418,25 @@ export default function SCOPSPipeline() {
 
   return (
     <div style={{ minHeight: "100vh", background: "radial-gradient(circle at top left, #1f2937, #0f172a)", backgroundAttachment: "fixed", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+      {showQuickAdd && <QuickAddSheet onClose={() => setShowQuickAdd(false)} onSuccess={() => setShowQuickAdd(false)} />}
       <SCOPSNav adminUser={adminUser} currentPage="scheduling" />
+
+      {/* KPI Summary Bar */}
+      {summary && (
+        <div style={{ padding: "8px 20px", background: "rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: 24, alignItems: "center" }}>
+          {[
+            { label: "Total Leads", value: summary.totalActive, color: "#a5b4fc" },
+            { label: "At Risk", value: summary.atRisk, color: "#f87171" },
+            { label: "Tours This Week", value: summary.toursThisWeek, color: "#34d399" },
+            { label: "New This Week", value: summary.newThisWeek, color: "#fbbf24" },
+          ].map(({ label, value, color }) => (
+            <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color }}>{value}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)", lineHeight: 1.2 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Filter Bar */}
       <div style={{ padding: "10px 20px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.10)", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -411,7 +474,7 @@ export default function SCOPSPipeline() {
               <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
                 {filterStage ? (STAGES.find(s => s.key === filterStage)?.label ?? "All Leads") : "All Leads"}
               </div>
-              <button onClick={() => toast.info("Add Lead — coming soon")} style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.30)", color: "#4f46e5", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+              <button onClick={() => setShowQuickAdd(true)} style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.30)", color: "#a5b4fc", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
             </div>
             <div style={{ fontSize: 11, color: "rgba(255,255,255,0.40)" }}>{filtered.length} lead{filtered.length !== 1 ? "s" : ""} · {filtered.filter(l => l.tourDate).length} tours</div>
           </div>
@@ -425,7 +488,7 @@ export default function SCOPSPipeline() {
               );
             })}
           </div>
-          {kanbanQ.isLoading ? (
+          {pipelineQ.isLoading ? (
             <div style={{ color: "rgba(255,255,255,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
           ) : filtered.length === 0 ? (
             <div style={{ color: "rgba(255,255,255,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No leads found</div>
@@ -451,12 +514,12 @@ export default function SCOPSPipeline() {
 
         {/* RIGHT: Detail panel */}
         {rightPanel ? (
-          <div style={{ padding: "12px", background: "rgba(255,255,255,0.35)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderLeft: "1px solid rgba(255,255,255,0.40)", overflowY: "auto" }}>
+          <div style={{ padding: "12px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderLeft: "1px solid rgba(255,255,255,0.10)", overflowY: "auto" }}>
             {rightPanel}
           </div>
         ) : (
-          <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.25)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderLeft: "1px solid rgba(255,255,255,0.40)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ textAlign: "center", color: "rgba(0,0,0,0.30)", fontSize: 13 }}>
+          <div style={{ width: 300, flexShrink: 0, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderLeft: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ textAlign: "center", color: "rgba(255,255,255,0.25)", fontSize: 13 }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>🏠</div>
               <div>Click a pin or lead<br />to see details</div>
             </div>

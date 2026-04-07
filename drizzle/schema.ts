@@ -96,6 +96,7 @@ export const contacts = mysqlTable("contacts", {
   primaryPropertyId: int("primaryPropertyId"),
   lastContactedAt: timestamp("lastContactedAt"),
   nextAction: varchar("nextAction", { length: 256 }),
+  nextActionDueAt: timestamp("nextActionDueAt"),  // when next action is due
 
   lossReason: mysqlEnum("lossReason", [
     "BOUGHT_ELSEWHERE",
@@ -421,7 +422,9 @@ export const leadPropertyInterest = mysqlTable("leadPropertyInterest", {
   leadId: int("leadId").notNull(),
   propertyId: int("propertyId").notNull(),
 
-  interestLevel: mysqlEnum("interestLevel", ["VIEWED", "SAVED", "TOURED"]).notNull().default("VIEWED"),
+  interestLevel: mysqlEnum("interestLevel", ["INQUIRED", "VIEWED", "SAVED", "TOURED"]).notNull().default("INQUIRED"),
+  isPrimaryInterest: int("isPrimaryInterest").notNull().default(0), // 1 = primary property
+  rankOrder: int("rankOrder").default(0),
   viewCount: int("viewCount").notNull().default(1),
 
   createdAt: timestamp("createdAt").defaultNow().notNull(),

@@ -11,6 +11,7 @@ import { leadsRouter } from "./routers/leads";
 import { newsletterRouter } from "./routers/newsletter";
 import { propertiesRouter } from "./routers/properties";
 import { schedulingRouter } from "./routers/scheduling";
+import { pipelineRouter } from "./routers/pipeline";
 
 export const appRouter = router({
   system: systemRouter,
@@ -28,6 +29,7 @@ export const appRouter = router({
   analytics: analyticsRouter,
   blog: blogRouter,
   leads: leadsRouter,
+  pipeline: pipelineRouter,
   newsletter: newsletterRouter,
   properties: propertiesRouter,
   scheduling: schedulingRouter,

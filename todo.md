@@ -721,3 +721,18 @@
 - [x] Refactor SCOPSPipeline to use GlassCard/PipelineCard
 - [x] Refactor SCOPSProperties (Inventory) to use GlassCard/GlassPanel
 - [x] Apply dark radial gradient body background to all SCOPS pages (Dashboard, Pipeline, Inventory, Marketing, Content)
+
+## Apr 7 2026 — SCOPS Pipeline Live Data Build
+- [x] Audit schema: add nextActionDueAt to contacts, isPrimaryInterest/rankOrder to leadPropertyInterest, INQUIRED to interestLevel enum
+- [x] Add pipeline.list tRPC procedure (live leads with stage/search filters)
+- [x] Add pipeline.leadDetail tRPC procedure (full lead payload)
+- [x] Add pipeline.summary tRPC procedure (totalActive, atRisk, toursThisWeek, newThisWeek, stageCounts)
+- [x] Add pipeline.quickCreate tRPC procedure (fast lead creation from Pipeline)
+- [x] Add pipeline.updateStage tRPC procedure
+- [x] Add pipeline.addActivity tRPC procedure
+- [x] Create StageFilterBar.tsx component
+- [x] Create LeadDetailPanel.tsx component with profile, activity, tours, next action blocks
+- [x] Rewrite SCOPSPipeline.tsx with live tRPC data, click-to-select detail panel, stage filter bar, quick add sheet
+- [x] Add KPI summary bar (Total Leads, At Risk, Tours This Week, New This Week)
+- [x] Fix dark glass right panel
+- [x] Write vitest for pipeline router (39 tests passing)
