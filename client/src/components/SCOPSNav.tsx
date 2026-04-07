@@ -18,7 +18,6 @@ const NAV_SECTIONS: NavSection[] = [
   { label: "Inventory",   key: "properties",  path: "/scops/properties" },
   { label: "Marketing",   key: "utm-builder", path: "/scops/utm-builder" },
   { label: "Content",     key: "blog",        path: "/scops/blog" },
-  { label: "Operations",  key: "operations",  soon: true },
   { label: "Settings",     key: "settings",    path: "/scops/settings" },
 ];
 
@@ -128,7 +127,7 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
                 if (section.soon) { toast.info(`${section.label} — coming soon`); return; }
                 if (section.path) setLocation(section.path);
               }}
-              className="relative px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap"
+              className="relative px-3.5 py-1.5 rounded-lg text-[17px] font-medium transition-all whitespace-nowrap"
           style={{
             color: isActive ? "rgba(255,255,255,0.95)" : section.soon ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.60)",
             background: isActive

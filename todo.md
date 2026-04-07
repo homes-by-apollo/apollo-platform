@@ -813,3 +813,7 @@
 - [x] SCOPS typography refactor: Inter/Figtree font, CRM Pro hierarchy (page titles, section headers, card labels, metrics, table headers/body)
 - [x] Blog index CTA: amber/gold "Start Your Apollo Home Journey" block on PublicBlog.tsx
 - [x] SCOPS Settings: email notification toggle (enable/disable stale-lead Resend alerts)
+
+## Apr 7 2026 — SCOPS Nav Cleanup
+- [x] Remove Operations tab from SCOPS navigation
+- [x] SCOPS top nav: increase tab font size by 4pt (13px → 17px)
