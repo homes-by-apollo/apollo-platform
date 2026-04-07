@@ -1157,11 +1157,11 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
               }}>
                 {/* LEFT — Book image, flat vertical on dark bg */}
                 <div className="nl-book-col" style={{
-                  flex:"0 0 480px",
+                  flex:"0 0 30%",
                   display:"flex",
                   alignItems:"center",
                   justifyContent:"center",
-                  padding:"40px 32px",
+                  padding:"40px 24px",
                   background:"rgba(255,255,255,0.04)",
                   borderRadius:"20px 0 0 20px",
                   overflow:"hidden",
@@ -1180,9 +1180,9 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
 
                 {/* RIGHT — Copy + form */}
                 <div className="nl-copy-col" style={{
-                  flex:1,
+                  flex:"0 0 70%",
                   minWidth:0,
-                  padding:"56px 56px 56px 48px",
+                  padding:"56px 64px 56px 52px",
                   display:"flex",
                   flexDirection:"column",
                   justifyContent:"center",
