@@ -762,7 +762,7 @@ export default function SCOPSPipeline() {
     : null;
 
   return (
-    <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div className="scops-bg" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       {showQuickAdd && <QuickAddSheet onClose={() => { setShowQuickAdd(false); setQuickAddStage(undefined); }} onSuccess={() => { setShowQuickAdd(false); setQuickAddStage(undefined); }} initialStage={quickAddStage} />}
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: adminUser.adminRole }} currentPage="scheduling" />
 

@@ -18,6 +18,7 @@ import SCOPSUtmBuilder from "./pages/SCOPSUtmBuilder";
 import SCOPSScheduling from "./pages/SCOPSScheduling";
 import SCOPSPipeline from "./pages/SCOPSPipeline";
 import SCOPSSettings from "./pages/SCOPSSettings";
+import FAQsPage from "./pages/FAQsPage";
 import AdminLogin from "./pages/AdminLogin";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/blog" component={PublicBlog} />
       <Route path="/blog/:slug" component={PublicBlogPost} />
       <Route path="/buyers-guide-thank-you" component={BuyersGuideThankYou} />
+      <Route path="/faqs" component={FAQsPage} />
 
       {/* Auth routes */}
       <Route path="/admin-login" component={AdminLogin} />

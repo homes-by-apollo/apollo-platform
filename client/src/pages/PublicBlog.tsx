@@ -165,6 +165,22 @@ export default function PublicBlog() {
         </div>
       </div>
 
+      {/* ── Blog Index CTA ── */}
+      <div style={{ background: "linear-gradient(135deg, #e8a020 0%, #f5c842 100%)", padding: "56px 24px", textAlign: "center", boxShadow: "0 -4px 32px rgba(232,160,32,0.18)" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#7c4a00", textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10 }}>READY TO BUILD?</div>
+          <h2 style={{ fontSize: "clamp(22px,4vw,32px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.02em", lineHeight: 1.2, margin: "0 0 12px" }}>
+            Start Your Apollo Home Journey
+          </h2>
+          <p style={{ fontSize: 16, color: "rgba(15,32,68,0.72)", lineHeight: 1.65, margin: "0 0 28px" }}>
+            Schedule a free consultation with our team and find the perfect lot in Pahrump.
+          </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <button onClick={() => setLocation("/find-your-home")} style={{ background: NAVY, color: "white", fontWeight: 800, fontSize: 14, padding: "13px 26px", borderRadius: 9, border: "none", cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.04em" }}>FIND YOUR HOME</button>
+            <button onClick={() => setLocation("/get-in-touch")} style={{ background: "transparent", color: NAVY, fontWeight: 800, fontSize: 14, padding: "13px 26px", borderRadius: 9, border: `2px solid ${NAVY}`, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.04em" }}>GET IN TOUCH</button>
+          </div>
+        </div>
+      </div>
       <GlobalFooter />
     </div>
   );

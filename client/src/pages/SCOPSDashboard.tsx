@@ -130,7 +130,7 @@ function GC({
 function SH({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
     <div className="flex items-baseline gap-2 mb-3">
-      <span className="text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.90)" }}>{children}</span>
+      <span className="crm-section-header">{children}</span>
       {sub && <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.45)" }}>{sub}</span>}
     </div>
   );
@@ -148,22 +148,22 @@ function KpiCard({
   const isUp = (delta ?? 0) >= 0;
   return (
     <GC style={{ padding:"14px 16px" }}>
-      <div className="text-[10px] font-semibold mb-1.5 leading-tight uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.50)" }}>{label}</div>
+      <div className="crm-card-label mb-1.5 leading-tight">{label}</div>
       {loading ? (
         <div className="h-7 w-16 rounded-lg animate-pulse mb-2" style={{ background: "rgba(255,255,255,0.12)" }} />
       ) : (
         <div className="flex items-baseline gap-1 mb-1.5">
-          <span className="text-[26px] font-black leading-none tracking-tight" style={{ color: "rgba(255,255,255,0.95)" }}>{value}</span>
+          <span className="crm-metric-primary" style={{ fontSize: 26 }}>{value}</span>
           {unit && <span className="text-[12px] font-semibold" style={{ color: "rgba(255,255,255,0.45)" }}>{unit}</span>}
         </div>
       )}
       {/* Micro-signal */}
       {delta !== undefined && (
         <div className="flex items-center gap-1 mb-1.5">
-          <span className="text-[10px] font-bold" style={{ color: isUp ? "#16a34a" : "#dc2626" }}>
+          <span className={`text-[10px] font-bold ${isUp ? 'crm-metric-positive' : 'crm-metric-negative'}`}>
             {isUp ? "▲" : "▼"} {Math.abs(delta)}
           </span>
-          {deltaLabel && <span className="text-[10px] text-slate-400">{deltaLabel}</span>}
+          {deltaLabel && <span className="crm-metric-supporting text-[10px] mt-0">{deltaLabel}</span>}
         </div>
       )}
       <div style={{ height:3, borderRadius:3, background:"rgba(0,0,0,.06)", overflow:"hidden" }}>

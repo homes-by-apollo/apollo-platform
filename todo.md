@@ -800,3 +800,16 @@
 - [x] Thank-you page: add react-helmet OG meta tags (title, description, og:image)
 - [x] SCOPS Admin: stale lead threshold setting (DB table + procedure + /scops/settings page)
 - [x] SCOPS Dashboard: apply dark liquid glass design system (new dark background, dark glass tokens, white text)
+
+## Apr 7 2026 — Lead Capture Refactor, FAQ Page, SCOPS Typography
+- [x] Refactor Get In Touch page: 2-step progressive form (Name+Phone/Email → Timeline+Budget+Financing+Message)
+- [x] Get In Touch: new headline/subhead/value bullets, social proof star rating, calendar post-submit
+- [x] Get In Touch: mobile-first layout (form first, contact info below, sticky CTA)
+- [x] Get In Touch: SCOPS API integration (leads.submit with source, stage, lead score, smart routing)
+- [x] Get In Touch: property context auto-fill from URL param
+- [x] Homepage: mid-page lead capture embed after property listings section
+- [x] Build /faqs page with hero, 14 Q&As across 4 categories, final CTA
+- [x] Wire "View All FAQs →" link on homepage FAQ to /faqs
+- [x] SCOPS typography refactor: Inter/Figtree font, CRM Pro hierarchy (page titles, section headers, card labels, metrics, table headers/body)
+- [x] Blog index CTA: amber/gold "Start Your Apollo Home Journey" block on PublicBlog.tsx
+- [x] SCOPS Settings: email notification toggle (enable/disable stale-lead Resend alerts)

@@ -14,7 +14,7 @@ import { getDb } from "../db";
 import { blogPosts, contacts, adminCredentials } from "../../drizzle/schema";
 import { and, eq, lte, isNotNull, inArray } from "drizzle-orm";
 import { Resend } from "resend";
-import { getStaleThresholdHours } from "../routers/settings";
+import { getStaleThresholdHours, getStaleAlertEnabled } from "../routers/settings";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -196,6 +196,9 @@ function scheduleLeadReengagement() {
         .select({ email: adminCredentials.email, name: adminCredentials.name })
         .from(adminCredentials);
 
+      // Check if email alerts are enabled before sending
+      const alertEnabled = await getStaleAlertEnabled();
+
       const resend = new Resend(process.env.RESEND_API_KEY);
       const stageLabel: Record<string, string> = {
         NEW_INQUIRY: "New Inquiry", QUALIFIED: "Qualified",
@@ -215,6 +218,8 @@ function scheduleLeadReengagement() {
         const recipients: { email: string; name: string }[] = lead.repEmail
           ? [{ email: lead.repEmail, name: lead.repName ?? "Rep" }]
           : allAdmins;
+
+        if (!alertEnabled) continue; // alerts disabled via SCOPS Settings
 
         for (const rep of recipients) {
           const html = `

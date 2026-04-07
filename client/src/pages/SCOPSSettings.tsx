@@ -5,13 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
+const CARD_STYLE: React.CSSProperties = {
+  background: "rgba(255,255,255,0.72)",
+  backdropFilter: "blur(20px) saturate(160%)",
+  WebkitBackdropFilter: "blur(20px) saturate(160%)",
+  border: "1px solid rgba(255,255,255,0.85)",
+  boxShadow: "0 4px 24px rgba(100,130,200,0.10)",
+  borderRadius: 16,
+  padding: "24px",
+};
+
 export default function SCOPSSettings() {
   const { data: adminUser } = trpc.adminAuth.me.useQuery();
   const { data: thresholdData, isLoading } = trpc.settings.getStaleThreshold.useQuery();
+  const { data: alertData, isLoading: alertLoading } = trpc.settings.getStaleAlertEnabled.useQuery();
   const [inputHours, setInputHours] = useState<string>("");
   const [saved, setSaved] = useState(false);
 
   const utils = trpc.useUtils();
+
   const setThreshold = trpc.settings.setStaleThreshold.useMutation({
     onSuccess: (data) => {
       utils.settings.getStaleThreshold.invalidate();
@@ -24,7 +36,18 @@ export default function SCOPSSettings() {
     },
   });
 
+  const setAlertEnabled = trpc.settings.setStaleAlertEnabled.useMutation({
+    onSuccess: (data) => {
+      utils.settings.getStaleAlertEnabled.invalidate();
+      toast.success(data.enabled ? "Email alerts enabled" : "Email alerts disabled");
+    },
+    onError: (err) => {
+      toast.error(`Failed to update: ${err.message}`);
+    },
+  });
+
   const currentHours = thresholdData?.hours ?? 48;
+  const alertEnabled = alertData?.enabled ?? true;
 
   function handleSave() {
     const h = parseInt(inputHours, 10);
@@ -38,32 +61,23 @@ export default function SCOPSSettings() {
   if (!adminUser) return null;
 
   return (
-    <div className="scops-bg min-h-screen" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif" }}>
+    <div className="scops-bg min-h-screen" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
       <SCOPSNav adminUser={adminUser} currentPage="settings" />
 
-      <div className="max-w-2xl mx-auto px-6 py-10">
+      <div className="max-w-2xl mx-auto px-6 py-10 space-y-4">
         {/* Page header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#0f2044]">SCOPS Settings</h1>
-          <p className="text-sm text-gray-500 mt-1">Configure operational parameters for the Apollo CRM.</p>
+          <h1 className="crm-page-title">SCOPS Settings</h1>
+          <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.55)" }}>Configure operational parameters for the Apollo CRM.</p>
         </div>
 
-        {/* Stale Lead Threshold Card */}
-        <div
-          className="rounded-2xl border p-6"
-          style={{
-            background: "rgba(255,255,255,0.72)",
-            backdropFilter: "blur(20px) saturate(160%)",
-            WebkitBackdropFilter: "blur(20px) saturate(160%)",
-            border: "1px solid rgba(255,255,255,0.85)",
-            boxShadow: "0 4px 24px rgba(100,130,200,0.10)",
-          }}
-        >
+        {/* ── Stale Lead Threshold Card ── */}
+        <div style={CARD_STYLE}>
           <div className="flex items-start justify-between mb-4">
             <div>
               <h2 className="text-base font-semibold text-[#0f2044]">Stale Lead Threshold</h2>
               <p className="text-sm text-gray-500 mt-0.5">
-                How many hours after a lead's <strong>Next Action Due</strong> date passes before it is flagged as overdue and the assigned rep receives a Resend alert.
+                How many hours after a lead's <strong>Next Action Due</strong> date passes before it is flagged as overdue.
               </p>
             </div>
             <span
@@ -129,19 +143,77 @@ export default function SCOPSSettings() {
             </Button>
           </div>
 
-          {/* Helper text */}
           <p className="text-xs text-gray-400 mt-3">
             Allowed range: 1–720 hours (1 hour to 30 days). Leads in <em>Closed</em> or <em>Lost</em> stages are never flagged.
           </p>
         </div>
 
+        {/* ── Email Notification Toggle Card ── */}
+        <div style={CARD_STYLE}>
+          <div className="flex items-center justify-between">
+            <div className="flex-1 pr-6">
+              <h2 className="text-base font-semibold text-[#0f2044]">Stale Lead Email Alerts</h2>
+              <p className="text-sm text-gray-500 mt-0.5">
+                When enabled, the assigned rep (or all admins if unassigned) receives a Resend email alert each time a lead is flagged as overdue.
+              </p>
+            </div>
+            {/* Toggle switch */}
+            <button
+              type="button"
+              disabled={alertLoading || setAlertEnabled.isPending}
+              onClick={() => setAlertEnabled.mutate({ enabled: !alertEnabled })}
+              aria-checked={alertEnabled}
+              role="switch"
+              style={{
+                flexShrink: 0,
+                width: 52,
+                height: 28,
+                borderRadius: 14,
+                border: "none",
+                cursor: alertLoading || setAlertEnabled.isPending ? "not-allowed" : "pointer",
+                background: alertEnabled ? "#16a34a" : "#d1d5db",
+                position: "relative",
+                transition: "background 0.2s",
+                outline: "none",
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  top: 3,
+                  left: alertEnabled ? 27 : 3,
+                  width: 22,
+                  height: 22,
+                  borderRadius: "50%",
+                  background: "white",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+                  transition: "left 0.2s",
+                }}
+              />
+            </button>
+          </div>
+          <div className="flex items-center gap-2 mt-3">
+            <span
+              className="text-xs font-semibold px-2 py-0.5 rounded-full"
+              style={{
+                background: alertEnabled ? "rgba(22,163,74,0.10)" : "rgba(107,114,128,0.10)",
+                color: alertEnabled ? "#16a34a" : "#6b7280",
+              }}
+            >
+              {alertLoading ? "Loading…" : alertEnabled ? "Alerts ON" : "Alerts OFF"}
+            </span>
+            {setAlertEnabled.isPending && (
+              <span className="text-xs text-gray-400">Saving…</span>
+            )}
+          </div>
+        </div>
+
         {/* Future settings placeholder */}
         <div
-          className="rounded-2xl border p-6 mt-4 opacity-50"
           style={{
+            ...CARD_STYLE,
+            opacity: 0.5,
             background: "rgba(255,255,255,0.45)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.70)",
           }}
         >
           <h2 className="text-base font-semibold text-[#0f2044] mb-1">More Settings</h2>

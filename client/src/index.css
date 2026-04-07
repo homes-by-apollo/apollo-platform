@@ -413,3 +413,138 @@
   border-color: rgba(99, 150, 220, 0.50);
   box-shadow: 0 0 0 1px rgba(99, 150, 220, 0.30), var(--glass-shadow-sm);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   CRM PRO TYPOGRAPHY SYSTEM — SCOPS
+   Spec: pasted_content_3.txt / pasted_content_4.txt
+═══════════════════════════════════════════════════════════ */
+
+/* Global type tokens */
+.scops-bg,
+[data-scops] {
+  --crm-text-primary: rgba(255, 255, 255, 1.0);
+  --crm-text-secondary: rgba(255, 255, 255, 0.70);
+  --crm-text-muted: rgba(255, 255, 255, 0.50);
+  --crm-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Page title — 30px / semibold / -0.02em */
+.crm-page-title {
+  font-family: var(--crm-font);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--crm-text-primary);
+  line-height: 1.15;
+}
+
+/* Section header — 16px / semibold / 0.9 opacity */
+.crm-section-header {
+  font-family: var(--crm-font);
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.90);
+  line-height: 1.3;
+}
+
+/* Card label — 12px / medium / uppercase / 0.6 opacity */
+.crm-card-label {
+  font-family: var(--crm-font);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.60);
+  line-height: 1.2;
+}
+
+/* Primary metric — 28px / bold / -0.01em */
+.crm-metric-primary {
+  font-family: var(--crm-font);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--crm-text-primary);
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+/* Supporting metric — 13px / medium */
+.crm-metric-supporting {
+  font-family: var(--crm-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.70);
+  margin-top: 4px;
+}
+.crm-metric-positive { color: #34d399; }
+.crm-metric-negative { color: #f87171; }
+
+/* Table header — 11px / semibold / uppercase */
+.crm-table-header {
+  font-family: var(--crm-font);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.50);
+}
+
+/* Table body — 14px / medium */
+.crm-table-body {
+  font-family: var(--crm-font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--crm-text-primary);
+}
+.crm-table-secondary {
+  font-family: var(--crm-font);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.60);
+}
+
+/* Input — dark glass style */
+.crm-input {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 0.5rem;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: var(--crm-font);
+  color: var(--crm-text-primary);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.crm-input::placeholder { color: rgba(255, 255, 255, 0.50); }
+.crm-input:focus {
+  border-color: rgba(255, 255, 255, 0.30);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.10);
+}
+
+/* Button — CRM Pro primary */
+.crm-btn {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 0.5rem;
+  color: var(--crm-text-primary);
+  font-family: var(--crm-font);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.crm-btn:hover {
+  background: rgba(255, 255, 255, 0.20);
+  border-color: rgba(255, 255, 255, 0.20);
+}
+
+/* Hierarchy stack helper — use inside .glass-card */
+.crm-metric-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.crm-metric-stack > .crm-card-label  { margin-bottom: 4px; }
+.crm-metric-stack > .crm-metric-primary { margin-top: 0; }
+.crm-metric-stack > .crm-metric-supporting { margin-top: 4px; }

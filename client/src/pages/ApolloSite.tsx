@@ -1128,6 +1128,26 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
             </div>
           </div>
 
+          {/* MID-PAGE LEAD CAPTURE */}
+          <div className="section-pad" style={{ padding:"0 var(--pad) 64px" }}>
+            <div style={{ background:"linear-gradient(135deg, #0f2044 0%, #1a3460 100%)", borderRadius:20, padding:"40px 48px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:32, flexWrap:"wrap", boxShadow:"0 8px 40px rgba(15,32,68,0.18)" }}>
+              <div style={{ flex:1, minWidth:260 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:"#c9a84c", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:10 }}>Limited Availability</div>
+                <h2 style={{ fontSize:"clamp(20px,2.8vw,30px)", fontWeight:800, color:"white", letterSpacing:"-0.02em", lineHeight:1.2, margin:"0 0 8px" }}>See What's Available in Pahrump Right Now</h2>
+                <p style={{ fontSize:15, color:"rgba(255,255,255,0.72)", lineHeight:1.6, margin:0 }}>Get current pricing and availability sent directly to you — no commitment required.</p>
+              </div>
+              <div style={{ display:"flex", gap:12, alignItems:"center", flexWrap:"wrap" }}>
+                <button onClick={()=>{ track("Mid-Page Lead Capture",{cta:"Get Pricing"}); window.location.href="/get-in-touch"; }}
+                  style={{ background:"#c9a84c", color:"#0f2044", border:"none", borderRadius:10, padding:"14px 26px", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>
+                  Get Pricing &amp; Availability
+                </button>
+                <button onClick={()=>{ track("Mid-Page Lead Capture",{cta:"Schedule Call"}); window.open("https://calendly.com/d/cyjg-rx9-q39/meeting","_blank"); }}
+                  style={{ background:"transparent", color:"white", border:"1.5px solid rgba(255,255,255,0.35)", borderRadius:10, padding:"14px 22px", fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>
+                  Schedule a Call
+                </button>
+              </div>
+            </div>
+          </div>
           {/* HOW IT WORKS */}
           <div className="section-pad how-it-works-wrap" style={{ background:"white", padding:"72px var(--pad)", marginTop:64 }}>
             <div className="site-container">

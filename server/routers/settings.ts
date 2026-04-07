@@ -1,6 +1,8 @@
 /**
  * Settings router — read/write configurable system settings.
- * Currently exposes the stale-lead threshold (hours) used by the cron job.
+ * Exposes:
+ *   - staleLeadThresholdHours: hours before a lead is flagged as overdue
+ *   - staleAlertEnabled: whether Resend email alerts fire on stale leads
  */
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -10,6 +12,7 @@ import { getDb } from "../db";
 import { systemSettings } from "../../drizzle/schema";
 
 export const STALE_THRESHOLD_KEY = "staleLeadThresholdHours";
+export const STALE_ALERT_KEY = "staleAlertEnabled";
 export const DEFAULT_STALE_HOURS = 48;
 
 /** Returns the stale lead threshold in hours (defaults to 48 if not set). */
@@ -23,6 +26,18 @@ export async function getStaleThresholdHours(): Promise<number> {
   if (rows.length === 0) return DEFAULT_STALE_HOURS;
   const parsed = parseInt(rows[0].value, 10);
   return isNaN(parsed) || parsed < 1 ? DEFAULT_STALE_HOURS : parsed;
+}
+
+/** Returns whether stale-lead email alerts are enabled (defaults to true). */
+export async function getStaleAlertEnabled(): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return true;
+  const rows = await db
+    .select({ value: systemSettings.value })
+    .from(systemSettings)
+    .where(eq(systemSettings.key, STALE_ALERT_KEY));
+  if (rows.length === 0) return true;
+  return rows[0].value !== "false";
 }
 
 export const settingsRouter = router({
@@ -42,5 +57,23 @@ export const settingsRouter = router({
         .values({ key: STALE_THRESHOLD_KEY, value: String(input.hours) })
         .onDuplicateKeyUpdate({ set: { value: String(input.hours) } });
       return { hours: input.hours };
+    }),
+
+  /** Get whether stale-lead email alerts are enabled. */
+  getStaleAlertEnabled: protectedProcedure.query(async () => {
+    return { enabled: await getStaleAlertEnabled() };
+  }),
+
+  /** Enable or disable stale-lead email alerts. */
+  setStaleAlertEnabled: protectedProcedure
+    .input(z.object({ enabled: z.boolean() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      await db
+        .insert(systemSettings)
+        .values({ key: STALE_ALERT_KEY, value: input.enabled ? "true" : "false" })
+        .onDuplicateKeyUpdate({ set: { value: input.enabled ? "true" : "false" } });
+      return { enabled: input.enabled };
     }),
 });
