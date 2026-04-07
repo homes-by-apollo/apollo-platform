@@ -9,6 +9,16 @@ const GOLD = "#c9a84c";
 const BOR = "#e5e7eb";
 const MUT = "#6b7280";
 
+// ── Plausible custom event helper ───────────────────────────────────────────
+declare global {
+  interface Window {
+    plausible?: (event: string, opts?: { props?: Record<string, string | number | boolean> }) => void;
+  }
+}
+const track = (event: string, props?: Record<string, string | number | boolean>) => {
+  try { window.plausible?.(event, props ? { props } : undefined); } catch {}
+};
+
 type Step1 = { name: string; contact: string };
 type Step2 = { timeline: string; priceRange: string; financing: string; message: string };
 
@@ -23,7 +33,7 @@ function CheckIcon() {
 
 export default function GetInTouch() {
   const [, setLocation] = useLocation();
-  const [step, setStep] = useState<1 | 2 | "success">(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [step1, setStep1] = useState<Step1>({ name: "", contact: "" });
   const [step2, setStep2] = useState<Step2>({ timeline: "", priceRange: "", financing: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -33,7 +43,11 @@ export default function GetInTouch() {
     const params = new URLSearchParams(window.location.search);
     const prop = params.get("property");
     if (prop) setInterestedIn(decodeURIComponent(prop));
-    // Load Calendly script for success state
+  }, []);
+
+  // Lazy-load Calendly only when Step 3 renders, and fire Plausible events
+  useEffect(() => {
+    if (step !== 3) return;
     if (!document.getElementById("calendly-script")) {
       const s = document.createElement("script");
       s.id = "calendly-script";
@@ -41,10 +55,25 @@ export default function GetInTouch() {
       s.async = true;
       document.head.appendChild(s);
     }
-  }, []);
+    // Fire Step 3 Viewed
+    track("Lead Form Step 3 Viewed");
+    // Listen for Calendly meeting booked
+    const handleCalendlyEvent = (e: MessageEvent) => {
+      if (e.data?.event === "calendly.event_scheduled") {
+        track("Lead Form Meeting Booked");
+      }
+    };
+    window.addEventListener("message", handleCalendlyEvent);
+    return () => window.removeEventListener("message", handleCalendlyEvent);
+  }, [step]);
 
   const submitMutation = trpc.leads.submit.useMutation({
-    onSuccess: () => setStep("success"),
+    onSuccess: () => {
+      // Fire Step 2 Complete BEFORE rendering Step 3
+      track("Lead Form Step 2 Complete");
+      setStep(3);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
   });
 
   const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -64,34 +93,25 @@ export default function GetInTouch() {
 
   function handleStep1Submit() {
     if (!validateStep1()) return;
+    // Fire Step 1 Complete event
+    track("Lead Form Step 1 Complete");
     setStep(2);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function handleFinalSubmit() {
-    const parts = step1.name.trim().split(" ");
-    const firstName = parts[0] || step1.name;
-    const lastName = parts.slice(1).join(" ") || "-";
     const emailVal = isEmail(step1.contact) ? step1.contact : undefined;
     const phoneVal = !isEmail(step1.contact) && isPhone(step1.contact) ? step1.contact : undefined;
-    const finalEmail = emailVal ?? `${step1.contact.replace(/\D/g, "")}@noemail.local`;
-    const finalPhone = phoneVal ?? step1.contact;
-    const priceMap: Record<string, [number, number]> = {
-      "300_400": [300000, 400000], "400_500": [400000, 500000],
-      "500_600": [500000, 600000], "600_plus": [600000, 999999],
-    };
-    const [prMin, prMax] = step2.priceRange ? (priceMap[step2.priceRange] ?? [undefined, undefined]) : [undefined, undefined];
     const messageBody = [step2.message || "", interestedIn ? `Interested in: ${interestedIn}` : ""].filter(Boolean).join("\n\n");
     submitMutation.mutate({
-      contactType: "BUYER",
-      firstName, lastName,
-      email: finalEmail,
-      phone: finalPhone,
+      name: step1.name,
+      email: emailVal,
+      phone: phoneVal,
       timeline: step2.timeline ? step2.timeline as "ASAP" | "1_3_MONTHS" | "3_6_MONTHS" | "6_12_MONTHS" | "JUST_BROWSING" : undefined,
-      priceRangeMin: prMin,
-      priceRangeMax: prMax,
-      financingStatus: step2.financing ? step2.financing as "PRE_APPROVED" | "IN_PROCESS" | "NOT_STARTED" | "CASH_BUYER" : undefined,
+      price_range: step2.priceRange || undefined,
+      financing: step2.financing || undefined,
       message: messageBody || undefined,
+      source: "website_get_in_touch",
       landingPage: "/get-in-touch",
     });
   }
@@ -170,14 +190,14 @@ export default function GetInTouch() {
 
           {/* Right form */}
           <div className="git-right">
-            {step === "success" ? (
+            {step === 3 ? (
               <div style={{ background: "white", border: `1px solid ${BOR}`, borderRadius: 20, padding: 36, boxShadow: "0 8px 40px rgba(0,0,0,0.08)" }}>
                 <div style={{ textAlign: "center", marginBottom: 28 }}>
                   <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                     <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 16L12 22L26 10" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: NAVY, marginBottom: 8 }}>You're on the list!</h2>
-                  <p style={{ fontSize: 15, color: MUT, lineHeight: 1.6 }}>We'll be in touch within 5 minutes during business hours. Schedule a call below.</p>
+                  <p style={{ fontSize: 15, color: MUT, lineHeight: 1.6 }}>We'll be in touch within 5 minutes during business hours. Schedule a call below to lock in a time.</p>
                 </div>
                 <div style={{ background: "#f8fafc", borderRadius: 14, border: `1px solid ${BOR}`, overflow: "hidden", marginBottom: 20 }}>
                   <div style={{ padding: "12px 16px", borderBottom: `1px solid ${BOR}`, fontSize: 13, fontWeight: 600, color: NAVY }}>Schedule a Call</div>
@@ -194,10 +214,10 @@ export default function GetInTouch() {
                   {([1, 2] as const).map(n => (
                     <div key={n} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <div style={{ width: 28, height: 28, borderRadius: "50%", background: step >= n ? NAVY : "#f3f4f6", color: step >= n ? "white" : MUT, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, transition: "all 0.2s" }}>
-                        {(step as number) > n ? "✓" : n}
+                        {step > n ? "✓" : n}
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 600, color: step >= n ? NAVY : MUT }}>{n === 1 ? "Your Info" : "Your Search"}</span>
-                      {n < 2 && <div style={{ width: 24, height: 1, background: (step as number) > 1 ? NAVY : BOR, margin: "0 4px" }} />}
+                      {n < 2 && <div style={{ width: 24, height: 1, background: step > 1 ? NAVY : BOR, margin: "0 4px" }} />}
                     </div>
                   ))}
                 </div>
@@ -285,7 +305,7 @@ export default function GetInTouch() {
                       )}
                       <button onClick={handleFinalSubmit} disabled={submitMutation.isPending}
                         style={{ width: "100%", padding: "15px", borderRadius: 10, border: "none", background: submitMutation.isPending ? "#6b7a99" : NAVY, color: "white", fontSize: 15, fontWeight: 700, cursor: submitMutation.isPending ? "not-allowed" : "pointer", fontFamily: "inherit", transition: "background 0.15s" }}>
-                        {submitMutation.isPending ? "Checking availability\u2026" : "Check Availability \u2192"}
+                        {submitMutation.isPending ? "Checking availability\u2026" : "See Homes \u2192"}
                       </button>
                       <p style={{ fontSize: 12, color: MUT, textAlign: "center", margin: 0 }}>We respond within 5 minutes during business hours</p>
                       <button onClick={() => setStep(1)} style={{ background: "none", border: "none", color: MUT, fontSize: 13, cursor: "pointer", fontFamily: "inherit", padding: 0, textAlign: "center" }}>&#8592; Back</button>

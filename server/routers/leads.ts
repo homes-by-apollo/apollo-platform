@@ -15,7 +15,6 @@ import {
   logEmail,
   updateContact,
 } from "../db";
-import { notifyOwner } from "../_core/notification";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -160,25 +159,26 @@ export const leadsRouter = router({
 
   /**
    * Public: submit a new lead from the website contact form.
-   * Creates a contact record, sends welcome email, notifies owner.
+   * Accepts a simplified payload from the Get In Touch 2-step form.
+   * Creates a contact record, sends welcome email to lead,
+   * and sends a SCOPS alert to ops@apollohomebuilders.com via Resend.
+   * No Manus notifyOwner — SCOPS is the single source of truth.
    */
   submit: publicProcedure
     .input(
       z.object({
-        contactType: z.enum(["BUYER", "AGENT"]).default("BUYER"),
-        firstName: z.string().min(1),
-        lastName: z.string().min(1),
-        email: z.string().email(),
-        phone: z.string().min(7),
+        // Step 1: name + phone OR email
+        name: z.string().min(1, "Name is required"),
+        email: z.string().email().optional().or(z.literal("")).transform(v => v || undefined),
+        phone: z.string().optional(),
+        // Step 2: preferences
         timeline: timelineEnum.optional(),
-        priceRangeMin: z.number().optional(),
-        priceRangeMax: z.number().optional(),
-        financingStatus: financingEnum.optional(),
-        // Agent-specific
-        brokerageName: z.string().optional(),
-        licenseNumber: z.string().optional(),
-        // Extra
+        price_range: z.string().optional(),   // raw string e.g. "300_400"
+        financing: z.string().optional(),     // raw string e.g. "PRE_APPROVED"
         message: z.string().optional(),
+        // Source tracking
+        source: z.string().optional().default("website_get_in_touch"),
+        stage: z.string().optional().default("New Inquiry"),
         // UTM attribution
         utmSource: z.string().max(128).optional(),
         utmMedium: z.string().max(128).optional(),
@@ -186,27 +186,54 @@ export const leadsRouter = router({
         utmContent: z.string().max(256).optional(),
         utmTerm: z.string().max(256).optional(),
         landingPage: z.string().max(64).optional(),
+      }).refine(d => !!(d.email || d.phone), {
+        message: "Either email or phone is required",
+        path: ["email"],
       })
     )
     .mutation(async ({ ctx, input }) => {
       // Rate-limit: 5 submissions per IP per hour
       const ip = getClientIp(ctx.req as any);
       checkRateLimit(ip);
+
+      // Parse name into firstName / lastName
+      const nameParts = input.name.trim().split(/\s+/);
+      const firstName = nameParts[0] ?? input.name;
+      const lastName = nameParts.slice(1).join(" ") || firstName;
+
+      // Normalise email: if only phone provided, use a placeholder
+      const email = input.email || `${(input.phone ?? "").replace(/\D/g, "")}@noemail.local`;
+      const phone = input.phone ?? "";
+
+      // Map price_range string → numeric min/max
+      const priceMap: Record<string, [number, number]> = {
+        "300_400": [300000, 400000],
+        "400_500": [400000, 500000],
+        "500_600": [500000, 600000],
+        "600_plus": [600000, 999999],
+      };
+      const [priceRangeMin, priceRangeMax] = input.price_range
+        ? (priceMap[input.price_range] ?? [undefined, undefined])
+        : [undefined, undefined];
+
+      // Map financing string → enum value
+      const validFinancing = ["PRE_APPROVED", "IN_PROCESS", "NOT_STARTED", "CASH_BUYER"] as const;
+      const financingStatus = validFinancing.includes(input.financing as any)
+        ? (input.financing as typeof validFinancing[number])
+        : undefined;
+
       const contactId = await createContact({
-        contactType: input.contactType,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        email: input.email,
-        phone: input.phone,
+        contactType: "BUYER",
+        firstName,
+        lastName,
+        email,
+        phone,
         timeline: input.timeline,
-        priceRangeMin: input.priceRangeMin,
-        priceRangeMax: input.priceRangeMax,
-        financingStatus: input.financingStatus,
-        brokerageName: input.brokerageName,
-        licenseNumber: input.licenseNumber,
+        priceRangeMin,
+        priceRangeMax,
+        financingStatus,
         source: "WEBSITE",
         pipelineStage: "NEW_INQUIRY",
-        // UTM attribution
         utmSource: input.utmSource ?? null,
         utmMedium: input.utmMedium ?? null,
         utmCampaign: input.utmCampaign ?? null,
@@ -219,26 +246,48 @@ export const leadsRouter = router({
       await logActivity({
         contactId,
         activityType: "FORM_SUBMITTED",
-        description: `New ${input.contactType === "AGENT" ? "agent" : "buyer"} lead submitted via website form.${input.message ? ` Message: "${input.message}"` : ""}`,
+        description: `New buyer lead submitted via website Get In Touch form.${input.message ? ` Message: "${input.message}"` : ""}`,
       });
 
-      // Send welcome email
-      await sendLeadWelcomeEmail({
-        id: contactId,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        email: input.email,
-        contactType: input.contactType,
-      });
+      // Send welcome email to lead (only if real email provided)
+      if (input.email) {
+        await sendLeadWelcomeEmail({
+          id: contactId,
+          firstName,
+          lastName,
+          email: input.email,
+          contactType: "BUYER",
+        });
+      }
 
-      // Notify owner (non-blocking)
-      const scoreLabel = input.contactType === "BUYER" ? ` | Timeline: ${input.timeline ?? "unknown"}` : "";
+      // ── SCOPS internal alert (replaces Manus notifyOwner) ─────────────────
+      // Send a notification email to ops@apollohomebuilders.com via Resend.
+      // This is the only notification channel — no Manus dependency.
+      const timelineLabel = input.timeline ? ` | Timeline: ${input.timeline}` : "";
+      const priceLabel = input.price_range ? ` | Budget: ${input.price_range.replace("_", "–")}` : "";
+      const finLabel = input.financing ? ` | Financing: ${input.financing}` : "";
       const utmLabel = input.utmSource ? ` | UTM: ${input.utmSource}/${input.utmMedium ?? "(none)"}` : "";
-      const landingLabel = input.landingPage ? ` | Page: ${input.landingPage}` : "";
-      notifyOwner({
-        title: `New ${input.contactType === "AGENT" ? "Agent" : "Lead"}: ${input.firstName} ${input.lastName}`,
-        content: `Email: ${input.email} | Phone: ${input.phone}${scoreLabel}${utmLabel}${landingLabel}${input.message ? `\n\n"${input.message}"` : ""}`,
-      }).catch(() => {});
+      resend.emails.send({
+        from: "SCOPS Alerts <hello@apollohomebuilders.com>",
+        to: ["ops@apollohomebuilders.com"],
+        subject: `New Lead: ${firstName} ${lastName}`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#f7f8fb">
+            <h2 style="color:#0f2044;margin:0 0 16px">New Lead — SCOPS</h2>
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <tr><td style="padding:6px 0;color:#6b7280;width:120px">Name</td><td style="padding:6px 0;font-weight:600;color:#111827">${firstName} ${lastName}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b7280">Email</td><td style="padding:6px 0;color:#111827">${input.email || "—"}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b7280">Phone</td><td style="padding:6px 0;color:#111827">${phone || "—"}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b7280">Timeline</td><td style="padding:6px 0;color:#111827">${input.timeline ?? "—"}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b7280">Budget</td><td style="padding:6px 0;color:#111827">${input.price_range?.replace("_", "–") ?? "—"}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b7280">Financing</td><td style="padding:6px 0;color:#111827">${input.financing ?? "—"}</td></tr>
+              ${input.message ? `<tr><td style="padding:6px 0;color:#6b7280;vertical-align:top">Message</td><td style="padding:6px 0;color:#111827">${input.message}</td></tr>` : ""}
+              ${input.utmSource ? `<tr><td style="padding:6px 0;color:#6b7280">UTM</td><td style="padding:6px 0;color:#111827">${utmLabel.replace(" | UTM: ", "")}</td></tr>` : ""}
+            </table>
+            <p style="margin:20px 0 0;font-size:13px;color:#9ca3af">Source: ${input.source}${timelineLabel}${priceLabel}${finLabel}</p>
+            <a href="https://apollodash-mwvy9am3.manus.space/crm" style="display:inline-block;margin-top:16px;background:#0f2044;color:white;padding:10px 20px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none">View in SCOPS →</a>
+          </div>`,
+      }).catch((err: unknown) => console.error("[SCOPS Alert] Resend failed:", err));
 
       return { success: true, contactId };
     }),

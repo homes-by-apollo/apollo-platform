@@ -833,3 +833,33 @@
 - [x] SCOPS Users: add Super Admin shield badge next to name in users table
 - [x] SCOPS Settings: add "Send Test Alert" button that fires a sample Resend email to the logged-in rep
 - [x] /faqs page: add application/ld+json FAQ schema markup for Google rich results
+
+## Remove Manus + Plausible Funnel Tracking (Apr 7 2026)
+- [ ] Update leads.submit to accept new payload (name, phone OR email, price_range string, source field)
+- [ ] Replace notifyOwner() with Resend alert to ops@apollohomebuilders.com on new lead
+- [ ] Remove notifyOwner import from leads router
+- [ ] Rewrite GetInTouch.tsx: 3-step flow (Step1: name+contact, Step2: timeline/price/financing/message, Step3: Calendly)
+- [ ] Add Plausible event: Lead Form Step 1 Complete (on Step 1 CTA click)
+- [ ] Add Plausible event: Lead Form Step 2 Complete (on successful submit, before Step 3 render)
+- [ ] Add Plausible event: Lead Form Step 3 Viewed (on Step 3 render)
+- [ ] Add Plausible event: Lead Form Meeting Booked (on Calendly event_scheduled message)
+- [ ] Only render Step 3 / Calendly after successful /api/leads response
+- [ ] Show error state on API failure, do NOT advance to Step 3
+- [ ] Write vitest test for new submit payload validation
+- [ ] Verify lead appears in SCOPS after submission
+- [ ] Confirm no Manus emails sent (notifyOwner removed)
+
+## Remove Manus + Plausible Funnel Tracking (Apr 7 2026)
+- [ ] Update leads.submit to accept new payload (name, phone OR email, price_range string, source field)
+- [ ] Replace notifyOwner() with Resend alert to ops@apollohomebuilders.com on new lead
+- [ ] Remove notifyOwner import from leads router
+- [ ] Rewrite GetInTouch.tsx: 3-step flow (Step1: name+contact, Step2: timeline/price/financing/message, Step3: Calendly)
+- [ ] Add Plausible event: Lead Form Step 1 Complete (on Step 1 CTA click)
+- [ ] Add Plausible event: Lead Form Step 2 Complete (on successful submit, before Step 3 render)
+- [ ] Add Plausible event: Lead Form Step 3 Viewed (on Step 3 render)
+- [ ] Add Plausible event: Lead Form Meeting Booked (on Calendly event_scheduled message)
+- [ ] Only render Step 3 / Calendly after successful /api/leads response
+- [ ] Show error state on API failure, do NOT advance to Step 3
+- [ ] Write vitest test for new submit payload validation
+- [ ] Verify lead appears in SCOPS after submission
+- [ ] Confirm no Manus emails sent (notifyOwner removed)

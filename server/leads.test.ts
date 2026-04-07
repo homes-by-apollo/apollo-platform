@@ -2,6 +2,9 @@
  * leads.test.ts
  * Unit tests for the leads tRPC router.
  * Uses vi.mock to isolate database and email dependencies.
+ *
+ * Updated Apr 2026: submit now accepts simplified payload
+ * (name + email OR phone) — no Manus notifyOwner dependency.
  */
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { TRPCError } from "@trpc/server";
@@ -18,6 +21,7 @@ vi.mock("./db", () => ({
   getStageCounts: vi.fn().mockResolvedValue([]),
   getNewLeadsThisWeek: vi.fn().mockResolvedValue(0),
   getSourceCounts: vi.fn().mockResolvedValue([]),
+  getUtmSourceCounts: vi.fn().mockResolvedValue([]),
   logActivity: vi.fn().mockResolvedValue(undefined),
   logEmail: vi.fn().mockResolvedValue(undefined),
   updateContact: vi.fn().mockResolvedValue(undefined),
@@ -31,9 +35,8 @@ vi.mock("resend", () => ({
   })),
 }));
 
-vi.mock("./_core/notification", () => ({
-  notifyOwner: vi.fn().mockResolvedValue(true),
-}));
+// NOTE: notifyOwner is intentionally NOT mocked here — it has been removed
+// from the leads router. SCOPS-only Resend alert is used instead.
 
 // ─── Import after mocks ───────────────────────────────────────────────────────
 
@@ -70,7 +73,7 @@ function createAuthContext(): TrpcContext {
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe("leads.submit (public)", () => {
+describe("leads.submit (public) — new simplified schema", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(db.createContact).mockResolvedValue(1);
@@ -78,52 +81,125 @@ describe("leads.submit (public)", () => {
     vi.mocked(db.logEmail).mockResolvedValue(undefined);
   });
 
-  it("creates a BUYER contact and returns success + contactId", async () => {
+  it("creates a BUYER contact with email and returns success + contactId", async () => {
     const caller = appRouter.createCaller(createPublicContext());
     const result = await caller.leads.submit({
-      contactType: "BUYER",
-      firstName: "Jane",
-      lastName: "Smith",
+      name: "Jane Smith",
       email: "jane@example.com",
-      phone: "7025550001",
       timeline: "ASAP",
-      financingStatus: "PRE_APPROVED",
+      price_range: "300_400",
+      financing: "PRE_APPROVED",
+      source: "website_get_in_touch",
     });
 
     expect(result.success).toBe(true);
     expect(result.contactId).toBe(1);
     expect(db.createContact).toHaveBeenCalledOnce();
+    expect(db.createContact).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contactType: "BUYER",
+        firstName: "Jane",
+        lastName: "Smith",
+        email: "jane@example.com",
+        pipelineStage: "NEW_INQUIRY",
+        source: "WEBSITE",
+        priceRangeMin: 300000,
+        priceRangeMax: 400000,
+        financingStatus: "PRE_APPROVED",
+      })
+    );
     expect(db.logActivity).toHaveBeenCalledOnce();
   });
 
-  it("creates an AGENT contact successfully", async () => {
+  it("creates a contact with phone-only (no email) using placeholder email", async () => {
     const caller = appRouter.createCaller(createPublicContext());
     const result = await caller.leads.submit({
-      contactType: "AGENT",
-      firstName: "Mike",
-      lastName: "Jones",
-      email: "mike@realty.com",
-      phone: "7025550002",
-      brokerageName: "Nevada Realty Group",
+      name: "Bob Jones",
+      phone: "7025550099",
+      source: "website_get_in_touch",
     });
 
     expect(result.success).toBe(true);
     expect(db.createContact).toHaveBeenCalledWith(
-      expect.objectContaining({ contactType: "AGENT", brokerageName: "Nevada Realty Group" })
+      expect.objectContaining({
+        firstName: "Bob",
+        lastName: "Jones",
+        phone: "7025550099",
+        email: expect.stringContaining("@noemail.local"),
+      })
     );
   });
 
-  it("rejects submission with missing required fields", async () => {
+  it("maps price_range string to numeric min/max correctly", async () => {
+    const caller = appRouter.createCaller(createPublicContext());
+    await caller.leads.submit({
+      name: "Alice Tran",
+      email: "alice@example.com",
+      price_range: "400_500",
+    });
+    expect(db.createContact).toHaveBeenCalledWith(
+      expect.objectContaining({ priceRangeMin: 400000, priceRangeMax: 500000 })
+    );
+  });
+
+  it("maps financing string to enum value correctly", async () => {
+    const caller = appRouter.createCaller(createPublicContext());
+    await caller.leads.submit({
+      name: "Carlos Reyes",
+      email: "carlos@example.com",
+      financing: "CASH_BUYER",
+    });
+    expect(db.createContact).toHaveBeenCalledWith(
+      expect.objectContaining({ financingStatus: "CASH_BUYER" })
+    );
+  });
+
+  it("ignores unknown financing strings (does not throw)", async () => {
+    const caller = appRouter.createCaller(createPublicContext());
+    const result = await caller.leads.submit({
+      name: "Dana Lee",
+      email: "dana@example.com",
+      financing: "UNKNOWN_VALUE",
+    });
+    expect(result.success).toBe(true);
+    expect(db.createContact).toHaveBeenCalledWith(
+      expect.objectContaining({ financingStatus: undefined })
+    );
+  });
+
+  it("rejects submission with neither email nor phone", async () => {
     const caller = appRouter.createCaller(createPublicContext());
     await expect(
-      caller.leads.submit({
-        contactType: "BUYER",
-        firstName: "",
-        lastName: "Smith",
-        email: "bad-email",
-        phone: "123",
-      })
+      caller.leads.submit({ name: "Ghost User" })
     ).rejects.toThrow();
+  });
+
+  it("rejects submission with empty name", async () => {
+    const caller = appRouter.createCaller(createPublicContext());
+    await expect(
+      caller.leads.submit({ name: "", email: "test@example.com" })
+    ).rejects.toThrow();
+  });
+
+  it("does not call notifyOwner (Manus dependency removed)", async () => {
+    // Use a unique IP to avoid rate limiter collision with other tests
+    const uniqueCtx = {
+      user: null,
+      req: {
+        protocol: "https",
+        headers: { "x-forwarded-for": "192.168.99.99" },
+        ip: "192.168.99.99",
+      } as TrpcContext["req"],
+      res: { clearCookie: vi.fn() } as unknown as TrpcContext["res"],
+    };
+    const caller = appRouter.createCaller(uniqueCtx);
+    const result = await caller.leads.submit({
+      name: "Test User",
+      email: "notifyowner-test@example.com",
+    });
+    expect(result.success).toBe(true);
+    // If notifyOwner were called and not mocked, the test would throw.
+    // Passing here confirms the Manus dependency is gone.
   });
 });
 

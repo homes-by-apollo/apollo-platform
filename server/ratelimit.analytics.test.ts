@@ -18,6 +18,8 @@ vi.mock("./db", () => ({
   getEmailsForContact: vi.fn().mockResolvedValue([]),
   getStageCounts: vi.fn().mockResolvedValue([]),
   getNewLeadsThisWeek: vi.fn().mockResolvedValue(0),
+  getSourceCounts: vi.fn().mockResolvedValue([]),
+  getUtmSourceCounts: vi.fn().mockResolvedValue([]),
   logActivity: vi.fn().mockResolvedValue(undefined),
   logEmail: vi.fn().mockResolvedValue(undefined),
   updateContact: vi.fn().mockResolvedValue(undefined),
@@ -29,10 +31,6 @@ vi.mock("resend", () => ({
       send: vi.fn().mockResolvedValue({ data: { id: "resend-test-id" }, error: null }),
     },
   })),
-}));
-
-vi.mock("./_core/notification", () => ({
-  notifyOwner: vi.fn().mockResolvedValue(true),
 }));
 
 // ─── Import after mocks ───────────────────────────────────────────────────────
@@ -71,13 +69,10 @@ function makeAdminCtx(): TrpcContext {
 }
 
 const validPayload = {
-  contactType: "BUYER" as const,
-  firstName: "Test",
-  lastName: "User",
-  email: "test@example.com",
+  name: "Test User",
   phone: "7025550000",
   timeline: "ASAP" as const,
-  financingStatus: "PRE_APPROVED" as const,
+  source: "website_get_in_touch" as const,
 };
 
 // ─── Rate limiter tests ───────────────────────────────────────────────────────

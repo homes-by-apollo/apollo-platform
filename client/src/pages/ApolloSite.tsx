@@ -1976,24 +1976,16 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                       )}
                       <button
                         onClick={()=>{
-                          if (!form.name || !form.email || !form.phone) return;
-                          const parts = form.name.trim().split(" ");
-                          const firstName = parts[0] || form.name;
-                          const lastName = parts.slice(1).join(" ") || "-";
-                          const priceMap: Record<string,[number,number]> = { under_450:[0,450000], "450_500":[450000,500000], "500_550":[500000,550000], "550_600":[550000,600000], over_600:[600000,999999] };
-                          const [prMin,prMax] = form.priceRange ? (priceMap[form.priceRange] ?? [undefined,undefined]) : [undefined,undefined];
+                          if (!form.name || (!form.email && !form.phone)) return;
                           contactMutation.mutate({
-                            contactType: form.contactType,
-                            firstName,
-                            lastName,
-                            email: form.email,
-                            phone: form.phone,
+                            name: form.name,
+                            email: form.email || undefined,
+                            phone: form.phone || undefined,
                             timeline: form.timeline ? form.timeline as "ASAP"|"1_3_MONTHS"|"3_6_MONTHS"|"6_12_MONTHS"|"JUST_BROWSING" : undefined,
-                            priceRangeMin: prMin,
-                            priceRangeMax: prMax,
-                            financingStatus: form.financingStatus ? form.financingStatus as "PRE_APPROVED"|"IN_PROCESS"|"NOT_STARTED"|"CASH_BUYER" : undefined,
-                            brokerageName: form.brokerageName || undefined,
+                            price_range: form.priceRange || undefined,
+                            financing: form.financingStatus || undefined,
                             message: form.message || undefined,
+                            source: "website_get_in_touch",
                             // UTM attribution
                             ...utmParams,
                             landingPage: window.location.pathname.slice(0, 64) || "/",
