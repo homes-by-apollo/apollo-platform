@@ -424,16 +424,31 @@ export default function SCOPSProperties() {
     markersRef.current = [];
     const geocoder = new google.maps.Geocoder();
     const properties = propertiesQuery.data ?? [];
+    if (properties.length === 0) return;
+    const bounds = new google.maps.LatLngBounds();
+    let resolved = 0;
     properties.forEach(prop => {
       const fullAddress = `${prop.address}, ${prop.city}, ${prop.state}`;
       geocoder.geocode({ address: fullAddress }, (results, status) => {
+        resolved++;
         if (status === "OK" && results?.[0]) {
+          const loc = results[0].geometry.location;
+          bounds.extend(loc);
           const pinColor = TAG_PIN_COLORS[prop.tag] ?? "#6366f1";
           const pinEl = document.createElement("div");
           pinEl.style.cssText = `width:24px;height:24px;border-radius:50% 50% 50% 0;background:${pinColor};border:2px solid white;transform:rotate(-45deg);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);`;
-          const marker = new google.maps.marker.AdvancedMarkerElement({ map, position: results[0].geometry.location, content: pinEl, title: prop.address });
+          const marker = new google.maps.marker.AdvancedMarkerElement({ map, position: loc, content: pinEl, title: prop.address });
           marker.addListener("click", () => setSelectedProperty(prop as Property));
           markersRef.current.push(marker);
+        }
+        // After all geocodes complete, fit map to show all markers
+        if (resolved === properties.length && !bounds.isEmpty()) {
+          map.fitBounds(bounds, { top: 40, right: 40, bottom: 60, left: 40 });
+          // Don't zoom in too far for a single pin
+          const listener = google.maps.event.addListenerOnce(map, "idle", () => {
+            if ((map.getZoom() ?? 0) > 15) map.setZoom(15);
+          });
+          void listener;
         }
       });
     });
@@ -510,7 +525,7 @@ export default function SCOPSProperties() {
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="properties" />
 
       {/* ── KPI Stats Bar ── */}

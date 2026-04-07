@@ -43,6 +43,18 @@ const LANDING_PAGE_DATA = [
   { name: "Google Search – 1BR Pahrump", icon: "🔍", visitors: 470, leads: 15, convRate: "$890K" },
   { name: "Email Newsletter", icon: "📧", visitors: 125, leads: 10, convRate: "$330K" },
 ];
+
+// Stage colour palette
+const STAGE_COLORS: Record<string, string> = {
+  NEW_INQUIRY:     "#6366f1",
+  QUALIFIED:       "#8b5cf6",
+  TOUR_SCHEDULED:  "#3b82f6",
+  TOURED:          "#0ea5e9",
+  OFFER_SUBMITTED: "#f59e0b",
+  UNDER_CONTRACT:  "#f97316",
+  CLOSED:          "#22c55e",
+};
+
 function buildUrl(params: { landingPage: string; source: string; medium: string; campaign: string; content: string; term: string }) {
   const qs = new URLSearchParams();
   if (params.source) qs.set("utm_source", params.source);
@@ -68,6 +80,103 @@ function SH({ title, action }: { title: string; action?: React.ReactNode }) {
     </div>
   );
 }
+
+/** Live funnel chart built from real SCOPS pipeline data */
+function LeadFunnelChart() {
+  const { data: funnel, isLoading } = trpc.leads.getFunnel.useQuery();
+
+  if (isLoading) {
+    return (
+      <div style={{ padding: "32px 16px", textAlign: "center", color: "rgba(15,32,68,0.35)", fontSize: 13 }}>
+        Loading funnel…
+      </div>
+    );
+  }
+
+  if (!funnel || funnel.every(f => f.count === 0)) {
+    return (
+      <div style={{ padding: "32px 16px", textAlign: "center", color: "rgba(15,32,68,0.35)", fontSize: 13 }}>
+        <div style={{ fontSize: 28, marginBottom: 8 }}>📊</div>
+        <div>No lead data yet.<br />Submit a lead to see the funnel.</div>
+      </div>
+    );
+  }
+
+  const maxCount = Math.max(...funnel.map(f => f.count), 1);
+
+  return (
+    <div style={{ padding: "16px 16px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
+      {funnel.map((step, i) => {
+        const barWidth = maxCount > 0 ? Math.max((step.count / maxCount) * 100, step.count > 0 ? 4 : 0) : 0;
+        const color = STAGE_COLORS[step.stage] ?? "#6366f1";
+        return (
+          <div key={step.stage}>
+            {/* Conversion arrow between stages */}
+            {i > 0 && funnel[i - 1].count > 0 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, paddingLeft: 4 }}>
+                <div style={{ width: 1, height: 12, background: "rgba(15,32,68,0.12)", marginLeft: 6 }} />
+                <span style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: (step.conversionRate ?? 0) >= 50 ? "#22c55e" : (step.conversionRate ?? 0) >= 25 ? "#f59e0b" : "#ef4444",
+                  letterSpacing: 0.3,
+                }}>
+                  {step.conversionRate !== null ? `${step.conversionRate}% converted` : "—"}
+                </span>
+              </div>
+            )}
+            {/* Stage row */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {/* Label */}
+              <div style={{ width: 120, flexShrink: 0, fontSize: 11, fontWeight: 600, color: "rgba(15,32,68,0.75)", textAlign: "right", paddingRight: 4 }}>
+                {step.label}
+              </div>
+              {/* Bar */}
+              <div style={{ flex: 1, height: 28, background: "rgba(15,32,68,0.04)", borderRadius: 6, overflow: "hidden", position: "relative" }}>
+                <div style={{
+                  height: "100%",
+                  width: `${barWidth}%`,
+                  background: color,
+                  borderRadius: 6,
+                  transition: "width 0.5s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  paddingRight: step.count > 0 ? 8 : 0,
+                  minWidth: step.count > 0 ? 32 : 0,
+                }}>
+                  {step.count > 0 && (
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#ffffff", whiteSpace: "nowrap" }}>
+                      {step.count}
+                    </span>
+                  )}
+                </div>
+                {step.count === 0 && (
+                  <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "rgba(15,32,68,0.30)", fontWeight: 500 }}>0</span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Summary footer */}
+      <div style={{ marginTop: 8, paddingTop: 12, borderTop: "1px solid rgba(15,32,68,0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 11, color: "rgba(15,32,68,0.45)" }}>
+          Total active leads: <strong style={{ color: "rgba(15,32,68,0.80)" }}>{funnel.reduce((s, f) => s + f.count, 0)}</strong>
+        </span>
+        {funnel[0].count > 0 && funnel[funnel.length - 1].count > 0 && (
+          <span style={{ fontSize: 11, color: "rgba(15,32,68,0.45)" }}>
+            End-to-end: <strong style={{ color: "#22c55e" }}>
+              {Math.round((funnel[funnel.length - 1].count / funnel[0].count) * 100)}%
+            </strong>
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function SCOPSUtmBuilder() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
@@ -93,7 +202,7 @@ export default function SCOPSUtmBuilder() {
       {/* Filter Bar */}
       <div style={{ padding: "10px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         {["All Inventory ▾", "Performance ▾", "Map View ▾", "Marketing Readiness ▾"].map((label, i) => (
-          <button key={label} style={{ padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.65)", border: i === 0 ? "1px solid rgba(99,102,241,0.40)" : "1px solid rgba(255,255,255,0.80)", color: i === 0 ? "#6366f1" : "rgba(15,32,68,0.55)", cursor: "pointer" }}>{label}</button>
+          <button key={label} style={{ padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.65)", border: i === 0 ? "1px solid rgba(99,102,241,0.40)" : "1px solid #e2e6ed", color: i === 0 ? "#6366f1" : "rgba(15,32,68,0.55)", cursor: "pointer" }}>{label}</button>
         ))}
         <div style={{ flex: 1, minWidth: 200, maxWidth: 280, marginLeft: "auto" }}>
           <input placeholder="Search address, city or zip…" style={{ width: "100%", padding: "6px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
@@ -151,37 +260,18 @@ export default function SCOPSUtmBuilder() {
             </div>
           </GlassCard>
         </div>
+
         {/* CENTER */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* ── Live Lead Funnel (real SCOPS data) ── */}
           <GlassCard>
-            <SH title="Campaign Leaderboard" action="Past 60 Days ▾" />
-            <div style={{ padding: "0 0 8px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, padding: "6px 16px", borderBottom: "1px solid rgba(15,32,68,0.08)" }}>
-                {["CAMPAIGN", "LEADS ⇕", "TOURS ⇕", "CONTRACTS ⇕", "REVENUE ⇕"].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, textAlign: h !== "CAMPAIGN" ? "right" : "left", cursor: "pointer" }}>{h}</span>)}
-              </div>
-              {CAMPAIGN_DATA.map(c => (
-                <div key={c.name} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, padding: "10px 16px", borderBottom: "1px solid rgba(15,32,68,0.07)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 14 }}>{c.icon}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{c.name}</span>
-                  </div>
-                  <span style={{ fontSize: 13, color: "rgba(15,32,68,0.60)", textAlign: "right", paddingLeft: 12 }}>{c.leads}</span>
-                  <span style={{ fontSize: 13, color: "rgba(15,32,68,0.60)", textAlign: "right", paddingLeft: 12 }}>{c.tours}</span>
-                  <span style={{ fontSize: 13, color: "rgba(15,32,68,0.60)", textAlign: "right", paddingLeft: 12 }}>{c.contracts}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#6366f1", textAlign: "right", paddingLeft: 12 }}>{c.revenue}</span>
-                </div>
-              ))}
-              <div style={{ padding: "8px 16px", display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: 0, borderTop: "1px solid rgba(15,32,68,0.08)" }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}></span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right", paddingLeft: 12 }}>152</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right", paddingLeft: 12 }}>51</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right", paddingLeft: 12 }}>13</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", textAlign: "right", paddingLeft: 12 }}>$6.67M</span>
-              </div>
-            </div>
+            <SH title="Lead Funnel" action="Live · All Time" />
+            <LeadFunnelChart />
           </GlassCard>
+
+          {/* UTM Builder */}
           <GlassCard style={{ flex: 1 }}>
-            <SH title="UTM Builder" action="Past 60 Days ▾" />
+            <SH title="UTM Builder" />
             <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, marginBottom: 6 }}>LANDING PAGE</div>
@@ -215,7 +305,7 @@ export default function SCOPSUtmBuilder() {
                 <div style={{ display: "flex", gap: 8 }}>
                   <Button size="sm" onClick={copyUrl} className="bg-[#0f2044] hover:bg-[#1a3366] text-white text-xs h-8 flex-1">Copy URL</Button>
                   <Button size="sm" variant="outline" onClick={reset} className="text-xs h-8">Reset</Button>
-                  <a href={generatedUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: "#a5b4fc", textDecoration: "underline", display: "flex", alignItems: "center" }}>Preview ↗</a>
+                  <a href={generatedUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: "#6366f1", textDecoration: "underline", display: "flex", alignItems: "center" }}>Preview ↗</a>
                 </div>
               </div>
               <div>
@@ -229,6 +319,7 @@ export default function SCOPSUtmBuilder() {
             </div>
           </GlassCard>
         </div>
+
         {/* RIGHT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {selectedChannel ? (

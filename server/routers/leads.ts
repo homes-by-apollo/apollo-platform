@@ -576,4 +576,37 @@ export const leadsRouter = router({
 
       return { sent, failed };
     }),
+
+  /**
+   * Lead funnel: returns each pipeline stage with count and step-to-step conversion %.
+   * Used by the SCOPS Marketing tab funnel chart.
+   */
+  getFunnel: protectedProcedure.query(async () => {
+    const stageCounts = await getStageCounts();
+    const STAGES: Array<{ key: string; label: string }> = [
+      { key: "NEW_INQUIRY",      label: "New Inquiry" },
+      { key: "QUALIFIED",        label: "Qualified" },
+      { key: "TOUR_SCHEDULED",   label: "Tour Scheduled" },
+      { key: "TOURED",           label: "Toured" },
+      { key: "OFFER_SUBMITTED",  label: "Offer Submitted" },
+      { key: "UNDER_CONTRACT",   label: "Under Contract" },
+      { key: "CLOSED",           label: "Closed" },
+    ];
+    const countMap = Object.fromEntries(
+      stageCounts.map(r => [r.stage, r.count])
+    );
+    const rows = STAGES.map(s => ({
+      stage: s.key,
+      label: s.label,
+      count: countMap[s.key] ?? 0,
+    }));
+    // Compute step-to-step conversion: count[i] / count[i-1]
+    const funnel = rows.map((row, i) => ({
+      ...row,
+      conversionRate: i === 0 || rows[i - 1].count === 0
+        ? null
+        : Math.round((row.count / rows[i - 1].count) * 100),
+    }));
+    return funnel;
+  }),
 });
