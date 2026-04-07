@@ -649,3 +649,18 @@
 - [x] Inventory Health: Slow Moving (60+ DOM) and Low Activity Listings panels
 - [x] Active Pipeline table: name, stage, score, property, timeline, last activity, next action
 - [x] All 35 tests passing
+
+## SCOPS Dashboard Glassmorphism Redesign (Apr 6 2026)
+- [x] Rewrite SCOPSDashboard.tsx: frosted glass / liquid blue macOS aesthetic matching mockup
+- [x] Gradient blue background (fixed attachment, multi-stop blue/periwinkle)
+- [x] GlassCard component: rgba white, backdrop-filter blur, white border, soft shadow
+- [x] KPI cards with colorful gradient progress bars and delta badges
+- [x] Pipeline Funnel with gradient blue bars matching mockup color palette
+- [x] Revenue Forecast with vertical bar chart + total forecast row
+- [x] Inventory Health: Slow Moving, Most Demanded, Recently Reduced with property images
+- [x] Deals at Risk: numbered cards with red Follow-Up button
+- [x] Source Performance table with emoji source icons
+- [x] Activity Feed with avatar initials and timestamps
+- [x] Active Pipeline table with glass-style row hover
+- [x] SCOPSNav: frosted glass bar, live clock + date top-left, centered tabs with glass active state, no Apple logo
+- [x] All 35 tests passing, zero TypeScript errors

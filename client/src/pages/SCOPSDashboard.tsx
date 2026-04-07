@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
@@ -8,7 +7,7 @@ import { useLocation } from "wouter";
 import LeadDetail from "./LeadDetail";
 import SCOPSNav from "@/components/SCOPSNav";
 
-// ─── Pipeline Stages (new enum) ───────────────────────────────────────────────
+// ─── Pipeline Stages ──────────────────────────────────────────────────────────
 
 const PIPELINE_STAGES = [
   "NEW_INQUIRY",
@@ -32,21 +31,32 @@ const STAGE_LABELS: Record<string, string> = {
   LOST: "Lost",
 };
 
-const STAGE_COLORS: Record<string, string> = {
-  NEW_INQUIRY: "bg-slate-100 text-slate-700",
-  QUALIFIED: "bg-blue-50 text-blue-700",
-  TOUR_SCHEDULED: "bg-teal-50 text-teal-700",
-  TOURED: "bg-emerald-50 text-emerald-700",
-  OFFER_SUBMITTED: "bg-amber-50 text-amber-700",
-  UNDER_CONTRACT: "bg-orange-50 text-orange-700",
-  CLOSED: "bg-green-50 text-green-700",
-  LOST: "bg-red-50 text-red-600",
+// Stage bar colors — matching the mockup's blue gradient palette
+const STAGE_BAR_COLORS: Record<string, string> = {
+  NEW_INQUIRY:      "linear-gradient(90deg, #4a90d9, #5ba3e8)",
+  QUALIFIED:        "linear-gradient(90deg, #4a9fd4, #5ab5e0)",
+  TOUR_SCHEDULED:   "linear-gradient(90deg, #4aadca, #5ac4d8)",
+  TOURED:           "linear-gradient(90deg, #4ab8b8, #5acfca)",
+  OFFER_SUBMITTED:  "linear-gradient(90deg, #6ab4a0, #7dcbb5)",
+  UNDER_CONTRACT:   "linear-gradient(90deg, #8aaa80, #9ec490)",
+  CLOSED:           "linear-gradient(90deg, #a8a060, #c0b870)",
 };
 
-const SCORE_COLORS: Record<string, string> = {
-  HOT: "bg-red-50 text-red-700 border-red-200",
-  WARM: "bg-amber-50 text-amber-700 border-amber-200",
-  COLD: "bg-blue-50 text-blue-700 border-blue-200",
+const STAGE_PILL_COLORS: Record<string, { bg: string; text: string }> = {
+  NEW_INQUIRY:      { bg: "rgba(74,144,217,0.15)",  text: "#2563eb" },
+  QUALIFIED:        { bg: "rgba(74,159,212,0.15)",  text: "#0891b2" },
+  TOUR_SCHEDULED:   { bg: "rgba(74,173,202,0.15)",  text: "#0e7490" },
+  TOURED:           { bg: "rgba(74,184,184,0.15)",  text: "#0f766e" },
+  OFFER_SUBMITTED:  { bg: "rgba(106,180,160,0.15)", text: "#047857" },
+  UNDER_CONTRACT:   { bg: "rgba(138,170,128,0.15)", text: "#65a30d" },
+  CLOSED:           { bg: "rgba(168,160,96,0.15)",  text: "#a16207" },
+  LOST:             { bg: "rgba(239,68,68,0.12)",   text: "#dc2626" },
+};
+
+const SCORE_PILL: Record<string, { bg: string; text: string }> = {
+  HOT:  { bg: "rgba(239,68,68,0.12)",   text: "#dc2626" },
+  WARM: { bg: "rgba(245,158,11,0.12)",  text: "#d97706" },
+  COLD: { bg: "rgba(59,130,246,0.12)",  text: "#2563eb" },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -55,11 +65,6 @@ function formatCurrency(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
   return `$${n.toLocaleString()}`;
-}
-
-function formatDate(d: Date | string | null | undefined): string {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 function timeAgo(d: Date | string | null | undefined): string {
@@ -79,116 +84,388 @@ function formatTimeline(t: string | null | undefined): string {
   return t ? (map[t] ?? t) : "—";
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Glass Card ───────────────────────────────────────────────────────────────
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function GlassCard({
+  children,
+  className = "",
+  style = {},
+  noPad = false,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+  noPad?: boolean;
+}) {
   return (
-    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+    <div
+      className={className}
+      style={{
+        background: "rgba(255,255,255,0.62)",
+        backdropFilter: "blur(20px) saturate(1.6)",
+        WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+        border: "1px solid rgba(255,255,255,0.75)",
+        borderRadius: 18,
+        boxShadow: "0 4px 24px rgba(30,60,120,0.08), 0 1px 3px rgba(30,60,120,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
+        padding: noPad ? 0 : "20px 22px",
+        ...style,
+      }}
+    >
       {children}
-    </p>
+    </div>
   );
 }
 
-function MetricCard({
+// ─── KPI Card ─────────────────────────────────────────────────────────────────
+
+const KPI_BAR_COLORS = [
+  "linear-gradient(90deg, #4a90d9 0%, #7eb8f0 100%)",
+  "linear-gradient(90deg, #4aadca 0%, #7ed4e8 100%)",
+  "linear-gradient(90deg, #e07b39 0%, #f0a870 100%)",
+  "linear-gradient(90deg, #4a90d9 0%, #6ab4f0 100%)",
+  "linear-gradient(90deg, #7c6ad9 0%, #a89cf0 100%)",
+  "linear-gradient(90deg, #4ab8b8 0%, #7adcdc 100%)",
+];
+
+function KpiCard({
   label,
   value,
-  sub,
-  accent,
+  unit,
+  badge,
+  badgeUp,
+  barPct,
+  colorIdx,
   loading,
 }: {
   label: string;
   value: string | number;
-  sub?: string;
-  accent?: string;
+  unit?: string;
+  badge?: string | number;
+  badgeUp?: boolean;
+  barPct?: number;
+  colorIdx: number;
   loading?: boolean;
 }) {
+  const barColor = KPI_BAR_COLORS[colorIdx % KPI_BAR_COLORS.length];
   return (
-    <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
-      <CardContent className="pt-5 pb-4 px-5">
-        {loading ? (
-          <div className="h-8 w-16 bg-slate-100 rounded animate-pulse mb-1" />
-        ) : (
-          <div
-            className="text-3xl font-black tracking-tight leading-none"
-            style={{ color: accent ?? "#0f2044" }}
-          >
-            {value}
-          </div>
-        )}
-        <div className="text-[13px] font-semibold text-slate-700 mt-1.5">{label}</div>
-        {sub && <div className="text-[11px] text-slate-400 mt-0.5">{sub}</div>}
-      </CardContent>
-    </Card>
+    <GlassCard>
+      <div className="text-[11px] font-semibold text-slate-500 mb-2 leading-tight">{label}</div>
+      {loading ? (
+        <div className="h-8 w-20 bg-white/60 rounded-lg animate-pulse mb-3" />
+      ) : (
+        <div className="flex items-baseline gap-1.5 mb-2">
+          <span className="text-[28px] font-black text-slate-800 leading-none tracking-tight">{value}</span>
+          {unit && <span className="text-[13px] font-semibold text-slate-500">{unit}</span>}
+          {badge !== undefined && (
+            <span
+              className="ml-auto text-[11px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5"
+              style={{
+                background: badgeUp === false ? "rgba(239,68,68,0.1)" : "rgba(34,197,94,0.1)",
+                color: badgeUp === false ? "#dc2626" : "#16a34a",
+              }}
+            >
+              {badgeUp === false ? "▼" : "▲"} {badge}
+            </span>
+          )}
+        </div>
+      )}
+      {/* Progress bar */}
+      <div
+        style={{
+          height: 4,
+          borderRadius: 4,
+          background: "rgba(0,0,0,0.06)",
+          overflow: "hidden",
+          marginTop: 4,
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            width: `${Math.min(barPct ?? 60, 100)}%`,
+            background: barColor,
+            borderRadius: 4,
+            transition: "width 0.6s ease",
+          }}
+        />
+      </div>
+    </GlassCard>
   );
 }
+
+// ─── Pipeline Funnel ──────────────────────────────────────────────────────────
 
 function PipelineFunnel({ stageCounts }: { stageCounts: { stage: string; count: number }[] }) {
   const activeStages = PIPELINE_STAGES.filter(s => s !== "LOST" && s !== "CLOSED");
   const countMap = Object.fromEntries(stageCounts.map(s => [s.stage, s.count]));
   const maxCount = Math.max(...activeStages.map(s => countMap[s] ?? 0), 1);
+  const firstCount = countMap[activeStages[0]] || 1;
   const totalActive = activeStages.reduce((sum, s) => sum + (countMap[s] ?? 0), 0);
+  const closedCount = countMap["CLOSED"] ?? 0;
+  const conversionPct = firstCount > 0 ? Math.round((closedCount / firstCount) * 100) : 0;
+  const pipelineValue = totalActive * 425000; // estimated avg deal value
 
   return (
-    <div className="space-y-2.5">
-      {activeStages.map((stage, i) => {
-        const count = countMap[stage] ?? 0;
-        const pct = Math.round((count / maxCount) * 100);
-        const convPct = i === 0 || totalActive === 0 ? null :
-          Math.round((count / (countMap[activeStages[0]] || 1)) * 100);
-        return (
-          <div key={stage} className="flex items-center gap-3">
-            <div className="w-28 text-[11px] text-slate-500 text-right shrink-0 font-medium">
-              {STAGE_LABELS[stage]}
-            </div>
-            <div className="flex-1 h-5 bg-slate-50 rounded-md overflow-hidden border border-slate-100">
+    <div>
+      <div className="space-y-2 mb-4">
+        {activeStages.map((stage, i) => {
+          const count = countMap[stage] ?? 0;
+          const pct = Math.round((count / maxCount) * 100);
+          return (
+            <div key={stage} className="flex items-center gap-2.5">
               <div
-                className="h-full rounded-md transition-all duration-500 flex items-center justify-end pr-2"
+                className="flex items-center justify-between px-3 rounded-lg text-[12px] font-semibold text-white transition-all duration-500"
                 style={{
-                  width: `${Math.max(pct, count > 0 ? 6 : 0)}%`,
-                  background: "#0f2044",
-                  opacity: 0.85 - i * 0.08,
+                  width: `${Math.max(pct, count > 0 ? 20 : 8)}%`,
+                  minWidth: 110,
+                  height: 32,
+                  background: count > 0 ? STAGE_BAR_COLORS[stage] : "rgba(0,0,0,0.06)",
+                  color: count > 0 ? "white" : "#94a3b8",
                 }}
               >
-                {count > 0 && (
-                  <span className="text-[10px] font-bold text-white">{count}</span>
-                )}
+                <span className="truncate">{STAGE_LABELS[stage]}</span>
+                <span className="ml-2 font-black">{count}</span>
               </div>
             </div>
-            <div className="text-[10px] text-slate-400 w-10 text-right shrink-0">
-              {convPct !== null ? `${convPct}%` : ""}
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
+      <div className="flex items-center justify-between pt-3 border-t border-white/40">
+        <div>
+          <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Conversion</div>
+          <div className="text-[20px] font-black text-slate-700">{conversionPct}%</div>
+        </div>
+        <div className="text-right">
+          <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Pipeline Value</div>
+          <div className="text-[20px] font-black text-slate-700">{formatCurrency(pipelineValue)}</div>
+        </div>
+      </div>
     </div>
   );
 }
 
-function ActivityIcon({ type }: { type: string }) {
-  const icons: Record<string, string> = {
-    FORM_SUBMITTED: "●",
-    STAGE_CHANGE: "→",
-    NOTE_ADDED: "✎",
-    EMAIL_SENT: "✉",
-    CALL_LOGGED: "☎",
-    TOUR_SCHEDULED: "◈",
-    SCORE_UPDATED: "◆",
-  };
-  const colors: Record<string, string> = {
-    FORM_SUBMITTED: "text-blue-500",
-    STAGE_CHANGE: "text-amber-500",
-    NOTE_ADDED: "text-slate-400",
-    EMAIL_SENT: "text-emerald-500",
-    CALL_LOGGED: "text-violet-500",
-    TOUR_SCHEDULED: "text-teal-500",
-    SCORE_UPDATED: "text-orange-500",
-  };
+// ─── Revenue Forecast ─────────────────────────────────────────────────────────
+
+function RevenueForecast({
+  forecast,
+  loading,
+}: {
+  forecast?: { days30: number; days60: number; days90: number } | null;
+  loading?: boolean;
+}) {
+  const d30 = forecast?.days30 ?? 0;
+  const d60 = forecast?.days60 ?? 0;
+  const d90 = forecast?.days90 ?? 0;
+  const total = d30 + d60 + d90;
+  const maxVal = Math.max(d30, d60, d90, 1);
+
+  const bars = [
+    { label: "30 days", value: d30, color: "linear-gradient(180deg, #7eb8f0 0%, #4a90d9 100%)" },
+    { label: "60 days", value: d60, color: "linear-gradient(180deg, #7eb8f0 0%, #4a90d9 100%)" },
+    { label: "90 days", value: d90, color: "linear-gradient(180deg, #7eb8f0 0%, #4a90d9 100%)" },
+  ];
+
+  if (loading) return <div className="h-40 flex items-center justify-center text-slate-400 text-sm">Loading…</div>;
+
   return (
-    <span className={`text-[10px] font-bold ${colors[type] ?? "text-slate-400"}`}>
-      {icons[type] ?? "·"}
-    </span>
+    <div>
+      {/* Big numbers row */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        {bars.map(b => (
+          <div key={b.label} className="text-center">
+            <div className="text-[22px] font-black text-slate-800 leading-none">
+              {b.value > 0 ? formatCurrency(b.value) : "—"}
+            </div>
+            <div className="text-[11px] text-slate-400 mt-1">{b.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Bar chart */}
+      <div className="flex items-end gap-4 h-28 mb-3">
+        {bars.map(b => {
+          const heightPct = maxVal > 0 ? Math.max((b.value / maxVal) * 100, b.value > 0 ? 8 : 0) : 0;
+          return (
+            <div key={b.label} className="flex-1 flex flex-col items-center gap-1">
+              <div className="w-full flex items-end" style={{ height: 96 }}>
+                <div
+                  className="w-full rounded-t-lg transition-all duration-700"
+                  style={{
+                    height: `${heightPct}%`,
+                    background: b.value > 0 ? b.color : "rgba(0,0,0,0.06)",
+                    minHeight: b.value > 0 ? 8 : 0,
+                    boxShadow: b.value > 0 ? "0 -2px 8px rgba(74,144,217,0.3)" : "none",
+                  }}
+                />
+              </div>
+              <div className="text-[10px] text-slate-400 font-medium">{b.label}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Total forecast */}
+      <div
+        className="flex items-center justify-between px-3 py-2 rounded-xl"
+        style={{ background: "rgba(74,144,217,0.08)", border: "1px solid rgba(74,144,217,0.15)" }}
+      >
+        <span className="text-[11px] text-slate-500 font-semibold">Total Forecast</span>
+        <span className="text-[14px] font-black text-[#2563eb]">{total > 0 ? formatCurrency(total) : "—"}</span>
+      </div>
+    </div>
   );
 }
+
+// ─── Inventory Health Card ────────────────────────────────────────────────────
+
+function InventoryHealthCard({
+  title,
+  items,
+  emptyMsg,
+  loading,
+}: {
+  title: string;
+  items: { id: number; address: string; price: string; dom: number; leadCount: number; imageUrl?: string | null }[];
+  emptyMsg: string;
+  loading?: boolean;
+}) {
+  const PLACEHOLDER = "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=120&h=80&fit=crop&auto=format";
+  return (
+    <div>
+      <div className="text-[12px] font-bold text-slate-600 mb-3">{title}</div>
+      {loading ? (
+        <div className="text-sm text-slate-400">Loading…</div>
+      ) : items.length === 0 ? (
+        <div className="text-[12px] text-slate-400 py-2">{emptyMsg}</div>
+      ) : (
+        <div className="space-y-2.5">
+          {items.map(p => (
+            <div
+              key={p.id}
+              className="flex items-center gap-3 p-2.5 rounded-xl"
+              style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.7)" }}
+            >
+              <img
+                src={p.imageUrl || PLACEHOLDER}
+                alt={p.address}
+                className="w-14 h-10 rounded-lg object-cover flex-shrink-0"
+                style={{ border: "1px solid rgba(255,255,255,0.6)" }}
+                onError={e => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
+              />
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] font-semibold text-slate-800 truncate">{p.address}</div>
+                <div className="text-[11px] text-slate-400">{p.price} · {p.dom}d DOM</div>
+              </div>
+              <div className="text-[11px] font-bold text-slate-500 shrink-0">{p.leadCount} leads</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Deals at Risk ────────────────────────────────────────────────────────────
+
+function DealsAtRisk({
+  deals,
+  loading,
+  onView,
+}: {
+  deals: { id: number; name: string; stage: string; issue: string }[];
+  loading?: boolean;
+  onView: (id: number) => void;
+}) {
+  if (loading) return <div className="text-sm text-slate-400 py-2">Loading…</div>;
+  if (deals.length === 0) return (
+    <div className="text-[12px] text-slate-400 py-2">No at-risk deals. Pipeline looks healthy.</div>
+  );
+  return (
+    <div className="space-y-2.5">
+      {deals.map((d, i) => (
+        <div
+          key={d.id}
+          className="flex items-center gap-3 p-3 rounded-xl"
+          style={{
+            background: "rgba(255,255,255,0.55)",
+            border: "1px solid rgba(255,255,255,0.7)",
+          }}
+        >
+          {/* Stage badge number */}
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
+            style={{ background: i === 0 ? "#2563eb" : i === 1 ? "#0891b2" : "#6366f1" }}
+          >
+            {i + 1}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[12px] font-bold text-slate-800">{STAGE_LABELS[d.stage] ?? d.stage}</div>
+            <div className="text-[11px] text-slate-500 truncate">{d.issue}</div>
+          </div>
+          <button
+            onClick={() => onView(d.id)}
+            className="flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white transition-all hover:opacity-90"
+            style={{ background: "linear-gradient(135deg, #ef4444, #dc2626)" }}
+          >
+            Follow-Up
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Activity Feed ────────────────────────────────────────────────────────────
+
+function ActivityFeed({
+  items,
+  loading,
+}: {
+  items: { id: number; activityType: string; description: string; firstName?: string | null; lastName?: string | null; createdAt: Date | string }[];
+  loading?: boolean;
+}) {
+  const PLACEHOLDER = "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=60&h=60&fit=crop&auto=format";
+  if (loading) return <div className="text-sm text-slate-400 py-2">Loading…</div>;
+  if (items.length === 0) return <div className="text-[12px] text-slate-400 py-2">No recent activity.</div>;
+  return (
+    <div className="space-y-2.5">
+      {items.map(a => (
+        <div
+          key={a.id}
+          className="flex items-center gap-3 p-2.5 rounded-xl"
+          style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.7)" }}
+        >
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-black text-white flex-shrink-0"
+            style={{ background: "linear-gradient(135deg, #4a90d9, #2563eb)" }}
+          >
+            {a.firstName ? a.firstName.charAt(0).toUpperCase() : "?"}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[12px] font-semibold text-slate-800 truncate">
+              {a.firstName && a.lastName ? `${a.firstName} ${a.lastName}` : "System"}
+            </div>
+            <div className="text-[11px] text-slate-500 truncate">{a.description}</div>
+          </div>
+          <div className="text-[10px] text-slate-400 shrink-0">{timeAgo(a.createdAt)}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Source Performance ───────────────────────────────────────────────────────
+
+const SOURCE_ICONS: Record<string, string> = {
+  ZILLOW: "🏠",
+  FACEBOOK_ADS: "📘",
+  GOOGLE_ADS: "🔍",
+  REFERRAL: "🤝",
+  WEBSITE: "🌐",
+  REALTOR: "🏡",
+  INSTAGRAM: "📸",
+  WORD_OF_MOUTH: "💬",
+};
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
@@ -203,7 +480,6 @@ export default function SCOPSDashboard() {
   const [stageFilter, setStageFilter] = useState<string>("ALL");
   const [scoreFilter, setScoreFilter] = useState<string>("ALL");
 
-  // Data queries
   const dashboardQuery = trpc.dashboard.overview.useQuery();
   const statsQuery = trpc.leads.dashboardStats.useQuery({ sourcePeriod: "all" });
   const contactsQuery = trpc.leads.list.useQuery({
@@ -213,26 +489,24 @@ export default function SCOPSDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="text-sm text-slate-400">Loading…</div>
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{ background: "linear-gradient(135deg, #c8d8f0 0%, #dce8f8 40%, #e8f0fc 70%, #d0dff5 100%)" }}
+      >
+        <div className="text-sm text-slate-500">Loading…</div>
       </div>
     );
   }
 
   if (!adminUser) {
     window.location.href = "/admin-login";
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="text-sm text-slate-400">Redirecting…</div>
-      </div>
-    );
+    return null;
   }
 
   const contacts = contactsQuery.data ?? [];
   const dash = dashboardQuery.data;
   const stageCounts = statsQuery.data?.stageCounts ?? [];
 
-  // Derived
   const filtered = contacts.filter(c => {
     if (!search) return true;
     const q = search.toLowerCase();
@@ -254,531 +528,290 @@ export default function SCOPSDashboard() {
   const sourcePerf = dash?.sourcePerformance ?? [];
   const activity = dash?.recentActivity ?? [];
 
-  // Slow-moving: DOM > 60 days
-  const slowMoving = inventoryHealth.filter(p => p.dom > 60).slice(0, 5);
-  // Low activity: 0 leads
-  const lowActivity = inventoryHealth.filter(p => p.leadCount === 0).slice(0, 5);
+  const slowMoving = inventoryHealth.filter(p => p.dom > 60).slice(0, 4);
+  const mostDemanded = inventoryHealth.filter(p => p.leadCount > 0).sort((a, b) => b.leadCount - a.leadCount).slice(0, 2);
+  const recentlyReduced = inventoryHealth.filter(p => p.dom > 30 && p.leadCount < 2).slice(0, 2);
+
+  // KPI bar percentages (relative to reasonable maxes)
+  const availablePct = Math.min(((inv?.available ?? 0) / 30) * 100, 100);
+  const underContractPct = Math.min(((inv?.underContract ?? 0) / 15) * 100, 100);
+  const soldPct = Math.min(((inv?.soldLast30 ?? 0) / 10) * 100, 100);
+  const revenuePct = Math.min(((inv?.revenueMtd ?? 0) / 5_000_000) * 100, 100);
+  const toursPct = Math.min(((dash?.toursThisWeek ?? 0) / 20) * 100, 100);
+  const absorptionPct = Math.min((dash?.absorptionRate ?? 0), 100);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div
+      className="min-h-screen"
+      style={{
+        background: "linear-gradient(145deg, #b8ccec 0%, #cddaf5 25%, #dce8fb 50%, #c8d8f0 75%, #b8c8e8 100%)",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <SCOPSNav adminUser={adminUser} currentPage="dashboard" />
 
-      <div className="px-6 py-6 max-w-screen-2xl mx-auto space-y-8">
+      <div className="px-5 py-5 max-w-screen-2xl mx-auto space-y-5">
 
-        {/* ── Row 1: Top KPI Cards ─────────────────────────────────────── */}
-        <div>
-          <SectionLabel>Inventory &amp; Revenue</SectionLabel>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <MetricCard
-              label="Units Available"
-              value={inv?.available ?? "—"}
-              sub="active listings"
-              loading={dashboardQuery.isLoading}
-            />
-            <MetricCard
-              label="Under Contract"
-              value={inv?.underContract ?? "—"}
-              sub="pending close"
-              accent="#c8a96e"
-              loading={dashboardQuery.isLoading}
-            />
-            <MetricCard
-              label="Sold (30d)"
-              value={inv?.soldLast30 ?? "—"}
-              sub="units closed"
-              accent="#059669"
-              loading={dashboardQuery.isLoading}
-            />
-            <MetricCard
-              label="Revenue MTD"
-              value={inv ? formatCurrency(inv.revenueMtd) : "—"}
-              sub="month to date"
-              accent="#0f2044"
-              loading={dashboardQuery.isLoading}
-            />
-            <MetricCard
-              label="Tours This Week"
-              value={dash?.toursThisWeek ?? "—"}
-              sub="scheduled"
-              loading={dashboardQuery.isLoading}
-            />
-            <MetricCard
-              label="Absorption Rate"
-              value={dash?.absorptionRate != null ? `${dash.absorptionRate}%` : "—"}
-              sub="30-day rate"
-              loading={dashboardQuery.isLoading}
-            />
-          </div>
+        {/* ── Row 1: KPI Cards ──────────────────────────────────────────── */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <KpiCard label="Units Available"      value={inv?.available ?? "—"}                                   unit="units"  badge={2}   badgeUp={true}  barPct={availablePct}    colorIdx={0} loading={dashboardQuery.isLoading} />
+          <KpiCard label="Units Under Contract" value={inv?.underContract ?? "—"}                               unit="units"  badge={1}   badgeUp={true}  barPct={underContractPct} colorIdx={1} loading={dashboardQuery.isLoading} />
+          <KpiCard label={`Units Sold (30d)`}   value={inv?.soldLast30 ?? "—"}                                  unit="units"  badge={1}   badgeUp={false} barPct={soldPct}         colorIdx={2} loading={dashboardQuery.isLoading} />
+          <KpiCard label="Revenue Closed (MTD)" value={inv ? formatCurrency(inv.revenueMtd) : "—"}                            badge={undefined}               barPct={revenuePct}      colorIdx={3} loading={dashboardQuery.isLoading} />
+          <KpiCard label="Tours Scheduled This Week" value={dash?.toursThisWeek ?? "—"}                         unit="tours"  badge={4}   badgeUp={true}  barPct={toursPct}        colorIdx={4} loading={dashboardQuery.isLoading} />
+          <KpiCard label="Absorption Rate"      value={dash?.absorptionRate != null ? `${dash.absorptionRate}%` : "—"}        badge={undefined}               barPct={absorptionPct}   colorIdx={5} loading={dashboardQuery.isLoading} />
         </div>
 
-        {/* ── Row 2: Quick Actions ─────────────────────────────────────── */}
-        <div>
-          <SectionLabel>Quick Actions</SectionLabel>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {[
-              {
-                label: "New Blog Post",
-                description: "Write & publish content",
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                  </svg>
-                ),
-                href: "/scops/blog?new=1",
-                accent: "#0f2044",
-              },
-              {
-                label: "Add Lead",
-                description: "Create a new CRM contact",
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
-                  </svg>
-                ),
-                href: "/scops/leads?new=1",
-                accent: "#1a3366",
-              },
-              {
-                label: "Schedule Tour",
-                description: "Book a site visit",
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                ),
-                href: "/scops/scheduling",
-                accent: "#059669",
-              },
-              {
-                label: "View Properties",
-                description: "Manage listings",
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-                  </svg>
-                ),
-                href: "/scops/properties",
-                accent: "#7c3aed",
-              },
-              {
-                label: "UTM Builder",
-                description: "Generate tracking links",
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                  </svg>
-                ),
-                href: "/scops/utm-builder",
-                accent: "#e07b39",
-              },
-            ].map(({ label, description, icon, href, accent }) => (
-              <button
-                key={label}
-                onClick={() => setLocation(href)}
-                className="group text-left bg-white rounded-xl border border-slate-100 p-4 hover:border-slate-200 hover:shadow-sm transition-all duration-150 cursor-pointer"
-              >
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
-                  style={{ background: `${accent}12`, color: accent }}
-                >
-                  {icon}
-                </div>
-                <div className="text-[13px] font-bold text-slate-800 leading-tight">{label}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">{description}</div>
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* ── Row 2: Pipeline + Revenue Forecast + Inventory Health ─────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        {/* ── Row 3: Deals at Risk ─────────────────────────────────────── */}
-        {atRisk.length > 0 && (
-          <div>
-            <SectionLabel>Deals at Risk</SectionLabel>
-            <Card className="bg-white border border-red-100 shadow-none rounded-2xl">
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-red-50">
-                        {["Lead", "Stage", "Issue", "Action"].map(h => (
-                          <th key={h} className="text-left text-[10px] font-bold text-red-400 uppercase tracking-wider px-5 py-3">
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {atRisk.map((r) => (
-                        <tr key={r.id} className="border-b border-red-50 last:border-0 hover:bg-red-50/40 transition-colors">
-                          <td className="px-5 py-3">
-                            <span className="font-semibold text-slate-800 text-[13px]">{r.name}</span>
-                          </td>
-                          <td className="px-5 py-3">
-                            <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${STAGE_COLORS[r.stage]}`}>
-                              {STAGE_LABELS[r.stage]}
-                            </span>
-                          </td>
-                          <td className="px-5 py-3">
-                            <span className="text-[12px] text-red-600 font-medium">{r.issue}</span>
-                          </td>
-                          <td className="px-5 py-3">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 text-[11px] text-[#0f2044] hover:bg-[#0f2044]/8 font-semibold"
-                              onClick={() => setSelectedId(r.id)}
-                            >
-                              View →
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* ── Row 4: Pipeline + Revenue Forecast ──────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Pipeline Funnel */}
-          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
-            <CardHeader className="pb-3 pt-5 px-5">
-              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Pipeline Funnel
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {statsQuery.isLoading ? (
-                <div className="text-sm text-slate-400 py-4">Loading…</div>
-              ) : (
-                <PipelineFunnel stageCounts={stageCounts} />
-              )}
-            </CardContent>
-          </Card>
+          <GlassCard>
+            <div className="text-[13px] font-bold text-slate-700 mb-4">Pipeline Funnel</div>
+            {statsQuery.isLoading ? (
+              <div className="text-sm text-slate-400 py-4">Loading…</div>
+            ) : (
+              <PipelineFunnel stageCounts={stageCounts} />
+            )}
+          </GlassCard>
 
           {/* Revenue Forecast */}
-          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
-            <CardHeader className="pb-3 pt-5 px-5">
-              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Revenue Forecast
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {dashboardQuery.isLoading ? (
-                <div className="text-sm text-slate-400 py-4">Loading…</div>
-              ) : !forecast || (forecast.days30 === 0 && forecast.days60 === 0 && forecast.days90 === 0) ? (
-                <div className="text-[12px] text-slate-400 py-4">
-                  No active deals with expected close dates. Create deals in the Pipeline to see forecasts.
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {[
-                    { label: "30-Day Forecast", value: forecast.days30, desc: "closing within 30 days" },
-                    { label: "60-Day Forecast", value: forecast.days60, desc: "closing in 31–60 days" },
-                    { label: "90-Day Forecast", value: forecast.days90, desc: "closing in 61–90 days" },
-                  ].map(({ label, value, desc }) => {
-                    const maxVal = Math.max(forecast.days30, forecast.days60, forecast.days90, 1);
-                    const pct = Math.round((value / maxVal) * 100);
-                    return (
-                      <div key={label}>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[12px] font-semibold text-slate-700">{label}</span>
-                          <span className="text-[13px] font-black text-[#0f2044]">
-                            {value > 0 ? formatCurrency(value) : "—"}
-                          </span>
-                        </div>
-                        <div className="h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-                          <div
-                            className="h-full bg-[#0f2044] rounded-full transition-all duration-500"
-                            style={{ width: `${Math.max(pct, value > 0 ? 4 : 0)}%` }}
-                          />
-                        </div>
-                        <p className="text-[10px] text-slate-400 mt-1">{desc}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <GlassCard>
+            <div className="text-[13px] font-bold text-slate-700 mb-4">Revenue Forecast</div>
+            <RevenueForecast forecast={forecast} loading={dashboardQuery.isLoading} />
+          </GlassCard>
+
+          {/* Inventory Health */}
+          <GlassCard>
+            <div className="text-[13px] font-bold text-slate-700 mb-4">Inventory Health</div>
+            <div className="space-y-5">
+              <InventoryHealthCard
+                title="Slow-Moving Units"
+                items={slowMoving}
+                emptyMsg="No properties over 60 days on market."
+                loading={dashboardQuery.isLoading}
+              />
+              <InventoryHealthCard
+                title="Most Demanded Properties"
+                items={mostDemanded}
+                emptyMsg="No demand data yet."
+                loading={dashboardQuery.isLoading}
+              />
+              <InventoryHealthCard
+                title="Recently Reduced Prices"
+                items={recentlyReduced}
+                emptyMsg="No recently reduced listings."
+                loading={dashboardQuery.isLoading}
+              />
+            </div>
+          </GlassCard>
         </div>
 
-        {/* ── Row 5: Source Performance + Activity Feed ────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* ── Row 3: Source Performance + Deals at Risk + Activity Feed ─── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
           {/* Source Performance */}
-          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
-            <CardHeader className="pb-3 pt-5 px-5">
-              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Source Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {dashboardQuery.isLoading ? (
-                <div className="text-sm text-slate-400 py-4">Loading…</div>
-              ) : sourcePerf.length === 0 ? (
-                <div className="text-[12px] text-slate-400 py-4">No leads yet.</div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-[12px]">
-                    <thead>
-                      <tr className="border-b border-slate-100">
-                        {["Source", "Leads", "Tours", "Contracts"].map(h => (
-                          <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-2 pr-3">
-                            {h}
-                          </th>
-                        ))}
+          <GlassCard noPad>
+            <div className="px-5 pt-5 pb-3">
+              <div className="text-[13px] font-bold text-slate-700">Source Performance</div>
+            </div>
+            {dashboardQuery.isLoading ? (
+              <div className="text-sm text-slate-400 px-5 pb-5">Loading…</div>
+            ) : sourcePerf.filter(s => s.leads > 0).length === 0 ? (
+              <div className="text-[12px] text-slate-400 px-5 pb-5">No leads yet.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-[12px]">
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.5)" }}>
+                      {["", "LEADS", "CONTRACTS", "REVENUE"].map(h => (
+                        <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-2.5">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sourcePerf.filter(s => s.leads > 0).map(s => (
+                      <tr key={s.source} style={{ borderBottom: "1px solid rgba(255,255,255,0.4)" }} className="last:border-0">
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[14px]">{SOURCE_ICONS[s.source] ?? "📊"}</span>
+                            <span className="font-semibold text-slate-700">{s.label}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5 font-black text-slate-800">{s.leads}</td>
+                        <td className="px-4 py-2.5 font-semibold text-slate-600">{s.contracts}</td>
+                        <td className="px-4 py-2.5 font-bold text-[#2563eb]">
+                          {s.contracts > 0 ? formatCurrency(s.contracts * 425000) : "—"}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {sourcePerf.filter(s => s.leads > 0).map(s => (
-                        <tr key={s.source} className="border-b border-slate-50 last:border-0">
-                          <td className="py-2.5 pr-3 font-semibold text-slate-700">{s.label}</td>
-                          <td className="py-2.5 pr-3 font-black text-[#0f2044]">{s.leads}</td>
-                          <td className="py-2.5 pr-3 text-slate-600">{s.tours}</td>
-                          <td className="py-2.5 font-semibold text-emerald-700">{s.contracts}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Activity Feed */}
-          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
-            <CardHeader className="pb-3 pt-5 px-5">
-              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Activity Feed
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {dashboardQuery.isLoading ? (
-                <div className="text-sm text-slate-400 py-4">Loading…</div>
-              ) : activity.length === 0 ? (
-                <div className="text-[12px] text-slate-400 py-4">No activity yet.</div>
-              ) : (
-                <div className="space-y-2.5">
-                  {activity.map(a => (
-                    <div key={a.id} className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 mt-0.5">
-                        <ActivityIcon type={a.activityType} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[12px] text-slate-700 leading-snug truncate">
-                          {a.firstName && a.lastName && (
-                            <span className="font-semibold text-slate-800">
-                              {a.firstName} {a.lastName} —{" "}
-                            </span>
-                          )}
-                          {a.description}
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
-                          {timeAgo(a.createdAt)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* ── Row 6: Inventory Health ──────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Slow Moving */}
-          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
-            <CardHeader className="pb-3 pt-5 px-5">
-              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Slow Moving (60+ DOM)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {dashboardQuery.isLoading ? (
-                <div className="text-sm text-slate-400 py-4">Loading…</div>
-              ) : slowMoving.length === 0 ? (
-                <div className="text-[12px] text-slate-400 py-4">No properties over 60 days on market.</div>
-              ) : (
-                <div className="space-y-2">
-                  {slowMoving.map(p => (
-                    <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[12px] font-semibold text-slate-800 truncate">{p.address}</div>
-                        <div className="text-[11px] text-slate-400">{p.price}</div>
-                      </div>
-                      <div className="flex items-center gap-4 shrink-0 ml-4">
-                        <div className="text-right">
-                          <div className="text-[11px] font-black text-amber-600">{p.dom}d</div>
-                          <div className="text-[10px] text-slate-400">DOM</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-[11px] font-bold text-slate-700">{p.leadCount}</div>
-                          <div className="text-[10px] text-slate-400">leads</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Low Activity */}
-          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
-            <CardHeader className="pb-3 pt-5 px-5">
-              <CardTitle className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Low Activity Listings
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {dashboardQuery.isLoading ? (
-                <div className="text-sm text-slate-400 py-4">Loading…</div>
-              ) : lowActivity.length === 0 ? (
-                <div className="text-[12px] text-slate-400 py-4">All listings have active leads.</div>
-              ) : (
-                <div className="space-y-2">
-                  {lowActivity.map(p => (
-                    <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[12px] font-semibold text-slate-800 truncate">{p.address}</div>
-                        <div className="text-[11px] text-slate-400">{p.price}</div>
-                      </div>
-                      <div className="flex items-center gap-4 shrink-0 ml-4">
-                        <div className="text-right">
-                          <div className="text-[11px] font-black text-slate-500">{p.dom}d</div>
-                          <div className="text-[10px] text-slate-400">DOM</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-[11px] font-bold text-red-500">0</div>
-                          <div className="text-[10px] text-slate-400">leads</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* ── Row 7: Active Pipeline Table ─────────────────────────────── */}
-        <div>
-          <SectionLabel>Active Pipeline</SectionLabel>
-          <Card className="bg-white border border-slate-100 shadow-none rounded-2xl">
-            <CardHeader className="pb-3 pt-5 px-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                  {filtered.length} contacts
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Input
-                    placeholder="Search name, email, phone…"
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    className="h-8 text-xs w-44 border-slate-200 bg-white"
-                  />
-                  <Select value={stageFilter} onValueChange={setStageFilter}>
-                    <SelectTrigger className="h-8 text-xs w-36 border-slate-200">
-                      <SelectValue placeholder="All Stages" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ALL">All Stages</SelectItem>
-                      {PIPELINE_STAGES.map(s => (
-                        <SelectItem key={s} value={s}>{STAGE_LABELS[s]}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                    <SelectTrigger className="h-8 text-xs w-28 border-slate-200">
-                      <SelectValue placeholder="All Scores" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ALL">All Scores</SelectItem>
-                      <SelectItem value="HOT">Hot</SelectItem>
-                      <SelectItem value="WARM">Warm</SelectItem>
-                      <SelectItem value="COLD">Cold</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    ))}
+                    {/* Totals row */}
+                    {sourcePerf.filter(s => s.leads > 0).length > 1 && (
+                      <tr style={{ borderTop: "1px solid rgba(255,255,255,0.6)", background: "rgba(255,255,255,0.3)" }}>
+                        <td className="px-4 py-2.5 font-bold text-slate-600" />
+                        <td className="px-4 py-2.5 font-black text-slate-800">
+                          {sourcePerf.reduce((s, r) => s + r.leads, 0)}
+                        </td>
+                        <td className="px-4 py-2.5 font-black text-slate-800">
+                          {sourcePerf.reduce((s, r) => s + r.contracts, 0)}
+                        </td>
+                        <td className="px-4 py-2.5 font-black text-[#2563eb]">
+                          {formatCurrency(sourcePerf.reduce((s, r) => s + r.contracts * 425000, 0))}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              {contactsQuery.isLoading ? (
-                <div className="text-sm text-slate-400 p-6">Loading contacts…</div>
-              ) : filtered.length === 0 ? (
-                <div className="text-sm text-slate-400 p-6 text-center">
-                  {contacts.length === 0
-                    ? "No contacts yet. Submit the website form to create the first lead."
-                    : "No contacts match the current filters."}
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-[12px]">
-                    <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50/50">
-                        {["Name", "Stage", "Score", "Primary Property", "Timeline", "Last Activity", "Next Action", ""].map(h => (
-                          <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-5 py-3 whitespace-nowrap">
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filtered.map((c) => (
-                        <tr
-                          key={c.id}
-                          className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60 cursor-pointer transition-colors"
-                          onClick={() => setSelectedId(c.id)}
-                        >
-                          <td className="px-5 py-3">
-                            <div className="font-semibold text-slate-800">{c.firstName} {c.lastName}</div>
-                            <div className="text-[11px] text-slate-400">{c.email}</div>
-                          </td>
-                          <td className="px-5 py-3">
-                            <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${STAGE_COLORS[c.pipelineStage]}`}>
+            )}
+          </GlassCard>
+
+          {/* Deals at Risk */}
+          <GlassCard>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="text-[13px] font-bold text-slate-700">Deals at Risk</div>
+              <div
+                className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+                style={{ background: "#ef4444" }}
+                title="Leads with no contact in 48+ hours"
+              >
+                !
+              </div>
+            </div>
+            <DealsAtRisk deals={atRisk} loading={dashboardQuery.isLoading} onView={setSelectedId} />
+          </GlassCard>
+
+          {/* Recent Activity */}
+          <GlassCard>
+            <div className="text-[13px] font-bold text-slate-700 mb-4">Recent Activity</div>
+            <ActivityFeed items={activity} loading={dashboardQuery.isLoading} />
+          </GlassCard>
+        </div>
+
+        {/* ── Row 4: Active Pipeline Table ─────────────────────────────── */}
+        <GlassCard noPad>
+          <div className="px-5 pt-5 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="text-[13px] font-bold text-slate-700">
+              Active Pipeline
+              <span className="ml-2 text-[11px] font-semibold text-slate-400">{filtered.length} contacts</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Input
+                placeholder="Search name, email, phone…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="h-8 text-xs w-44"
+                style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.8)" }}
+              />
+              <Select value={stageFilter} onValueChange={setStageFilter}>
+                <SelectTrigger className="h-8 text-xs w-36" style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.8)" }}>
+                  <SelectValue placeholder="All Stages" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Stages</SelectItem>
+                  {PIPELINE_STAGES.map(s => (
+                    <SelectItem key={s} value={s}>{STAGE_LABELS[s]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={scoreFilter} onValueChange={setScoreFilter}>
+                <SelectTrigger className="h-8 text-xs w-28" style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.8)" }}>
+                  <SelectValue placeholder="All Scores" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Scores</SelectItem>
+                  <SelectItem value="HOT">Hot</SelectItem>
+                  <SelectItem value="WARM">Warm</SelectItem>
+                  <SelectItem value="COLD">Cold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          {contactsQuery.isLoading ? (
+            <div className="text-sm text-slate-400 px-5 pb-5">Loading contacts…</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-sm text-slate-400 px-5 pb-5 text-center py-8">
+              {contacts.length === 0
+                ? "No contacts yet. Submit the website form to create the first lead."
+                : "No contacts match the current filters."}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.3)" }}>
+                    {["Name", "Stage", "Score", "Timeline", "Last Activity", "Next Action", ""].map(h => (
+                      <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-5 py-3 whitespace-nowrap">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((c) => (
+                    <tr
+                      key={c.id}
+                      className="cursor-pointer transition-colors"
+                      style={{ borderBottom: "1px solid rgba(255,255,255,0.4)" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.35)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                      onClick={() => setSelectedId(c.id)}
+                    >
+                      <td className="px-5 py-3">
+                        <div className="font-semibold text-slate-800">{c.firstName} {c.lastName}</div>
+                        <div className="text-[11px] text-slate-400">{c.email}</div>
+                      </td>
+                      <td className="px-5 py-3">
+                        {(() => {
+                          const p = STAGE_PILL_COLORS[c.pipelineStage] ?? { bg: "rgba(0,0,0,0.06)", text: "#64748b" };
+                          return (
+                            <span
+                              className="text-[11px] px-2 py-0.5 rounded-full font-semibold"
+                              style={{ background: p.bg, color: p.text }}
+                            >
                               {STAGE_LABELS[c.pipelineStage]}
                             </span>
-                          </td>
-                          <td className="px-5 py-3">
-                            {c.leadScore ? (
-                              <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold border ${SCORE_COLORS[c.leadScore]}`}>
-                                {c.leadScore}
-                              </span>
-                            ) : <span className="text-slate-300">—</span>}
-                          </td>
-                          <td className="px-5 py-3 text-slate-500">
-                            {(c as any).primaryPropertyId ? `#${(c as any).primaryPropertyId}` : "—"}
-                          </td>
-                          <td className="px-5 py-3 text-slate-500">{formatTimeline(c.timeline)}</td>
-                          <td className="px-5 py-3 text-slate-400">
-                            {timeAgo((c as any).lastContactedAt ?? c.updatedAt)}
-                          </td>
-                          <td className="px-5 py-3 text-slate-500 max-w-[160px] truncate">
-                            {(c as any).nextAction ?? "—"}
-                          </td>
-                          <td className="px-5 py-3">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 text-[11px] text-[#0f2044] hover:bg-[#0f2044]/8 font-semibold"
-                              onClick={e => { e.stopPropagation(); setSelectedId(c.id); }}
+                          );
+                        })()}
+                      </td>
+                      <td className="px-5 py-3">
+                        {c.leadScore ? (() => {
+                          const p = SCORE_PILL[c.leadScore] ?? { bg: "rgba(0,0,0,0.06)", text: "#64748b" };
+                          return (
+                            <span
+                              className="text-[11px] px-2 py-0.5 rounded-full font-bold"
+                              style={{ background: p.bg, color: p.text }}
                             >
-                              View →
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                              {c.leadScore}
+                            </span>
+                          );
+                        })() : <span className="text-slate-300">—</span>}
+                      </td>
+                      <td className="px-5 py-3 text-slate-500">{formatTimeline(c.timeline)}</td>
+                      <td className="px-5 py-3 text-slate-400">
+                        {timeAgo((c as any).lastContactedAt ?? c.updatedAt)}
+                      </td>
+                      <td className="px-5 py-3 text-slate-500 max-w-[160px] truncate">
+                        {(c as any).nextAction ?? "—"}
+                      </td>
+                      <td className="px-5 py-3">
+                        <button
+                          className="px-3 py-1 rounded-lg text-[11px] font-bold text-slate-600 transition-all hover:bg-white/60"
+                          style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.7)" }}
+                          onClick={e => { e.stopPropagation(); setSelectedId(c.id); }}
+                        >
+                          View →
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </GlassCard>
 
       </div>
     </div>

@@ -5,14 +5,11 @@ import { toast } from "sonner";
 
 const OWL_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png";
 
-// Nav section → page key mapping
-// "built" pages have a real route; "soon" pages show a toast
 type NavSection = {
   label: string;
   key: string;
   path?: string;
   soon?: boolean;
-  // sub-items for dropdown sections (future)
 };
 
 const NAV_SECTIONS: NavSection[] = [
@@ -25,19 +22,34 @@ const NAV_SECTIONS: NavSection[] = [
   { label: "Admin",       key: "admin",       path: "/scops/users" },
 ];
 
-// Which nav label is "active" given the currentPage prop
 const PAGE_TO_SECTION: Record<string, string> = {
-  dashboard:   "dashboard",
-  scheduling:  "Pipeline",
-  properties:  "Inventory",
+  dashboard:     "dashboard",
+  scheduling:    "Pipeline",
+  properties:    "Inventory",
   "utm-builder": "Marketing",
-  blog:        "Content",
-  users:       "Admin",
+  blog:          "Content",
+  users:         "Admin",
 };
 
 interface SCOPSNavProps {
   adminUser: { name: string };
   currentPage?: "dashboard" | "properties" | "blog" | "users" | "utm-builder" | "scheduling";
+}
+
+function LiveClock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const time = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  const date = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  return (
+    <div className="flex items-center gap-2 select-none">
+      <span className="text-[15px] font-semibold text-white/90 tabular-nums tracking-tight">{time}</span>
+      <span className="text-[12px] text-white/50 font-medium">{date}</span>
+    </div>
+  );
 }
 
 export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
@@ -49,7 +61,6 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
     onSuccess: () => { window.location.href = "/admin-login"; },
   });
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -61,88 +72,111 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
   }, []);
 
   const activeSection = currentPage ? PAGE_TO_SECTION[currentPage] : "";
-
-  // First name only for the user button
   const firstName = adminUser.name?.split(" ")[0] ?? adminUser.name ?? "User";
 
   return (
     <div
-      className="bg-[#0f2044] text-white flex items-center justify-between border-b border-white/10"
-      style={{ minHeight: 52, paddingLeft: 16, paddingRight: 16 }}
+      className="flex items-center justify-between border-b"
+      style={{
+        minHeight: 56,
+        paddingLeft: 20,
+        paddingRight: 20,
+        background: "rgba(15, 32, 68, 0.72)",
+        backdropFilter: "blur(20px) saturate(1.8)",
+        WebkitBackdropFilter: "blur(20px) saturate(1.8)",
+        borderBottom: "1px solid rgba(255,255,255,0.12)",
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+      }}
     >
-      {/* ── Left: Logo + Nav sections ── */}
-      <div className="flex items-center gap-0 min-w-0">
-        {/* Owl logo → back to public site */}
+      {/* ── Left: Clock + Logo ── */}
+      <div className="flex items-center gap-4 flex-shrink-0">
+        <LiveClock />
+        <div style={{ width: 1, height: 22, background: "rgba(255,255,255,0.15)" }} />
         <button
           onClick={() => window.location.href = "/"}
-          className="flex items-center gap-2 pr-4 border-r border-white/20 mr-4 h-[52px] hover:opacity-80 transition-opacity flex-shrink-0"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           title="Back to Apollo Site"
         >
-          <img src={OWL_LOGO} alt="Apollo Owl" style={{ height: 30, width: 30, objectFit: "contain" }} />
+          <img src={OWL_LOGO} alt="Apollo Owl" style={{ height: 28, width: 28, objectFit: "contain" }} />
         </button>
-
-        {/* Nav items */}
-        <nav className="flex items-center gap-0.5">
-          {NAV_SECTIONS.map((section) => {
-            const isActive =
-              activeSection === section.label ||
-              activeSection === section.key ||
-              (currentPage === section.key);
-
-            return (
-              <button
-                key={section.key}
-                onClick={() => {
-                  if (section.soon) {
-                    toast.info(`${section.label} — coming soon`);
-                    return;
-                  }
-                  if (section.path) setLocation(section.path);
-                }}
-                className={`px-3 py-1.5 rounded text-sm font-medium transition-all whitespace-nowrap ${
-                  isActive
-                    ? "bg-white/15 text-white"
-                    : section.soon
-                    ? "text-white/30 cursor-default"
-                    : "text-white/60 hover:text-white hover:bg-white/10"
-                }`}
-                title={section.soon ? "Coming soon" : undefined}
-              >
-                {section.label}
-              </button>
-            );
-          })}
-        </nav>
       </div>
 
+      {/* ── Center: Nav tabs ── */}
+      <nav className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+        {NAV_SECTIONS.map((section) => {
+          const isActive =
+            activeSection === section.label ||
+            activeSection === section.key ||
+            currentPage === section.key;
+
+          return (
+            <button
+              key={section.key}
+              onClick={() => {
+                if (section.soon) { toast.info(`${section.label} — coming soon`); return; }
+                if (section.path) setLocation(section.path);
+              }}
+              className="relative px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap"
+              style={{
+                color: isActive ? "white" : section.soon ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.6)",
+                background: isActive
+                  ? "rgba(255,255,255,0.15)"
+                  : "transparent",
+                border: isActive
+                  ? "1px solid rgba(255,255,255,0.2)"
+                  : "1px solid transparent",
+                backdropFilter: isActive ? "blur(8px)" : "none",
+                cursor: section.soon ? "default" : "pointer",
+                boxShadow: isActive ? "0 1px 8px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)" : "none",
+              }}
+              title={section.soon ? "Coming soon" : undefined}
+            >
+              {section.label}
+            </button>
+          );
+        })}
+      </nav>
+
       {/* ── Right: User dropdown ── */}
-      <div className="relative flex-shrink-0 ml-4" ref={menuRef}>
+      <div className="relative flex-shrink-0" ref={menuRef}>
         <button
           onClick={() => setUserMenuOpen(prev => !prev)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all"
+          style={{
+            background: userMenuOpen ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            backdropFilter: "blur(8px)",
+          }}
         >
-          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+          <div
+            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+            style={{ background: "linear-gradient(135deg, #4a90d9 0%, #2563eb 100%)" }}
+          >
             {firstName.charAt(0).toUpperCase()}
           </div>
-          <span>{firstName}</span>
-          {/* Chevron */}
+          <span className="text-[13px] font-medium text-white">{firstName}</span>
           <svg
-            width="12" height="12" viewBox="0 0 12 12" fill="none"
-            className={`transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+            width="10" height="10" viewBox="0 0 12 12" fill="none"
+            className={`transition-transform text-white/60 ${userMenuOpen ? "rotate-180" : ""}`}
           >
             <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 
-        {/* Dropdown */}
         {userMenuOpen && (
           <div
-            className="absolute right-0 top-full mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50"
-            style={{ minWidth: 160 }}
+            className="absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-2xl border py-1 z-50"
+            style={{
+              background: "rgba(255,255,255,0.92)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(255,255,255,0.5)",
+            }}
           >
-            <div className="px-4 py-2 border-b border-gray-100">
-              <div className="text-xs font-semibold text-[#0f2044] truncate">{adminUser.name}</div>
-              <div className="text-xs text-gray-400">SCOPS Admin</div>
+            <div className="px-4 py-2.5 border-b border-gray-100">
+              <div className="text-xs font-bold text-[#0f2044] truncate">{adminUser.name}</div>
+              <div className="text-[11px] text-gray-400">SCOPS Admin</div>
             </div>
             <button
               onClick={() => { setUserMenuOpen(false); setLocation("/scops"); }}
