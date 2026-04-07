@@ -612,7 +612,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
           /* ── Newsletter section ── */
           .newsletter-panel      { flex-direction: column !important; border-radius: 16px !important; width: 100% !important; box-sizing: border-box !important; }
           .nl-book-col           { flex: none !important; width: 100% !important; padding: 32px 24px !important; align-items: center !important; justify-content: center !important; min-height: unset !important; border-radius: 16px 16px 0 0 !important; }
-          .nl-book-col img       { width: auto !important; max-width: 200px !important; height: auto !important; object-fit: unset !important; }
+          .nl-book-col img       { width: 80% !important; max-width: 280px !important; height: auto !important; }
           .nl-copy-col           { flex: none !important; width: 100% !important; padding: 28px 24px 40px !important; box-sizing: border-box !important; }
           .nl-copy-col h2        { font-size: 26px !important; line-height: 1.15 !important; margin-bottom: 16px !important; }
           .nl-copy-col p         { font-size: 16px !important; line-height: 1.6 !important; margin-bottom: 20px !important; }
@@ -1150,18 +1150,18 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                 borderRadius:20,
                 padding:"0",
                 position:"relative",
-                overflow:"hidden",
                 display:"flex",
                 alignItems:"stretch",
                 minHeight:500,
+                overflow:"hidden",
               }}>
                 {/* LEFT — Book image, flat vertical on dark bg */}
                 <div className="nl-book-col" style={{
-                  flex:"0 0 460px",
+                  flex:"0 0 480px",
                   display:"flex",
                   alignItems:"center",
                   justifyContent:"center",
-                  padding:"32px 24px",
+                  padding:"40px 32px",
                   background:"rgba(255,255,255,0.04)",
                   borderRadius:"20px 0 0 20px",
                   overflow:"hidden",
@@ -1171,10 +1171,9 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                     alt="2026 Pahrump Home Buyer's Guide"
                     style={{
                       width:"100%",
-                      maxWidth:390,
                       height:"auto",
                       display:"block",
-                      filter:"drop-shadow(0 20px 48px rgba(0,0,0,0.55))",
+                      filter:"drop-shadow(0 24px 56px rgba(0,0,0,0.60))",
                     }}
                   />
                 </div>
@@ -1182,10 +1181,13 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                 {/* RIGHT — Copy + form */}
                 <div className="nl-copy-col" style={{
                   flex:1,
+                  minWidth:0,
                   padding:"56px 56px 56px 48px",
                   display:"flex",
                   flexDirection:"column",
                   justifyContent:"center",
+                  wordBreak:"break-word",
+                  overflowWrap:"break-word",
                 }}>
                   {/* Gold accent */}
                   <div style={{ width:40, height:3, background:"#c9a84c", borderRadius:2, marginBottom:20 }} />
