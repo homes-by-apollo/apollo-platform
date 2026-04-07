@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { GlobalFooter } from "@/components/GlobalFooter";
 
 const G = "#1B3A6B";
 const TXT = "#0d1b2a";
@@ -438,31 +439,7 @@ export default function PublicBlogPost() {
         </div>
       )}
 
-      {/* ── FOOTER ── */}
-      <footer style={{ background: NAVY, padding: "52px var(--pad) 32px", color: "white", fontFamily: "inherit" }}>
-        <div style={{ maxWidth: "var(--container)", margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png" alt="Homes by Apollo" style={{ height: 48, width: 48, objectFit: "contain" }} />
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.4em", textTransform: "uppercase" }}>HOMES BY</div>
-              <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "0.07em" }}>APOLLO</div>
-            </div>
-          </div>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", maxWidth: 480, lineHeight: 1.7, marginBottom: 32 }}>
-            Building quality homes in Pahrump, Nevada. New construction, custom builds, and multi-family developments.
-          </p>
-          <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginBottom: 32 }}>
-            {["/", "/blog", "/find-your-home", "/get-in-touch"].map((href, i) => (
-              <span key={i} onClick={() => setLocation(href)} style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", cursor: "pointer", fontWeight: 600 }}>
-                {["Home", "Blog", "Find Your Home", "Get in Touch"][i]}
-              </span>
-            ))}
-          </div>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24, fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
-            &copy; {new Date().getFullYear()} Apollo Home Builders. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <GlobalFooter />
     </div>
   );
 }

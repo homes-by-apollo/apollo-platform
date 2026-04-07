@@ -684,3 +684,21 @@
 - [ ] Add Plausible guide_download custom event on buyer's guide form submit
 - [ ] Add 900px breakpoint for stacked buyer's guide layout
 - [ ] Add Instagram link in global footer
+
+## Apr 6 2026 — Site-wide polish batch
+- [ ] Upload composited book cover (owl + hero + gold) and swap URL in newsletter section
+- [ ] Add Instagram CTA ("Follow @homesby.apollo") below footer email form in brand column
+- [ ] Track footer_subscribe in Plausible on footer form success
+- [x] Connect home page blog cards to their article URLs
+- [x] Scan entire site for pages missing global footer (get-in-touch, find-your-home, all blog pages/posts, about, contact, etc.)
+- [x] Apply global footer to all non-SCOPS pages missing it
+
+## Apr 7 2026 — Footer & Blog fixes
+- [x] Update Calendly embed URL to https://calendly.com/d/cyjg-rx9-q39/meeting?hide_event_type_details=1 (height 700px)
+- [x] Replace all inline footers in ApolloSite.tsx with GlobalFooter component (homes, lots, home-detail, lot-detail, FAQ, contact pages)
+- [x] Replace inline footer in PublicBlog.tsx with GlobalFooter
+- [x] Replace inline footer in PublicBlogPost.tsx with GlobalFooter
+- [x] Update homepage blog card static images to match actual published post images from DB
+- [x] Add slugs to static blog fallback data so cards link to correct articles
+- [x] Blog cards on homepage now link to /blog/{slug} with hover animation
+- [x] Blog card images in PublicBlog.tsx updated to match published post images
