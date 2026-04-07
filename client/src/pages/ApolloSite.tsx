@@ -1153,28 +1153,30 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                 overflow:"hidden",
                 display:"flex",
                 alignItems:"stretch",
-                minHeight:420,
+                minHeight:500,
               }}>
                 {/* LEFT — Book image on marble */}
                 <div className="nl-book-col" style={{
-                  flex:"0 0 360px",
+                  flex:"0 0 480px",
                   display:"flex",
                   alignItems:"flex-end",
                   justifyContent:"center",
-                  padding:"32px 24px 0 48px",
+                  padding:"24px 16px 0 40px",
                   background:"#f5f3ef",
                   borderRadius:"20px 0 0 20px",
+                  overflow:"hidden",
                 }}>
                   <img
                     src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-book-v2-8rmxs45j86pyJ7mYRWjkdj.webp"
                     alt="2026 Pahrump Home Buyer's Guide"
                     style={{
-                      width:320,
+                      width:"100%",
+                      maxWidth:460,
                       height:"auto",
                       objectFit:"contain",
                       display:"block",
-                      filter:"drop-shadow(0 16px 40px rgba(0,0,0,0.22))",
-                      transform:"none",
+                      filter:"drop-shadow(0 24px 56px rgba(0,0,0,0.30))",
+                      transform:"rotate(-4deg) translateY(12px)",
                       borderRadius:4,
                     }}
                   />
