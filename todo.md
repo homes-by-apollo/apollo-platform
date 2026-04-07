@@ -817,3 +817,9 @@
 ## Apr 7 2026 — SCOPS Nav Cleanup
 - [x] Remove Operations tab from SCOPS navigation
 - [x] SCOPS top nav: increase tab font size by 4pt (13px → 17px)
+
+## Apr 7 2026 — SCOPS Nav Polish
+- [x] SCOPS nav: increase minHeight from 56px to 64px
+- [x] SCOPS nav: bump user chip first-name font from 13px to 15px
+- [x] SCOPS nav: add amber/gold 2px bottom border accent on active tab
+- [x] Promote Kyle to Super Admin role in adminCredentials

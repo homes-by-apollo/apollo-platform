@@ -86,7 +86,7 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
     <div
       className="flex items-center justify-between border-b"
       style={{
-        minHeight: 56,
+        minHeight: 64,
         paddingLeft: 20,
         paddingRight: 20,
         background: "rgba(20, 20, 30, 0.55)",
@@ -136,6 +136,9 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
             border: isActive
               ? "1px solid rgba(255,255,255,0.30)"
               : "1px solid transparent",
+            borderBottom: isActive
+              ? "2px solid #e8a020"
+              : "2px solid transparent",
             backdropFilter: isActive ? "blur(12px)" : "none",
             cursor: section.soon ? "default" : "pointer",
             boxShadow: isActive ? "0 2px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20)" : "none",
@@ -167,7 +170,7 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
           >
             {firstName.charAt(0).toUpperCase()}
           </div>
-          <span className="text-[13px] font-medium" style={{ color: "rgba(255,255,255,0.90)" }}>{firstName}</span>
+          <span className="text-[15px] font-medium" style={{ color: "rgba(255,255,255,0.90)" }}>{firstName}</span>
           <svg
             width="10" height="10" viewBox="0 0 12 12" fill="none"
             className={`transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
