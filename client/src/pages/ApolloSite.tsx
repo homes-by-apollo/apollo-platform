@@ -245,6 +245,7 @@ function NewsletterForm() {
     e.preventDefault();
     if (!nlEmail.trim()) return;
     subscribeMutation.mutate({ email: nlEmail.trim(), source: "buyers-guide" });
+    track("guide_download", { email: nlEmail.trim() });
   };
 
   if (subscribeMutation.isSuccess) {
@@ -609,6 +610,17 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
           .feat-card             { width: calc(100vw - 40px) !important; flex-direction: column !important; min-height: unset !important; }
           .feat-card-text        { flex: none !important; width: 100% !important; padding: 24px 20px !important; }
 
+        }
+
+        @media (max-width: 900px) {
+          /* ── Newsletter section: stack at tablet widths ── */
+          .newsletter-panel      { flex-direction: column !important; border-radius: 16px !important; width: 100% !important; box-sizing: border-box !important; }
+          .nl-book-col           { flex: none !important; width: 100% !important; padding: 32px 24px !important; align-items: center !important; justify-content: center !important; min-height: unset !important; border-radius: 16px 16px 0 0 !important; }
+          .nl-book-col img       { width: 60% !important; max-width: 320px !important; height: auto !important; }
+          .nl-copy-col           { flex: none !important; width: 100% !important; padding: 32px 32px 40px !important; box-sizing: border-box !important; }
+        }
+
+        @media (max-width: 768px) {
           /* ── Newsletter section ── */
           .newsletter-panel      { flex-direction: column !important; border-radius: 16px !important; width: 100% !important; box-sizing: border-box !important; }
           .nl-book-col           { flex: none !important; width: 100% !important; padding: 32px 24px !important; align-items: center !important; justify-content: center !important; min-height: unset !important; border-radius: 16px 16px 0 0 !important; }
@@ -1167,7 +1179,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                   overflow:"hidden",
                 }}>
                   <img
-                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-book-flat-C4HLH69ZjsfuCUj5KU6iuR.png"
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/buyers-guide-cover-v2_f186e541.png"
                     alt="2026 Pahrump Home Buyer's Guide"
                     style={{
                       width:"100%",
@@ -1426,6 +1438,18 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
               <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
               <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
               <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                {/* Instagram */}
+                <a href="https://www.instagram.com/homesby.apollo/" target="_blank" rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram"
+                  style={{ display:"flex", alignItems:"center", justifyContent:"center", width:32, height:32, borderRadius:8, background:"rgba(255,255,255,0.08)", transition:"background 0.15s", flexShrink:0 }}
+                  onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.18)"}}
+                  onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,0.08)"}}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <circle cx="17.5" cy="6.5" r="0.5" fill="rgba(255,255,255,0.55)" stroke="none"/>
+                  </svg>
+                </a>
                 {true && (
                   <a href="/admin-login" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px", letterSpacing:"0.01em", transition:"background 0.15s, color 0.15s" }}
                     onMouseEnter={e=>{ e.currentTarget.style.background="#e07b39"; e.currentTarget.style.color="white"; }}
@@ -1557,6 +1581,18 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
               <div style={{ maxWidth:1650, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
               <p style={{ fontSize:13, color:"rgba(255,255,255,0.22)" }}>© 2026 Homes by Apollo. All rights reserved.</p>
               <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                {/* Instagram */}
+                <a href="https://www.instagram.com/homesby.apollo/" target="_blank" rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram"
+                  style={{ display:"flex", alignItems:"center", justifyContent:"center", width:32, height:32, borderRadius:8, background:"rgba(255,255,255,0.08)", transition:"background 0.15s", flexShrink:0 }}
+                  onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.18)"}}
+                  onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,0.08)"}}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <circle cx="17.5" cy="6.5" r="0.5" fill="rgba(255,255,255,0.55)" stroke="none"/>
+                  </svg>
+                </a>
                 {true && (
                   <a href="/admin-login" style={{ fontSize:13, fontWeight:700, color:"#e07b39", textDecoration:"none", border:"1.5px solid #e07b39", borderRadius:6, padding:"4px 12px", letterSpacing:"0.01em", transition:"background 0.15s, color 0.15s" }}
                     onMouseEnter={e=>{ e.currentTarget.style.background="#e07b39"; e.currentTarget.style.color="white"; }}

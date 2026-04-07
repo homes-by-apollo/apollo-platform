@@ -679,3 +679,8 @@
 - [ ] Rebuild Pipeline tab as Liquid Glass kanban conversion workspace
 - [ ] Send buyers guide PDF to kyleryankelly@gmail.com
 - [ ] Test email capture form with kyle@kylekelly.co
+
+## Apr 6 2026 — Homepage polish
+- [ ] Add Plausible guide_download custom event on buyer's guide form submit
+- [ ] Add 900px breakpoint for stacked buyer's guide layout
+- [ ] Add Instagram link in global footer
