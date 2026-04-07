@@ -449,12 +449,65 @@ export const leadsRouter = router({
         toEmail: contact.email,
         status: "SENT",
       });
-      await logActivity({
+       await logActivity({
         contactId: contact.id,
         activityType: "EMAIL_SENT",
         description: `Welcome email re-sent manually by admin`,
       });
-
       return { success: true };
+    }),
+
+  /** Send a bulk email to all leads in a given pipeline stage */
+  sendBulkEmail: protectedProcedure
+    .input(z.object({
+      stage: z.string(),
+      subject: z.string().min(1).max(200),
+      body: z.string().min(1).max(5000),
+    }))
+    .mutation(async ({ input }) => {
+      // Get all contacts in this stage
+      const contacts = await getContacts({ pipelineStage: input.stage as "NEW_INQUIRY" | "QUALIFIED" | "TOUR_SCHEDULED" | "TOURED" | "OFFER_SUBMITTED" | "UNDER_CONTRACT" | "CLOSED" | "LOST" });
+      if (contacts.length === 0) return { sent: 0, failed: 0 };
+
+      let sent = 0;
+      let failed = 0;
+
+      for (const contact of contacts) {
+        const html = `
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;padding:32px 24px;background:#fff">
+  <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/apollo-logo.png" alt="Homes by Apollo" style="height:40px;margin-bottom:24px" />
+  <div style="color:#111827;line-height:1.7;font-size:15px;white-space:pre-wrap">${input.body.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+  <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0" />
+  <p style="color:#9ca3af;font-size:12px">Apollo Home Builders · Pahrump, NV · (775) 363-1616</p>
+  <p style="color:#9ca3af;font-size:11px">You are receiving this because you expressed interest in our homes. <a href="#" style="color:#6b7280">Unsubscribe</a></p>
+</div>`;
+
+        try {
+          const { error } = await resend.emails.send({
+            from: "Apollo Home Builders <hello@apollohomebuilders.com>",
+            to: contact.email,
+            subject: input.subject,
+            html,
+          });
+          if (error) { failed++; continue; }
+          await logEmail({
+            contactId: contact.id,
+            templateId: "bulk-stage-blast",
+            subject: input.subject,
+            toEmail: contact.email,
+            status: "SENT",
+          });
+          await logActivity({
+            contactId: contact.id,
+            activityType: "EMAIL_SENT",
+            description: `Stage blast email sent: "${input.subject}"`,
+          });
+          sent++;
+        } catch {
+          failed++;
+        }
+      }
+
+      return { sent, failed };
     }),
 });

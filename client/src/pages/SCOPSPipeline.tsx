@@ -176,7 +176,10 @@ function LeadCard({ lead, selected, dimmed, onClick, onDragStart }: { lead: Lead
       }}
     >
       {lead.isOverdue && (
-        <div style={{ position: "absolute", top: 0, left: 0, width: 3, height: "100%", background: "#ef4444", borderRadius: "14px 0 0 14px" }} />
+        <>
+          <div style={{ position: "absolute", top: 0, left: 0, width: 3, height: "100%", background: "#ef4444", borderRadius: "14px 0 0 14px" }} />
+          <div style={{ position: "absolute", top: 8, right: 8, background: "#ef4444", color: "white", fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 6, letterSpacing: "0.05em", zIndex: 1 }}>OVERDUE</div>
+        </>
       )}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
         <div style={{
@@ -341,6 +344,55 @@ function ScheduleTourForm({ lead, onClose, onSuccess }: { lead: Lead; onClose: (
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+// ─── Quick Note Input ────────────────────────────────────────────────────────
+function QuickNoteInput({ leadId }: { leadId: number }) {
+  const utils = trpc.useUtils();
+  const [note, setNote] = useState("");
+  const addActivity = trpc.pipeline.addActivity.useMutation({
+    onSuccess: () => {
+      utils.pipeline.detail.invalidate({ id: leadId });
+      setNote("");
+      toast.success("Note saved");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  return (
+    <div style={{ marginTop: 4 }}>
+      <div style={{ fontSize: 10, color: "rgba(15,32,68,0.35)", marginBottom: 5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Log a Note</div>
+      <div style={{ display: "flex", gap: 6 }}>
+        <input
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === "Enter" && note.trim()) {
+              addActivity.mutate({ contactId: leadId, activityType: "NOTE_ADDED", description: note.trim() });
+            }
+          }}
+          placeholder="Type a note and press Enter…"
+          style={{
+            flex: 1, padding: "7px 10px", borderRadius: 9,
+            border: "1px solid rgba(15,32,68,0.14)",
+            background: "rgba(255,255,255,0.70)",
+            fontSize: 12, color: "rgba(15,32,68,0.85)",
+            outline: "none",
+          }}
+        />
+        <button
+          disabled={!note.trim() || addActivity.isPending}
+          onClick={() => { if (note.trim()) addActivity.mutate({ contactId: leadId, activityType: "NOTE_ADDED", description: note.trim() }); }}
+          style={{
+            padding: "7px 12px", borderRadius: 9, border: "none",
+            background: note.trim() ? "#2563eb" : "rgba(15,32,68,0.10)",
+            color: note.trim() ? "white" : "rgba(15,32,68,0.30)",
+            fontSize: 12, fontWeight: 700, cursor: note.trim() ? "pointer" : "default",
+            transition: "all 0.12s",
+          }}
+        >{addActivity.isPending ? "…" : "Save"}</button>
+      </div>
     </div>
   );
 }
@@ -552,7 +604,7 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
         )}
 
         {/* Move Stage */}
-        <div>
+        <div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 10, color: "rgba(15,32,68,0.35)", marginBottom: 6, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Move Stage</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {STAGES.filter(s => s.key !== lead.pipelineStage).slice(0, 4).map(s => (
@@ -560,6 +612,9 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
             ))}
           </div>
         </div>
+
+        {/* Quick Note Input */}
+        <QuickNoteInput leadId={lead.id} />
           </>
         )}
       </div>
@@ -567,7 +622,50 @@ function LeadDetailPanel({ lead, onClose, onMoveStage }: { lead: Lead; onClose: 
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// // ─── Email Blast Sheet ────────────────────────────────────────────────────────
+function EmailBlastSheet({ stage, onClose }: { stage: string; onClose: () => void }) {
+  const stageLabel = STAGES.find(s => s.key === stage)?.label ?? stage.replace(/_/g, " ");
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const sendBlast = trpc.leads.sendBulkEmail.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Sent to ${data.sent} lead${data.sent !== 1 ? 's' : ''}${data.failed > 0 ? ` (${data.failed} failed)` : ''}`);
+      onClose();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  const inputStyle: React.CSSProperties = { width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 10, color: "#fff", padding: "9px 12px", fontSize: 13, boxSizing: "border-box", outline: "none" };
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ background: "linear-gradient(135deg, rgba(30,41,59,0.98), rgba(15,23,42,0.98))", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "24px 24px 0 0", padding: "24px", width: "100%", maxWidth: 520, maxHeight: "80vh", overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+          <div>
+            <div style={{ color: "#fff", fontWeight: 700, fontSize: 18 }}>Email Blast</div>
+            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, marginTop: 2 }}>Sending to all <strong style={{ color: "rgba(255,255,255,0.75)" }}>{stageLabel}</strong> leads</div>
+          </div>
+          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "6px 12px", fontSize: 14 }}>✕</button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 5 }}>Subject</div>
+            <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. New homes available in Pahrump…" style={inputStyle} />
+          </div>
+          <div>
+            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 5 }}>Message</div>
+            <textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Write your message here…" rows={7} style={{ ...inputStyle, resize: "vertical" }} />
+          </div>
+          <button
+            disabled={!subject.trim() || !body.trim() || sendBlast.isPending}
+            onClick={() => sendBlast.mutate({ stage, subject: subject.trim(), body: body.trim() })}
+            style={{ background: subject.trim() && body.trim() ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "rgba(255,255,255,0.10)", border: "none", borderRadius: 12, color: subject.trim() && body.trim() ? "#fff" : "rgba(255,255,255,0.30)", cursor: subject.trim() && body.trim() ? "pointer" : "default", padding: 14, fontSize: 14, fontWeight: 700, opacity: sendBlast.isPending ? 0.7 : 1 }}
+          >{sendBlast.isPending ? "Sending…" : `Send to ${stageLabel} Leads`}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────
 export default function SCOPSPipeline() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
@@ -577,6 +675,8 @@ export default function SCOPSPipeline() {
   const [search, setSearch] = useState("");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [quickAddStage, setQuickAddStage] = useState<string | undefined>(undefined);
+  const [showBlastSheet, setShowBlastSheet] = useState(false);
+  const [blastStage, setBlastStage] = useState<string>("");
   // Collapse/expand state: columns with 10+ leads show top 5 by default
   const [expandedCols, setExpandedCols] = useState<Set<string>>(new Set());
   const COLLAPSE_THRESHOLD = 10;
@@ -713,25 +813,41 @@ export default function SCOPSPipeline() {
                 }}
               >
                 {/* Column header */}
-                <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid rgba(255,255,255,0.70)", flexShrink: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>{stage.label}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <div style={{ width: 22, height: 22, borderRadius: "50%", background: `${stage.color}20`, border: `1px solid ${stage.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: stage.color }}>
-                        {colLeads.length}
+                {(() => {
+                  const overdueCount = colLeads.filter(l => l.isOverdue).length;
+                  return (
+                  <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid rgba(255,255,255,0.70)", flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>{stage.label}</div>
+                        {overdueCount > 0 && (
+                          <div title={`${overdueCount} overdue lead${overdueCount > 1 ? 's' : ''}`} style={{ background: "#ef4444", color: "white", fontSize: 9, fontWeight: 800, padding: "1px 5px", borderRadius: 5, letterSpacing: "0.04em" }}>{overdueCount}</div>
+                        )}
                       </div>
-                      {/* Per-column Add Lead button */}
-                      <button
-                        onClick={() => { setQuickAddStage(stage.key); setShowQuickAdd(true); }}
-                        title={`Add lead to ${stage.label}`}
-                        style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.90)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14, fontWeight: 700, color: "rgba(15,32,68,0.55)", lineHeight: 1, boxShadow: "0 1px 4px rgba(100,130,200,0.12)", transition: "all 0.12s" }}
-                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${stage.color}18`; (e.currentTarget as HTMLButtonElement).style.color = stage.color; }}
-                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.70)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(15,32,68,0.55)"; }}
-                      >+</button>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        <div style={{ width: 22, height: 22, borderRadius: "50%", background: `${stage.color}20`, border: `1px solid ${stage.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: stage.color }}>
+                          {colLeads.length}
+                        </div>
+                        {/* Send-to-Stage email blast button */}
+                        <button
+                          onClick={() => { setBlastStage(stage.key); setShowBlastSheet(true); }}
+                          title={`Email all ${stage.label} leads`}
+                          style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.90)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 11, color: "rgba(15,32,68,0.45)", boxShadow: "0 1px 4px rgba(100,130,200,0.10)" }}
+                        >✉</button>
+                        {/* Per-column Add Lead button */}
+                        <button
+                          onClick={() => { setQuickAddStage(stage.key); setShowQuickAdd(true); }}
+                          title={`Add lead to ${stage.label}`}
+                          style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.90)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14, fontWeight: 700, color: "rgba(15,32,68,0.55)", lineHeight: 1, boxShadow: "0 1px 4px rgba(100,130,200,0.12)", transition: "all 0.12s" }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${stage.color}18`; (e.currentTarget as HTMLButtonElement).style.color = stage.color; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.70)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(15,32,68,0.55)"; }}
+                        >+</button>
+                      </div>
                     </div>
+                    <div style={{ width: 28, height: 2, background: stage.color, borderRadius: 2, marginTop: 6, opacity: 0.7 }} />
                   </div>
-                  <div style={{ width: 28, height: 2, background: stage.color, borderRadius: 2, marginTop: 6, opacity: 0.7 }} />
-                </div>
+                  );
+                })()}
                 {/* Cards */}
                 {(() => {
                   const isExpanded = expandedCols.has(stage.key);
@@ -790,6 +906,11 @@ export default function SCOPSPipeline() {
           </div>
         )}
       </div>
+
+      {/* Email Blast Sheet */}
+      {showBlastSheet && blastStage && (
+        <EmailBlastSheet stage={blastStage} onClose={() => setShowBlastSheet(false)} />
+      )}
     </div>
   );
 }

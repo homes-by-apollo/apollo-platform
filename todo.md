@@ -772,3 +772,10 @@
 - [x] Kanban search highlight dimming (dim non-matching cards, don't hide them)
 - [x] Tour confirmation email via Resend with .ics calendar attachment on Schedule Tour
 - [x] Update phone number to (775) 363-1616 throughout Buyers Guide PDF and re-upload to CDN
+
+## Apr 7 2026 — Pipeline Quick Note, Overdue Highlights, Email Blast
+- [x] Quick-note input at bottom of LeadDetailPanel (pipeline.addActivity type NOTE)
+- [x] Overdue lead red banner on Kanban card (isOverdue flag from pipeline.list)
+- [x] Overdue count badge on Kanban column header
+- [x] Send-to-Stage email blast: leads.sendBulkEmail server procedure
+- [x] Compose sheet in column header ("Send to Stage" button opens subject/body form)
