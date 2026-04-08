@@ -1,43 +1,79 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
+// ─── Stage constants (must match DB enum exactly) ─────────────────────────────
+
 const STAGE_ORDER = [
-  "NEW_LEAD", "CONTACTED", "NURTURE", "SQL",
-  "TOUR_SCHEDULED", "TOUR_COMPLETED", "PROPOSAL_SENT",
-  "CONTRACT_SIGNED", "IN_CONSTRUCTION", "CLOSED", "LOST",
+  "NEW_INQUIRY",
+  "QUALIFIED",
+  "TOUR_SCHEDULED",
+  "TOURED",
+  "OFFER_SUBMITTED",
+  "UNDER_CONTRACT",
+  "CLOSED",
+  "LOST",
 ] as const;
 
-const STAGE_LABELS: Record<string, string> = {
-  NEW_LEAD: "New Lead", CONTACTED: "Contacted", NURTURE: "Nurturing",
-  SQL: "SQL", TOUR_SCHEDULED: "Tour Scheduled", TOUR_COMPLETED: "Tour Completed",
-  PROPOSAL_SENT: "Proposal Sent", CONTRACT_SIGNED: "Contract Signed",
-  IN_CONSTRUCTION: "In Construction", CLOSED: "Closed", LOST: "Lost",
+type PipelineStage = (typeof STAGE_ORDER)[number];
+
+const STAGE_LABELS: Record<PipelineStage, string> = {
+  NEW_INQUIRY:     "New Inquiry",
+  QUALIFIED:       "Qualified",
+  TOUR_SCHEDULED:  "Tour Scheduled",
+  TOURED:          "Toured",
+  OFFER_SUBMITTED: "Offer Submitted",
+  UNDER_CONTRACT:  "Under Contract",
+  CLOSED:          "Closed",
+  LOST:            "Lost",
+};
+
+const STAGE_COLORS: Record<PipelineStage, string> = {
+  NEW_INQUIRY:     "bg-slate-100 text-slate-700",
+  QUALIFIED:       "bg-blue-100 text-blue-700",
+  TOUR_SCHEDULED:  "bg-violet-100 text-violet-700",
+  TOURED:          "bg-purple-100 text-purple-700",
+  OFFER_SUBMITTED: "bg-amber-100 text-amber-700",
+  UNDER_CONTRACT:  "bg-orange-100 text-orange-700",
+  CLOSED:          "bg-green-100 text-green-700",
+  LOST:            "bg-red-100 text-red-700",
 };
 
 const SCORE_COLORS: Record<string, string> = {
-  HOT: "bg-red-100 text-red-700",
+  HOT:  "bg-red-100 text-red-700",
   WARM: "bg-amber-100 text-amber-700",
   COLD: "bg-blue-100 text-blue-700",
 };
 
 const LOSS_REASONS = [
-  { value: "BOUGHT_ELSEWHERE", label: "Bought elsewhere" },
-  { value: "FINANCING_FAILED", label: "Could not secure financing" },
-  { value: "TIMELINE_CHANGED", label: "Timeline changed" },
-  { value: "PRICE_TOO_HIGH", label: "Price too high" },
-  { value: "NO_RESPONSE", label: "No response after 30 days" },
-  { value: "OTHER", label: "Other" },
+  { value: "BOUGHT_ELSEWHERE",  label: "Bought elsewhere" },
+  { value: "FINANCING_FAILED",  label: "Could not secure financing" },
+  { value: "TIMELINE_CHANGED",  label: "Timeline changed" },
+  { value: "PRICE_TOO_HIGH",    label: "Price too high" },
+  { value: "NO_RESPONSE",       label: "No response after 30 days" },
+  { value: "OTHER",             label: "Other" },
 ];
+
+// ─── Formatters ───────────────────────────────────────────────────────────────
 
 function formatDate(d: Date | string | null | undefined) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+    hour: "numeric", minute: "2-digit",
+  });
+}
+
+function formatDateShort(d: Date | string | null | undefined) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+  });
 }
 
 function formatTimeline(t: string | null | undefined) {
@@ -64,25 +100,77 @@ function formatPrice(min: number | null | undefined, max: number | null | undefi
   return `Up to ${fmt(max!)}`;
 }
 
+function formatBytes(bytes: number | null | undefined) {
+  if (!bytes) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+// ─── Section header ───────────────────────────────────────────────────────────
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="text-[11px] font-bold text-[#0f2044] uppercase tracking-wider mb-3">
+      {children}
+    </div>
+  );
+}
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+
 interface Props {
   id: number;
   onBack: () => void;
 }
 
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function LeadDetail({ id, onBack }: Props) {
   const utils = trpc.useUtils();
   const { data, isLoading, error } = trpc.leads.getById.useQuery({ id });
-  const [note, setNote] = useState("");
+
+  // Stage
   const [newStage, setNewStage] = useState<string>("");
   const [lossReason, setLossReason] = useState<string>("");
 
-  const resendWelcome = trpc.leads.resendWelcome.useMutation({
-    onSuccess: () => {
-      utils.leads.getById.invalidate({ id });
-      toast.success("Welcome email sent");
-    },
-    onError: (err) => toast.error(err.message),
-  });
+  // Note
+  const [note, setNote] = useState("");
+
+  // Edit mode
+  const [editMode, setEditMode] = useState(false);
+  const [editFirst, setEditFirst] = useState("");
+  const [editLast, setEditLast] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+
+  // Delete confirm
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  // Follow-up form
+  const [fuType, setFuType] = useState<"CALL" | "EMAIL" | "TEXT" | "MEETING" | "OTHER">("CALL");
+  const [fuNote, setFuNote] = useState("");
+  const [fuDue, setFuDue] = useState("");
+  const [showFuForm, setShowFuForm] = useState(false);
+
+  // Appointment form
+  const [apptTitle, setApptTitle] = useState("");
+  const [apptType, setApptType] = useState<"TOUR" | "CALL" | "MEETING" | "SHOWING" | "OTHER">("TOUR");
+  const [apptDate, setApptDate] = useState("");
+  const [apptLocation, setApptLocation] = useState("");
+  const [apptNotes, setApptNotes] = useState("");
+  const [showApptForm, setShowApptForm] = useState(false);
+
+  // File upload
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Queries ──────────────────────────────────────────────────────────────────
+
+  const followUpsQ = trpc.crm.listFollowUps.useQuery({ contactId: id });
+  const appointmentsQ = trpc.crm.listAppointments.useQuery({ contactId: id });
+  const attachmentsQ = trpc.crm.listAttachments.useQuery({ contactId: id });
+
+  // ── Mutations ─────────────────────────────────────────────────────────────────
 
   const updateStage = trpc.leads.updateStage.useMutation({
     onSuccess: () => {
@@ -100,10 +188,113 @@ export default function LeadDetail({ id, onBack }: Props) {
     onSuccess: () => {
       utils.leads.getById.invalidate({ id });
       setNote("");
-      toast.success("Note added");
+      toast.success("Note saved");
     },
     onError: (err) => toast.error(err.message),
   });
+
+  const updateContact = trpc.leads.updateContact.useMutation({
+    onSuccess: () => {
+      utils.leads.getById.invalidate({ id });
+      setEditMode(false);
+      toast.success("Contact updated");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const deleteLead = trpc.crm.deleteLead.useMutation({
+    onSuccess: () => {
+      toast.success("Lead deleted");
+      onBack();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const resendWelcome = trpc.leads.resendWelcome.useMutation({
+    onSuccess: () => { utils.leads.getById.invalidate({ id }); toast.success("Welcome email sent"); },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const createFollowUp = trpc.crm.createFollowUp.useMutation({
+    onSuccess: () => {
+      utils.crm.listFollowUps.invalidate({ contactId: id });
+      utils.leads.getById.invalidate({ id });
+      setFuNote(""); setFuDue(""); setShowFuForm(false);
+      toast.success("Follow-up scheduled");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const completeFollowUp = trpc.crm.completeFollowUp.useMutation({
+    onSuccess: () => utils.crm.listFollowUps.invalidate({ contactId: id }),
+    onError: (err) => toast.error(err.message),
+  });
+
+  const deleteFollowUp = trpc.crm.deleteFollowUp.useMutation({
+    onSuccess: () => utils.crm.listFollowUps.invalidate({ contactId: id }),
+    onError: (err) => toast.error(err.message),
+  });
+
+  const createAppointment = trpc.crm.createAppointment.useMutation({
+    onSuccess: () => {
+      utils.crm.listAppointments.invalidate({ contactId: id });
+      utils.leads.getById.invalidate({ id });
+      setApptTitle(""); setApptDate(""); setApptLocation(""); setApptNotes(""); setShowApptForm(false);
+      toast.success("Appointment booked");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const updateApptStatus = trpc.crm.updateAppointmentStatus.useMutation({
+    onSuccess: () => utils.crm.listAppointments.invalidate({ contactId: id }),
+    onError: (err) => toast.error(err.message),
+  });
+
+  const deleteAppointment = trpc.crm.deleteAppointment.useMutation({
+    onSuccess: () => utils.crm.listAppointments.invalidate({ contactId: id }),
+    onError: (err) => toast.error(err.message),
+  });
+
+  const uploadAttachment = trpc.crm.uploadAttachment.useMutation({
+    onSuccess: () => {
+      utils.crm.listAttachments.invalidate({ contactId: id });
+      utils.leads.getById.invalidate({ id });
+      toast.success("File uploaded");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const deleteAttachment = trpc.crm.deleteAttachment.useMutation({
+    onSuccess: () => utils.crm.listAttachments.invalidate({ contactId: id }),
+    onError: (err) => toast.error(err.message),
+  });
+
+  // ── File upload handler ───────────────────────────────────────────────────────
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const MAX_MB = 10;
+    if (file.size > MAX_MB * 1024 * 1024) {
+      toast.error(`File too large (max ${MAX_MB} MB)`);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1];
+      uploadAttachment.mutate({
+        contactId: id,
+        filename: file.name,
+        mimeType: file.type || "application/octet-stream",
+        sizeBytes: file.size,
+        base64,
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
+
+  // ── Loading / error states ────────────────────────────────────────────────────
 
   if (isLoading) {
     return (
@@ -122,93 +313,319 @@ export default function LeadDetail({ id, onBack }: Props) {
   }
 
   const { contact, activity, emails } = data;
+  const currentStage = contact.pipelineStage as PipelineStage;
+
+  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-[#0f2044] text-white px-6 py-4 flex items-center gap-4">
-        <button onClick={onBack} className="text-white/60 hover:text-white text-sm transition-colors">
-          ← Back to CRM
+
+      {/* ── Top bar ── */}
+      <div className="bg-white border-b border-[#e2e6ed] px-4 sm:px-6 py-3 flex flex-wrap items-center gap-2 sm:gap-3 sticky top-0 z-20">
+        <button
+          onClick={onBack}
+          className="text-sm text-slate-500 hover:text-[#0f2044] transition-colors flex items-center gap-1"
+        >
+          ← Back
         </button>
-        <span className="text-white/30">|</span>
-        <span className="font-bold">{contact.firstName} {contact.lastName}</span>
+        <span className="text-slate-300">|</span>
+        <span className="font-semibold text-[#0f2044] text-sm">
+          {contact.firstName} {contact.lastName}
+        </span>
         {contact.leadScore && (
-          <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${SCORE_COLORS[contact.leadScore]} ml-1`}>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${SCORE_COLORS[contact.leadScore]}`}>
             {contact.leadScore}
           </span>
         )}
-        <div className="ml-auto flex items-center gap-2">
+        <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${STAGE_COLORS[currentStage]}`}>
+          {STAGE_LABELS[currentStage]}
+        </span>
+
+        {/* Created / modified — hidden on small screens */}
+        <div className="ml-auto hidden md:flex items-center gap-4 text-xs text-slate-400">
+          <span>Created {formatDateShort(contact.createdAt)}</span>
+          <span>Modified {formatDateShort(contact.updatedAt)}</span>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              if (!editMode) {
+                setEditFirst(contact.firstName ?? "");
+                setEditLast(contact.lastName ?? "");
+                setEditEmail(contact.email ?? "");
+                setEditPhone(contact.phone ?? "");
+              }
+              setEditMode(!editMode);
+            }}
+            className={`text-xs px-3 py-1.5 rounded font-semibold transition-colors border ${
+              editMode
+                ? "bg-[#0f2044] text-white border-[#0f2044]"
+                : "bg-white text-[#0f2044] border-[#e2e6ed] hover:border-[#0f2044]"
+            }`}
+          >
+            {editMode ? "Cancel" : "Edit"}
+          </button>
+          {!confirmDelete ? (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="text-xs px-3 py-1.5 rounded font-semibold border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
+            >
+              Delete
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-red-600 font-medium">Sure?</span>
+              <button
+                onClick={() => deleteLead.mutate({ id })}
+                disabled={deleteLead.isPending}
+                className="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700 font-semibold"
+              >
+                Yes, delete
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="text-xs px-2 py-1 rounded border border-slate-200 text-slate-600 hover:bg-slate-50"
+              >
+                No
+              </button>
+            </div>
+          )}
           <button
             onClick={() => {
               const params = new URLSearchParams();
-              if (contact.firstName || contact.lastName) {
+              if (contact.firstName || contact.lastName)
                 params.set("name", `${contact.firstName ?? ""} ${contact.lastName ?? ""}`.trim());
-              }
               if (contact.email) params.set("email", contact.email);
               if (contact.phone) params.set("phone", contact.phone);
               params.set("leadId", String(id));
               window.location.href = `/scops/scheduling?${params.toString()}`;
             }}
-            className="text-xs bg-sky-500 hover:bg-sky-400 text-white rounded px-3 py-1.5 transition-colors font-semibold flex items-center gap-1.5"
+            className="text-xs bg-sky-500 hover:bg-sky-400 text-white rounded px-3 py-1.5 font-semibold hidden sm:block"
           >
-            📅 Schedule Tour
-          </button>
-          <button
-            onClick={() => resendWelcome.mutate({ id })}
-            disabled={resendWelcome.isPending}
-            className="text-xs border border-white/30 hover:border-white/70 text-white/70 hover:text-white rounded px-3 py-1.5 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-          >
-            {resendWelcome.isPending ? (
-              <>⧗ Sending…</>
-            ) : (
-              <>✉️ Resend Welcome Email</>
-            )}
+            📅 Tour
           </button>
         </div>
       </div>
 
-      <div className="px-6 py-6 max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="px-4 sm:px-6 py-6 max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Left: Contact Info + Stage */}
+        {/* ── Left column ── */}
         <div className="lg:col-span-1 space-y-4">
-          {/* Contact Info */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Contact Info</CardTitle>
+
+          {/* ── Pipeline Stage (TOP) ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <SectionTitle>Pipeline Stage</SectionTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div>
-                <div className="text-xs text-muted-foreground mb-0.5">Type</div>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${contact.contactType === "BUYER" ? "bg-blue-50 text-blue-700" : "bg-violet-50 text-violet-700"}`}>
-                  {contact.contactType === "BUYER" ? "Homebuyer" : "Real Estate Agent"}
-                </span>
+            <CardContent className="px-4 pb-4 space-y-3">
+              {/* Stage progress dots */}
+              <div className="flex flex-wrap gap-1.5 mb-1">
+                {STAGE_ORDER.filter(s => s !== "LOST").map(s => (
+                  <div
+                    key={s}
+                    title={STAGE_LABELS[s]}
+                    className={`h-2 w-2 rounded-full transition-all ${
+                      s === currentStage
+                        ? "bg-[#0f2044] scale-125"
+                        : STAGE_ORDER.indexOf(s) < STAGE_ORDER.indexOf(currentStage)
+                          ? "bg-[#0f2044]/40"
+                          : "bg-slate-200"
+                    }`}
+                  />
+                ))}
               </div>
-              <div>
-                <div className="text-xs text-muted-foreground mb-0.5">Email</div>
-                <a href={`mailto:${contact.email}`} className="text-[#0f2044] font-medium hover:underline">{contact.email}</a>
+              <div className={`text-sm font-bold px-3 py-1.5 rounded-full inline-block ${STAGE_COLORS[currentStage]}`}>
+                {STAGE_LABELS[currentStage]}
               </div>
-              <div>
-                <div className="text-xs text-muted-foreground mb-0.5">Phone</div>
-                <a href={`tel:${contact.phone}`} className="text-[#0f2044] font-medium hover:underline">{contact.phone}</a>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground mb-0.5">Source</div>
-                <span className="font-medium">{contact.source}</span>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground mb-0.5">Created</div>
-                <span className="font-medium">{formatDate(contact.createdAt)}</span>
-              </div>
+
+              <Select value={newStage} onValueChange={setNewStage}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Move to stage…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STAGE_ORDER.filter(s => s !== currentStage).map(s => (
+                    <SelectItem key={s} value={s}>{STAGE_LABELS[s]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {newStage === "LOST" && (
+                <Select value={lossReason} onValueChange={setLossReason}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Loss reason (required)…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LOSS_REASONS.map(r => (
+                      <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              {newStage && (
+                <Button
+                  size="sm"
+                  className="w-full h-8 text-xs bg-[#0f2044] hover:bg-[#1a3366]"
+                  disabled={updateStage.isPending || (newStage === "LOST" && !lossReason)}
+                  onClick={() =>
+                    updateStage.mutate({
+                      id,
+                      stage: newStage as PipelineStage,
+                      lossReason: (lossReason as any) || undefined,
+                    })
+                  }
+                >
+                  {updateStage.isPending ? "Saving…" : `Move → ${STAGE_LABELS[newStage as PipelineStage]}`}
+                </Button>
+              )}
             </CardContent>
           </Card>
 
-          {/* UTM Attribution */}
-          {(contact.utmSource || contact.utmMedium || contact.utmCampaign || contact.landingPage) && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Ad Attribution</CardTitle>
+          {/* ── Contact Info ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <SectionTitle>Contact Info</SectionTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4 space-y-3 text-sm">
+              {editMode ? (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">First Name</div>
+                      <Input value={editFirst} onChange={e => setEditFirst(e.target.value)} className="h-8 text-xs" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">Last Name</div>
+                      <Input value={editLast} onChange={e => setEditLast(e.target.value)} className="h-8 text-xs" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Email</div>
+                    <Input value={editEmail} onChange={e => setEditEmail(e.target.value)} className="h-8 text-xs" type="email" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Phone</div>
+                    <Input value={editPhone} onChange={e => setEditPhone(e.target.value)} className="h-8 text-xs" type="tel" />
+                  </div>
+                  <Button
+                    size="sm"
+                    className="w-full h-8 text-xs bg-[#0f2044] hover:bg-[#1a3366]"
+                    disabled={updateContact.isPending}
+                    onClick={() =>
+                      updateContact.mutate({
+                        id,
+                        firstName: editFirst || undefined,
+                        lastName: editLast || undefined,
+                        email: editEmail || undefined,
+                        phone: editPhone || undefined,
+                      })
+                    }
+                  >
+                    {updateContact.isPending ? "Saving…" : "Save Changes"}
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Type</div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                      contact.contactType === "BUYER" ? "bg-blue-50 text-blue-700" : "bg-violet-50 text-violet-700"
+                    }`}>
+                      {contact.contactType === "BUYER" ? "Homebuyer" : "Real Estate Agent"}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Email</div>
+                    <a href={`mailto:${contact.email}`} className="text-[#0f2044] font-medium hover:underline break-all">
+                      {contact.email}
+                    </a>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Phone</div>
+                    <a href={`tel:${contact.phone}`} className="text-[#0f2044] font-medium hover:underline">
+                      {contact.phone || "—"}
+                    </a>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Source</div>
+                    <span className="font-medium">{contact.source}</span>
+                  </div>
+                  <div className="pt-2 border-t border-[#e2e6ed] grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-0.5">Created</div>
+                      <span className="text-xs font-medium">{formatDateShort(contact.createdAt)}</span>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-0.5">Modified</div>
+                      <span className="text-xs font-medium">{formatDateShort(contact.updatedAt)}</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* ── Qualification ── */}
+          {contact.contactType === "BUYER" && (
+            <Card className="border border-[#e2e6ed] shadow-none">
+              <CardHeader className="pb-2 pt-4 px-4">
+                <SectionTitle>Qualification</SectionTitle>
               </CardHeader>
-              <CardContent className="space-y-3 text-sm">
+              <CardContent className="px-4 pb-4 space-y-3 text-sm">
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Timeline</div>
+                  <span className="font-medium">{formatTimeline(contact.timeline)}</span>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Price Range</div>
+                  <span className="font-medium">{formatPrice(contact.priceRangeMin, contact.priceRangeMax)}</span>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Financing</div>
+                  <span className="font-medium">{formatFinancing(contact.financingStatus)}</span>
+                </div>
+                {contact.lenderName && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Lender</div>
+                    <span className="font-medium">{contact.lenderName}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ── Agent Details ── */}
+          {contact.contactType === "AGENT" && (
+            <Card className="border border-[#e2e6ed] shadow-none">
+              <CardHeader className="pb-2 pt-4 px-4">
+                <SectionTitle>Agent Details</SectionTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4 space-y-3 text-sm">
+                {contact.brokerageName && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Brokerage</div>
+                    <span className="font-medium">{contact.brokerageName}</span>
+                  </div>
+                )}
+                {contact.licenseNumber && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-0.5">License</div>
+                    <span className="font-medium">{contact.licenseNumber}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ── UTM Attribution ── */}
+          {(contact.utmSource || contact.utmMedium || contact.utmCampaign || contact.landingPage) && (
+            <Card className="border border-[#e2e6ed] shadow-none">
+              <CardHeader className="pb-2 pt-4 px-4">
+                <SectionTitle>Ad Attribution</SectionTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4 space-y-3 text-sm">
                 {contact.landingPage && (
                   <div>
                     <div className="text-xs text-muted-foreground mb-0.5">Landing Page</div>
@@ -233,127 +650,361 @@ export default function LeadDetail({ id, onBack }: Props) {
                     <span className="font-medium">{contact.utmCampaign}</span>
                   </div>
                 )}
-                {contact.utmContent && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-0.5">Ad Content</div>
-                    <span className="font-medium">{contact.utmContent}</span>
-                  </div>
-                )}
-                {contact.utmTerm && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-0.5">Keyword</div>
-                    <span className="font-medium">{contact.utmTerm}</span>
-                  </div>
-                )}
               </CardContent>
             </Card>
           )}
 
-          {/* Qualification (Buyers only) */}
-          {contact.contactType === "BUYER" && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Qualification</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Timeline</div>
-                  <span className="font-medium">{formatTimeline(contact.timeline)}</span>
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Price Range</div>
-                  <span className="font-medium">{formatPrice(contact.priceRangeMin, contact.priceRangeMax)}</span>
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Financing</div>
-                  <span className="font-medium">{formatFinancing(contact.financingStatus)}</span>
-                </div>
-                {contact.lenderName && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-0.5">Lender</div>
-                    <span className="font-medium">{contact.lenderName}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Agent fields */}
-          {contact.contactType === "AGENT" && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Agent Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                {contact.brokerageName && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-0.5">Brokerage</div>
-                    <span className="font-medium">{contact.brokerageName}</span>
-                  </div>
-                )}
-                {contact.licenseNumber && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-0.5">License</div>
-                    <span className="font-medium">{contact.licenseNumber}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Pipeline Stage */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Pipeline Stage</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="text-sm font-semibold text-[#0f2044]">{STAGE_LABELS[contact.pipelineStage]}</div>
-              <Select value={newStage} onValueChange={setNewStage}>
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Move to stage…" />
-                </SelectTrigger>
-                <SelectContent>
-                  {STAGE_ORDER.filter(s => s !== contact.pipelineStage).map(s => (
-                    <SelectItem key={s} value={s}>{STAGE_LABELS[s]}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {newStage === "LOST" && (
-                <Select value={lossReason} onValueChange={setLossReason}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Loss reason (required)…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LOSS_REASONS.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-              {newStage && (
-                <Button
-                  size="sm"
-                  className="w-full h-8 text-xs bg-[#0f2044] hover:bg-[#1a3366]"
-                  disabled={updateStage.isPending || (newStage === "LOST" && !lossReason)}
-                  onClick={() => updateStage.mutate({
-                    id,
-                    stage: newStage as any,
-                    lossReason: lossReason as any || undefined,
-                  })}
-                >
-                  {updateStage.isPending ? "Saving…" : `Move → ${STAGE_LABELS[newStage]}`}
-                </Button>
-              )}
+          {/* ── Quick actions ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardContent className="px-4 py-3">
+              <button
+                onClick={() => resendWelcome.mutate({ id })}
+                disabled={resendWelcome.isPending}
+                className="w-full text-xs border border-[#e2e6ed] hover:border-[#0f2044] text-slate-600 hover:text-[#0f2044] rounded px-3 py-2 transition-colors disabled:opacity-50 text-left"
+              >
+                {resendWelcome.isPending ? "⧗ Sending…" : "✉️ Resend Welcome Email"}
+              </button>
             </CardContent>
           </Card>
         </div>
 
-        {/* Right: Activity + Email Log + Notes */}
+        {/* ── Right column ── */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Add Note */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">Add Note</CardTitle>
+
+          {/* ── Follow-Ups ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardHeader className="pb-0 pt-4 px-4">
+              <div className="flex items-center justify-between">
+                <SectionTitle>Follow-Ups ({followUpsQ.data?.length ?? 0})</SectionTitle>
+                <button
+                  onClick={() => setShowFuForm(!showFuForm)}
+                  className="text-xs text-[#0f2044] hover:underline font-semibold"
+                >
+                  {showFuForm ? "Cancel" : "+ Add"}
+                </button>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="px-4 pb-4">
+              {showFuForm && (
+                <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-[#e2e6ed] space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">Type</div>
+                      <Select value={fuType} onValueChange={v => setFuType(v as any)}>
+                        <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {["CALL", "EMAIL", "TEXT", "MEETING", "OTHER"].map(t => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">Due Date</div>
+                      <Input
+                        type="datetime-local"
+                        value={fuDue}
+                        onChange={e => setFuDue(e.target.value)}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Note (optional)</div>
+                    <Input
+                      value={fuNote}
+                      onChange={e => setFuNote(e.target.value)}
+                      placeholder="e.g. Follow up on financing status"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    className="h-8 text-xs bg-[#0f2044] hover:bg-[#1a3366]"
+                    disabled={!fuDue || createFollowUp.isPending}
+                    onClick={() =>
+                      createFollowUp.mutate({
+                        contactId: id,
+                        type: fuType,
+                        note: fuNote || undefined,
+                        dueAt: new Date(fuDue),
+                      })
+                    }
+                  >
+                    {createFollowUp.isPending ? "Saving…" : "Schedule Follow-Up"}
+                  </Button>
+                </div>
+              )}
+
+              {!followUpsQ.data || followUpsQ.data.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No follow-ups scheduled.</p>
+              ) : (
+                <div className="space-y-2">
+                  {followUpsQ.data.map(fu => (
+                    <div
+                      key={fu.id}
+                      className={`flex items-start justify-between p-2.5 rounded-lg border text-sm ${
+                        fu.completedAt ? "bg-green-50 border-green-200 opacity-70" : "bg-white border-[#e2e6ed]"
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-xs font-bold text-[#0f2044]">{fu.type}</span>
+                          {fu.completedAt && (
+                            <span className="text-xs text-green-600 font-semibold">✓ Done</span>
+                          )}
+                        </div>
+                        {fu.note && <div className="text-xs text-slate-600 truncate">{fu.note}</div>}
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          Due {formatDate(fu.dueAt)}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-2 shrink-0">
+                        {!fu.completedAt && (
+                          <button
+                            onClick={() => completeFollowUp.mutate({ id: fu.id, contactId: id })}
+                            className="text-xs text-green-600 hover:text-green-700 font-bold"
+                            title="Mark complete"
+                          >
+                            ✓
+                          </button>
+                        )}
+                        <button
+                          onClick={() => deleteFollowUp.mutate({ id: fu.id, contactId: id })}
+                          className="text-xs text-red-400 hover:text-red-600"
+                          title="Delete"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* ── Appointments ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardHeader className="pb-0 pt-4 px-4">
+              <div className="flex items-center justify-between">
+                <SectionTitle>Appointments ({appointmentsQ.data?.length ?? 0})</SectionTitle>
+                <button
+                  onClick={() => setShowApptForm(!showApptForm)}
+                  className="text-xs text-[#0f2044] hover:underline font-semibold"
+                >
+                  {showApptForm ? "Cancel" : "+ Add"}
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              {showApptForm && (
+                <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-[#e2e6ed] space-y-2">
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Title</div>
+                    <Input
+                      value={apptTitle}
+                      onChange={e => setApptTitle(e.target.value)}
+                      placeholder="e.g. Home Tour — Lot 12"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">Type</div>
+                      <Select value={apptType} onValueChange={v => setApptType(v as any)}>
+                        <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {["TOUR", "CALL", "MEETING", "SHOWING", "OTHER"].map(t => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">Date & Time</div>
+                      <Input
+                        type="datetime-local"
+                        value={apptDate}
+                        onChange={e => setApptDate(e.target.value)}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Location (optional)</div>
+                    <Input
+                      value={apptLocation}
+                      onChange={e => setApptLocation(e.target.value)}
+                      placeholder="e.g. 123 Desert Bloom Dr, Pahrump"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Notes (optional)</div>
+                    <Textarea
+                      value={apptNotes}
+                      onChange={e => setApptNotes(e.target.value)}
+                      rows={2}
+                      className="text-xs resize-none"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    className="h-8 text-xs bg-[#0f2044] hover:bg-[#1a3366]"
+                    disabled={!apptTitle || !apptDate || createAppointment.isPending}
+                    onClick={() =>
+                      createAppointment.mutate({
+                        contactId: id,
+                        title: apptTitle,
+                        type: apptType,
+                        scheduledAt: new Date(apptDate),
+                        location: apptLocation || undefined,
+                        notes: apptNotes || undefined,
+                      })
+                    }
+                  >
+                    {createAppointment.isPending ? "Saving…" : "Book Appointment"}
+                  </Button>
+                </div>
+              )}
+
+              {!appointmentsQ.data || appointmentsQ.data.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No appointments yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {appointmentsQ.data.map(appt => (
+                    <div key={appt.id} className="flex items-start justify-between p-2.5 rounded-lg border border-[#e2e6ed] bg-white text-sm">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                          <span className="font-semibold text-[#0f2044] text-sm">{appt.title}</span>
+                          <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${
+                            appt.status === "COMPLETED" ? "bg-green-100 text-green-700" :
+                            appt.status === "CANCELLED" ? "bg-red-100 text-red-600" :
+                            appt.status === "NO_SHOW" ? "bg-orange-100 text-orange-700" :
+                            "bg-blue-100 text-blue-700"
+                          }`}>
+                            {appt.status}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {appt.type} · {formatDate(appt.scheduledAt)}
+                          {appt.location && ` · ${appt.location}`}
+                        </div>
+                        {appt.notes && <div className="text-xs text-slate-500 mt-0.5 truncate">{appt.notes}</div>}
+                      </div>
+                      <div className="flex items-center gap-1.5 ml-2 shrink-0">
+                        {appt.status === "SCHEDULED" && (
+                          <>
+                            <button
+                              onClick={() => updateApptStatus.mutate({ id: appt.id, contactId: id, status: "COMPLETED" })}
+                              className="text-xs text-green-600 hover:text-green-700 font-bold"
+                              title="Mark complete"
+                            >
+                              ✓
+                            </button>
+                            <button
+                              onClick={() => updateApptStatus.mutate({ id: appt.id, contactId: id, status: "CANCELLED" })}
+                              className="text-xs text-orange-500 hover:text-orange-700 font-bold"
+                              title="Cancel"
+                            >
+                              ✕
+                            </button>
+                          </>
+                        )}
+                        <button
+                          onClick={() => deleteAppointment.mutate({ id: appt.id, contactId: id })}
+                          className="text-xs text-red-400 hover:text-red-600"
+                          title="Delete"
+                        >
+                          🗑
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* ── Attachments ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardHeader className="pb-0 pt-4 px-4">
+              <div className="flex items-center justify-between">
+                <SectionTitle>Attachments ({attachmentsQ.data?.length ?? 0})</SectionTitle>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadAttachment.isPending}
+                  className="text-xs text-[#0f2044] hover:underline font-semibold disabled:opacity-50"
+                >
+                  {uploadAttachment.isPending ? "Uploading…" : "+ Upload File"}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              {!attachmentsQ.data || attachmentsQ.data.length === 0 ? (
+                <div
+                  className="border-2 border-dashed border-[#e2e6ed] rounded-lg p-6 text-center cursor-pointer hover:border-[#0f2044]/40 transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="text-2xl mb-1">📎</div>
+                  <div className="text-xs text-muted-foreground">
+                    Click to upload a file<br />
+                    <span className="text-[10px]">Pre-approval letters, ID, contracts, etc. (max 10 MB)</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {attachmentsQ.data.map(att => (
+                    <div key={att.id} className="flex items-center justify-between p-2.5 rounded-lg border border-[#e2e6ed] bg-white">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-lg shrink-0">📄</span>
+                        <div className="min-w-0">
+                          <a
+                            href={att.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium text-[#0f2044] hover:underline truncate block"
+                          >
+                            {att.filename}
+                          </a>
+                          <div className="text-xs text-muted-foreground">
+                            {formatBytes(att.sizeBytes)} · {formatDateShort(att.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => deleteAttachment.mutate({ id: att.id, contactId: id })}
+                        className="text-xs text-red-400 hover:text-red-600 ml-2 shrink-0"
+                        title="Delete"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  <div
+                    className="border border-dashed border-[#e2e6ed] rounded-lg p-2 text-center cursor-pointer hover:border-[#0f2044]/40 transition-colors"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <span className="text-xs text-muted-foreground">+ Upload another file</span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* ── Add Note ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <SectionTitle>Add Note</SectionTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4 space-y-2">
               <Textarea
                 placeholder="Log a call, add context, or record an update…"
                 value={note}
@@ -372,14 +1023,12 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* Activity Log */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">
-                Activity Log ({activity.length})
-              </CardTitle>
+          {/* ── Activity Log ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <SectionTitle>Activity Log ({activity.length})</SectionTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 pb-4">
               {activity.length === 0 ? (
                 <p className="text-xs text-muted-foreground">No activity yet.</p>
               ) : (
@@ -401,14 +1050,12 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* Email Log */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold text-[#0f2044] uppercase tracking-wider">
-                Email History ({emails.length})
-              </CardTitle>
+          {/* ── Email History ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <SectionTitle>Email History ({emails.length})</SectionTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 pb-4">
               {emails.length === 0 ? (
                 <p className="text-xs text-muted-foreground">No emails sent yet.</p>
               ) : (
@@ -432,6 +1079,7 @@ export default function LeadDetail({ id, onBack }: Props) {
               )}
             </CardContent>
           </Card>
+
         </div>
       </div>
     </div>

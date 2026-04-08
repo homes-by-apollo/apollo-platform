@@ -855,3 +855,19 @@
 - [x] Update SCOPS alert email subject to include price range and timeline
 - [x] Full SCOPS UI refactor: replace dark liquid-glass with clean white SaaS design system
 - [x] Update SCOPSNav: Homes by Apollo logo, 80px bar height, 20px clock font, 15px date font
+
+## Lead Profile Enhancements (Apr 7 2026 — Session 5)
+
+- [x] Fix Pipeline Stage advancement bug (stage enum mismatch: was using NEW_LEAD/CONTACTED/etc, now using NEW_INQUIRY/QUALIFIED/TOUR_SCHEDULED/TOURED/OFFER_SUBMITTED/UNDER_CONTRACT/CLOSED/LOST)
+- [x] Move Pipeline Stage section to top of lead profile left column
+- [x] Add followUps DB table (type, note, dueAt, completedAt, createdBy)
+- [x] Add appointments DB table (title, type, scheduledAt, durationMinutes, location, notes, status, createdBy)
+- [x] Add leadAttachments DB table (filename, fileKey, fileUrl, mimeType, sizeBytes, uploadedBy)
+- [x] Create crmExtrasRouter with listFollowUps, createFollowUp, completeFollowUp, deleteFollowUp
+- [x] Create crmExtrasRouter with listAppointments, createAppointment, updateAppointmentStatus, deleteAppointment
+- [x] Create crmExtrasRouter with listAttachments, uploadAttachment (S3), deleteAttachment
+- [x] Add deleteLead procedure (cascades to followUps, appointments, leadAttachments, contacts)
+- [x] Add Edit contact inline form (firstName, lastName, email, phone) with updateContact mutation
+- [x] Add Delete lead button with confirmation dialog
+- [x] Add Created date and Modified date to lead profile (top bar + Contact Info card)
+- [x] Rebuild LeadDetail.tsx with new sections: Follow-Ups, Appointments, Attachments, Edit, Delete

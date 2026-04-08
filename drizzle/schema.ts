@@ -453,3 +453,81 @@ export const systemSettings = mysqlTable("systemSettings", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 export type SystemSetting = typeof systemSettings.$inferSelect;
+
+// ─── Follow-Ups ───────────────────────────────────────────────────────────────
+
+/**
+ * Scheduled follow-up tasks for a contact.
+ * Sales reps log calls, emails, or meetings they need to complete.
+ */
+export const followUps = mysqlTable("followUps", {
+  id: int("id").autoincrement().primaryKey(),
+
+  contactId: int("contactId").notNull(),  // FK → contacts.id
+
+  type: mysqlEnum("type", ["CALL", "EMAIL", "TEXT", "MEETING", "OTHER"]).notNull().default("CALL"),
+  note: text("note"),
+  dueAt: timestamp("dueAt").notNull(),
+
+  completedAt: timestamp("completedAt"),
+  completedBy: int("completedBy"),  // FK → adminCredentials.id
+
+  createdBy: int("createdBy"),      // FK → adminCredentials.id
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FollowUp = typeof followUps.$inferSelect;
+export type InsertFollowUp = typeof followUps.$inferInsert;
+
+// ─── Appointments ─────────────────────────────────────────────────────────────
+
+/**
+ * Manually-logged appointments (tours, meetings, calls) for a contact.
+ * Separate from Calendly-synced scheduledTours — these are CRM-native.
+ */
+export const appointments = mysqlTable("appointments", {
+  id: int("id").autoincrement().primaryKey(),
+
+  contactId: int("contactId").notNull(),  // FK → contacts.id
+
+  title: varchar("title", { length: 256 }).notNull(),
+  type: mysqlEnum("type", ["TOUR", "CALL", "MEETING", "SHOWING", "OTHER"]).notNull().default("TOUR"),
+  scheduledAt: timestamp("scheduledAt").notNull(),
+  durationMinutes: int("durationMinutes").default(60),
+  location: varchar("location", { length: 256 }),
+  notes: text("notes"),
+
+  status: mysqlEnum("status", ["SCHEDULED", "COMPLETED", "CANCELLED", "NO_SHOW"]).notNull().default("SCHEDULED"),
+
+  createdBy: int("createdBy"),      // FK → adminCredentials.id
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Appointment = typeof appointments.$inferSelect;
+export type InsertAppointment = typeof appointments.$inferInsert;
+
+// ─── Lead Attachments ─────────────────────────────────────────────────────────
+
+/**
+ * Files attached to a contact record (pre-approval letters, ID docs, contracts, etc.).
+ * File bytes are stored in S3; only metadata is persisted here.
+ */
+export const leadAttachments = mysqlTable("leadAttachments", {
+  id: int("id").autoincrement().primaryKey(),
+
+  contactId: int("contactId").notNull(),  // FK → contacts.id
+
+  filename: varchar("filename", { length: 256 }).notNull(),
+  fileKey: varchar("fileKey", { length: 512 }).notNull(),   // S3 key
+  fileUrl: text("fileUrl").notNull(),                        // CDN/presigned URL
+  mimeType: varchar("mimeType", { length: 128 }),
+  sizeBytes: int("sizeBytes"),
+
+  uploadedBy: int("uploadedBy"),    // FK → adminCredentials.id
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LeadAttachment = typeof leadAttachments.$inferSelect;
+export type InsertLeadAttachment = typeof leadAttachments.$inferInsert;
