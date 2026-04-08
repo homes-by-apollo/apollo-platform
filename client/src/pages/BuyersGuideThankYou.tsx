@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { GlobalFooter } from "@/components/GlobalFooter";
@@ -5,6 +6,9 @@ import { Helmet } from "react-helmet-async";
 
 const COVER_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-home-buyers-guide-cover_56befa3f.png";
 const PDF_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-Pahrump-Home-Buyers-Guide_0f00d242.pdf";
+const GUIDE_SHARE_URL = "https://apollohomebuilders.com/buyers-guide";
+// Black owl + wordmark — same as homepage
+const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png";
 const GOLD = "#c9a84c";
 const NAVY = "#0f2044";
 
@@ -38,8 +42,44 @@ const FALLBACK_POSTS = [
 
 export default function BuyersGuideThankYou() {
   const [, setLocation] = useLocation();
+  const [copied, setCopied] = useState(false);
   const { data: posts } = trpc.blog.getPublished.useQuery();
   const displayPosts = (posts && posts.length > 0 ? posts.slice(0, 3) : FALLBACK_POSTS) as typeof FALLBACK_POSTS;
+
+  // PDF download tracking — reads email from sessionStorage set by the guide form
+  const trackDownload = trpc.leads.trackPdfDownload.useMutation();
+  const handleDownload = () => {
+    const email = sessionStorage.getItem("guide_email") ?? "";
+    if (email) {
+      trackDownload.mutate({ email });
+    }
+    window.open(PDF_URL, "_blank", "noopener,noreferrer");
+  };
+
+  // Copy guide link to clipboard
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(GUIDE_SHARE_URL);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Fallback for older browsers
+      const el = document.createElement("input");
+      el.value = GUIDE_SHARE_URL;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
+  // SMS text-share (opens native SMS app with pre-filled message)
+  const handleTextShare = () => {
+    const msg = encodeURIComponent(`Hey! I just got the free 2026 Pahrump Home Buyer's Guide from Apollo Home Builders. Thought you'd find it useful: ${GUIDE_SHARE_URL}`);
+    window.location.href = `sms:?body=${msg}`;
+  };
 
   return (
     <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", background: "#f8f7f4", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -61,16 +101,23 @@ export default function BuyersGuideThankYou() {
         <meta name="twitter:description" content="Everything you need to know before building in Pahrump, Nevada. Download free." />
         <meta name="twitter:image" content={COVER_IMG} />
       </Helmet>
+
       {/* ── NAV ── */}
       <nav style={{ background: "white", borderBottom: "1px solid rgba(15,32,68,0.08)", padding: "0 5vw", display: "flex", alignItems: "center", justifyContent: "space-between", height: 68 }}>
-        <button onClick={() => setLocation("/")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-owl-logo_c7a5e2c2.png" alt="Apollo" style={{ height: 38 }} />
-          <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.22em", color: NAVY, textTransform: "uppercase" }}>Homes By</span>
-            <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: "0.06em", color: NAVY, textTransform: "uppercase" }}>Apollo</span>
-          </div>
+        <button
+          onClick={() => setLocation("/")}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}
+        >
+          <img
+            src={LOGO_URL}
+            alt="Homes by Apollo"
+            style={{ height: 52, width: "auto", objectFit: "contain", display: "block" }}
+          />
         </button>
-        <button onClick={() => setLocation("/find-your-home")} style={{ background: NAVY, color: "white", border: "none", borderRadius: 8, padding: "10px 22px", fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}>
+        <button
+          onClick={() => setLocation("/find-your-home")}
+          style={{ background: NAVY, color: "white", border: "none", borderRadius: 8, padding: "10px 22px", fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}
+        >
           FIND YOUR HOME
         </button>
       </nav>
@@ -92,24 +139,59 @@ export default function BuyersGuideThankYou() {
         </p>
 
         {/* PDF Cover Preview Card */}
-        <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 20, padding: "32px 40px", gap: 24, maxWidth: 500, width: "100%" }}>
+        <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 20, padding: "32px 40px", gap: 24, maxWidth: 500, width: "100%", boxSizing: "border-box" }}>
+          {/* Cover image — responsive, max 297px, never overflows on small screens */}
           <img
             src={COVER_IMG}
             alt="2026 Pahrump Home Buyer's Guide Cover"
-            style={{ width: 297, borderRadius: 10, boxShadow: "0 16px 48px rgba(0,0,0,0.45)", display: "block" }}
+            style={{ width: 297, maxWidth: "100%", borderRadius: 10, boxShadow: "0 16px 48px rgba(0,0,0,0.45)", display: "block" }}
           />
-          <div style={{ textAlign: "center" }}>
+          <div style={{ textAlign: "center", width: "100%" }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 6 }}>2026 Pahrump Home Buyer's Guide</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", marginBottom: 20 }}>11 pages · 6 chapters · Free PDF</div>
-            <a
-              href={PDF_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: GOLD, color: NAVY, borderRadius: 9, padding: "11px 24px", fontSize: 13, fontWeight: 800, textDecoration: "none", letterSpacing: "0.04em" }}
+
+            {/* Download button */}
+            <button
+              onClick={handleDownload}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: GOLD, color: NAVY, border: "none", borderRadius: 9, padding: "11px 24px", fontSize: 13, fontWeight: 800, cursor: "pointer", letterSpacing: "0.04em", width: "100%", justifyContent: "center", boxSizing: "border-box" }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Download PDF Now
-            </a>
+            </button>
+
+            {/* Share row */}
+            <div style={{ marginTop: 16, display: "flex", gap: 10, justifyContent: "center" }}>
+              {/* Copy link */}
+              <button
+                onClick={handleCopyLink}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.10)", color: "white", border: "1px solid rgba(255,255,255,0.20)", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.03em", transition: "background 0.15s" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.18)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.10)")}
+              >
+                {copied ? (
+                  <>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy Link
+                  </>
+                )}
+              </button>
+
+              {/* SMS text share */}
+              <button
+                onClick={handleTextShare}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.10)", color: "white", border: "1px solid rgba(255,255,255,0.20)", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.03em", transition: "background 0.15s" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.18)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.10)")}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Text a Friend
+              </button>
+            </div>
           </div>
         </div>
       </section>

@@ -149,6 +149,7 @@ export const activityLog = mysqlTable("activityLog", {
     "FORM_SUBMITTED",
     "TOUR_SCHEDULED",
     "SCORE_UPDATED",
+    "PDF_DOWNLOADED",
   ]).notNull(),
   description: text("description").notNull(),
   metadata: text("metadata"),              // JSON string for extra context

@@ -620,4 +620,33 @@ export const leadsRouter = router({
     }));
     return funnel;
   }),
+
+  /**
+   * Public: log a PDF download event against a CRM contact matched by email.
+   * Called from the Thank You page when the buyer clicks "Download PDF Now".
+   * Silently succeeds even if no matching contact is found (no error thrown).
+   */
+  trackPdfDownload: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ input }) => {
+      // Find the contact by email using the same getDb() pattern as other helpers
+      const { getDb } = await import("../db");
+      const { contacts } = await import("../../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const db = await getDb();
+      if (!db) return { tracked: false };
+      const rows = await db
+        .select({ id: contacts.id })
+        .from(contacts)
+        .where(eq(contacts.email, input.email.toLowerCase()))
+        .limit(1);
+      if (rows.length === 0) return { tracked: false };
+      const contactId = rows[0].id;
+      await logActivity({
+        contactId,
+        activityType: "PDF_DOWNLOADED",
+        description: `Buyer downloaded the 2026 Pahrump Home Buyer's Guide PDF.`,
+      });
+      return { tracked: true };
+    }),
 });

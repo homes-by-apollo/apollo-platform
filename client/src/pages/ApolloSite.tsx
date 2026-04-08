@@ -248,6 +248,8 @@ function NewsletterForm() {
   const handleNlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nlEmail.trim()) return;
+    // Store email so the Thank You page can track PDF downloads against the CRM contact
+    sessionStorage.setItem("guide_email", nlEmail.trim());
     subscribeMutation.mutate({ email: nlEmail.trim(), source: "buyers-guide" });
     track("guide_download", { email: nlEmail.trim() });
   };

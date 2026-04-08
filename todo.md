@@ -903,3 +903,9 @@
 - [x] Fix currentPage="blog" TS error in SCOPSBlog.tsx
 - [x] Add S3 cover image upload button to blog post editor
 - [x] Add blog.uploadCoverImage tRPC mutation (base64 → S3)
+
+## Thank You Page Enhancements (Apr 8 Session 3)
+- [x] Add "Share this guide" row with copy-link and SMS text-share buttons below Download button
+- [x] Add tRPC mutation to log pdf_download activity on matching CRM contact
+- [x] Wire Download PDF Now button to the tracking mutation
+- [x] Add max-width: 100% to cover image for mobile responsiveness
