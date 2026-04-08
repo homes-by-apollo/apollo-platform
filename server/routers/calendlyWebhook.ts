@@ -5,7 +5,15 @@
  *
  * Handles:
  *  - invitee.created  → insert or update scheduledTours row
- *  - invitee.canceled → mark tour as CANCELLED
+ *                       auto-create contact if no email match found
+ *                       update contact pipelineStage → TOUR_SCHEDULED
+ *                       log activity on the contact
+ *  - invitee.canceled → mark tour as CANCELLED, log activity
+ *
+ * NOTE: Calendly already sends its own confirmation email to the invitee.
+ * This handler intentionally does NOT send a second confirmation email to
+ * avoid the duplicate "rogue" email problem. The scheduling.create mutation
+ * (manual bookings only) still sends its own email with .ics attachment.
  */
 
 import type { Express, Request, Response } from "express";
@@ -51,6 +59,16 @@ interface CalendlyInviteePayload {
   };
 }
 
+// ─── Helper: split "First Last" into parts ───────────────────────────────────
+
+function splitName(fullName: string): { firstName: string; lastName: string } {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length === 1) return { firstName: parts[0], lastName: "" };
+  const firstName = parts[0];
+  const lastName = parts.slice(1).join(" ");
+  return { firstName, lastName };
+}
+
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 export function registerCalendlyWebhook(app: Express) {
@@ -78,31 +96,87 @@ export function registerCalendlyWebhook(app: Express) {
         return;
       }
 
+      // ── invitee.created ────────────────────────────────────────────────────
       if (event === "invitee.created") {
         const scheduled = payload.scheduled_event;
         const startTime = scheduled?.start_time ? new Date(scheduled.start_time) : new Date();
-        const endTime = scheduled?.end_time ? new Date(scheduled.end_time) : new Date(startTime.getTime() + 60 * 60 * 1000);
+        const endTime = scheduled?.end_time
+          ? new Date(scheduled.end_time)
+          : new Date(startTime.getTime() + 60 * 60 * 1000);
 
         // Determine location string
         let locationStr: string | undefined;
         if (scheduled?.location) {
-          locationStr = scheduled.location.join_url ?? scheduled.location.location ?? scheduled.location.type;
+          locationStr =
+            scheduled.location.join_url ??
+            scheduled.location.location ??
+            scheduled.location.type;
         }
 
         // Extract phone from questions_and_answers if present
         const phoneAnswer = payload.questions_and_answers?.find(
-          q => q.question.toLowerCase().includes("phone") || q.question.toLowerCase().includes("number")
+          (q) =>
+            q.question.toLowerCase().includes("phone") ||
+            q.question.toLowerCase().includes("number")
         );
         const inviteePhone = phoneAnswer?.answer;
 
-        // Try to match to an existing contact by email
-        const [matchedContact] = await db
-          .select({ id: contacts.id })
+        // ── 1. Try to match existing contact by email ──────────────────────
+        let [matchedContact] = await db
+          .select({ id: contacts.id, pipelineStage: contacts.pipelineStage })
           .from(contacts)
           .where(eq(contacts.email, payload.invitee.email))
           .limit(1);
 
-        // Upsert: if a row with this inviteeUri already exists, update it
+        // ── 2. If no match, auto-create a contact from Calendly data ───────
+        if (!matchedContact) {
+          const { firstName, lastName } = splitName(payload.invitee.name);
+          const [insertResult] = await db.insert(contacts).values({
+            firstName,
+            lastName,
+            email: payload.invitee.email,
+            phone: inviteePhone ?? "",
+            source: "OTHER",
+            pipelineStage: "TOUR_SCHEDULED",
+            notes: `Auto-created from Calendly booking on ${startTime.toLocaleDateString()}`,
+          });
+          const newId = (insertResult as { insertId: number }).insertId;
+
+          // Log the form submission activity
+          await db.insert(activityLog).values({
+            contactId: newId,
+            activityType: "FORM_SUBMITTED",
+            description: `Lead auto-created from Calendly booking: ${payload.invitee.name} <${payload.invitee.email}>`,
+          });
+
+          matchedContact = { id: newId, pipelineStage: "TOUR_SCHEDULED" };
+          console.log(
+            `[Calendly] Auto-created contact #${newId} for ${payload.invitee.email}`
+          );
+        } else {
+          // ── 3. Update existing contact's pipeline stage to TOUR_SCHEDULED ─
+          // Only advance (don't regress) — if already TOURED or beyond, leave it
+          const stageOrder = [
+            "NEW_INQUIRY",
+            "QUALIFIED",
+            "TOUR_SCHEDULED",
+            "TOURED",
+            "OFFER_SUBMITTED",
+            "UNDER_CONTRACT",
+            "CLOSED",
+            "LOST",
+          ];
+          const currentIdx = stageOrder.indexOf(matchedContact.pipelineStage ?? "NEW_INQUIRY");
+          const tourIdx = stageOrder.indexOf("TOUR_SCHEDULED");
+          if (currentIdx < tourIdx) {
+            await db
+              .update(contacts)
+              .set({ pipelineStage: "TOUR_SCHEDULED" })
+              .where(eq(contacts.id, matchedContact.id));
+          }
+        }
+
+        // ── 4. Upsert scheduledTours row ───────────────────────────────────
         const existing = await db
           .select({ id: scheduledTours.id })
           .from(scheduledTours)
@@ -110,12 +184,14 @@ export function registerCalendlyWebhook(app: Express) {
           .limit(1);
 
         if (existing.length > 0) {
-          await db.update(scheduledTours)
+          await db
+            .update(scheduledTours)
             .set({
               status: "ACTIVE",
               startTime,
               endTime,
               location: locationStr,
+              contactId: matchedContact.id,
               rawPayload: JSON.stringify(body),
             })
             .where(eq(scheduledTours.calendlyInviteeUri, inviteeUri));
@@ -131,36 +207,50 @@ export function registerCalendlyWebhook(app: Express) {
             endTime,
             location: locationStr,
             status: "ACTIVE",
-            contactId: matchedContact?.id ?? undefined,
+            contactId: matchedContact.id,
             rawPayload: JSON.stringify(body),
           });
-
-          // Log activity if matched to a contact
-          if (matchedContact?.id) {
-            await db.insert(activityLog).values({
-              contactId: matchedContact.id,
-              activityType: "TOUR_SCHEDULED",
-              description: `Tour scheduled via Calendly for ${startTime.toLocaleDateString()} at ${startTime.toLocaleTimeString()}`,
-            });
-          }
         }
 
-        console.log(`[Calendly] invitee.created: ${payload.invitee.name} <${payload.invitee.email}> at ${startTime.toISOString()}`);
+        // ── 5. Log TOUR_SCHEDULED activity on the contact ──────────────────
+        await db.insert(activityLog).values({
+          contactId: matchedContact.id,
+          activityType: "TOUR_SCHEDULED",
+          description: `Tour scheduled via Calendly for ${startTime.toLocaleDateString()} at ${startTime.toLocaleTimeString()}`,
+          metadata: JSON.stringify({
+            source: "calendly",
+            eventUri,
+            inviteeUri,
+            location: locationStr,
+          }),
+        });
+
+        // ── NOTE: No confirmation email sent here ──────────────────────────
+        // Calendly already sends its own confirmation + calendar invite to the
+        // invitee. Sending another one from SCOPS would create a duplicate.
+        // Manual tours (scheduling.create) still send their own email.
+
+        console.log(
+          `[Calendly] invitee.created: ${payload.invitee.name} <${payload.invitee.email}> → contact #${matchedContact.id} at ${startTime.toISOString()}`
+        );
       }
 
+      // ── invitee.canceled ───────────────────────────────────────────────────
       if (event === "invitee.canceled") {
-        const cancelReason = payload.invitee.cancellation?.reason ?? "Cancelled via Calendly";
+        const cancelReason =
+          payload.invitee.cancellation?.reason ?? "Cancelled via Calendly";
 
-        await db.update(scheduledTours)
-          .set({ status: "CANCELLED", cancelReason, rawPayload: JSON.stringify(body) })
-          .where(eq(scheduledTours.calendlyInviteeUri, inviteeUri));
-
-        // Find the tour to log activity
+        // Find the tour first (to get contactId)
         const [tour] = await db
           .select({ id: scheduledTours.id, contactId: scheduledTours.contactId })
           .from(scheduledTours)
           .where(eq(scheduledTours.calendlyInviteeUri, inviteeUri))
           .limit(1);
+
+        await db
+          .update(scheduledTours)
+          .set({ status: "CANCELLED", cancelReason, rawPayload: JSON.stringify(body) })
+          .where(eq(scheduledTours.calendlyInviteeUri, inviteeUri));
 
         if (tour?.contactId) {
           await db.insert(activityLog).values({
@@ -170,7 +260,9 @@ export function registerCalendlyWebhook(app: Express) {
           });
         }
 
-        console.log(`[Calendly] invitee.canceled: ${payload.invitee.email} — ${cancelReason}`);
+        console.log(
+          `[Calendly] invitee.canceled: ${payload.invitee.email} — ${cancelReason}`
+        );
       }
 
       res.status(200).json({ received: true });

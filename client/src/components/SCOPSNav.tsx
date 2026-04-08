@@ -163,7 +163,7 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
             <img
               src={HOMES_BY_APOLLO_LOGO}
               alt="Homes by Apollo"
-              style={{ height: 36, width: "auto", objectFit: "contain" }}
+              style={{ height: 47, width: "auto", objectFit: "contain" }}
             />
           </button>
           <div className="hidden lg:block" style={{ width: 1, height: 24, background: "#e5e7eb" }} />

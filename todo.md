@@ -871,3 +871,22 @@
 - [x] Add Delete lead button with confirmation dialog
 - [x] Add Created date and Modified date to lead profile (top bar + Contact Info card)
 - [x] Rebuild LeadDetail.tsx with new sections: Follow-Ups, Appointments, Attachments, Edit, Delete
+
+## SCOPS UI + Calendly Integration (Apr 8 2026 — Session 6)
+
+- [ ] Increase SCOPS nav logo height from 36px to ~47px (+30%)
+- [ ] Redesign Campaigns Blog Posts card: thumbnail image, title truncated, status pill, views, leads, Preview/Edit/Unpublish/Delete actions (match reference image)
+- [ ] Redesign Campaigns Landing Pages card: table layout with Title, Visitors, Leads, Conv. Rate columns + totals row (match reference image)
+- [ ] Calendly webhook: auto-create contact if no email match found (so all Calendly bookings become CRM leads)
+- [ ] Calendly webhook: update contact pipeline stage to TOUR_SCHEDULED when invitee.created fires
+- [ ] Add "Schedule via Calendly" button on LeadDetail that opens Calendly embed pre-filled with lead email/name
+- [ ] Suppress duplicate confirmation email from scheduling.create when booking comes via Calendly (not manual)
+
+## Session 3 — Apr 7 2026
+- [x] SCOPS nav logo increased by 30% (h-9 → h-[47px])
+- [x] Campaigns Blog Posts redesigned: thumbnail, title link, status pill, views, leads, Preview/Edit/Unpublish actions
+- [x] Campaigns Landing Pages redesigned: table layout with Visitors/Leads/Conv.Rate columns + totals row
+- [x] Calendly webhook: auto-create contact if no email match found
+- [x] Calendly webhook: update pipelineStage → TOUR_SCHEDULED on booking
+- [x] Calendly webhook: removed duplicate confirmation email (Calendly sends its own)
+- [x] LeadDetail "Schedule Tour" button: opens Calendly popup pre-filled with lead name/email

@@ -178,29 +178,43 @@ function LeadFunnelChart() {
   );
 }
 
-/** Blog Post quick-action card — shows recent posts + link to Content tab */
+/** Blog Post card — reference image style with thumbnail, status pill, views, leads, action buttons */
 function BlogPostCard() {
   const { data: posts, isLoading } = trpc.blog.getAll.useQuery();
   const [, setLocation] = useLocation();
-  const recent = posts?.slice(0, 3) ?? [];
+  const utils = trpc.useUtils();
+  const updateMutation = trpc.blog.update.useMutation({
+    onSuccess: () => { utils.blog.getAll.invalidate(); }
+  });
+
+  function handleUnpublish(post: any) {
+    updateMutation.mutate({ id: post.id, status: "draft" });
+  }
+
+  const recent = posts?.slice(0, 5) ?? [];
+
   return (
     <GlassCard>
-      <SH
-        title="Blog Posts"
-        action={
-          <button
-            onClick={() => setLocation("/scops/blog")}
-            style={{ fontSize: 11, color: "#6366f1", background: "none", border: "none", cursor: "pointer", fontWeight: 600 }}
-          >
-            Manage →
-          </button>
-        }
-      />
-      <div style={{ padding: "10px 16px 14px" }}>
+      {/* Header row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(15,32,68,0.08)" }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(15,32,68,0.90)", letterSpacing: 0.2 }}>Blog Posts</span>
+        <input
+          placeholder="Search content…"
+          style={{ fontSize: 11, padding: "4px 10px", border: "1px solid #e2e6ed", borderRadius: 20, outline: "none", color: "rgba(15,32,68,0.70)", background: "#fafafa", width: 130 }}
+        />
+      </div>
+      {/* Column headers */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 60px 50px 120px", gap: 0, padding: "6px 16px", borderBottom: "1px solid rgba(15,32,68,0.06)" }}>
+        {["Title", "Status ↕", "Views ↕", "Leads", ""].map((h, i) => (
+          <span key={i} style={{ fontSize: 10, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.6, textAlign: i > 0 ? "center" : "left" }}>{h}</span>
+        ))}
+      </div>
+      {/* Rows */}
+      <div style={{ padding: "0 0 8px" }}>
         {isLoading ? (
-          <div style={{ fontSize: 12, color: "rgba(15,32,68,0.35)", padding: "8px 0" }}>Loading…</div>
+          <div style={{ fontSize: 12, color: "rgba(15,32,68,0.35)", padding: "16px" }}>Loading…</div>
         ) : recent.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "16px 0" }}>
+          <div style={{ textAlign: "center", padding: "20px 0" }}>
             <div style={{ fontSize: 24, marginBottom: 6 }}>✍️</div>
             <div style={{ fontSize: 12, color: "rgba(15,32,68,0.40)" }}>No posts yet</div>
             <button
@@ -211,85 +225,140 @@ function BlogPostCard() {
             </button>
           </div>
         ) : (
-          <>
-            {recent.map((post: any) => (
-              <div
-                key={post.id}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid rgba(15,32,68,0.07)" }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          recent.map((post: any) => (
+            <div
+              key={post.id}
+              style={{ display: "grid", gridTemplateColumns: "1fr 80px 60px 50px 120px", alignItems: "center", gap: 0, padding: "10px 16px", borderBottom: "1px solid rgba(15,32,68,0.06)" }}
+            >
+              {/* Thumbnail + title */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                {post.imageUrl ? (
+                  <img
+                    src={post.imageUrl}
+                    alt=""
+                    style={{ width: 40, height: 32, objectFit: "cover", borderRadius: 4, flexShrink: 0, border: "1px solid rgba(15,32,68,0.08)" }}
+                  />
+                ) : (
+                  <div style={{ width: 40, height: 32, borderRadius: 4, background: "rgba(99,102,241,0.10)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📝</div>
+                )}
+                <div style={{ minWidth: 0 }}>
+                  <a
+                    href={`/blog/${post.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)", textDecoration: "none", display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 160 }}
+                  >
                     {post.title}
-                  </div>
-                  <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginTop: 2 }}>
-                    {post.status === "published" ? "Published" : "Draft"}
-                    {post.publishedAt ? ` · ${new Date(post.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : ""}
-                  </div>
+                  </a>
+                  {post.featured && (
+                    <span style={{ fontSize: 9, fontWeight: 700, color: "#6366f1", letterSpacing: 0.5, textTransform: "uppercase" }}>Featured</span>
+                  )}
                 </div>
-                <span
-                  style={{
-                    fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
-                    background: post.status === "published" ? "rgba(34,197,94,0.12)" : "rgba(245,158,11,0.12)",
-                    color: post.status === "published" ? "#16a34a" : "#b45309",
-                  }}
-                >
-                  {post.status === "published" ? "Live" : "Draft"}
+              </div>
+              {/* Status */}
+              <div style={{ textAlign: "center" }}>
+                <span style={{
+                  fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20,
+                  background: post.status === "published" ? "rgba(34,197,94,0.12)" : "rgba(245,158,11,0.12)",
+                  color: post.status === "published" ? "#16a34a" : "#b45309",
+                }}>
+                  {post.status === "published" ? "Published" : "Draft"}
                 </span>
               </div>
-            ))}
+              {/* Views */}
+              <div style={{ textAlign: "center", fontSize: 12, color: "rgba(15,32,68,0.60)" }}>
+                {post.viewCount ?? 0}
+              </div>
+              {/* Leads */}
+              <div style={{ textAlign: "center", fontSize: 12, color: "rgba(15,32,68,0.60)" }}>
+                —
+              </div>
+              {/* Actions */}
+              <div style={{ display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>
+                <a
+                  href={`/blog/${post.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: 10, fontWeight: 600, color: "rgba(15,32,68,0.55)", textDecoration: "none", padding: "2px 6px", borderRadius: 4, border: "1px solid rgba(15,32,68,0.15)", background: "transparent" }}
+                >
+                  Preview
+                </a>
+                <button
+                  onClick={() => setLocation("/scops/blog")}
+                  style={{ fontSize: 10, fontWeight: 600, color: "rgba(15,32,68,0.55)", padding: "2px 6px", borderRadius: 4, border: "1px solid rgba(15,32,68,0.15)", background: "transparent", cursor: "pointer" }}
+                >
+                  Edit
+                </button>
+                {post.status === "published" ? (
+                  <button
+                    onClick={() => handleUnpublish(post)}
+                    style={{ fontSize: 10, fontWeight: 600, color: "#d97706", padding: "2px 6px", borderRadius: 4, border: "1px solid rgba(217,119,6,0.30)", background: "transparent", cursor: "pointer" }}
+                  >
+                    Unpublish
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setLocation("/scops/blog")}
+                    style={{ fontSize: 10, fontWeight: 600, color: "#16a34a", padding: "2px 6px", borderRadius: 4, border: "1px solid rgba(22,163,74,0.30)", background: "transparent", cursor: "pointer" }}
+                  >
+                    Publish
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+        {recent.length > 0 && (
+          <div style={{ padding: "10px 16px 4px" }}>
             <button
               onClick={() => setLocation("/scops/blog")}
-              style={{ marginTop: 10, width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(99,102,241,0.08)", color: "#6366f1", border: "1px solid rgba(99,102,241,0.25)", cursor: "pointer" }}
+              style={{ width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(99,102,241,0.08)", color: "#6366f1", border: "1px solid rgba(99,102,241,0.25)", cursor: "pointer" }}
             >
               + New Blog Post
             </button>
-          </>
+          </div>
         )}
       </div>
     </GlassCard>
   );
 }
 
-/** Landing Pages management card */
+/** Landing Pages card — reference image style with Visitors, Leads, Conv. Rate table + totals */
 function LandingPagesCard() {
-  const pages = [
-    { name: "Get In Touch", path: "/get-in-touch", desc: "Primary lead capture form", status: "live" },
-    { name: "Find Your Home", path: "/find-your-home", desc: "Browse available homes", status: "live" },
-    { name: "Homepage", path: "/", desc: "Main marketing page", status: "live" },
-  ];
+  const pages = LANDING_PAGE_DATA;
+  const totalVisitors = pages.reduce((s, p) => s + p.visitors, 0);
+  const totalLeadsLP = pages.reduce((s, p) => s + p.leads, 0);
   return (
     <GlassCard>
-      <SH title="Landing Pages" />
-      <div style={{ padding: "10px 16px 14px" }}>
-        {pages.map((page) => (
-          <div
-            key={page.path}
-            style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: "1px solid rgba(15,32,68,0.07)" }}
-          >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{page.name}</div>
-              <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginTop: 1 }}>{page.desc}</div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span
-                style={{
-                  fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
-                  background: "rgba(34,197,94,0.12)", color: "#16a34a",
-                }}
-              >
-                Live
-              </span>
-              <a
-                href={`https://apollohomebuilders.com${page.path}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ fontSize: 11, color: "#6366f1", textDecoration: "none", fontWeight: 600 }}
-              >
-                ↗
-              </a>
-            </div>
-          </div>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(15,32,68,0.08)" }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(15,32,68,0.90)", letterSpacing: 0.2 }}>Landing Pages</span>
+        <span style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", fontWeight: 600 }}>Past 60 Days</span>
+      </div>
+      {/* Column headers */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 50px 70px", gap: 0, padding: "6px 16px", borderBottom: "1px solid rgba(15,32,68,0.06)" }}>
+        {["TITLE", "VISITORS", "LEADS", "CONV. RATE"].map((h, i) => (
+          <span key={h} style={{ fontSize: 9, fontWeight: 700, color: "rgba(15,32,68,0.40)", letterSpacing: 0.8, textAlign: i > 0 ? "right" : "left" }}>{h}</span>
         ))}
+      </div>
+      {/* Rows */}
+      {pages.map((lp) => (
+        <div key={lp.name} style={{ display: "grid", gridTemplateColumns: "1fr 70px 50px 70px", gap: 0, padding: "9px 16px", borderBottom: "1px solid rgba(15,32,68,0.06)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 13 }}>{lp.icon}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 110 }}>{lp.name}</span>
+          </div>
+          <span style={{ fontSize: 12, color: "rgba(15,32,68,0.60)", textAlign: "right" }}>{lp.visitors.toLocaleString()}</span>
+          <span style={{ fontSize: 12, color: "rgba(15,32,68,0.60)", textAlign: "right" }}>{lp.leads}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", textAlign: "right" }}>{lp.convRate}</span>
+        </div>
+      ))}
+      {/* Totals row */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 50px 70px", gap: 0, padding: "9px 16px", borderTop: "1px solid rgba(15,32,68,0.10)" }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)" }}>TOTAL</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right" }}>{totalVisitors.toLocaleString()}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(15,32,68,0.85)", textAlign: "right" }}>{totalLeadsLP}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", textAlign: "right" }}>$6.67M</span>
       </div>
     </GlassCard>
   );

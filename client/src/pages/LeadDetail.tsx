@@ -394,17 +394,41 @@ export default function LeadDetail({ id, onBack }: Props) {
           )}
           <button
             onClick={() => {
+              // Open Calendly popup pre-filled with lead's name and email.
+              // Calendly sends its own confirmation email — no duplicate from SCOPS.
+              const CALENDLY_URL = "https://calendly.com/d/cyjg-rx9-q39/meeting";
+              const name = `${contact.firstName ?? ""} ${contact.lastName ?? ""}`.trim();
               const params = new URLSearchParams();
-              if (contact.firstName || contact.lastName)
-                params.set("name", `${contact.firstName ?? ""} ${contact.lastName ?? ""}`.trim());
+              if (name) params.set("name", name);
               if (contact.email) params.set("email", contact.email);
-              if (contact.phone) params.set("phone", contact.phone);
-              params.set("leadId", String(id));
-              window.location.href = `/scops/scheduling?${params.toString()}`;
+              const prefillUrl = `${CALENDLY_URL}?${params.toString()}`;
+              const w = window as any;
+              function openPopup() {
+                if (w.Calendly?.initPopupWidget) {
+                  w.Calendly.initPopupWidget({ url: prefillUrl });
+                } else {
+                  window.open(prefillUrl, "_blank");
+                }
+              }
+              if (w.Calendly) {
+                openPopup();
+              } else {
+                if (!document.querySelector('link[href*="calendly.com"]')) {
+                  const link = document.createElement("link");
+                  link.rel = "stylesheet";
+                  link.href = "https://assets.calendly.com/assets/external/widget.css";
+                  document.head.appendChild(link);
+                }
+                const script = document.createElement("script");
+                script.src = "https://assets.calendly.com/assets/external/widget.js";
+                script.async = true;
+                script.onload = openPopup;
+                document.body.appendChild(script);
+              }
             }}
             className="text-xs bg-sky-500 hover:bg-sky-400 text-white rounded px-3 py-1.5 font-semibold hidden sm:block"
           >
-            📅 Tour
+            📅 Schedule Tour
           </button>
         </div>
       </div>
