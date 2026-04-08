@@ -88,7 +88,7 @@ async function sendLeadWelcomeEmail(contact: {
   const subject =
     contact.contactType === "AGENT"
       ? "Welcome to Apollo Home Builders — Agent Partnership"
-      : "Welcome to Apollo Home Builders — We'll be in touch shortly";
+      : "We received your request — Homes by Apollo";
 
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -97,30 +97,41 @@ async function sendLeadWelcomeEmail(contact: {
         <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin: 4px 0 0;">Pahrump, Nevada</p>
       </div>
       <div style="padding: 40px; border: 1px solid #e8ecf0; border-top: none; border-radius: 0 0 8px 8px;">
-        <h2 style="color: #0f2044; font-size: 20px; font-weight: 700; margin: 0 0 16px;">Hi ${contact.firstName},</h2>
-        <p style="color: #4a5568; font-size: 15px; line-height: 1.7; margin: 0 0 20px;">
-          Thank you for reaching out to Apollo Home Builders. We've received your information and Brandon will be in touch with you shortly.
+        <p style="color: #0f2044; font-size: 16px; font-weight: 600; margin: 0 0 20px;">Hi ${contact.firstName},</p>
+        <p style="color: #4a5568; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
+          Thanks for reaching out to <strong>Homes by Apollo</strong>.
+        </p>
+        <p style="color: #4a5568; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
+          We received your request and one of our team members will be in touch shortly (typically within a few hours during business hours).
         </p>
         ${contact.contactType === "BUYER" ? `
         <p style="color: #4a5568; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">
-          In the meantime, explore our available floor plans and lots in Pahrump, Nevada — no state income tax, wide-open desert views, and just 60 miles from Las Vegas.
+          In the meantime, you can explore available homes and lots here:<br>
+          <a href="https://apollohomebuilders.com" style="color: #0f2044; font-weight: 700;">👉 apollohomebuilders.com</a>
         </p>
-        <div style="margin: 28px 0;">
-          <a href="https://apollohomebuilders.com" style="display: inline-block; background: #0f2044; color: white; padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; margin-right: 12px;">View Floor Plans</a>
-          <a href="https://apollohomebuilders.com" style="display: inline-block; background: transparent; color: #0f2044; padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; border: 2px solid #0f2044;">Schedule a Tour</a>
-        </div>
+        <p style="color: #4a5568; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">
+          If you'd rather move faster, you can reply directly to this email or call/text us anytime.
+        </p>
+        <p style="color: #4a5568; font-size: 15px; line-height: 1.7; margin: 0 0 28px;">
+          We're here to help you find the right home, timeline, and financing option without the pressure.
+        </p>
         ` : `
         <p style="color: #4a5568; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">
           We look forward to discussing our agent partnership program and how we can work together to serve your clients in Pahrump, Nevada.
         </p>
         `}
+        <p style="color: #4a5568; font-size: 15px; line-height: 1.7; margin: 0 0 28px;">Looking forward to connecting,</p>
         <hr style="border: none; border-top: 1px solid #e8ecf0; margin: 28px 0;">
         <p style="color: #4a5568; font-size: 14px; line-height: 1.6; margin: 0 0 8px;">
           <strong>Brandon Stavros</strong><br>
-          Apollo Home Builders<br>
-          📞 725-333-5525<br>
-          📧 brandon@apollohomebuilders.com
+          Homes by Apollo<br>
+          (775) 363-1616
         </p>
+        ${contact.contactType === "BUYER" ? `
+        <p style="color: #6b7280; font-size: 13px; font-style: italic; margin: 20px 0 0; padding: 16px; background: #f9fafb; border-radius: 6px; border-left: 3px solid #e8ecf0;">
+          p.s. Want to see what's available right now? Just reply "homes" and we'll send you current options.
+        </p>
+        ` : ""}
         <p style="color: #9ca3af; font-size: 12px; margin: 20px 0 0;">
           NV License No. 0077907 · 5158 Arville St, Las Vegas, NV 89118
         </p>
