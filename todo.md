@@ -909,3 +909,23 @@
 - [x] Add tRPC mutation to log pdf_download activity on matching CRM contact
 - [x] Wire Download PDF Now button to the tracking mutation
 - [x] Add max-width: 100% to cover image for mobile responsiveness
+
+## Session: Engine Tab + CRM Enhancements (Apr 8)
+- [ ] Add Engine tab to SCOPS nav
+- [ ] Build SCOPSEngine.tsx page (overview cards, automations list, templates)
+- [ ] Register /scops/engine route in App.tsx
+- [ ] Add PDF Downloads column to Contacts table in SCOPSDashboard
+- [ ] Update leads.list query to include pdfDownloadCount per contact
+- [ ] Add Contracts section to LeadDetail page
+- [ ] Add contracts table to schema + run db:push
+- [ ] Add contracts tRPC procedures (create, list, update, delete)
+- [ ] Add New Post shortcut button to Campaigns tab (BlogPostCard header)
+
+## Session: Engine Tab + PDF Downloads + Contracts + New Post Button
+- [x] Add Engine tab to SCOPS nav
+- [x] Build SCOPSEngine.tsx page with overview cards and automations list
+- [x] Add PDF Downloads column to Contacts table (getContacts subquery)
+- [x] Add contracts table to schema and DB
+- [x] Add createContract/updateContract/deleteContract/listContracts procedures to crmExtras router
+- [x] Add Contracts section to lead profile (LeadDetail.tsx)
+- [x] Add Campaigns page header with New Post shortcut button

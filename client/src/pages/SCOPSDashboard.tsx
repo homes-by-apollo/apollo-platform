@@ -771,7 +771,7 @@ export default function SCOPSDashboard() {
               <table className="w-full text-[11px]">
                 <thead>
                   <tr style={{ borderBottom:"1px solid #e2e6ed", background:"#f8f9fb" }}>
-                    {["Name","Stage","Score","Primary Property","Timeline","Last Activity","Next Action",""].map(h => (
+                    {["Name","Stage","Score","PDF DLs","Primary Property","Timeline","Last Activity","Next Action",""].map(h => (
                       <th key={h} className="text-left text-[9px] font-bold uppercase tracking-wider px-4 py-2.5 whitespace-nowrap text-gray-400">{h}</th>
                     ))}
                   </tr>
@@ -809,6 +809,13 @@ export default function SCOPSDashboard() {
                           {sc ? (
                             <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background:sc.bg, color:sc.text }}>
                               {c.leadScore}
+                            </span>
+                          ) : <span className="text-gray-300">—</span>}
+                        </td>
+                        <td className="px-4 py-2.5 text-center">
+                          {(c as any).pdfDownloadCount > 0 ? (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "#eff6ff", color: "#2563eb" }}>
+                              📄 {(c as any).pdfDownloadCount}
                             </span>
                           ) : <span className="text-gray-300">—</span>}
                         </td>

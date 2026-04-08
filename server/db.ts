@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, isNotNull, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { drizzle, MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import {
@@ -153,11 +153,27 @@ export async function getContacts(filters?: {
   if (filters?.contactType) conditions.push(eq(contacts.contactType, filters.contactType));
   if (filters?.leadScore) conditions.push(eq(contacts.leadScore, filters.leadScore));
 
-  return db
+  const rows = await db
     .select()
     .from(contacts)
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(desc(contacts.createdAt));
+
+  if (rows.length === 0) return [];
+
+  // Fetch PDF download counts for all contacts in one query
+  const ids = rows.map(r => r.id);
+  const pdfCounts = await db
+    .select({
+      contactId: activityLog.contactId,
+      count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(activityLog)
+    .where(and(inArray(activityLog.contactId, ids), eq(activityLog.activityType, "PDF_DOWNLOADED")))
+    .groupBy(activityLog.contactId);
+  const pdfCountMap = new Map(pdfCounts.map(r => [r.contactId, r.count]));
+
+  return rows.map(r => ({ ...r, pdfDownloadCount: pdfCountMap.get(r.id) ?? 0 }));
 }
 
 export async function getContactById(id: number) {

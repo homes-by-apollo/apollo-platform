@@ -532,3 +532,23 @@ export const leadAttachments = mysqlTable("leadAttachments", {
 
 export type LeadAttachment = typeof leadAttachments.$inferSelect;
 export type InsertLeadAttachment = typeof leadAttachments.$inferInsert;
+
+// ─── Contracts ────────────────────────────────────────────────────────────────
+/**
+ * Purchase agreements / contracts tied to a CRM contact.
+ */
+export const contracts = mysqlTable("contracts", {
+  id: int("id").autoincrement().primaryKey(),
+  contactId: int("contactId").notNull(),        // FK → contacts.id
+  title: varchar("title", { length: 256 }).notNull().default("Purchase Agreement"),
+  purchasePrice: int("purchasePrice"),           // in dollars
+  lotAddress: varchar("lotAddress", { length: 512 }),
+  contractDate: timestamp("contractDate"),
+  status: mysqlEnum("contractStatus", ["PENDING", "EXECUTED", "CANCELLED"]).notNull().default("PENDING"),
+  notes: text("notes"),
+  createdBy: int("createdBy"),                   // FK → adminCredentials.id
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Contract = typeof contracts.$inferSelect;
+export type InsertContract = typeof contracts.$inferInsert;

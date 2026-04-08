@@ -15,6 +15,7 @@ import {
   followUps,
   leadAttachments,
   contacts,
+  contracts,
 } from "../../drizzle/schema";
 import { logActivity } from "../db";
 
@@ -253,6 +254,87 @@ export const crmExtrasRouter = router({
       return { success: true };
     }),
 
+  // ── Contracts ─────────────────────────────────────────────────────────────
+
+  /** List all contracts for a contact */
+  listContracts: protectedProcedure
+    .input(z.object({ contactId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      return db
+        .select()
+        .from(contracts)
+        .where(eq(contracts.contactId, input.contactId))
+        .orderBy(desc(contracts.createdAt));
+    }),
+
+  /** Create a new contract */
+  createContract: protectedProcedure
+    .input(z.object({
+      contactId: z.number(),
+      title: z.string().default("Purchase Agreement"),
+      purchasePrice: z.number().optional(),
+      lotAddress: z.string().optional(),
+      contractDate: z.string().optional(),
+      status: z.enum(["PENDING", "EXECUTED", "CANCELLED"]).default("PENDING"),
+      notes: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const [result] = await db.insert(contracts).values({
+        contactId: input.contactId,
+        title: input.title,
+        purchasePrice: input.purchasePrice,
+        lotAddress: input.lotAddress,
+        contractDate: input.contractDate ? new Date(input.contractDate) : undefined,
+        status: input.status,
+        notes: input.notes,
+        createdBy: ctx.user?.id ?? null,
+      });
+      await logActivity({
+        contactId: input.contactId,
+        userId: ctx.user?.id,
+        activityType: "NOTE_ADDED",
+        description: `Contract "${input.title}" created with status ${input.status}`,
+      });
+      return { id: (result as any).insertId };
+    }),
+
+  /** Update a contract */
+  updateContract: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      contactId: z.number(),
+      title: z.string().optional(),
+      purchasePrice: z.number().optional(),
+      lotAddress: z.string().optional(),
+      contractDate: z.string().optional(),
+      status: z.enum(["PENDING", "EXECUTED", "CANCELLED"]).optional(),
+      notes: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const { id, contactId, contractDate, ...rest } = input;
+      await db.update(contracts).set({
+        ...rest,
+        ...(contractDate ? { contractDate: new Date(contractDate) } : {}),
+      }).where(and(eq(contracts.id, id), eq(contracts.contactId, contactId)));
+      return { success: true };
+    }),
+
+  /** Delete a contract */
+  deleteContract: protectedProcedure
+    .input(z.object({ id: z.number(), contactId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      await db.delete(contracts).where(and(eq(contracts.id, input.id), eq(contracts.contactId, input.contactId)));
+      return { success: true };
+    }),
+
   // ── Delete Lead ─────────────────────────────────────────────────────────────
 
   /** Permanently delete a contact and all related records */
@@ -266,6 +348,7 @@ export const crmExtrasRouter = router({
       await db.delete(followUps).where(eq(followUps.contactId, input.id));
       await db.delete(appointments).where(eq(appointments.contactId, input.id));
       await db.delete(leadAttachments).where(eq(leadAttachments.contactId, input.id));
+      await db.delete(contracts).where(eq(contracts.contactId, input.id));
 
       // Delete the contact itself
       await db.delete(contacts).where(eq(contacts.id, input.id));

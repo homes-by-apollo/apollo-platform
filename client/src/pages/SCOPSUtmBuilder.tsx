@@ -368,6 +368,7 @@ export default function SCOPSUtmBuilder() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
   const loading = adminMeQuery.isLoading;
+  const [, setLocation] = useLocation();
   const [landingPage, setLandingPage] = useState("/get-in-touch");
   const [source, setSource] = useState("");
   const [medium, setMedium] = useState("");
@@ -386,8 +387,21 @@ export default function SCOPSUtmBuilder() {
   return (
     <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="utm-builder" />
+      {/* ── Page Header ── */}
+      <div style={{ padding: "16px 20px 8px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(15,32,68,0.06)" }}>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#0f2044", letterSpacing: -0.3 }}>Campaigns</div>
+          <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)", marginTop: 2 }}>Blog posts, landing pages, UTM tracking &amp; channel performance</div>
+        </div>
+        <button
+          onClick={() => setLocation("/scops/blog?new=1")}
+          style={{ padding: "7px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, background: "#0f2044", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+        >
+          <span style={{ fontSize: 15, lineHeight: 1 }}>+</span> New Post
+        </button>
+      </div>
       {/* ── Content Section (Blog Posts + Landing Pages) — FIRST / TOP ── */}
-      <div style={{ padding: "16px 16px 0" }}>
+      <div style={{ padding: "12px 16px 0" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }} className="lg:grid-cols-2">
           <BlogPostCard />
           <LandingPagesCard />

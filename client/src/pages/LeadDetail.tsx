@@ -164,14 +164,86 @@ export default function LeadDetail({ id, onBack }: Props) {
   // File upload
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ── Queries ──────────────────────────────────────────────────────────────────
+  // Contracts form state
+  const [showContractForm, setShowContractForm] = useState(false);
+  const [contractTitle, setContractTitle] = useState("Purchase Agreement");
+  const [contractPrice, setContractPrice] = useState("");
+  const [contractAddress, setContractAddress] = useState("");
+  const [contractDate, setContractDate] = useState("");
+  const [contractStatus, setContractStatus] = useState<"PENDING"|"EXECUTED"|"CANCELLED">("PENDING");
+  const [contractNotes, setContractNotes] = useState("");
+  const [editingContractId, setEditingContractId] = useState<number|null>(null);
 
+  // ── Contract mutations ────────────────────────────────────────────────────────────────────────────
+  const createContract = trpc.crm.createContract.useMutation({
+    onSuccess: () => {
+      utils.crm.listContracts.invalidate({ contactId: id });
+      utils.leads.getById.invalidate({ id });
+      setShowContractForm(false);
+      setContractTitle("Purchase Agreement"); setContractPrice(""); setContractAddress("");
+      setContractDate(""); setContractStatus("PENDING"); setContractNotes("");
+      setEditingContractId(null);
+      toast.success("Contract saved");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const updateContract = trpc.crm.updateContract.useMutation({
+    onSuccess: () => {
+      utils.crm.listContracts.invalidate({ contactId: id });
+      setShowContractForm(false);
+      setEditingContractId(null);
+      toast.success("Contract updated");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const deleteContract = trpc.crm.deleteContract.useMutation({
+    onSuccess: () => utils.crm.listContracts.invalidate({ contactId: id }),
+    onError: (err) => toast.error(err.message),
+  });
+
+  function handleContractSubmit() {
+    if (editingContractId !== null) {
+      updateContract.mutate({
+        id: editingContractId,
+        contactId: id,
+        title: contractTitle,
+        purchasePrice: contractPrice ? Number(contractPrice) : undefined,
+        lotAddress: contractAddress || undefined,
+        contractDate: contractDate || undefined,
+        status: contractStatus,
+        notes: contractNotes || undefined,
+      });
+    } else {
+      createContract.mutate({
+        contactId: id,
+        title: contractTitle,
+        purchasePrice: contractPrice ? Number(contractPrice) : undefined,
+        lotAddress: contractAddress || undefined,
+        contractDate: contractDate || undefined,
+        status: contractStatus,
+        notes: contractNotes || undefined,
+      });
+    }
+  }
+
+  function startEditContract(c: NonNullable<typeof contractsQ.data>[number]) {
+    setEditingContractId(c.id);
+    setContractTitle(c.title ?? "Purchase Agreement");
+    setContractPrice(c.purchasePrice ? String(c.purchasePrice) : "");
+    setContractAddress(c.lotAddress ?? "");
+    setContractDate(c.contractDate ? new Date(c.contractDate).toISOString().split("T")[0] : "");
+    setContractStatus((c.status as any) ?? "PENDING");
+    setContractNotes(c.notes ?? "");
+    setShowContractForm(true);
+  }
+
+  // ── Queries ────────────────────────────────────────────────────────────────────────────
   const followUpsQ = trpc.crm.listFollowUps.useQuery({ contactId: id });
   const appointmentsQ = trpc.crm.listAppointments.useQuery({ contactId: id });
   const attachmentsQ = trpc.crm.listAttachments.useQuery({ contactId: id });
+  const contractsQ = trpc.crm.listContracts.useQuery({ contactId: id });
 
-  // ── Mutations ─────────────────────────────────────────────────────────────────
-
+  // ── Mutations ────────────────────────────────────────────────────────────────────────────
   const updateStage = trpc.leads.updateStage.useMutation({
     onSuccess: () => {
       utils.leads.getById.invalidate({ id });
@@ -1019,6 +1091,80 @@ export default function LeadDetail({ id, onBack }: Props) {
                     <span className="text-xs text-muted-foreground">+ Upload another file</span>
                   </div>
                 </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* ── Contracts ── */}
+          <Card className="border border-[#e2e6ed] shadow-none">
+            <CardHeader className="pb-0 pt-4 px-4">
+              <div className="flex items-center justify-between">
+                <SectionTitle>Contracts ({contractsQ.data?.length ?? 0})</SectionTitle>
+                <button
+                  onClick={() => { setEditingContractId(null); setContractTitle("Purchase Agreement"); setContractPrice(""); setContractAddress(""); setContractDate(""); setContractStatus("PENDING"); setContractNotes(""); setShowContractForm(v => !v); }}
+                  className="text-[11px] font-semibold text-[#0f2044] hover:text-[#1a3a6e] transition-colors"
+                >
+                  {showContractForm && editingContractId === null ? "Cancel" : "+ Add Contract"}
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              {showContractForm && (
+                <div className="space-y-2 mb-4 p-3 bg-[#f8f9fc] rounded-lg border border-[#e2e6ed]">
+                  <div className="text-[11px] font-bold text-[#0f2044] mb-2">{editingContractId !== null ? "Edit Contract" : "New Contract"}</div>
+                  <Input placeholder="Title (e.g. Purchase Agreement)" value={contractTitle} onChange={e => setContractTitle(e.target.value)} className="h-8 text-sm" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input placeholder="Purchase Price ($)" type="number" value={contractPrice} onChange={e => setContractPrice(e.target.value)} className="h-8 text-sm" />
+                    <Input placeholder="Contract Date" type="date" value={contractDate} onChange={e => setContractDate(e.target.value)} className="h-8 text-sm" />
+                  </div>
+                  <Input placeholder="Lot / Address" value={contractAddress} onChange={e => setContractAddress(e.target.value)} className="h-8 text-sm" />
+                  <Select value={contractStatus} onValueChange={v => setContractStatus(v as any)}>
+                    <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PENDING">Pending</SelectItem>
+                      <SelectItem value="EXECUTED">Executed</SelectItem>
+                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Textarea placeholder="Notes (optional)" value={contractNotes} onChange={e => setContractNotes(e.target.value)} className="text-sm min-h-[60px]" />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleContractSubmit} disabled={createContract.isPending || updateContract.isPending} className="bg-[#0f2044] text-white hover:bg-[#1a3a6e] h-7 text-xs">
+                      {createContract.isPending || updateContract.isPending ? "Saving…" : editingContractId !== null ? "Update" : "Save Contract"}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => { setShowContractForm(false); setEditingContractId(null); }} className="h-7 text-xs">Cancel</Button>
+                  </div>
+                </div>
+              )}
+              {contractsQ.data && contractsQ.data.length > 0 ? (
+                <div className="space-y-2">
+                  {contractsQ.data.map(c => (
+                    <div key={c.id} className="p-3 rounded-lg border border-[#e2e6ed] bg-white">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-sm text-[#0f2044]">{c.title}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              c.status === "EXECUTED" ? "bg-green-100 text-green-700" :
+                              c.status === "CANCELLED" ? "bg-red-100 text-red-700" :
+                              "bg-amber-100 text-amber-700"
+                            }`}>{c.status}</span>
+                          </div>
+                          {c.purchasePrice && <div className="text-sm text-[#0f2044] font-medium mt-0.5">${c.purchasePrice.toLocaleString()}</div>}
+                          {c.lotAddress && <div className="text-xs text-muted-foreground mt-0.5">{c.lotAddress}</div>}
+                          {c.contractDate && <div className="text-xs text-muted-foreground">{formatDateShort(c.contractDate)}</div>}
+                          {c.notes && <div className="text-xs text-muted-foreground mt-1 italic">{c.notes}</div>}
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <button onClick={() => startEditContract(c)} className="text-[10px] text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+                          <span className="text-muted-foreground text-[10px]">·</span>
+                          <button onClick={() => deleteContract.mutate({ id: c.id, contactId: id })} className="text-[10px] text-red-500 hover:text-red-700 font-medium">Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-xs text-muted-foreground py-2">No contracts yet. Click + Add Contract to create one.</div>
               )}
             </CardContent>
           </Card>
