@@ -789,19 +789,18 @@ export default function SCOPSPipeline() {
         return (
           <div style={{ background: "#ffffff", borderBottom: "1px solid #e2e6ed" }}>
             {/* Row 1: KPI numbers */}
-            <div style={{ padding: "8px 20px", display: "flex", gap: 24, alignItems: "center", borderBottom: "1px solid #e2e6ed" }}>
+            <div style={{ padding: "8px 16px", display: "flex", flexWrap: "wrap", gap: "8px 20px", alignItems: "center", borderBottom: "1px solid #e2e6ed" }}>
               {[
                 { label: "Total Leads", value: summary.totalActive, color: "#2563eb" },
                 { label: "At Risk", value: summary.atRisk, color: "#dc2626" },
                 { label: "Tours This Week", value: summary.toursThisWeek, color: "#059669" },
                 { label: "New This Week", value: summary.newThisWeek, color: "#d97706" },
               ].map(({ label, value, color }) => (
-                <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ fontSize: 18, fontWeight: 700, color }}>{value}</div>
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, color }}>{value}</div>
                   <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)", lineHeight: 1.2 }}>{label}</div>
                 </div>
               ))}
-              <div style={{ marginLeft: "auto", fontSize: 10, fontWeight: 700, color: "rgba(15,32,68,0.30)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Stage Conversion Rates</div>
             </div>
             {/* Row 2: Conversion rate mini bar chart */}
             <div style={{ padding: "8px 20px 10px", display: "flex", gap: 6, alignItems: "flex-end", overflowX: "auto" }}>
@@ -836,7 +835,7 @@ export default function SCOPSPipeline() {
       })()}
 
       {/* Filter Bar */}
-      <div style={{ padding: "10px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+      <div style={{ padding: "10px 12px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
         <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "#ffffff", border: "1px solid #e2e6ed", color: "rgba(15,32,68,0.75)", cursor: "pointer" }}>≡ Stage</button>
         <div style={{ position: "relative" }}>
           <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterStage ? "#eff6ff" : "#ffffff", border: filterStage ? "1px solid #bfdbfe" : "1px solid #e2e6ed", color: filterStage ? "#1d4ed8" : "#374151", outline: "none" }}>
@@ -857,7 +856,7 @@ export default function SCOPSPipeline() {
           <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "rgba(15,32,68,0.40)" }}>▾</span>
         </div>
         <button onClick={() => setShowQuickAdd(true)} style={{ marginLeft: "auto", padding: "6px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: "#0f2044", border: "none", color: "#ffffff", cursor: "pointer" }}>+ Add Lead</button>
-        <div style={{ minWidth: 200, maxWidth: 300 }}>
+        <div style={{ minWidth: 120, maxWidth: 300, flex: 1 }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search leads…" style={{ width: "100%", padding: "7px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
         </div>
       </div>

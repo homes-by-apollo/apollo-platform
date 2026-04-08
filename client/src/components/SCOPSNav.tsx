@@ -45,7 +45,7 @@ function LiveClock() {
   const time = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
   const date = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
   return (
-    <div className="flex items-center gap-2.5 select-none">
+    <div className="hidden lg:flex items-center gap-2.5 select-none">
       <span className="text-[20px] font-semibold tabular-nums tracking-tight text-gray-900">{time}</span>
       <span className="text-[15px] font-medium text-gray-400">{date}</span>
     </div>
@@ -55,7 +55,9 @@ function LiveClock() {
 export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
   const [, setLocation] = useLocation();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const logoutMutation = trpc.adminAuth.logout.useMutation({
     onSuccess: () => { window.location.href = "/admin-login"; },
@@ -66,6 +68,9 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node)) {
+        setMobileMenuOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -75,156 +80,209 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
   const firstName = adminUser.name?.split(" ")[0] ?? adminUser.name ?? "User";
   const role = adminUser.adminRole ?? "admin";
 
-  // Role-gated nav: sales can't see Marketing/Content; marketing can't see Pipeline
   const visibleSections = NAV_SECTIONS.filter(s => {
     if (role === "sales" && (s.key === "utm-builder" || s.key === "blog")) return false;
     if (role === "marketing" && s.key === "scheduling") return false;
     return true;
   });
 
+  const navigate = (section: NavSection) => {
+    setMobileMenuOpen(false);
+    if (section.soon) { toast.info(`${section.label} — coming soon`); return; }
+    if (section.path) setLocation(section.path);
+  };
+
   return (
     <div
-      className="flex items-center justify-between bg-white border-b border-gray-200"
+      className="bg-white border-b border-gray-200"
       style={{
-        minHeight: 80,
-        paddingLeft: 24,
-        paddingRight: 24,
         boxShadow: "0 1px 3px rgba(15,23,42,0.06)",
         position: "sticky",
         top: 0,
         zIndex: 50,
       }}
     >
-      {/* ── Left: Logo + Clock ── */}
-      <div className="flex items-center gap-5 flex-shrink-0">
-        <button
-          onClick={() => window.location.href = "/"}
-          className="flex items-center hover:opacity-80 transition-opacity"
-          title="Back to Apollo Site"
-        >
-          <img
-            src={HOMES_BY_APOLLO_LOGO}
-            alt="Homes by Apollo"
-            style={{ height: 44, width: "auto", objectFit: "contain" }}
-          />
-        </button>
-        <div style={{ width: 1, height: 28, background: "#e5e7eb" }} />
-        <LiveClock />
-      </div>
+      {/* ── Main bar ── */}
+      <div className="flex items-center justify-between" style={{ minHeight: 64, paddingLeft: 16, paddingRight: 16 }}>
 
-      {/* ── Center: Nav tabs ── */}
-      <nav className="flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
-        {visibleSections.map((section) => {
-          const isActive =
-            activeSection === section.label ||
-            activeSection === section.key ||
-            currentPage === section.key;
-
-          return (
-            <button
-              key={section.key}
-              onClick={() => {
-                if (section.soon) { toast.info(`${section.label} — coming soon`); return; }
-                if (section.path) setLocation(section.path);
-              }}
-              className="relative px-4 py-2 rounded-lg text-[15px] font-medium transition-all whitespace-nowrap"
-              style={{
-                color: isActive ? "#111827" : section.soon ? "#d1d5db" : "#6b7280",
-                background: isActive ? "#f3f4f6" : "transparent",
-                cursor: section.soon ? "default" : "pointer",
-                fontWeight: isActive ? 600 : 500,
-              }}
-              title={section.soon ? "Coming soon" : undefined}
-            >
-              {section.label}
-              {/* Blue underline for active tab */}
-              {isActive && (
-                <span
-                  aria-hidden
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: "15%",
-                    width: "70%",
-                    height: 2,
-                    borderRadius: 2,
-                    background: "#2563eb",
-                  }}
-                />
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* ── Right: User dropdown ── */}
-      <div className="relative flex-shrink-0" ref={menuRef}>
-        <button
-          onClick={() => setUserMenuOpen(prev => !prev)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-          style={{ background: userMenuOpen ? "#f3f4f6" : "#ffffff" }}
-        >
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)" }}
+        {/* Left: Logo + Clock */}
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <button
+            onClick={() => window.location.href = "/"}
+            className="flex items-center hover:opacity-80 transition-opacity"
+            title="Back to Apollo Site"
           >
-            {firstName.charAt(0).toUpperCase()}
-          </div>
-          <span className="text-[14px] font-medium text-gray-700">{firstName}</span>
-          <svg
-            width="10" height="10" viewBox="0 0 12 12" fill="none"
-            className={`transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
-            style={{ color: "#9ca3af" }}
-          >
-            <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+            <img
+              src={HOMES_BY_APOLLO_LOGO}
+              alt="Homes by Apollo"
+              style={{ height: 36, width: "auto", objectFit: "contain" }}
+            />
+          </button>
+          <div className="hidden lg:block" style={{ width: 1, height: 24, background: "#e5e7eb" }} />
+          <LiveClock />
+        </div>
 
-        {userMenuOpen && (
-          <div
-            className="absolute right-0 top-full mt-2 w-52 rounded-xl shadow-lg border border-gray-200 bg-white py-1 z-50"
-            style={{ boxShadow: "0 8px 24px rgba(15,23,42,0.12)" }}
-          >
-            <div className="px-4 py-2.5 border-b border-gray-100">
-              <div className="text-sm font-semibold text-gray-900 truncate">{adminUser.name}</div>
-              <div className="text-xs text-gray-400 mt-0.5">SCOPS Admin</div>
-            </div>
+        {/* Center: Nav tabs — desktop only */}
+        <nav className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
+          {visibleSections.map((section) => {
+            const isActive =
+              activeSection === section.label ||
+              activeSection === section.key ||
+              currentPage === section.key;
+            return (
+              <button
+                key={section.key}
+                onClick={() => navigate(section)}
+                className="relative px-3 py-2 rounded-lg text-[14px] font-medium transition-all whitespace-nowrap"
+                style={{
+                  color: isActive ? "#111827" : section.soon ? "#d1d5db" : "#6b7280",
+                  background: isActive ? "#f3f4f6" : "transparent",
+                  cursor: section.soon ? "default" : "pointer",
+                  fontWeight: isActive ? 600 : 500,
+                }}
+                title={section.soon ? "Coming soon" : undefined}
+              >
+                {section.label}
+                {isActive && (
+                  <span
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: "15%",
+                      width: "70%",
+                      height: 2,
+                      borderRadius: 2,
+                      background: "#2563eb",
+                    }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Right: User dropdown + hamburger */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* User dropdown */}
+          <div className="relative" ref={menuRef}>
             <button
-              onClick={() => { setUserMenuOpen(false); setLocation("/scops"); }}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={() => setUserMenuOpen(prev => !prev)}
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-all border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+              style={{ background: userMenuOpen ? "#f3f4f6" : "#ffffff" }}
             >
-              Dashboard
-            </button>
-            <button
-              onClick={() => { window.location.href = "/"; }}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              View Public Site
-            </button>
-            <div className="border-t border-gray-100 mt-1 pt-1">
-              <div className="px-4 py-1.5">
-                <span className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Admin Controls</span>
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                style={{ background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)" }}
+              >
+                {firstName.charAt(0).toUpperCase()}
               </div>
-              <button
-                onClick={() => { setUserMenuOpen(false); setLocation("/scops/users"); }}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+              <span className="hidden sm:inline text-[14px] font-medium text-gray-700">{firstName}</span>
+              <svg
+                width="10" height="10" viewBox="0 0 12 12" fill="none"
+                className={`transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                style={{ color: "#9ca3af" }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                Manage Users
-              </button>
-            </div>
-            <div className="border-t border-gray-100 mt-1 pt-1">
-              <button
-                onClick={() => { setUserMenuOpen(false); logoutMutation.mutate(); }}
-                disabled={logoutMutation.isPending}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {userMenuOpen && (
+              <div
+                className="absolute right-0 top-full mt-2 w-52 rounded-xl shadow-lg border border-gray-200 bg-white py-1 z-50"
+                style={{ boxShadow: "0 8px 24px rgba(15,23,42,0.12)" }}
               >
-                {logoutMutation.isPending ? "Signing out…" : "Sign Out"}
-              </button>
-            </div>
+                <div className="px-4 py-2.5 border-b border-gray-100">
+                  <div className="text-sm font-semibold text-gray-900 truncate">{adminUser.name}</div>
+                  <div className="text-xs text-gray-400 mt-0.5">SCOPS Admin</div>
+                </div>
+                <button
+                  onClick={() => { setUserMenuOpen(false); setLocation("/scops"); }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => { window.location.href = "/"; }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  View Public Site
+                </button>
+                <div className="border-t border-gray-100 mt-1 pt-1">
+                  <div className="px-4 py-1.5">
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Admin Controls</span>
+                  </div>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); setLocation("/scops/users"); }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Manage Users
+                  </button>
+                </div>
+                <div className="border-t border-gray-100 mt-1 pt-1">
+                  <button
+                    onClick={() => { setUserMenuOpen(false); logoutMutation.mutate(); }}
+                    disabled={logoutMutation.isPending}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    {logoutMutation.isPending ? "Signing out…" : "Sign Out"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Hamburger — mobile only */}
+          <button
+            className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            aria-label="Open navigation"
+          >
+            {mobileMenuOpen ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* ── Mobile dropdown nav ── */}
+      {mobileMenuOpen && (
+        <div
+          ref={mobileMenuRef}
+          className="md:hidden border-t border-gray-100 bg-white"
+        >
+          {visibleSections.map((section) => {
+            const isActive =
+              activeSection === section.label ||
+              activeSection === section.key ||
+              currentPage === section.key;
+            return (
+              <button
+                key={section.key}
+                onClick={() => navigate(section)}
+                className="w-full text-left px-4 py-3 text-[15px] font-medium border-b border-gray-50 last:border-0 transition-colors"
+                style={{
+                  color: isActive ? "#111827" : section.soon ? "#d1d5db" : "#374151",
+                  background: isActive ? "#f3f4f6" : "transparent",
+                  fontWeight: isActive ? 700 : 500,
+                  cursor: section.soon ? "default" : "pointer",
+                  borderLeft: isActive ? "3px solid #2563eb" : "3px solid transparent",
+                }}
+              >
+                {section.label}
+                {section.soon && <span className="ml-2 text-[10px] text-gray-400 font-normal">Coming soon</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

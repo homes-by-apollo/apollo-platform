@@ -622,7 +622,7 @@ export default function SCOPSBlog() {
       </div>
 
       {/* ── Main Body ── */}
-      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 300px", gap: 16, padding: 16, overflow: "auto" }}>
+      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16, padding: 16, overflow: "auto" }} className="md:grid-cols-[1fr_300px]">
 
         {/* LEFT: Blog Posts Table + Landing Pages */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

@@ -543,14 +543,14 @@ export default function SCOPSProperties() {
             <span style={{ fontSize: 11, color: "rgba(15,32,68,0.50)" }}>{stat.label}</span>
           </div>
         ))}
-        <div style={{ flex: 1, minWidth: 200, maxWidth: 300, marginLeft: "auto", display: "flex", gap: 8 }}>
+        <div style={{ flex: 1, minWidth: 120, maxWidth: 300, marginLeft: "auto", display: "flex", gap: 8 }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address or city…" style={{ flex: 1, padding: "7px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
           <button onClick={() => setEditingId("new")} style={{ padding: "7px 16px", borderRadius: 20, background: "#0f2044", border: "none", color: "#ffffff", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Add</button>
         </div>
       </div>
 
       {/* ── Filter Bar ── */}
-      <div style={{ padding: "8px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 8, alignItems: "center" }}>
+      <div style={{ padding: "8px 12px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 6, alignItems: "center", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         {["ALL", "HOME", "LOT"].map(t => (
           <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: typeFilter === t ? "#eef2ff" : "#ffffff", border: typeFilter === t ? "1px solid #c7d2fe" : "1px solid #e2e6ed", color: typeFilter === t ? "#6366f1" : "#374151" }}>
             {t === "ALL" ? "All Types" : t === "HOME" ? "Homes" : "Lots"}

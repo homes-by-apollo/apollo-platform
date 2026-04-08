@@ -204,12 +204,12 @@ export default function SCOPSUtmBuilder() {
         {["All Inventory ▾", "Performance ▾", "Map View ▾", "Marketing Readiness ▾"].map((label, i) => (
           <button key={label} style={{ padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.65)", border: i === 0 ? "1px solid rgba(99,102,241,0.40)" : "1px solid #e2e6ed", color: i === 0 ? "#6366f1" : "rgba(15,32,68,0.55)", cursor: "pointer" }}>{label}</button>
         ))}
-        <div style={{ flex: 1, minWidth: 200, maxWidth: 280, marginLeft: "auto" }}>
+        <div style={{ flex: 1, minWidth: 120, maxWidth: 280, marginLeft: "auto" }}>
           <input placeholder="Search address, city or zip…" style={{ width: "100%", padding: "6px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
         </div>
       </div>
       {/* 3-Column Body */}
-      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "300px 1fr 300px", gap: 16, padding: 16, overflow: "auto" }}>
+      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 16, padding: 16, overflow: "auto" }} className="lg:grid-cols-[300px_1fr_300px]">
         {/* LEFT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <GlassCard>

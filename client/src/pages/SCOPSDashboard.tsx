@@ -209,54 +209,57 @@ function DealsAtRisk({
         return (
           <div
             key={d.id}
-            className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all hover:scale-[1.005]"
+            className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-xl cursor-pointer transition-all hover:scale-[1.005]"
             style={{ background: urg.bg, border:`1px solid ${urg.border}` }}
             onClick={() => onView(d.id)}
           >
-            {/* Urgency badge */}
-            <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
-              <div className="w-2 h-2 rounded-full" style={{ background: urg.badge }} />
-              <span className="text-[8px] font-black tracking-widest" style={{ color: urg.badge }}>{urg.label}</span>
-            </div>
+            {/* Top row on mobile: urgency badge + name + score + stage */}
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Urgency badge */}
+              <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
+                <div className="w-2 h-2 rounded-full" style={{ background: urg.badge }} />
+                <span className="text-[8px] font-black tracking-widest" style={{ color: urg.badge }}>{urg.label}</span>
+              </div>
 
-            {/* Lead info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-[13px] font-bold text-gray-900">{d.name}</span>
-                {scoreP && (
-                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full" style={{ background: scoreP.bg, color: scoreP.text }}>
-                    {d.leadScore}
+              {/* Lead info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                  <span className="text-[13px] font-bold text-gray-900">{d.name}</span>
+                  {scoreP && (
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full" style={{ background: scoreP.bg, color: scoreP.text }}>
+                      {d.leadScore}
+                    </span>
+                  )}
+                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                    {STAGE_LABELS[d.stage] ?? d.stage}
                   </span>
-                )}
-                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
-                  {STAGE_LABELS[d.stage] ?? d.stage}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-[11px] text-gray-500">
-                <span className="font-semibold" style={{ color: urg.badge }}>{d.issue}</span>
-                {d.primaryPropertyAddress && (
-                  <>
-                    <span className="text-gray-300">·</span>
-                    <span className="truncate max-w-[160px]">🏠 {d.primaryPropertyAddress}</span>
-                  </>
-                )}
+                </div>
+                <div className="text-[11px] text-gray-500">
+                  <span className="font-semibold" style={{ color: urg.badge }}>{d.issue}</span>
+                  {d.primaryPropertyAddress && (
+                    <span className="ml-1 truncate"> · 🏠 {d.primaryPropertyAddress}</span>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Last contact */}
-            <div className="flex-shrink-0 text-right">
-              <div className="text-[10px] text-gray-400">Last contact</div>
-              <div className="text-[11px] font-bold text-gray-600">{timeAgo(d.lastContactedAt)}</div>
-            </div>
+            {/* Bottom row on mobile: last contact + CTA */}
+            <div className="flex items-center justify-between sm:justify-end sm:ml-auto gap-3 flex-shrink-0">
+              {/* Last contact */}
+              <div className="text-right">
+                <div className="text-[10px] text-gray-400">Last contact</div>
+                <div className="text-[11px] font-bold text-gray-600">{timeAgo(d.lastContactedAt)}</div>
+              </div>
 
-            {/* CTA */}
-            <button
-              className="flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white transition-all hover:opacity-90 active:scale-95"
-              style={{ background:"linear-gradient(135deg,#ef4444,#dc2626)" }}
-              onClick={e => { e.stopPropagation(); onView(d.id); }}
-            >
-              Follow Up →
-            </button>
+              {/* CTA */}
+              <button
+                className="flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white transition-all hover:opacity-90 active:scale-95"
+                style={{ background:"linear-gradient(135deg,#ef4444,#dc2626)" }}
+                onClick={e => { e.stopPropagation(); onView(d.id); }}
+              >
+                Follow Up →
+              </button>
+            </div>
           </div>
         );
       })}
@@ -673,16 +676,16 @@ export default function SCOPSDashboard() {
 
         {/* ── Row 2: DEALS AT RISK (Primary Action Center) ─────────────── */}
         <GC>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-start gap-2 mb-3">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
               <SH>Deals at Risk</SH>
               {atRisk.length > 0 && (
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full text-white" style={{ background:"#ef4444" }}>
+                <span className="flex-shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full text-white" style={{ background:"#ef4444" }}>
                   {atRisk.length} need action
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-gray-400">Leads not contacted in 48+ hours · sorted by urgency</span>
+            <span className="text-[10px] text-gray-400 self-center">Leads not contacted in 48+ hours · sorted by urgency</span>
           </div>
           <DealsAtRisk deals={atRisk} loading={dashboardQuery.isLoading} onView={setSelectedId} />
         </GC>
