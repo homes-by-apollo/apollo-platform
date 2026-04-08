@@ -92,11 +92,11 @@ export default function BuyersGuideThankYou() {
         </p>
 
         {/* PDF Cover Preview Card */}
-        <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 20, padding: "32px 40px", gap: 24, maxWidth: 380, width: "100%" }}>
+        <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 20, padding: "32px 40px", gap: 24, maxWidth: 500, width: "100%" }}>
           <img
             src={COVER_IMG}
             alt="2026 Pahrump Home Buyer's Guide Cover"
-            style={{ width: 180, borderRadius: 10, boxShadow: "0 16px 48px rgba(0,0,0,0.45)", display: "block" }}
+            style={{ width: 297, borderRadius: 10, boxShadow: "0 16px 48px rgba(0,0,0,0.45)", display: "block" }}
           />
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 6 }}>2026 Pahrump Home Buyer's Guide</div>
