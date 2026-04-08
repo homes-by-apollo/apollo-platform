@@ -386,6 +386,14 @@ export default function SCOPSUtmBuilder() {
   return (
     <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="utm-builder" />
+      {/* ── Content Section (Blog Posts + Landing Pages) — FIRST / TOP ── */}
+      <div style={{ padding: "16px 16px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }} className="lg:grid-cols-2">
+          <BlogPostCard />
+          <LandingPagesCard />
+        </div>
+      </div>
+
       {/* Filter Bar */}
       <div style={{ padding: "10px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         {["All Inventory ▾", "Performance ▾", "Map View ▾", "Marketing Readiness ▾"].map((label, i) => (
@@ -509,12 +517,6 @@ export default function SCOPSUtmBuilder() {
 
         {/* RIGHT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {/* Blog Post Card */}
-          <BlogPostCard />
-
-          {/* Landing Pages Card */}
-          <LandingPagesCard />
-
           {/* Channel detail panel */}
           {selectedChannel && (
             <GlassCard>

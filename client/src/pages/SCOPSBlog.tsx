@@ -200,8 +200,33 @@ function BlogModal({
   saving: boolean;
 }) {
   const [form, setForm] = useState<BlogForm>(initial);
+  const [uploading, setUploading] = useState(false);
   const set = (field: keyof BlogForm, value: string | boolean) =>
     setForm(prev => ({ ...prev, [field]: value }));
+
+  const uploadMutation = trpc.blog.uploadCoverImage.useMutation({
+    onSuccess: (data) => {
+      set("imageUrl", data.url);
+      toast.success("Cover image uploaded");
+    },
+    onError: (e) => toast.error(`Upload failed: ${e.message}`),
+    onSettled: () => setUploading(false),
+  });
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5 MB"); return; }
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1];
+      uploadMutation.mutate({ base64, mimeType: file.type, fileName: file.name });
+    };
+    reader.readAsDataURL(file);
+    // Reset input so the same file can be re-selected
+    e.target.value = "";
+  };
 
   const handleTitleChange = (title: string) => {
     setForm(prev => ({
@@ -316,10 +341,29 @@ function BlogModal({
             />
           </div>
 
-          {/* Image URL */}
+          {/* Cover Image */}
           <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Cover Image URL</label>
-            <Input value={form.imageUrl} onChange={e => set("imageUrl", e.target.value)} placeholder="https://cdn.example.com/photo.jpg" />
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Cover Image</label>
+            <div className="flex gap-2 items-center">
+              <Input
+                value={form.imageUrl}
+                onChange={e => set("imageUrl", e.target.value)}
+                placeholder="https://cdn.example.com/photo.jpg"
+                className="flex-1 text-xs"
+              />
+              <label
+                className="cursor-pointer px-3 py-2 rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs font-semibold text-gray-700 whitespace-nowrap flex items-center gap-1.5 transition-colors"
+                title="Upload image (max 5 MB)"
+              >
+                {uploading ? (
+                  <svg className="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                ) : (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                )}
+                {uploading ? "Uploading…" : "Upload"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} disabled={uploading} />
+              </label>
+            </div>
             {form.imageUrl && (
               <img src={form.imageUrl} alt="preview" className="mt-2 h-24 w-full object-cover rounded-lg border" />
             )}
@@ -600,7 +644,7 @@ export default function SCOPSBlog() {
 
   return (
     <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
-      <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="blog" />
+      <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="utm-builder" />
 
       {/* ── KPI Row ── */}
       <div style={{ padding: "14px 20px", background: "#f8f9fb", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 12, alignItems: "stretch", flexWrap: "wrap" }}>

@@ -890,3 +890,16 @@
 - [x] Calendly webhook: update pipelineStage → TOUR_SCHEDULED on booking
 - [x] Calendly webhook: removed duplicate confirmation email (Calendly sends its own)
 - [x] LeadDetail "Schedule Tour" button: opens Calendly popup pre-filled with lead name/email
+
+## Session 4 — Apr 7 2026
+- [ ] Move Blog Posts + Landing Pages cards to top of Campaigns tab (full-width, first section)
+- [ ] Remove Content tab from SCOPS nav
+- [ ] Redirect /scops/blog to /scops/utm-builder (keep route alive)
+- [ ] Add cover image upload button to blog editor (S3 upload via tRPC mutation)
+
+## Campaigns Tab Consolidation (Apr 8 Session 2)
+- [x] Move Blog Posts and Landing Pages sections to top of Campaigns tab
+- [x] Remove Content tab from SCOPS nav
+- [x] Fix currentPage="blog" TS error in SCOPSBlog.tsx
+- [x] Add S3 cover image upload button to blog post editor
+- [x] Add blog.uploadCoverImage tRPC mutation (base64 → S3)

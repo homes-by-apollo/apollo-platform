@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { adminProcedure, publicProcedure, router, superAdminProcedure } from "../_core/trpc";
+import { storagePut } from "../storage";
 import {
   createBlogPost,
   deleteBlogPost,
@@ -149,5 +150,21 @@ export const blogRouter = router({
     .mutation(async ({ input }) => {
       await deleteBlogPost(input.id);
       return { success: true };
+    }),
+
+  /** Upload a cover image to S3 and return the CDN URL */
+  uploadCoverImage: adminProcedure
+    .input(z.object({
+      base64: z.string(),
+      mimeType: z.string(),
+      fileName: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const ext = input.fileName.split(".").pop() ?? "jpg";
+      const rand = Math.random().toString(36).slice(2, 8);
+      const fileKey = `blog-covers/${Date.now()}-${rand}.${ext}`;
+      const buffer = Buffer.from(input.base64, "base64");
+      const { url } = await storagePut(fileKey, buffer, input.mimeType);
+      return { url };
     }),
 });
