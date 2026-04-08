@@ -17,8 +17,7 @@ const NAV_SECTIONS: NavSection[] = [
   { label: "Dashboard",  key: "dashboard",   path: "/scops" },
   { label: "Pipeline",   key: "scheduling",  path: "/scops/scheduling" },
   { label: "Inventory",  key: "properties",  path: "/scops/properties" },
-  { label: "Campaigns",  key: "utm-builder", path: "/scops/utm-builder" },
-  { label: "Email",      key: "email",       path: "/scops/email" },
+  { label: "Campaigns",  key: "campaigns",   path: "/scops/campaigns" },
   { label: "Engine",     key: "engine",      path: "/scops/engine" },
 ];
 
@@ -27,7 +26,7 @@ const PAGE_TO_SECTION: Record<string, string> = {
   scheduling:    "Pipeline",
   properties:    "Inventory",
   "utm-builder": "Campaigns",
-  email:         "email",
+  campaigns:     "Campaigns",
   engine:        "engine",
   users:         "Admin",
   settings:      "Settings",
@@ -35,7 +34,7 @@ const PAGE_TO_SECTION: Record<string, string> = {
 
 interface SCOPSNavProps {
   adminUser: { name: string; adminRole?: string | null };
-  currentPage?: "dashboard" | "properties" | "users" | "utm-builder" | "scheduling" | "settings" | "engine" | "email";
+  currentPage?: "dashboard" | "properties" | "users" | "utm-builder" | "campaigns" | "scheduling" | "settings" | "engine" | "email";
 }
 
 function LiveClock() {
@@ -131,7 +130,7 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
   const role = adminUser.adminRole ?? "admin";
 
   const visibleSections = NAV_SECTIONS.filter(s => {
-    if (role === "sales" && s.key === "utm-builder") return false;
+    if (role === "sales" && (s.key === "utm-builder" || s.key === "campaigns")) return false;
     if (role === "marketing" && s.key === "scheduling") return false;
     return true;
   });
