@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -388,6 +388,7 @@ export default function SCOPSProperties() {
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const [mapReady, setMapReady] = useState(false);
 
   const utils = trpc.useUtils();
   const propertiesQuery = trpc.properties.getAll.useQuery(
@@ -418,17 +419,53 @@ export default function SCOPSProperties() {
     onSettled: () => utils.properties.getAll.invalidate(),
   });
 
+  // Store map reference and signal readiness — decoupled from data
   const handleMapReady = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
+    setMapReady(true);
+  }, []);
+
+  // Re-run geocoding whenever BOTH the map is ready AND data has loaded
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map) return;
+    if (!window.google?.maps) return;
+
+    // Clear any existing markers
     markersRef.current.forEach(m => { m.map = null; });
     markersRef.current = [];
-    const geocoder = new google.maps.Geocoder();
+
     const properties = propertiesQuery.data ?? [];
-    if (properties.length === 0) return;
+
+    // Debug fallback: always place a Pahrump center marker so we can tell if the map itself works
+    const debugPin = document.createElement("div");
+    debugPin.style.cssText = `width:16px;height:16px;border-radius:50%;background:#94a3b8;border:2px solid white;cursor:default;box-shadow:0 2px 6px rgba(0,0,0,0.25);z-index:999;`;
+    const debugMarker = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: PAHRUMP_CENTER,
+      content: debugPin,
+      title: "Pahrump, NV (debug)",
+      zIndex: 999,
+    });
+    markersRef.current.push(debugMarker);
+
+    if (properties.length === 0) {
+      // No listings yet — center on Pahrump
+      map.setCenter(PAHRUMP_CENTER);
+      map.setZoom(11);
+      return;
+    }
+
+    const geocoder = new google.maps.Geocoder();
     const bounds = new google.maps.LatLngBounds();
     let resolved = 0;
+
     properties.forEach(prop => {
-      const fullAddress = `${prop.address}, ${prop.city}, ${prop.state}`;
+      // Build the cleanest possible address string for geocoding
+      const fullAddress = prop.address.includes(prop.city)
+        ? prop.address  // address already contains city (e.g. "480 E Arapahoe St, Pahrump, NV 89048")
+        : `${prop.address}, ${prop.city}, ${prop.state}`;
+
       geocoder.geocode({ address: fullAddress }, (results, status) => {
         resolved++;
         if (status === "OK" && results?.[0]) {
@@ -436,23 +473,35 @@ export default function SCOPSProperties() {
           bounds.extend(loc);
           const pinColor = TAG_PIN_COLORS[prop.tag] ?? "#6366f1";
           const pinEl = document.createElement("div");
-          pinEl.style.cssText = `width:24px;height:24px;border-radius:50% 50% 50% 0;background:${pinColor};border:2px solid white;transform:rotate(-45deg);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);`;
-          const marker = new google.maps.marker.AdvancedMarkerElement({ map, position: loc, content: pinEl, title: prop.address });
+          pinEl.style.cssText = `width:24px;height:24px;border-radius:50% 50% 50% 0;background:${pinColor};border:2px solid white;transform:rotate(-45deg);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:1000;`;
+          const marker = new google.maps.marker.AdvancedMarkerElement({
+            map,
+            position: loc,
+            content: pinEl,
+            title: prop.address,
+            zIndex: 1000,
+          });
           marker.addListener("click", () => setSelectedProperty(prop as Property));
           markersRef.current.push(marker);
         }
+
         // After all geocodes complete, fit map to show all markers
-        if (resolved === properties.length && !bounds.isEmpty()) {
-          map.fitBounds(bounds, { top: 40, right: 40, bottom: 60, left: 40 });
-          // Don't zoom in too far for a single pin
-          const listener = google.maps.event.addListenerOnce(map, "idle", () => {
-            if ((map.getZoom() ?? 0) > 15) map.setZoom(15);
-          });
-          void listener;
+        if (resolved === properties.length) {
+          if (!bounds.isEmpty()) {
+            map.fitBounds(bounds, { top: 60, right: 60, bottom: 80, left: 60 });
+            const listener = google.maps.event.addListenerOnce(map, "idle", () => {
+              if ((map.getZoom() ?? 0) > 15) map.setZoom(15);
+            });
+            void listener;
+          } else {
+            // All geocodes failed — fall back to Pahrump center
+            map.setCenter(PAHRUMP_CENTER);
+            map.setZoom(11);
+          }
         }
       });
     });
-  }, [propertiesQuery.data]);
+  }, [mapReady, propertiesQuery.data]);
 
   if (loading) return null;
   if (!adminUser) { window.location.href = getLoginUrl(); return null; }
