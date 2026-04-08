@@ -1370,7 +1370,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
                 <h2 style={{ fontSize:"clamp(32px,3.5vw,48px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, margin:"0 0 8px" }}>Have questions? We've got answers.</h2>
                 <p style={{ fontSize:17, color:MUT, margin:0, lineHeight:1.6 }}>Everything you need to know before building with Apollo.</p>
               </div>
-              <button className="faq-view-all-btn" onClick={()=>setPage("faq")} style={{ marginTop:8, background:"none", border:"none", color:G, fontSize:17, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", display:"inline-flex", alignItems:"center", gap:6, padding:"8px 0", textDecoration:"underline", textUnderlineOffset:3 }}>View All FAQs →</button>
+              <button className="faq-view-all-btn" onClick={()=>{ track("View All FAQs", { section:"faq" }); setLocation("/faqs"); }} style={{ marginTop:8, background:"none", border:"none", color:G, fontSize:17, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap", display:"inline-flex", alignItems:"center", gap:6, padding:"8px 0", textDecoration:"underline", textUnderlineOffset:3 }}>View All FAQs →</button>
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:12, marginTop:36 }}>
               {faqs.map(([q,a])=><FAQ key={q} q={q} a={a}/>)}
@@ -1388,7 +1388,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
         </>}
 
         {/* ══ GLOBAL FOOTER — shown on all sub-pages that don’t have their own footer ══ */}
-        {page !== "home" && page !== "contact" && page !== "homes" && page !== "lots" && page !== "home-detail" && page !== "lot-detail" && page !== "blog" && page !== "faq" && (
+        {page !== "home" && page !== "contact" && page !== "homes" && page !== "lots" && page !== "home-detail" && page !== "lot-detail" && page !== "blog" && (
           <GlobalFooter />
         )}
 
@@ -1813,38 +1813,8 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
           </div>
         )}
 
-        {/* ══ FAQ PAGE ═══════════════════════════════════════════════════════ */}
-        {page==="faq" && (
-          <div className="section-pad" style={{ padding:"60px var(--pad) 80px" }}>
-            <div style={{ marginBottom:8 }}>
-              <button onClick={()=>nav("home")} style={{ background:"none", border:"none", cursor:"pointer", fontSize:13, fontWeight:700, color:MUT, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6, padding:0, marginBottom:28 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                Back to Home
-              </button>
-              <SectionLabel>FAQ</SectionLabel>
-              <h1 style={{ fontSize:"clamp(32px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:12, maxWidth:640 }}>Everything you need to know about building with Apollo</h1>
-              <p style={{ fontSize:16, color:MUT, lineHeight:1.75, maxWidth:560, marginBottom:52 }}>Can't find your answer here? Call us at (775) 363-1616 or schedule a free consultation — we're happy to walk you through anything.</p>
-            </div>
-            {allFaqs.map(({ category, items }) => (
-              <div key={category} style={{ marginBottom:52 }}>
-                <div style={{ fontSize:11, fontWeight:700, color:MUT, textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:16, display:"flex", alignItems:"center", gap:10 }}>
-                  <div style={{ width:32, height:1.5, background:ACC, borderRadius:2 }} />
-                  {category}
-                </div>
-                <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-                  {items.map(([q,a]) => <FAQ key={q} q={q} a={a} />)}
-                </div>
-              </div>
-            ))}
-            <div style={{ marginTop:48, background:G, borderRadius:16, padding:"36px 40px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:20 }}>
-              <div>
-                <div style={{ fontSize:20, fontWeight:800, color:"white", marginBottom:6 }}>Still have questions?</div>
-                <div style={{ fontSize:14, color:"rgba(255,255,255,0.65)", lineHeight:1.6 }}>Schedule a free, no-pressure consultation with Brandon and the Apollo team.</div>
-              </div>
-              <button className="cta-banner-btn" onClick={()=>{ track("Schedule Consultation", { location:"cta-banner" }); nav("contact"); }} style={{ background:ACC, color:G, border:"none", borderRadius:8, padding:"14px 28px", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"inherit", whiteSpace:"nowrap" }}>Schedule a Consultation ↗</button>
-            </div>
-          </div>
-        )}
+        {/* ══ FAQ PAGE — now a standalone route at /faqs ═══════════════════ */}
+        {page==="faq" && (() => { setLocation("/faqs"); return null; })()}
 
         {/* ══ BLOG — redirects to standalone /blog page ══════════════════════ */}
         {page==="blog" && (() => { setLocation("/blog"); return null; })()}

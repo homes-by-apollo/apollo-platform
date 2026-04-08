@@ -125,7 +125,7 @@ export function GlobalFooter() {
             {([
               ["Company",  [["Home","/"],["About Us","/"],["Contact","/get-in-touch"]]],
               ["Properties",[["Homes","/find-your-home"],["Lots","/find-your-home"]]],
-              ["Resources", [["Blog","/blog"],["FAQ","/"],["Instagram","https://www.instagram.com/homesby.apollo/"]]],
+              ["Resources", [["Blog","/blog"],["FAQ","/faqs"],["Instagram","https://www.instagram.com/homesby.apollo/"]]],
             ] as [string, [string, string][]][]).map(([heading, links])=>(
               <div key={heading}>
                 <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>
