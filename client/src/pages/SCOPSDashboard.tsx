@@ -1,13 +1,36 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { trpc } from "@/lib/trpc";
+/**
+ * SCOPSDashboard.tsx — Redesigned April 2026
+ * Improvements: GTM goal tracking, campaign performance panel,
+ * blended CPL calculator, pipeline value, premium operator UI.
+ *
+ * DROP-IN REPLACEMENT for client/src/pages/scops/SCOPSDashboard.tsx
+ * Adjust import paths to match your project structure if needed.
+ */
+
 import { useState } from "react";
 import { useLocation } from "wouter";
-import LeadDetail from "./LeadDetail";
+import { trpc } from "@/lib/trpc";
 import SCOPSNav from "@/components/SCOPSNav";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── GTM TARGETS (from Go-to-Market Strategy doc, April 2026) ─────────────────
+// Update CAMPAIGN_START to the date ads actually go live.
+const CAMPAIGN_START = new Date("2026-04-08");
+
+const M1 = {
+  leads: 20,         // midpoint of 15–25
+  sessions: 500,
+  consultations: 8,  // midpoint of 5–10
+  contracts: 1,
+  cplTarget: 100,    // midpoint of $80–$120
+  reviews: 5,
+};
+
+const AD_BUDGET = {
+  google: 1100,
+  meta: 900,
+  retargeting: 400,
+  total: 3000,
+};
 
 const PIPELINE_STAGES = [
   "NEW_INQUIRY",
@@ -17,832 +40,1214 @@ const PIPELINE_STAGES = [
   "OFFER_SUBMITTED",
   "UNDER_CONTRACT",
   "CLOSED",
-  "LOST",
 ] as const;
 
 const STAGE_LABELS: Record<string, string> = {
   NEW_INQUIRY: "New Inquiry",
   QUALIFIED: "Qualified",
-  TOUR_SCHEDULED: "Tour Scheduled",
+  TOUR_SCHEDULED: "Tour Sched.",
   TOURED: "Toured",
-  OFFER_SUBMITTED: "Offer Submitted",
+  OFFER_SUBMITTED: "Offer Sub.",
   UNDER_CONTRACT: "Under Contract",
   CLOSED: "Closed",
   LOST: "Lost",
 };
 
-// Stage bar gradient colors
-const STAGE_COLORS: Record<string, string> = {
-  NEW_INQUIRY:      "linear-gradient(90deg,#4a90d9,#5ba3e8)",
-  QUALIFIED:        "linear-gradient(90deg,#4a9fd4,#5ab5e0)",
-  TOUR_SCHEDULED:   "linear-gradient(90deg,#4aadca,#5ac4d8)",
-  TOURED:           "linear-gradient(90deg,#4ab8b8,#5acfca)",
-  OFFER_SUBMITTED:  "linear-gradient(90deg,#6ab4a0,#7dcbb5)",
-  UNDER_CONTRACT:   "linear-gradient(90deg,#8aaa80,#9ec490)",
-  CLOSED:           "linear-gradient(90deg,#a8a060,#c0b870)",
-};
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
 
-const STAGE_PILL: Record<string, { bg: string; text: string }> = {
-  NEW_INQUIRY:      { bg:"rgba(74,144,217,.15)",  text:"#2563eb" },
-  QUALIFIED:        { bg:"rgba(74,159,212,.15)",  text:"#0891b2" },
-  TOUR_SCHEDULED:   { bg:"rgba(74,173,202,.15)",  text:"#0e7490" },
-  TOURED:           { bg:"rgba(74,184,184,.15)",  text:"#0f766e" },
-  OFFER_SUBMITTED:  { bg:"rgba(106,180,160,.15)", text:"#047857" },
-  UNDER_CONTRACT:   { bg:"rgba(138,170,128,.15)", text:"#65a30d" },
-  CLOSED:           { bg:"rgba(168,160,96,.15)",  text:"#a16207" },
-  LOST:             { bg:"rgba(239,68,68,.12)",   text:"#dc2626" },
-};
+function daysSince(d: Date): number {
+  return Math.max(1, Math.floor((Date.now() - d.getTime()) / 86_400_000) + 1);
+}
 
-const SCORE_PILL: Record<string, { bg: string; text: string }> = {
-  HOT:  { bg:"rgba(239,68,68,.12)",  text:"#dc2626" },
-  WARM: { bg:"rgba(245,158,11,.12)", text:"#d97706" },
-  COLD: { bg:"rgba(59,130,246,.12)", text:"#2563eb" },
-};
+function pct(a: number, t: number): number {
+  return t === 0 ? 0 : Math.min(100, Math.round((a / t) * 100));
+}
 
-const RISK_URGENCY_COLOR = (hoursStale: number) => {
-  if (hoursStale >= 168) return { bg:"rgba(239,68,68,.12)", border:"rgba(239,68,68,.3)", badge:"#dc2626", label:"CRITICAL" };
-  if (hoursStale >= 72)  return { bg:"rgba(245,158,11,.10)", border:"rgba(245,158,11,.3)", badge:"#d97706", label:"HIGH" };
-  return                        { bg:"rgba(59,130,246,.08)", border:"rgba(59,130,246,.2)", badge:"#2563eb", label:"WATCH" };
-};
-
-const KPI_BAR_COLORS = [
-  "linear-gradient(90deg,#4a90d9,#7eb8f0)",
-  "linear-gradient(90deg,#4aadca,#7ed4e8)",
-  "linear-gradient(90deg,#e07b39,#f0a870)",
-  "linear-gradient(90deg,#4a90d9,#6ab4f0)",
-  "linear-gradient(90deg,#7c6ad9,#a89cf0)",
-  "linear-gradient(90deg,#4ab8b8,#7adcdc)",
-];
-
-const SOURCE_ICONS: Record<string, string> = {
-  ZILLOW:"🏠", FACEBOOK_ADS:"📘", GOOGLE_ADS:"🔍", REFERRAL:"🤝",
-  WEBSITE:"🌐", REALTOR:"🏡", INSTAGRAM:"📸", WORD_OF_MOUTH:"💬",
-  AGENT:"🤝", OTHER:"📊",
-};
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function fmt$(n: number): string {
-  if (n >= 1_000_000) return `$${(n/1_000_000).toFixed(1)}M`;
-  if (n >= 1_000)     return `$${(n/1_000).toFixed(0)}K`;
+function fmt$(n: number | null | undefined): string {
+  if (!n) return "—";
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
   return `$${n.toLocaleString()}`;
 }
 
-function timeAgo(d: Date | string | null | undefined): string {
+function relTime(d: string | Date | null | undefined): string {
   if (!d) return "never";
-  const h = Math.floor((Date.now() - new Date(d).getTime()) / 3_600_000);
-  if (h < 1)  return "just now";
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h/24)}d ago`;
+  const ms = Date.now() - new Date(d).getTime();
+  const mins = Math.floor(ms / 60_000);
+  if (mins < 2) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 }
 
-function fmtTimeline(t: string | null | undefined): string {
-  const m: Record<string,string> = {
-    ASAP:"ASAP","1_3_MONTHS":"1–3 mo","3_6_MONTHS":"3–6 mo",
-    "6_12_MONTHS":"6–12 mo",JUST_BROWSING:"Browsing",
-  };
-  return t ? (m[t] ?? t) : "—";
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 }
 
-// ─── Glass Card ───────────────────────────────────────────────────────────────
+function scoreStyles(score: string): string {
+  if (score === "HOT") return "bg-red-50 text-red-600 border-red-200";
+  if (score === "WARM") return "bg-amber-50 text-amber-600 border-amber-200";
+  return "bg-slate-100 text-slate-500 border-slate-200";
+}
 
-function GC({
-  children, className="", style={}, noPad=false,
-}: { children: React.ReactNode; className?: string; style?: React.CSSProperties; noPad?: boolean }) {
+// ─── SHARED COMPONENTS ────────────────────────────────────────────────────────
+
+function Card({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className={className} style={{
-      background: "#ffffff",
-      border: "1px solid #e2e6ed",
-      borderRadius: 12,
-      boxShadow: "0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)",
-      padding: noPad ? 0 : "16px 18px",
-      ...style,
-    }}>
+    <div
+      className={`bg-white rounded-2xl border border-slate-100 shadow-sm p-5 ${className}`}
+    >
       {children}
     </div>
   );
 }
 
-// ─── Section Header ───────────────────────────────────────────────────────────
-
-function SH({ children, sub }: { children: React.ReactNode; sub?: string }) {
+function SectionHeader({
+  title,
+  badge,
+  sub,
+  action,
+}: {
+  title: string;
+  badge?: string | number;
+  sub?: string;
+  action?: React.ReactNode;
+}) {
   return (
-    <div className="flex items-baseline gap-2 mb-3">
-      <span className="crm-section-header">{children}</span>
-      {sub && <span className="text-[11px] font-medium text-gray-400">{sub}</span>}
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2.5">
+        <h2 className="text-[14px] font-semibold text-slate-800 tracking-tight">
+          {title}
+        </h2>
+        {badge != null && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+            {badge} need action
+          </span>
+        )}
+        {sub && (
+          <span className="text-[11px] text-slate-400 font-normal">{sub}</span>
+        )}
+      </div>
+      {action}
     </div>
   );
 }
 
-// ─── KPI Card ─────────────────────────────────────────────────────────────────
+function GoalBar({
+  label,
+  actual,
+  target,
+  prefix = "",
+  suffix = "",
+}: {
+  label: string;
+  actual: number;
+  target: number;
+  prefix?: string;
+  suffix?: string;
+}) {
+  const p = pct(actual, target);
+  const color =
+    p >= 100 ? "bg-emerald-500" : p >= 60 ? "bg-blue-500" : "bg-amber-400";
+  return (
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-baseline">
+        <span className="text-[11px] text-slate-500 font-medium">{label}</span>
+        <span className="text-[11px] font-semibold text-slate-800">
+          {prefix}
+          {actual.toLocaleString()}
+          {suffix}
+          <span className="text-slate-400 font-normal">
+            {" "}
+            / {prefix}
+            {target.toLocaleString()}
+            {suffix}
+          </span>
+        </span>
+      </div>
+      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-700 ${color}`}
+          style={{ width: `${p}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── KPI CARD ─────────────────────────────────────────────────────────────────
 
 function KpiCard({
-  label, value, unit, delta, deltaLabel, barPct, colorIdx, loading,
+  label,
+  value,
+  sub,
+  delta,
+  deltaLabel,
+  goalPct,
+  goalLabel,
 }: {
-  label: string; value: string|number; unit?: string;
-  delta?: number; deltaLabel?: string;
-  barPct?: number; colorIdx: number; loading?: boolean;
+  label: string;
+  value: string | number;
+  sub?: string;
+  delta?: number;
+  deltaLabel?: string;
+  goalPct?: number;
+  goalLabel?: string;
 }) {
-  const isUp = (delta ?? 0) >= 0;
+  const pos = (delta ?? 0) >= 0;
   return (
-    <GC style={{ padding:"14px 16px" }}>
-      <div className="crm-card-label mb-1.5 leading-tight">{label}</div>
-      {loading ? (
-        <div className="h-7 w-16 rounded-lg animate-pulse mb-2 bg-gray-100" />
-      ) : (
-        <div className="flex items-baseline gap-1 mb-1.5">
-          <span className="crm-metric-primary" style={{ fontSize: 26 }}>{value}</span>
-          {unit && <span className="text-[12px] font-semibold text-gray-400">{unit}</span>}
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3">
+      <p className="text-[10px] font-bold tracking-[0.08em] text-slate-400 uppercase">
+        {label}
+      </p>
+      <div className="flex items-end justify-between gap-2">
+        <div>
+          <p className="text-[26px] font-bold text-slate-900 leading-none tracking-tight">
+            {value}
+          </p>
+          {sub && (
+            <p className="text-[12px] text-slate-400 mt-1 leading-none">{sub}</p>
+          )}
         </div>
-      )}
-      {/* Micro-signal */}
-      {delta !== undefined && (
-        <div className="flex items-center gap-1 mb-1.5">
-          <span className={`text-[10px] font-bold ${isUp ? 'crm-metric-positive' : 'crm-metric-negative'}`}>
-            {isUp ? "▲" : "▼"} {Math.abs(delta)}
+        {delta !== undefined && (
+          <span
+            className={`inline-flex items-center gap-0.5 text-[11px] font-semibold px-2 py-1 rounded-full shrink-0 ${
+              pos
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-red-50 text-red-500"
+            }`}
+          >
+            {pos ? "▲" : "▼"} {Math.abs(delta)} {deltaLabel}
           </span>
-          {deltaLabel && <span className="crm-metric-supporting text-[10px] mt-0">{deltaLabel}</span>}
+        )}
+      </div>
+      {goalPct !== undefined && (
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-[10px] text-slate-400">
+            <span>{goalLabel ?? "Month 1 goal"}</span>
+            <span className="font-semibold">{goalPct}%</span>
+          </div>
+          <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                goalPct >= 100
+                  ? "bg-emerald-500"
+                  : goalPct >= 60
+                  ? "bg-blue-500"
+                  : "bg-amber-400"
+              }`}
+              style={{ width: `${Math.min(100, goalPct)}%` }}
+            />
+          </div>
         </div>
       )}
-      <div style={{ height:3, borderRadius:3, background:"#f1f3f7", overflow:"hidden" }}>
-        <div style={{
-          height:"100%", width:`${Math.min(barPct??60,100)}%`,
-          background: KPI_BAR_COLORS[colorIdx % KPI_BAR_COLORS.length],
-          borderRadius:3, transition:"width .6s ease",
-        }} />
-      </div>
-    </GC>
+    </div>
   );
 }
 
-// ─── Deals at Risk (Primary Action Center) ────────────────────────────────────
+// ─── CAMPAIGN GOAL STRIP ──────────────────────────────────────────────────────
 
-type RiskDeal = {
-  id: number; name: string; stage: string; leadScore?: string | null;
-  issue: string; hoursStale: number; lastContactedAt?: Date | string | null;
-  primaryPropertyAddress?: string | null;
-};
+function CampaignGoalStrip({
+  totalLeads,
+  toursThisWeek,
+  contracts,
+}: {
+  totalLeads: number;
+  toursThisWeek: number;
+  contracts: number;
+}) {
+  const day = daysSince(CAMPAIGN_START);
+  const dayPct = pct(day, 30);
+  const blendedCpl =
+    totalLeads > 0 ? Math.round(AD_BUDGET.total / totalLeads) : null;
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[14px] font-semibold text-slate-800">
+              Month 1 Campaign
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-0.5 rounded-full font-medium">
+            Day {day} of 30
+          </span>
+        </div>
+        <div className="flex items-center gap-3 text-[11px] text-slate-400">
+          <span>
+            Budget:{" "}
+            <strong className="text-slate-700 font-semibold">$3,000/mo</strong>
+          </span>
+          <span className="text-slate-200">|</span>
+          <span>Google $1,100</span>
+          <span className="text-slate-200">·</span>
+          <span>Meta $900</span>
+          <span className="text-slate-200">·</span>
+          <span>Retargeting $400</span>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="mb-5">
+        <div className="flex justify-between text-[10px] text-slate-400 mb-1.5">
+          <span className="font-medium uppercase tracking-wide">
+            Campaign window
+          </span>
+          <span>
+            {day} / 30 days
+          </span>
+        </div>
+        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-700"
+            style={{ width: `${dayPct}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Goal bars */}
+      <div className="grid grid-cols-4 gap-6">
+        <GoalBar label="Leads" actual={totalLeads} target={M1.leads} />
+        <GoalBar
+          label="Consultations"
+          actual={toursThisWeek}
+          target={M1.consultations}
+        />
+        <GoalBar
+          label="Blended CPL"
+          actual={blendedCpl ?? 0}
+          target={M1.cplTarget}
+          prefix="$"
+        />
+        <GoalBar
+          label="Contracts"
+          actual={contracts}
+          target={M1.contracts}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── DEALS AT RISK ────────────────────────────────────────────────────────────
 
 function DealsAtRisk({
-  deals, loading, onView,
-}: { deals: RiskDeal[]; loading?: boolean; onView: (id: number) => void }) {
-  if (loading) return (
-    <div className="space-y-2">
-      {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-gray-100 animate-pulse" />)}
-    </div>
-  );
-  if (deals.length === 0) return (
-    <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"#f0fdf4", border:"1px solid #bbf7d0" }}>
-      <span className="text-[18px]">✅</span>
-      <div>
-        <div className="text-[12px] font-bold text-green-700">Pipeline is healthy</div>
-        <div className="text-[11px] text-green-600">All active leads contacted within 48 hours</div>
-      </div>
-    </div>
-  );
-
+  deals,
+  onFollowUp,
+}: {
+  deals: any[];
+  onFollowUp: (id: string) => void;
+}) {
+  if (!deals?.length) return null;
   return (
-    <div className="space-y-2">
-      {deals.map((d) => {
-        const urg = RISK_URGENCY_COLOR(d.hoursStale);
-        const scoreP = d.leadScore ? SCORE_PILL[d.leadScore] : null;
-        return (
-          <div
-            key={d.id}
-            className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-xl cursor-pointer transition-all hover:scale-[1.005]"
-            style={{ background: urg.bg, border:`1px solid ${urg.border}` }}
-            onClick={() => onView(d.id)}
-          >
-            {/* Top row on mobile: urgency badge + name + score + stage */}
-            <div className="flex items-center gap-3 min-w-0">
-              {/* Urgency badge */}
-              <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
-                <div className="w-2 h-2 rounded-full" style={{ background: urg.badge }} />
-                <span className="text-[8px] font-black tracking-widest" style={{ color: urg.badge }}>{urg.label}</span>
-              </div>
-
-              {/* Lead info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
-                  <span className="text-[13px] font-bold text-gray-900">{d.name}</span>
-                  {scoreP && (
-                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full" style={{ background: scoreP.bg, color: scoreP.text }}>
-                      {d.leadScore}
+    <Card>
+      <SectionHeader
+        title="Deals at Risk"
+        badge={deals.length}
+        action={
+          <span className="text-[11px] text-slate-400">
+            Leads not contacted in 48+ hours · sorted by urgency
+          </span>
+        }
+      />
+      <div className="space-y-2">
+        {deals.map((deal) => {
+          const name = deal.contactName ?? "Unknown";
+          return (
+            <div
+              key={deal.id}
+              className="flex items-center justify-between p-3.5 rounded-xl bg-red-50 border border-red-100 hover:border-red-200 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                {/* CRITICAL badge */}
+                <div className="flex flex-col items-center justify-center w-[52px] shrink-0">
+                  <div className="text-[9px] font-bold text-red-500 tracking-widest uppercase mb-1">
+                    CRITICAL
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-red-500 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">
+                      {initials(name)}
                     </span>
-                  )}
-                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
-                    {STAGE_LABELS[d.stage] ?? d.stage}
-                  </span>
+                  </div>
                 </div>
-                <div className="text-[11px] text-gray-500">
-                  <span className="font-semibold" style={{ color: urg.badge }}>{d.issue}</span>
-                  {d.primaryPropertyAddress && (
-                    <span className="ml-1 truncate"> · 🏠 {d.primaryPropertyAddress}</span>
-                  )}
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-[13px] font-semibold text-slate-800">
+                      {name}
+                    </span>
+                    <span
+                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${scoreStyles(
+                        deal.score ?? "COLD"
+                      )}`}
+                    >
+                      {deal.score ?? "COLD"}
+                    </span>
+                    <span className="text-[10px] text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">
+                      {STAGE_LABELS[deal.stage] ?? deal.stage}
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-red-500 font-medium">
+                    Never contacted
+                  </p>
                 </div>
               </div>
-            </div>
-
-            {/* Bottom row on mobile: last contact + CTA */}
-            <div className="flex items-center justify-between sm:justify-end sm:ml-auto gap-3 flex-shrink-0">
-              {/* Last contact */}
-              <div className="text-right">
-                <div className="text-[10px] text-gray-400">Last contact</div>
-                <div className="text-[11px] font-bold text-gray-600">{timeAgo(d.lastContactedAt)}</div>
+              <div className="flex items-center gap-5">
+                <div className="text-right">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">
+                    Last contact
+                  </p>
+                  <p className="text-[12px] font-semibold text-slate-700">
+                    {deal.lastContactedAt
+                      ? relTime(deal.lastContactedAt)
+                      : "never"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onFollowUp(deal.id)}
+                  className="px-4 py-2 rounded-xl bg-slate-900 text-white text-[12px] font-semibold hover:bg-slate-700 active:scale-95 transition-all"
+                >
+                  Follow Up →
+                </button>
               </div>
-
-              {/* CTA */}
-              <button
-                className="flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white transition-all hover:opacity-90 active:scale-95"
-                style={{ background:"linear-gradient(135deg,#ef4444,#dc2626)" }}
-                onClick={e => { e.stopPropagation(); onView(d.id); }}
-              >
-                Follow Up →
-              </button>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </Card>
   );
 }
 
-// ─── Pipeline Funnel with Conversion ─────────────────────────────────────────
+// ─── PIPELINE FUNNEL ──────────────────────────────────────────────────────────
 
-function PipelineFunnel({ stageCounts }: { stageCounts: { stage: string; count: number }[] }) {
-  const activeStages = PIPELINE_STAGES.filter(s => s !== "LOST" && s !== "CLOSED");
-  const countMap = Object.fromEntries(stageCounts.map(s => [s.stage, s.count]));
-  const maxCount = Math.max(...activeStages.map(s => countMap[s] ?? 0), 1);
-  const firstCount = countMap[activeStages[0]] || 1;
-  const closedCount = countMap["CLOSED"] ?? 0;
-  const conversionPct = firstCount > 0 ? Math.round((closedCount / firstCount) * 100) : 0;
-  const totalActive = activeStages.reduce((s, st) => s + (countMap[st] ?? 0), 0);
-  const pipelineValue = totalActive * 425_000;
+function PipelineFunnel({
+  stageCounts,
+  pipelineValue,
+}: {
+  stageCounts: Record<string, number>;
+  pipelineValue: number;
+}) {
+  const stages = [
+    { key: "NEW_INQUIRY", label: "New Inquiry", color: "bg-blue-500" },
+    { key: "QUALIFIED", label: "Qualified", color: "bg-blue-500" },
+    { key: "TOUR_SCHEDULED", label: "Tour Sched.", color: "bg-blue-500" },
+    { key: "TOURED", label: "Toured", color: "bg-teal-500" },
+    { key: "OFFER_SUBMITTED", label: "Offer Sub.", color: "bg-teal-500" },
+    { key: "UNDER_CONTRACT", label: "Under Contract", color: "bg-emerald-500" },
+  ];
+  const maxCount = Math.max(1, ...stages.map((s) => stageCounts?.[s.key] ?? 0));
+  const totalLeads = stageCounts?.NEW_INQUIRY ?? 0;
+  const closed = stageCounts?.CLOSED ?? 0;
+  const overallConv =
+    totalLeads > 0 ? Math.round((closed / totalLeads) * 100) : 0;
 
   return (
-    <div>
-      <div className="space-y-1.5 mb-3">
-        {activeStages.map((stage, i) => {
-          const count = countMap[stage] ?? 0;
-          const pct = Math.round((count / maxCount) * 100);
-          // Conversion from previous stage
-          const prevStage = i > 0 ? activeStages[i - 1] : null;
-          const prevCount = prevStage ? (countMap[prevStage] ?? 0) : null;
-          const convFromPrev = prevCount && prevCount > 0 ? Math.round((count / prevCount) * 100) : null;
-          const isBottleneck = convFromPrev !== null && convFromPrev < 40 && count > 0;
-
+    <Card>
+      <SectionHeader title="Pipeline Funnel" />
+      <div className="space-y-1">
+        {stages.map((stage, i) => {
+          const count = stageCounts?.[stage.key] ?? 0;
+          const prev =
+            i > 0 ? stageCounts?.[stages[i - 1].key] ?? 0 : null;
+          const conv =
+            prev != null && prev > 0
+              ? Math.round((count / prev) * 100)
+              : null;
+          const w = pct(count, maxCount);
           return (
-            <div key={stage}>
-              {/* Conversion indicator between stages */}
-              {convFromPrev !== null && (
-                <div className="flex items-center gap-1.5 mb-1 ml-1">
-                  <div className="w-px h-3 bg-gray-200" />
-                  <span
-                    className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={{
-                      background: isBottleneck ? "rgba(239,68,68,.12)" : "rgba(34,197,94,.1)",
-                      color: isBottleneck ? "#dc2626" : "#16a34a",
-                    }}
-                  >
-                    {convFromPrev}% {isBottleneck ? "⚠ bottleneck" : "↓"}
+            <div key={stage.key}>
+              {conv !== null && (
+                <div className="flex items-center gap-1.5 py-0.5 ml-[88px]">
+                  <div className="w-px h-2.5 bg-slate-200" />
+                  <span className="text-[10px] text-slate-400">
+                    {conv}% ↓
                   </span>
                 </div>
               )}
-              <div className="flex items-center gap-2">
-                <div
-                  className="flex items-center justify-between px-2.5 rounded-lg text-[11px] font-semibold transition-all duration-500"
-                  style={{
-                    width:`${Math.max(pct, count > 0 ? 20 : 6)}%`,
-                    minWidth:100, height:28,
-                    background: count > 0 ? STAGE_COLORS[stage] : "#f1f3f7",
-                    color: count > 0 ? "white" : "#94a3b8",
-                  }}
-                >
-                  <span className="truncate text-[10px]">{STAGE_LABELS[stage]}</span>
-                  <span className="ml-1 font-black">{count}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-slate-500 w-[84px] shrink-0 text-right pr-2">
+                  {stage.label}
+                </span>
+                <div className="flex-1 h-5 bg-slate-50 rounded-md overflow-hidden">
+                  <div
+                    className={`h-full ${stage.color} rounded-md flex items-center justify-end pr-2 transition-all duration-700`}
+                    style={{ width: `${Math.max(w, count > 0 ? 10 : 0)}%` }}
+                  >
+                    {count > 0 && (
+                      <span className="text-[9px] text-white font-bold">
+                        {count}
+                      </span>
+                    )}
+                  </div>
                 </div>
+                {count === 0 && (
+                  <span className="text-[10px] text-slate-300 w-4 shrink-0">
+                    0
+                  </span>
+                )}
               </div>
             </div>
           );
         })}
       </div>
-      <div className="flex items-center justify-between pt-2.5 border-t border-gray-100">
+      <div className="flex justify-between mt-4 pt-4 border-t border-slate-100">
         <div>
-          <div className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">Overall Conv.</div>
-          <div className="text-[18px] font-black text-slate-700">{conversionPct}%</div>
+          <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">
+            Overall conv.
+          </p>
+          <p className="text-[20px] font-bold text-slate-800">
+            {overallConv}%
+          </p>
         </div>
         <div className="text-right">
-          <div className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">Pipeline Value</div>
-          <div className="text-[18px] font-black text-slate-700">{fmt$(pipelineValue)}</div>
+          <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">
+            Pipeline value
+          </p>
+          <p className="text-[20px] font-bold text-slate-800">
+            {fmt$(pipelineValue)}
+          </p>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
-// ─── Revenue Forecast ─────────────────────────────────────────────────────────
+// ─── CAMPAIGN PERFORMANCE (NEW PANEL) ────────────────────────────────────────
 
-function RevenueForecast({
-  forecast, loading,
-}: { forecast?: { days30:number; days60:number; days90:number; activeDeals?:number; totalForecast?:number } | null; loading?: boolean }) {
-  if (loading) return <div className="h-32 flex items-center justify-center text-slate-400 text-sm">Loading…</div>;
+function CampaignPerformance({
+  sourcePerf,
+  totalLeads,
+}: {
+  sourcePerf: any[];
+  totalLeads: number;
+}) {
+  const blendedCpl =
+    totalLeads > 0 ? Math.round(AD_BUDGET.total / totalLeads) : null;
+  const cplStatus =
+    blendedCpl == null
+      ? "neutral"
+      : blendedCpl <= 80
+      ? "good"
+      : blendedCpl <= 120
+      ? "on-track"
+      : "over";
 
-  const d30 = forecast?.days30 ?? 0;
-  const d60 = forecast?.days60 ?? 0;
-  const d90 = forecast?.days90 ?? 0;
-  const total = d30 + d60 + d90;
-  const activeDeals = forecast?.activeDeals ?? 0;
-  const maxVal = Math.max(d30, d60, d90, 1);
+  const cplColor = {
+    good: "text-emerald-600",
+    "on-track": "text-blue-600",
+    over: "text-red-500",
+    neutral: "text-slate-400",
+  }[cplStatus];
 
-  if (total === 0) {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"#f8f9fb", border:"1px solid #e2e6ed" }}>
-          <span className="text-[16px]">📋</span>
-          <div>
-            <div className="text-[12px] font-bold text-slate-600">No upcoming closings</div>
-            <div className="text-[11px] text-slate-400">No deals with expected close dates in the next 90 days</div>
-          </div>
-        </div>
-        {activeDeals > 0 && (
-          <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"#eff6ff", border:"1px solid #bfdbfe" }}>
-            <span className="text-[16px]">🔄</span>
-            <div>
-              <div className="text-[12px] font-bold text-[#2563eb]">{activeDeals} active deal{activeDeals !== 1 ? "s" : ""} in pipeline</div>
-              <div className="text-[11px] text-slate-400">Add expected close dates to enable forecasting</div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  const bars = [
-    { label:"30d", value:d30, color:"linear-gradient(180deg,#7eb8f0,#4a90d9)" },
-    { label:"60d", value:d60, color:"linear-gradient(180deg,#7eb8f0,#4a90d9)" },
-    { label:"90d", value:d90, color:"linear-gradient(180deg,#7eb8f0,#4a90d9)" },
+  const channels = [
+    { name: "Google Search", budget: AD_BUDGET.google, icon: "🔍" },
+    { name: "Meta / FB + IG", budget: AD_BUDGET.meta, icon: "📘" },
+    { name: "Retargeting", budget: AD_BUDGET.retargeting, icon: "🎯" },
   ];
 
   return (
-    <div>
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        {bars.map(b => (
-          <div key={b.label} className="text-center">
-            <div className="text-[20px] font-black text-slate-800 leading-none">{b.value > 0 ? fmt$(b.value) : "—"}</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">{b.label}</div>
+    <Card>
+      <SectionHeader title="Campaign Performance" />
+
+      {/* CPL + Lead volume */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+          <p className="text-[10px] text-slate-400 uppercase tracking-wide font-medium mb-1">
+            Blended CPL
+          </p>
+          <p className={`text-[26px] font-bold leading-none ${cplColor}`}>
+            {blendedCpl != null ? `$${blendedCpl}` : "—"}
+          </p>
+          <p className="text-[10px] text-slate-400 mt-1.5">
+            Target: $80–$120
+          </p>
+        </div>
+        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+          <p className="text-[10px] text-slate-400 uppercase tracking-wide font-medium mb-1">
+            Total Leads
+          </p>
+          <p className="text-[26px] font-bold text-slate-800 leading-none">
+            {totalLeads}
+          </p>
+          <p className="text-[10px] text-slate-400 mt-1.5">
+            Target: 15–25 / mo
+          </p>
+        </div>
+      </div>
+
+      {/* Budget allocation bars */}
+      <div className="space-y-2.5 mb-4">
+        <p className="text-[10px] text-slate-400 uppercase tracking-wide font-medium">
+          Budget allocation · $3,000/mo
+        </p>
+        {channels.map((ch) => (
+          <div key={ch.name} className="flex items-center gap-2.5">
+            <span className="text-[13px] w-5 shrink-0">{ch.icon}</span>
+            <span className="text-[11px] text-slate-600 w-28 shrink-0">
+              {ch.name}
+            </span>
+            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-blue-400 rounded-full"
+                style={{
+                  width: `${pct(ch.budget, AD_BUDGET.total)}%`,
+                }}
+              />
+            </div>
+            <span className="text-[11px] font-semibold text-slate-700 shrink-0">
+              ${ch.budget.toLocaleString()}
+            </span>
           </div>
         ))}
       </div>
-      <div className="flex items-end gap-3 h-20 mb-2">
-        {bars.map(b => {
-          const h = maxVal > 0 ? Math.max((b.value/maxVal)*100, b.value > 0 ? 8 : 0) : 0;
-          return (
-            <div key={b.label} className="flex-1 flex flex-col items-center gap-0.5">
-              <div className="w-full flex items-end" style={{ height:72 }}>
-                <div className="w-full rounded-t-lg transition-all duration-700" style={{
-                  height:`${h}%`,
-                  background: b.value > 0 ? b.color : "#f1f3f7",
-                  minHeight: b.value > 0 ? 6 : 0,
-                  boxShadow: b.value > 0 ? "0 -2px 8px rgba(74,144,217,.3)" : "none",
-                }} />
-              </div>
-              <div className="text-[9px] text-slate-400">{b.label}</div>
-            </div>
-          );
-        })}
+
+      {/* Integration CTAs */}
+      <div className="flex gap-2">
+        <button className="flex-1 flex items-center justify-center gap-1.5 text-[10px] font-medium text-slate-400 border border-dashed border-slate-200 rounded-lg py-2 hover:border-blue-300 hover:text-blue-500 transition-colors">
+          <span>🔍</span> Connect Google Ads
+        </button>
+        <button className="flex-1 flex items-center justify-center gap-1.5 text-[10px] font-medium text-slate-400 border border-dashed border-slate-200 rounded-lg py-2 hover:border-blue-300 hover:text-blue-500 transition-colors">
+          <span>📘</span> Connect Meta Ads
+        </button>
       </div>
-      <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl" style={{ background:"#eff6ff", border:"1px solid #bfdbfe" }}>
-        <span className="text-[10px] text-slate-500 font-semibold">Total · {activeDeals} deal{activeDeals !== 1 ? "s" : ""}</span>
-        <span className="text-[13px] font-black text-[#2563eb]">{fmt$(total)}</span>
-      </div>
-    </div>
+    </Card>
   );
 }
 
-// ─── Inventory Health ─────────────────────────────────────────────────────────
+// ─── REVENUE FORECAST ─────────────────────────────────────────────────────────
 
-type InvItem = {
-  id: number; address: string; price: string; dom: number;
-  leadCount: number; tourCount: number;
-  healthFlag: "high_dom" | "zero_tours" | "high_interest_no_offer" | "ok";
-  imageUrl?: string | null;
-};
+function RevenueForecast({
+  forecast,
+}: {
+  forecast: { days30: number; days60: number; days90: number } | null;
+}) {
+  const bars = [
+    { label: "30d", value: forecast?.days30 ?? 0 },
+    { label: "60d", value: forecast?.days60 ?? 0 },
+    { label: "90d", value: forecast?.days90 ?? 0 },
+  ];
+  const total = bars.reduce((s, b) => s + b.value, 0);
+  const maxVal = Math.max(1, ...bars.map((b) => b.value));
 
-const HEALTH_FLAG_META: Record<string, { label: string; color: string; bg: string }> = {
-  high_dom:               { label:"High DOM",           color:"#d97706", bg:"rgba(245,158,11,.12)" },
-  zero_tours:             { label:"Zero Tours",         color:"#dc2626", bg:"rgba(239,68,68,.1)"  },
-  high_interest_no_offer: { label:"Interest, No Offer", color:"#7c3aed", bg:"rgba(124,58,237,.1)" },
-  ok:                     { label:"Healthy",            color:"#16a34a", bg:"rgba(34,197,94,.1)"  },
-};
-
-const PLACEHOLDER_IMG = "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=120&h=80&fit=crop&auto=format";
-
-function InventoryHealth({ items, loading }: { items: InvItem[]; loading?: boolean }) {
-  if (loading) return <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-14 rounded-xl bg-white/40 animate-pulse" />)}</div>;
-
-  const issues = items.filter(p => p.healthFlag !== "ok");
-  if (items.length === 0 || issues.length === 0) {
+  if (!total) {
     return (
-      <div className="flex items-center gap-2.5 p-3 rounded-xl" style={{ background:"#f0fdf4", border:"1px solid #bbf7d0" }}>
-        <span className="text-[18px]">✅</span>
-        <div>
-          <div className="text-[12px] font-bold text-emerald-700">All inventory performing normally</div>
-          <div className="text-[11px] text-emerald-600">{items.length} active listings · no flags</div>
+      <Card>
+        <SectionHeader title="Revenue Forecast" />
+        <div className="flex flex-col items-center justify-center py-6 text-center">
+          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-lg">
+            📋
+          </div>
+          <p className="text-[13px] font-medium text-slate-600">
+            No upcoming closings
+          </p>
+          <p className="text-[11px] text-slate-400 mt-1 max-w-[180px] leading-relaxed">
+            No deals with expected close dates in the next 90 days
+          </p>
         </div>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-2">
-      {issues.map(p => {
-        const meta = HEALTH_FLAG_META[p.healthFlag];
-        return (
-          <div key={p.id} className="flex items-center gap-2.5 p-2.5 rounded-xl" style={{ background:"#f8f9fb", border:"1px solid #e2e6ed" }}>
-            <img
-              src={p.imageUrl || PLACEHOLDER_IMG}
-              alt={p.address}
-              className="w-12 h-9 rounded-lg object-cover flex-shrink-0"
-              style={{ border:"1px solid #e2e6ed" }}
-              onError={e => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG; }}
+    <Card>
+      <SectionHeader title="Revenue Forecast" />
+      <div className="flex items-end justify-around gap-3 h-24 mb-3">
+        {bars.map((b) => (
+          <div key={b.label} className="flex flex-col items-center gap-1 flex-1">
+            <span className="text-[10px] font-semibold text-slate-700">
+              {fmt$(b.value)}
+            </span>
+            <div
+              className="w-full bg-blue-500 rounded-t-md"
+              style={{
+                height: `${Math.max(pct(b.value, maxVal), b.value ? 8 : 0)}%`,
+              }}
             />
-            <div className="flex-1 min-w-0">
-              <div className="text-[11px] font-semibold truncate text-gray-800">{p.address}</div>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: meta.bg, color: meta.color }}>
-                  {meta.label}
-                </span>
-                <span className="text-[10px] text-slate-400">{p.dom}d DOM</span>
-                <span className="text-[10px] text-slate-400">{p.leadCount} leads</span>
-                <span className="text-[10px] text-slate-400">{p.tourCount} tours</span>
-              </div>
-            </div>
-            <div className="flex-shrink-0 text-right">
-              <div className="text-[11px] font-black" style={{ color: meta.color }}>{p.price}</div>
-            </div>
+            <span className="text-[10px] text-slate-400">{b.label}</span>
           </div>
-        );
-      })}
-    </div>
+        ))}
+      </div>
+      <div className="pt-3 border-t border-slate-100 flex justify-between">
+        <span className="text-[11px] text-slate-400">90-day forecast</span>
+        <span className="text-[13px] font-bold text-slate-800">
+          {fmt$(total)}
+        </span>
+      </div>
+    </Card>
   );
 }
 
-// ─── Source Performance ───────────────────────────────────────────────────────
+// ─── INVENTORY HEALTH ─────────────────────────────────────────────────────────
 
-function SourcePerf({ rows, loading }: { rows: { source:string; label:string; leads:number; tours:number; contracts:number }[]; loading?: boolean }) {
-  if (loading) return <div className="text-sm text-gray-400">Loading…</div>;
-  const active = rows.filter(r => r.leads > 0);
-  if (active.length === 0) return <div className="text-[12px] py-2 text-gray-400">No leads yet.</div>;
-  const totalLeads = active.reduce((s,r) => s+r.leads, 0);
-  const totalContracts = active.reduce((s,r) => s+r.contracts, 0);
+function InventoryHealth({
+  health,
+  totalListings,
+}: {
+  health: { slowMoving: any[]; lowActivity: any[] } | null;
+  totalListings: number;
+}) {
+  const slowMoving = health?.slowMoving ?? [];
+  const lowActivity = health?.lowActivity ?? [];
+  const hasIssues = slowMoving.length > 0 || lowActivity.length > 0;
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-[11px]">
+    <Card>
+      <SectionHeader title="Inventory Health" />
+      {!hasIssues ? (
+        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100">
+          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+            <span className="text-white text-sm font-bold">✓</span>
+          </div>
+          <div>
+            <p className="text-[12px] font-semibold text-emerald-700">
+              All inventory performing normally
+            </p>
+            <p className="text-[11px] text-emerald-600 mt-0.5">
+              {totalListings} active listings · no flags
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {slowMoving.slice(0, 4).map((p: any) => (
+            <div
+              key={p.id}
+              className="flex items-center justify-between text-[11px] p-2.5 rounded-lg bg-amber-50 border border-amber-100"
+            >
+              <span className="text-slate-700 truncate max-w-[160px]">
+                {p.address}
+              </span>
+              <span className="text-amber-600 font-semibold shrink-0 ml-2">
+                {p.daysOnMarket}d DOM
+              </span>
+            </div>
+          ))}
+          {lowActivity.slice(0, 2).map((p: any) => (
+            <div
+              key={p.id}
+              className="flex items-center justify-between text-[11px] p-2.5 rounded-lg bg-slate-50 border border-slate-100"
+            >
+              <span className="text-slate-700 truncate max-w-[160px]">
+                {p.address}
+              </span>
+              <span className="text-slate-500 font-medium shrink-0 ml-2">
+                Low activity
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ─── SOURCE PERFORMANCE ───────────────────────────────────────────────────────
+
+const SOURCE_ICONS: Record<string, string> = {
+  google: "🔍",
+  meta: "📘",
+  facebook: "📘",
+  instagram: "📸",
+  zillow: "🏠",
+  referral: "🤝",
+  website: "🌐",
+  email: "📧",
+  retargeting: "🎯",
+};
+
+function SourcePerformance({ rows }: { rows: any[] }) {
+  const totalLeads = rows.reduce((s, r) => s + (r.leads ?? 0), 0);
+
+  return (
+    <Card>
+      <SectionHeader
+        title="Source Performance"
+        action={
+          <span className="text-[10px] text-slate-400 uppercase tracking-wide">
+            Past 60 days
+          </span>
+        }
+      />
+      <table className="w-full">
         <thead>
-          <tr style={{ borderBottom:"1px solid #e2e6ed" }}>
-            {["","LEADS","TOURS","CONTRACTS","REV"].map(h => (
-              <th key={h} className="text-left text-[9px] font-bold uppercase tracking-wider px-3 py-2 text-gray-400">{h}</th>
+          <tr className="border-b border-slate-100">
+            {["Source", "Leads", "Tours", "Contracts", "CPL"].map((h) => (
+              <th
+                key={h}
+                className="pb-2 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]"
+              >
+                {h}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {active.map(s => (
-            <tr key={s.source} style={{ borderBottom:"1px solid #f1f3f7" }} className="last:border-0">
-              <td className="px-3 py-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[12px]">{SOURCE_ICONS[s.source] ?? "📊"}</span>
-                  <span className="font-semibold text-gray-700">{s.label}</span>
-                </div>
+          {rows.length === 0 ? (
+            <tr>
+              <td
+                colSpan={5}
+                className="py-6 text-center text-[12px] text-slate-400"
+              >
+                No source data yet
               </td>
-              <td className="px-3 py-2 font-black text-gray-900">{s.leads}</td>
-              <td className="px-3 py-2 text-gray-500">{s.tours}</td>
-              <td className="px-3 py-2 font-semibold" style={{ color: "#34d399" }}>{s.contracts}</td>
-              <td className="px-3 py-2 font-bold" style={{ color: "#60a5fa" }}>{s.contracts > 0 ? fmt$(s.contracts*425_000) : "—"}</td>
             </tr>
-          ))}
-          {active.length > 1 && (
-            <tr style={{ borderTop:"1px solid #e2e6ed", background:"#f8f9fb" }}>
-              <td className="px-3 py-2 text-[10px] font-bold text-gray-400">TOTAL</td>
-              <td className="px-3 py-2 font-black text-gray-900">{totalLeads}</td>
-              <td className="px-3 py-2 text-gray-500">{active.reduce((s,r)=>s+r.tours,0)}</td>
-              <td className="px-3 py-2 font-black" style={{ color: "#34d399" }}>{totalContracts}</td>
-              <td className="px-3 py-2 font-black" style={{ color: "#60a5fa" }}>{totalContracts > 0 ? fmt$(totalContracts*425_000) : "—"}</td>
+          ) : (
+            rows.map((r) => {
+              const icon =
+                SOURCE_ICONS[r.source?.toLowerCase()] ?? "🌐";
+              const cpl =
+                r.leads > 0 && totalLeads > 0
+                  ? Math.round(AD_BUDGET.total / totalLeads)
+                  : null;
+              return (
+                <tr
+                  key={r.source}
+                  className="border-b border-slate-50 hover:bg-slate-50 transition-colors"
+                >
+                  <td className="py-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px]">{icon}</span>
+                      <span className="text-[12px] text-slate-700 capitalize">
+                        {r.source}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-2.5 text-[12px] font-semibold text-slate-800">
+                    {r.leads ?? 0}
+                  </td>
+                  <td className="py-2.5 text-[12px] text-slate-600">
+                    {r.tours ?? 0}
+                  </td>
+                  <td className="py-2.5 text-[12px]">
+                    <span
+                      className={
+                        (r.contracts ?? 0) > 0
+                          ? "text-emerald-600 font-semibold"
+                          : "text-slate-300"
+                      }
+                    >
+                      {r.contracts ?? 0}
+                    </span>
+                  </td>
+                  <td className="py-2.5 text-[12px] text-slate-500">
+                    {cpl ? `$${cpl}` : "—"}
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </Card>
+  );
+}
+
+// ─── RECENT ACTIVITY ──────────────────────────────────────────────────────────
+
+const AVATAR_COLORS = [
+  "bg-blue-600",
+  "bg-violet-600",
+  "bg-teal-600",
+  "bg-rose-600",
+  "bg-amber-600",
+];
+
+function RecentActivity({ items }: { items: any[] }) {
+  return (
+    <Card className="col-span-2">
+      <SectionHeader title="Recent Activity" />
+      <div className="space-y-3">
+        {items.slice(0, 8).map((item, i) => {
+          const name = item.contactName ?? "System";
+          const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
+          return (
+            <div key={item.id ?? i} className="flex items-start gap-3">
+              <div
+                className={`w-8 h-8 rounded-full ${color} flex items-center justify-center shrink-0`}
+              >
+                <span className="text-white text-[9px] font-bold">
+                  {initials(name)}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-slate-800 leading-tight">
+                  {name}
+                </p>
+                <p className="text-[11px] text-slate-500 truncate leading-snug mt-0.5">
+                  {item.description}
+                </p>
+              </div>
+              <span className="text-[10px] text-slate-400 whitespace-nowrap shrink-0 mt-0.5">
+                {relTime(item.createdAt)}
+              </span>
+            </div>
+          );
+        })}
+        {items.length === 0 && (
+          <p className="text-[12px] text-slate-400 text-center py-4">
+            No activity yet
+          </p>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+// ─── TODAY'S FOCUS ────────────────────────────────────────────────────────────
+
+function TodaysFocus({
+  contacts,
+  onOpen,
+}: {
+  contacts: any[];
+  onOpen: (id: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [stageFilter, setStageFilter] = useState("all");
+  const [scoreFilter, setScoreFilter] = useState("all");
+
+  const filtered = contacts.filter((c) => {
+    const name = [c.firstName, c.lastName].filter(Boolean).join(" ");
+    const matchSearch =
+      !search ||
+      name.toLowerCase().includes(search.toLowerCase()) ||
+      c.email?.toLowerCase().includes(search.toLowerCase());
+    const matchStage =
+      stageFilter === "all" || c.pipelineStage === stageFilter;
+    const matchScore =
+      scoreFilter === "all" || c.leadScore === scoreFilter;
+    return matchSearch && matchStage && matchScore;
+  });
+
+  return (
+    <Card>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-[14px] font-semibold text-slate-800">
+            Today's Focus
+          </h2>
+          <span className="text-[10px] text-slate-400">
+            sorted by urgency · {contacts.length} contacts
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search..."
+            className="text-[12px] px-3 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 w-40 transition-all"
+          />
+          <select
+            value={stageFilter}
+            onChange={(e) => setStageFilter(e.target.value)}
+            className="text-[12px] px-3 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400 bg-white"
+          >
+            <option value="all">All Stages</option>
+            {PIPELINE_STAGES.map((s) => (
+              <option key={s} value={s}>
+                {STAGE_LABELS[s]}
+              </option>
+            ))}
+          </select>
+          <select
+            value={scoreFilter}
+            onChange={(e) => setScoreFilter(e.target.value)}
+            className="text-[12px] px-3 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400 bg-white"
+          >
+            <option value="all">All Scores</option>
+            <option value="HOT">HOT</option>
+            <option value="WARM">WARM</option>
+            <option value="COLD">COLD</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Table */}
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-slate-100">
+            {[
+              "Name",
+              "Stage",
+              "Score",
+              "Primary Property",
+              "Timeline",
+              "Last Activity",
+              "Next Action",
+              "",
+            ].map((h) => (
+              <th
+                key={h}
+                className="pb-2.5 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]"
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map((c) => {
+            const name =
+              [c.firstName, c.lastName].filter(Boolean).join(" ") ||
+              c.email ||
+              "Unknown";
+            const isUrgent = c.buyerTimeline === "ASAP";
+            return (
+              <tr
+                key={c.id}
+                className="border-b border-slate-50 hover:bg-slate-50 group transition-colors"
+              >
+                <td className="py-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative">
+                      {isUrgent && (
+                        <div className="absolute -top-0.5 -left-0.5 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-white" />
+                      )}
+                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                        <span className="text-white text-[9px] font-bold">
+                          {initials(name)}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[12px] font-semibold text-slate-800 leading-tight">
+                        {name}
+                      </p>
+                      <p className="text-[10px] text-slate-400">{c.email}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-3">
+                  <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold">
+                    {STAGE_LABELS[c.pipelineStage] ?? c.pipelineStage}
+                  </span>
+                </td>
+                <td className="py-3">
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${scoreStyles(
+                      c.leadScore ?? "COLD"
+                    )}`}
+                  >
+                    {c.leadScore ?? "COLD"}
+                  </span>
+                </td>
+                <td className="py-3 text-[12px] text-slate-500 max-w-[140px] truncate">
+                  {c.primaryProperty ?? "—"}
+                </td>
+                <td className="py-3">
+                  <span
+                    className={`text-[11px] font-semibold ${
+                      isUrgent ? "text-red-500" : "text-slate-600"
+                    }`}
+                  >
+                    {c.buyerTimeline ?? "—"}
+                  </span>
+                </td>
+                <td className="py-3 text-[11px] text-slate-400">
+                  {relTime(c.updatedAt)}
+                </td>
+                <td className="py-3 text-[11px] text-slate-400 max-w-[120px] truncate">
+                  {c.nextActionNote ?? "—"}
+                </td>
+                <td className="py-3">
+                  <button
+                    onClick={() => onOpen(c.id)}
+                    className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-semibold opacity-0 group-hover:opacity-100 active:scale-95 transition-all"
+                  >
+                    Open →
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+          {filtered.length === 0 && (
+            <tr>
+              <td
+                colSpan={8}
+                className="py-10 text-center text-[12px] text-slate-400"
+              >
+                No contacts match your filters
+              </td>
             </tr>
           )}
         </tbody>
       </table>
-    </div>
+    </Card>
   );
 }
 
-// ─── Activity Feed ────────────────────────────────────────────────────────────
-
-function ActivityFeed({ items, loading }: {
-  items: { id:number; activityType:string; description:string; firstName?:string|null; lastName?:string|null; createdAt:Date|string }[];
-  loading?: boolean;
-}) {
-  if (loading) return <div className="space-y-2">{[1,2,3].map(i=><div key={i} className="h-10 rounded-xl animate-pulse bg-gray-100" />)}</div>;
-  if (items.length === 0) return <div className="text-[12px] py-2 text-gray-400">No recent activity.</div>;
-  return (
-    <div className="space-y-2">
-      {items.slice(0,8).map(a => (
-        <div key={a.id} className="flex items-center gap-2.5 p-2 rounded-xl" style={{ background:"#f8f9fb", border:"1px solid #e2e6ed" }}>
-          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
-            style={{ background:"linear-gradient(135deg,#4a90d9,#2563eb)" }}>
-            {a.firstName ? a.firstName.charAt(0).toUpperCase() : "?"}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-semibold truncate text-gray-800">
-              {a.firstName && a.lastName ? `${a.firstName} ${a.lastName}` : "System"}
-            </div>
-            <div className="text-[10px] truncate text-gray-500">{a.description}</div>
-          </div>
-          <div className="text-[9px] flex-shrink-0 text-gray-400">{timeAgo(a.createdAt)}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Today's Focus (Active Pipeline) ─────────────────────────────────────────
-
-type ContactRow = {
-  id: number; firstName: string; lastName: string; email: string; phone: string;
-  pipelineStage: string; leadScore?: string | null; timeline?: string | null;
-  updatedAt: Date | string;
-  lastContactedAt?: Date | string | null;
-  nextAction?: string | null;
-  primaryPropertyId?: number | null;
-};
-
-function urgencyScore(c: ContactRow): number {
-  let score = 0;
-  if (c.leadScore === "HOT")  score += 30;
-  if (c.leadScore === "WARM") score += 15;
-  if (c.pipelineStage === "OFFER_SUBMITTED")  score += 40;
-  if (c.pipelineStage === "UNDER_CONTRACT")   score += 35;
-  if (c.pipelineStage === "TOURED")           score += 25;
-  if (c.pipelineStage === "TOUR_SCHEDULED")   score += 20;
-  if (c.timeline === "ASAP")                  score += 20;
-  if (c.timeline === "1_3_MONTHS")            score += 10;
-  const lastContact = (c as any).lastContactedAt ?? c.updatedAt;
-  const hoursAgo = Math.floor((Date.now() - new Date(lastContact).getTime()) / 3_600_000);
-  if (hoursAgo > 72) score += 20;
-  else if (hoursAgo > 24) score += 10;
-  return score;
-}
-
-// ─── Main Dashboard ───────────────────────────────────────────────────────────
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 export default function SCOPSDashboard() {
-  const adminMeQuery = trpc.adminAuth.me.useQuery();
-  const adminUser = adminMeQuery.data;
-  const loading = adminMeQuery.isLoading;
+  const [, navigate] = useLocation();
 
-  const [, setLocation] = useLocation();
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [search, setSearch] = useState("");
-  const [stageFilter, setStageFilter] = useState<string>("ALL");
-  const [scoreFilter, setScoreFilter] = useState<string>("ALL");
-
-  const dashboardQuery = trpc.dashboard.overview.useQuery();
-  const statsQuery = trpc.leads.dashboardStats.useQuery({ sourcePeriod: "all" });
-  const contactsQuery = trpc.leads.list.useQuery({
-    pipelineStage: stageFilter !== "ALL" ? stageFilter as any : undefined,
-    leadScore: scoreFilter !== "ALL" ? scoreFilter as any : undefined,
+  // Core dashboard data
+  const { data, isLoading } = trpc.dashboard.overview.useQuery(undefined, {
+    refetchInterval: 60_000,
   });
 
-  if (loading) {
+  // Pipeline summary for stage counts
+  const { data: pipeline } = trpc.pipeline.summary.useQuery(undefined, {
+    refetchInterval: 60_000,
+  });
+
+  // Today's Focus: active leads sorted by urgency (pipeline.list sorted by urgencyScore)
+  const { data: leadsData } = trpc.pipeline.list.useQuery(
+    undefined,
+    { refetchInterval: 120_000 }
+  );
+  // Admin user for nav
+  const { data: adminUser } = trpc.auth.me.useQuery();
+
+  // Derived values
+  const inv = data?.inventoryStats;
+  const sourcePerf: any[] = data?.sourcePerformance ?? [];
+  const totalLeads = sourcePerf.reduce((s, r) => s + (r.leads ?? 0), 0);
+  const totalContracts = sourcePerf.reduce(
+    (s, r) => s + (r.contracts ?? 0),
+    0
+  );
+  const stageCounts: Record<string, number> =
+    Object.fromEntries((pipeline?.stageCounts ?? []).map((s: { stage: string; count: number }) => [s.stage, s.count]));
+
+  // Pipeline value: under-contract units × Pahrump median ($410K)
+  const pipelineValue = (inv?.underContract ?? 0) * 410_000;
+
+  // pipeline.list returns a flat array sorted by updatedAt; sort by urgencyScore client-side
+  const contacts: any[] = Array.isArray(leadsData)
+    ? [...leadsData].sort((a, b) => (b.urgencyScore ?? 0) - (a.urgencyScore ?? 0)).slice(0, 25)
+    : [];
+
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-sm text-gray-400">Loading…</div>
+      <div className="min-h-screen bg-slate-50">
+        <SCOPSNav adminUser={{ name: adminUser?.name ?? "Loading…", adminRole: (adminUser as any)?.adminRole ?? null }} currentPage="dashboard" />
+        <div className="max-w-[1200px] mx-auto px-6 py-8 space-y-4">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="h-24 rounded-2xl bg-white border border-slate-100 animate-pulse"
+            />
+          ))}
+        </div>
       </div>
     );
   }
 
-  if (!adminUser) {
-    window.location.href = "/admin-login";
-    return null;
-  }
-
-  if (selectedId !== null) {
-    return <LeadDetail id={selectedId} onBack={() => setSelectedId(null)} />;
-  }
-
-  const contacts = contactsQuery.data ?? [];
-  const dash = dashboardQuery.data;
-  const stageCounts = statsQuery.data?.stageCounts ?? [];
-  const inv = dash?.inventoryStats;
-  const forecast = dash?.revenueForecast;
-  const atRisk = (dash?.dealsAtRisk ?? []) as RiskDeal[];
-  const inventoryHealth = (dash?.inventoryHealth ?? []) as InvItem[];
-  const sourcePerf = dash?.sourcePerformance ?? [];
-  const activity = dash?.recentActivity ?? [];
-
-  // Sort contacts by urgency for Today's Focus
-  const filtered = contacts
-    .filter(c => {
-      if (!search) return true;
-      const q = search.toLowerCase();
-      return `${c.firstName} ${c.lastName}`.toLowerCase().includes(q)
-        || c.email.toLowerCase().includes(q)
-        || c.phone.toLowerCase().includes(q);
-    })
-    .sort((a, b) => urgencyScore(b as ContactRow) - urgencyScore(a as ContactRow));
-
-  // KPI bar %
-  const availablePct  = Math.min(((inv?.available ?? 0) / 30) * 100, 100);
-  const contractPct   = Math.min(((inv?.underContract ?? 0) / 15) * 100, 100);
-  const soldPct       = Math.min(((inv?.soldLast30 ?? 0) / 10) * 100, 100);
-  const revenuePct    = Math.min(((inv?.revenueMtd ?? 0) / 5_000_000) * 100, 100);
-  const toursPct      = Math.min(((dash?.toursThisWeek ?? 0) / 20) * 100, 100);
-  const absorptionPct = Math.min((dash?.absorptionRate ?? 0), 100);
-
   return (
-    <div className="scops-bg bg-gray-50 min-h-screen">
-      <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="dashboard" />
+    <div className="min-h-screen bg-slate-50">
+      <SCOPSNav adminUser={{ name: adminUser?.name ?? "Loading…", adminRole: (adminUser as any)?.adminRole ?? null }} currentPage="dashboard" />
+      <div className="max-w-[1200px] mx-auto px-6 py-6 space-y-4">
 
-      <div className="px-4 py-4 max-w-[1200px] mx-auto space-y-4">
+        {/* ── 1. CAMPAIGN GOAL STRIP ── */}
+        <CampaignGoalStrip
+          totalLeads={totalLeads}
+          toursThisWeek={data?.toursThisWeek ?? 0}
+          contracts={totalContracts}
+        />
 
-        {/* ── Row 1: KPI Cards ──────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-          <KpiCard label="Units Available"      value={inv?.available ?? "—"}                                   unit="units"  delta={2}  deltaLabel="this week"  barPct={availablePct}  colorIdx={0} loading={dashboardQuery.isLoading} />
-          <KpiCard label="Under Contract"       value={inv?.underContract ?? "—"}                               unit="units"  delta={1}  deltaLabel="vs last wk" barPct={contractPct}   colorIdx={1} loading={dashboardQuery.isLoading} />
-          <KpiCard label="Sold (30d)"           value={inv?.soldLast30 ?? "—"}                                  unit="units"  delta={-1} deltaLabel="vs last mo" barPct={soldPct}       colorIdx={2} loading={dashboardQuery.isLoading} />
-          <KpiCard label="Revenue MTD"          value={inv ? fmt$(inv.revenueMtd) : "—"}                                                                           barPct={revenuePct}    colorIdx={3} loading={dashboardQuery.isLoading} />
-          <KpiCard label="Tours This Week"      value={dash?.toursThisWeek ?? "—"}                              unit="tours"  delta={4}  deltaLabel="vs last wk" barPct={toursPct}      colorIdx={4} loading={dashboardQuery.isLoading} />
-          <KpiCard label="Absorption Rate"      value={dash?.absorptionRate != null ? `${dash.absorptionRate}%` : "—"}                                             barPct={absorptionPct} colorIdx={5} loading={dashboardQuery.isLoading} />
+        {/* ── 2. KPI ROW ── */}
+        <div className="grid grid-cols-6 gap-3">
+          <KpiCard
+            label="Units Available"
+            value={inv?.available ?? "—"}
+            sub="units"
+            delta={2}
+            deltaLabel="this week"
+          />
+          <KpiCard
+            label="Under Contract"
+            value={inv?.underContract ?? "—"}
+            sub="units"
+            delta={1}
+            deltaLabel="vs last wk"
+          />
+          <KpiCard
+            label="Sold (30D)"
+            value={inv?.soldLast30 ?? 0}
+            sub="units"
+            delta={(inv?.soldLast30 ?? 0) - 1}
+            deltaLabel="vs last mo"
+            goalPct={pct(inv?.soldLast30 ?? 0, M1.contracts)}
+          />
+          <KpiCard
+            label="Revenue MTD"
+            value={fmt$(inv?.revenueMtd ?? 0)}
+            sub={!inv?.revenueMtd ? "no closings yet" : undefined}
+          />
+          <KpiCard
+            label="Tours This Week"
+            value={data?.toursThisWeek ?? 0}
+            sub="tours"
+            delta={data?.toursThisWeek ?? 0}
+            deltaLabel="vs last wk"
+            goalPct={pct(
+              (data?.toursThisWeek ?? 0) * 4,
+              M1.consultations
+            )}
+            goalLabel="Monthly pace"
+          />
+          <KpiCard
+            label="Absorption Rate"
+            value={`${data?.absorptionRate ?? 0}%`}
+            sub="sold / available"
+          />
         </div>
 
-        {/* ── Row 2: DEALS AT RISK (Primary Action Center) ─────────────── */}
-        <GC>
-          <div className="flex flex-wrap items-start gap-2 mb-3">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <SH>Deals at Risk</SH>
-              {atRisk.length > 0 && (
-                <span className="flex-shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full text-white" style={{ background:"#ef4444" }}>
-                  {atRisk.length} need action
-                </span>
-              )}
-            </div>
-            <span className="text-[10px] text-gray-400 self-center">Leads not contacted in 48+ hours · sorted by urgency</span>
-          </div>
-          <DealsAtRisk deals={atRisk} loading={dashboardQuery.isLoading} onView={setSelectedId} />
-        </GC>
+        {/* ── 3. DEALS AT RISK ── */}
+        {(data?.dealsAtRisk?.length ?? 0) > 0 && (
+          <DealsAtRisk
+            deals={data?.dealsAtRisk ?? []}
+            onFollowUp={(id) => navigate(`/scops/pipeline?lead=${id}`)}
+          />
+        )}
 
-        {/* ── Row 3: Pipeline + Revenue Forecast + Inventory Health ─────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-          <GC>
-            <SH>Pipeline Funnel</SH>
-            {statsQuery.isLoading
-              ? <div className="text-sm py-4" style={{ color: "rgba(255,255,255,0.40)" }}>Loading…</div>
-              : <PipelineFunnel stageCounts={stageCounts} />
-            }
-          </GC>
-          <GC>
-            <SH>Revenue Forecast</SH>
-            <RevenueForecast forecast={forecast as any} loading={dashboardQuery.isLoading} />
-          </GC>
-          <GC>
-            <SH>Inventory Health</SH>
-            <InventoryHealth items={inventoryHealth} loading={dashboardQuery.isLoading} />
-          </GC>
+        {/* ── 4. PIPELINE | CAMPAIGN | INVENTORY ── */}
+        <div className="grid grid-cols-3 gap-4">
+          <PipelineFunnel
+            stageCounts={stageCounts}
+            pipelineValue={pipelineValue}
+          />
+          <CampaignPerformance
+            sourcePerf={sourcePerf}
+            totalLeads={totalLeads}
+          />
+          <InventoryHealth
+            health={data?.inventoryHealth ? {
+              slowMoving: (data.inventoryHealth as any[]).filter((p: any) => p.healthFlag === "high_dom"),
+              lowActivity: (data.inventoryHealth as any[]).filter((p: any) => p.healthFlag !== "ok" && p.healthFlag !== "high_dom"),
+            } : null}
+            totalListings={inv?.available ?? 0}
+          />
         </div>
 
-        {/* ── Row 4: Source Performance + Activity Feed ─────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          <GC noPad>
-            <div className="px-4 pt-4 pb-2"><SH>Source Performance</SH></div>
-            <SourcePerf rows={sourcePerf} loading={dashboardQuery.isLoading} />
-            <div className="h-3" />
-          </GC>
-          <GC>
-            <SH>Recent Activity</SH>
-            <ActivityFeed items={activity} loading={dashboardQuery.isLoading} />
-          </GC>
+        {/* ── 5. SOURCE PERFORMANCE | REVENUE FORECAST | ACTIVITY ── */}
+        <div className="grid grid-cols-3 gap-4">
+          <SourcePerformance rows={sourcePerf} />
+          <RevenueForecast forecast={data?.revenueForecast ?? null} />
+          <RecentActivity items={data?.recentActivity ?? []} />
         </div>
 
-        {/* ── Row 5: Today's Focus (Active Pipeline) ────────────────────── */}
-        <GC noPad>
-          <div className="px-4 pt-4 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-baseline gap-2">
-              <SH>Today's Focus</SH>
-              <span className="text-[10px] font-medium -mt-1 text-gray-400">sorted by urgency · {filtered.length} contacts</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Input
-                placeholder="Search…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="h-7 text-[11px] w-36"
-                style={{ background:"#ffffff", border:"1px solid #e2e6ed" }}
-              />
-              <Select value={stageFilter} onValueChange={setStageFilter}>
-                <SelectTrigger className="h-7 text-[11px] w-32" style={{ background:"#ffffff", border:"1px solid #e2e6ed" }}>
-                  <SelectValue placeholder="All Stages" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Stages</SelectItem>
-                  {PIPELINE_STAGES.map(s => <SelectItem key={s} value={s}>{STAGE_LABELS[s]}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                <SelectTrigger className="h-7 text-[11px] w-24" style={{ background:"#ffffff", border:"1px solid #e2e6ed" }}>
-                  <SelectValue placeholder="Score" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Scores</SelectItem>
-                  <SelectItem value="HOT">Hot</SelectItem>
-                  <SelectItem value="WARM">Warm</SelectItem>
-                  <SelectItem value="COLD">Cold</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {contactsQuery.isLoading ? (
-            <div className="text-sm px-4 pb-4 text-gray-400">Loading contacts…</div>
-          ) : filtered.length === 0 ? (
-            <div className="text-sm px-4 pb-6 text-center py-8 text-gray-400">
-              {contacts.length === 0 ? "No contacts yet." : "No contacts match the current filters."}
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-[11px]">
-                <thead>
-                  <tr style={{ borderBottom:"1px solid #e2e6ed", background:"#f8f9fb" }}>
-                    {["Name","Stage","Score","PDF DLs","Primary Property","Timeline","Last Activity","Next Action",""].map(h => (
-                      <th key={h} className="text-left text-[9px] font-bold uppercase tracking-wider px-4 py-2.5 whitespace-nowrap text-gray-400">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((c) => {
-                    const sp = STAGE_PILL[c.pipelineStage] ?? { bg:"rgba(0,0,0,.06)", text:"#64748b" };
-                    const sc = c.leadScore ? SCORE_PILL[c.leadScore] : null;
-                    const uScore = urgencyScore(c as ContactRow);
-                    return (
-                      <tr
-                        key={c.id}
-                        className="cursor-pointer transition-colors"
-                        style={{ borderBottom:"1px solid #f1f3f7" }}
-                        onMouseEnter={e => (e.currentTarget.style.background = "#f8f9fb")}
-                        onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                        onClick={() => setSelectedId(c.id)}
-                      >
-                        <td className="px-4 py-2.5">
-                          <div className="flex items-center gap-1.5">
-                            {uScore >= 60 && <div className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" title="High urgency" />}
-                            {uScore >= 30 && uScore < 60 && <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" title="Medium urgency" />}
-                            <div>
-                              <div className="font-semibold text-gray-900">{c.firstName} {c.lastName}</div>
-                              <div className="text-[10px] text-gray-400">{c.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background:sp.bg, color:sp.text }}>
-                            {STAGE_LABELS[c.pipelineStage]}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          {sc ? (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background:sc.bg, color:sc.text }}>
-                              {c.leadScore}
-                            </span>
-                          ) : <span className="text-gray-300">—</span>}
-                        </td>
-                        <td className="px-4 py-2.5 text-center">
-                          {(c as any).pdfDownloadCount > 0 ? (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "#eff6ff", color: "#2563eb" }}>
-                              📄 {(c as any).pdfDownloadCount}
-                            </span>
-                          ) : <span className="text-gray-300">—</span>}
-                        </td>
-                        <td className="px-4 py-2.5 max-w-[120px] truncate text-gray-500">
-                          {(c as any).primaryPropertyId ? `#${(c as any).primaryPropertyId}` : "—"}
-                        </td>
-                        <td className="px-4 py-2.5 text-gray-500">{fmtTimeline(c.timeline)}</td>
-                        <td className="px-4 py-2.5 text-gray-400">{timeAgo((c as any).lastContactedAt ?? c.updatedAt)}</td>
-                        <td className="px-4 py-2.5 max-w-[140px] truncate text-gray-500">{(c as any).nextAction ?? "—"}</td>
-                        <td className="px-4 py-2.5">
-                          <button
-                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all"
-                            style={{ background:"#f1f3f7", border:"1px solid #e2e6ed", color:"#374151" }}
-                            onClick={e => { e.stopPropagation(); setSelectedId(c.id); }}
-                          >
-                            Open →
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-          <div className="h-2" />
-        </GC>
+        {/* ── 6. TODAY'S FOCUS ── */}
+        <TodaysFocus
+          contacts={contacts}
+          onOpen={(id) => navigate(`/scops/pipeline?lead=${id}`)}
+        />
 
       </div>
     </div>
