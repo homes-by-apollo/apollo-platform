@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -177,6 +178,123 @@ function LeadFunnelChart() {
   );
 }
 
+/** Blog Post quick-action card — shows recent posts + link to Content tab */
+function BlogPostCard() {
+  const { data: posts, isLoading } = trpc.blog.getAll.useQuery();
+  const [, setLocation] = useLocation();
+  const recent = posts?.slice(0, 3) ?? [];
+  return (
+    <GlassCard>
+      <SH
+        title="Blog Posts"
+        action={
+          <button
+            onClick={() => setLocation("/scops/blog")}
+            style={{ fontSize: 11, color: "#6366f1", background: "none", border: "none", cursor: "pointer", fontWeight: 600 }}
+          >
+            Manage →
+          </button>
+        }
+      />
+      <div style={{ padding: "10px 16px 14px" }}>
+        {isLoading ? (
+          <div style={{ fontSize: 12, color: "rgba(15,32,68,0.35)", padding: "8px 0" }}>Loading…</div>
+        ) : recent.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "16px 0" }}>
+            <div style={{ fontSize: 24, marginBottom: 6 }}>✍️</div>
+            <div style={{ fontSize: 12, color: "rgba(15,32,68,0.40)" }}>No posts yet</div>
+            <button
+              onClick={() => setLocation("/scops/blog")}
+              style={{ marginTop: 10, padding: "6px 16px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#0f2044", color: "#fff", border: "none", cursor: "pointer" }}
+            >
+              Write First Post
+            </button>
+          </div>
+        ) : (
+          <>
+            {recent.map((post: any) => (
+              <div
+                key={post.id}
+                style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid rgba(15,32,68,0.07)" }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {post.title}
+                  </div>
+                  <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginTop: 2 }}>
+                    {post.status === "published" ? "Published" : "Draft"}
+                    {post.publishedAt ? ` · ${new Date(post.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : ""}
+                  </div>
+                </div>
+                <span
+                  style={{
+                    fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+                    background: post.status === "published" ? "rgba(34,197,94,0.12)" : "rgba(245,158,11,0.12)",
+                    color: post.status === "published" ? "#16a34a" : "#b45309",
+                  }}
+                >
+                  {post.status === "published" ? "Live" : "Draft"}
+                </span>
+              </div>
+            ))}
+            <button
+              onClick={() => setLocation("/scops/blog")}
+              style={{ marginTop: 10, width: "100%", padding: "7px 0", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(99,102,241,0.08)", color: "#6366f1", border: "1px solid rgba(99,102,241,0.25)", cursor: "pointer" }}
+            >
+              + New Blog Post
+            </button>
+          </>
+        )}
+      </div>
+    </GlassCard>
+  );
+}
+
+/** Landing Pages management card */
+function LandingPagesCard() {
+  const pages = [
+    { name: "Get In Touch", path: "/get-in-touch", desc: "Primary lead capture form", status: "live" },
+    { name: "Find Your Home", path: "/find-your-home", desc: "Browse available homes", status: "live" },
+    { name: "Homepage", path: "/", desc: "Main marketing page", status: "live" },
+  ];
+  return (
+    <GlassCard>
+      <SH title="Landing Pages" />
+      <div style={{ padding: "10px 16px 14px" }}>
+        {pages.map((page) => (
+          <div
+            key={page.path}
+            style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: "1px solid rgba(15,32,68,0.07)" }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,32,68,0.85)" }}>{page.name}</div>
+              <div style={{ fontSize: 10, color: "rgba(15,32,68,0.40)", marginTop: 1 }}>{page.desc}</div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span
+                style={{
+                  fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+                  background: "rgba(34,197,94,0.12)", color: "#16a34a",
+                }}
+              >
+                Live
+              </span>
+              <a
+                href={`https://apollohomebuilders.com${page.path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: 11, color: "#6366f1", textDecoration: "none", fontWeight: 600 }}
+              >
+                ↗
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </GlassCard>
+  );
+}
+
 export default function SCOPSUtmBuilder() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
@@ -322,7 +440,14 @@ export default function SCOPSUtmBuilder() {
 
         {/* RIGHT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {selectedChannel ? (
+          {/* Blog Post Card */}
+          <BlogPostCard />
+
+          {/* Landing Pages Card */}
+          <LandingPagesCard />
+
+          {/* Channel detail panel */}
+          {selectedChannel && (
             <GlassCard>
               <SH title={selectedChannel} action={<button onClick={() => setSelectedChannel(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: 16 }}>×</button>} />
               <div style={{ padding: 16 }}>
@@ -347,14 +472,8 @@ export default function SCOPSUtmBuilder() {
                 })()}
               </div>
             </GlassCard>
-          ) : (
-            <GlassCard>
-              <div style={{ padding: 24, textAlign: "center", color: "rgba(15,32,68,0.35)", fontSize: 13 }}>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>📊</div>
-                <div>Click a channel to<br />see performance details</div>
-              </div>
-            </GlassCard>
           )}
+
           <GlassCard style={{ flex: 1 }}>
             <SH title="Parameter Guide" />
             <div style={{ padding: "10px 16px 14px" }}>

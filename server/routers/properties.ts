@@ -88,4 +88,12 @@ export const propertiesRouter = router({
       await deleteProperty(input.id);
       return { success: true };
     }),
+
+  // Cache geocoded coordinates on first lookup
+  saveCoordinates: adminOnly
+    .input(z.object({ id: z.number(), lat: z.number(), lng: z.number() }))
+    .mutation(async ({ input }) => {
+      await updateProperty(input.id, { lat: input.lat, lng: input.lng });
+      return { success: true };
+    }),
 });

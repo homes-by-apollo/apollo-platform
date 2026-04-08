@@ -1,6 +1,7 @@
 import {
   boolean,
   decimal,
+  double,
   int,
   mysqlEnum,
   mysqlTable,
@@ -219,6 +220,10 @@ export const properties = mysqlTable("properties", {
 
   // Description
   description: text("description"),
+
+  // Geocoded coordinates — cached on first lookup to avoid repeated Geocoder API calls
+  lat: double("lat"),
+  lng: double("lng"),
 
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

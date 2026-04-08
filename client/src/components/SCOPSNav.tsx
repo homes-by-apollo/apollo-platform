@@ -12,20 +12,20 @@ type NavSection = {
   soon?: boolean;
 };
 
+// Main nav tabs — Settings removed, lives in profile dropdown now
 const NAV_SECTIONS: NavSection[] = [
   { label: "Dashboard",  key: "dashboard",   path: "/scops" },
   { label: "Pipeline",   key: "scheduling",  path: "/scops/scheduling" },
   { label: "Inventory",  key: "properties",  path: "/scops/properties" },
-  { label: "Marketing",  key: "utm-builder", path: "/scops/utm-builder" },
+  { label: "Campaigns",  key: "utm-builder", path: "/scops/utm-builder" },
   { label: "Content",    key: "blog",        path: "/scops/blog" },
-  { label: "Settings",   key: "settings",    path: "/scops/settings" },
 ];
 
 const PAGE_TO_SECTION: Record<string, string> = {
   dashboard:     "dashboard",
   scheduling:    "Pipeline",
   properties:    "Inventory",
-  "utm-builder": "Marketing",
+  "utm-builder": "Campaigns",
   blog:          "Content",
   users:         "Admin",
   settings:      "Settings",
@@ -49,6 +49,54 @@ function LiveClock() {
       <span className="text-[20px] font-semibold tabular-nums tracking-tight text-gray-900">{time}</span>
       <span className="text-[15px] font-medium text-gray-400">{date}</span>
     </div>
+  );
+}
+
+// Icon components
+function IconUser() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+  );
+}
+function IconTeam() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  );
+}
+function IconIntegrations() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+      <rect x="2" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/><rect x="9" y="15" width="6" height="6" rx="1"/>
+      <path d="M5 9v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M12 13v2"/>
+    </svg>
+  );
+}
+function IconSettings() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  );
+}
+function IconGlobe() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+      <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+  );
+}
+function IconDashboard() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+      <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+    </svg>
   );
 }
 
@@ -189,38 +237,70 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
 
             {userMenuOpen && (
               <div
-                className="absolute right-0 top-full mt-2 w-52 rounded-xl shadow-lg border border-gray-200 bg-white py-1 z-50"
+                className="absolute right-0 top-full mt-2 w-56 rounded-xl shadow-lg border border-gray-200 bg-white py-1 z-50"
                 style={{ boxShadow: "0 8px 24px rgba(15,23,42,0.12)" }}
               >
+                {/* User info header */}
                 <div className="px-4 py-2.5 border-b border-gray-100">
                   <div className="text-sm font-semibold text-gray-900 truncate">{adminUser.name}</div>
                   <div className="text-xs text-gray-400 mt-0.5">SCOPS Admin</div>
                 </div>
-                <button
-                  onClick={() => { setUserMenuOpen(false); setLocation("/scops"); }}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Dashboard
-                </button>
-                <button
-                  onClick={() => { window.location.href = "/"; }}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  View Public Site
-                </button>
-                <div className="border-t border-gray-100 mt-1 pt-1">
-                  <div className="px-4 py-1.5">
-                    <span className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Admin Controls</span>
-                  </div>
+
+                {/* Quick nav */}
+                <div className="py-1">
                   <button
-                    onClick={() => { setUserMenuOpen(false); setLocation("/scops/users"); }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                    onClick={() => { setUserMenuOpen(false); setLocation("/scops"); }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2.5"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    Manage Users
+                    <IconDashboard />
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); window.location.href = "/"; }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2.5"
+                  >
+                    <IconGlobe />
+                    View Public Site
                   </button>
                 </div>
-                <div className="border-t border-gray-100 mt-1 pt-1">
+
+                {/* Account section */}
+                <div className="border-t border-gray-100 py-1">
+                  <div className="px-4 py-1.5">
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Account</span>
+                  </div>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); toast.info("Profile — coming soon"); }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2.5"
+                  >
+                    <IconUser />
+                    Profile
+                  </button>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); setLocation("/scops/users"); }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2.5"
+                  >
+                    <IconTeam />
+                    Team
+                  </button>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); toast.info("Integrations — coming soon"); }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2.5"
+                  >
+                    <IconIntegrations />
+                    Integrations
+                  </button>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); setLocation("/scops/settings"); }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2.5"
+                  >
+                    <IconSettings />
+                    Settings
+                  </button>
+                </div>
+
+                {/* Sign out */}
+                <div className="border-t border-gray-100 py-1">
                   <button
                     onClick={() => { setUserMenuOpen(false); logoutMutation.mutate(); }}
                     disabled={logoutMutation.isPending}
@@ -281,6 +361,19 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
               </button>
             );
           })}
+          {/* Settings in mobile menu too */}
+          <button
+            onClick={() => { setMobileMenuOpen(false); setLocation("/scops/settings"); }}
+            className="w-full text-left px-4 py-3 text-[15px] font-medium border-b border-gray-50 last:border-0 transition-colors"
+            style={{
+              color: currentPage === "settings" ? "#111827" : "#374151",
+              background: currentPage === "settings" ? "#f3f4f6" : "transparent",
+              fontWeight: currentPage === "settings" ? 700 : 500,
+              borderLeft: currentPage === "settings" ? "3px solid #2563eb" : "3px solid transparent",
+            }}
+          >
+            Settings
+          </button>
         </div>
       )}
     </div>

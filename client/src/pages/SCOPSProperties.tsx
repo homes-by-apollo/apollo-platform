@@ -391,6 +391,7 @@ export default function SCOPSProperties() {
   const [mapReady, setMapReady] = useState(false);
 
   const utils = trpc.useUtils();
+  const saveCoordinatesMutation = trpc.properties.saveCoordinates.useMutation();
   const propertiesQuery = trpc.properties.getAll.useQuery(
     typeFilter !== "ALL" ? { propertyType: typeFilter as PropertyType } : undefined
   );
@@ -456,49 +457,70 @@ export default function SCOPSProperties() {
       return;
     }
 
-    const geocoder = new google.maps.Geocoder();
     const bounds = new google.maps.LatLngBounds();
     let resolved = 0;
 
+    // Helper: place a pin and extend bounds
+    function placePin(prop: (typeof properties)[0], lat: number, lng: number) {
+      const loc = { lat, lng };
+      bounds.extend(loc);
+      const pinColor = TAG_PIN_COLORS[prop.tag] ?? "#6366f1";
+      const pinEl = document.createElement("div");
+      pinEl.style.cssText = `width:24px;height:24px;border-radius:50% 50% 50% 0;background:${pinColor};border:2px solid white;transform:rotate(-45deg);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:1000;`;
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: loc,
+        content: pinEl,
+        title: prop.address,
+        zIndex: 1000,
+      });
+      marker.addListener("click", () => setSelectedProperty(prop as Property));
+      markersRef.current.push(marker);
+    }
+
+    // Helper: after all properties resolved, fit bounds
+    const mapNonNull = map!;
+    function checkDone() {
+      resolved++;
+      if (resolved === properties.length) {
+        if (!bounds.isEmpty()) {
+          mapNonNull.fitBounds(bounds, { top: 60, right: 60, bottom: 80, left: 60 });
+          const listener = google.maps.event.addListenerOnce(mapNonNull, "idle", () => {
+            if ((mapNonNull.getZoom() ?? 0) > 15) mapNonNull.setZoom(15);
+          });
+          void listener;
+        } else {
+          mapNonNull.setCenter(PAHRUMP_CENTER);
+          mapNonNull.setZoom(11);
+        }
+      }
+    }
+
+    const geocoder = new google.maps.Geocoder();
+
     properties.forEach(prop => {
-      // Build the cleanest possible address string for geocoding
+      // Cache hit: use stored coordinates instantly, no API call needed
+      if (prop.lat != null && prop.lng != null) {
+        placePin(prop, prop.lat, prop.lng);
+        checkDone();
+        return;
+      }
+
+      // Cache miss: geocode the address, then save to DB for next time
       const fullAddress = prop.address.includes(prop.city)
-        ? prop.address  // address already contains city (e.g. "480 E Arapahoe St, Pahrump, NV 89048")
+        ? prop.address
         : `${prop.address}, ${prop.city}, ${prop.state}`;
 
       geocoder.geocode({ address: fullAddress }, (results, status) => {
-        resolved++;
         if (status === "OK" && results?.[0]) {
           const loc = results[0].geometry.location;
-          bounds.extend(loc);
-          const pinColor = TAG_PIN_COLORS[prop.tag] ?? "#6366f1";
-          const pinEl = document.createElement("div");
-          pinEl.style.cssText = `width:24px;height:24px;border-radius:50% 50% 50% 0;background:${pinColor};border:2px solid white;transform:rotate(-45deg);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:1000;`;
-          const marker = new google.maps.marker.AdvancedMarkerElement({
-            map,
-            position: loc,
-            content: pinEl,
-            title: prop.address,
-            zIndex: 1000,
-          });
-          marker.addListener("click", () => setSelectedProperty(prop as Property));
-          markersRef.current.push(marker);
+          const lat = loc.lat();
+          const lng = loc.lng();
+          placePin(prop, lat, lng);
+          // Persist so next load is instant
+          saveCoordinatesMutation.mutate({ id: prop.id, lat, lng });
         }
-
-        // After all geocodes complete, fit map to show all markers
-        if (resolved === properties.length) {
-          if (!bounds.isEmpty()) {
-            map.fitBounds(bounds, { top: 60, right: 60, bottom: 80, left: 60 });
-            const listener = google.maps.event.addListenerOnce(map, "idle", () => {
-              if ((map.getZoom() ?? 0) > 15) map.setZoom(15);
-            });
-            void listener;
-          } else {
-            // All geocodes failed — fall back to Pahrump center
-            map.setCenter(PAHRUMP_CENTER);
-            map.setZoom(11);
-          }
-        }
+        checkDone();
       });
     });
   }, [mapReady, propertiesQuery.data]);
