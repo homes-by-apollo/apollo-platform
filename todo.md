@@ -929,3 +929,15 @@
 - [x] Add createContract/updateContract/deleteContract/listContracts procedures to crmExtras router
 - [x] Add Contracts section to lead profile (LeadDetail.tsx)
 - [x] Add Campaigns page header with New Post shortcut button
+
+## Layout Consistency
+- [x] Apply max-width: 1200px + margin: 0 auto to all SCOPS pages for consistent layout
+  - SCOPSDashboard: already had max-w-[1200px] mx-auto
+  - SCOPSPipeline: added 1200px inner wrapper to KPI bar and filter bar
+  - SCOPSProperties: added 1200px inner wrapper to KPI stats bar and filter bar
+  - SCOPSScheduling: changed max-w-screen-xl to maxWidth: 1200
+  - SCOPSUsers: added maxWidth: 1200 to main content flex container
+  - SCOPSUtmBuilder: added 1200px wrapper to page header, content section, filter bar, and 3-col body
+  - SCOPSBlog: added 1200px wrapper to KPI row and main body
+  - SCOPSSettings: intentionally left at narrow (672px)
+  - SCOPSEngine: already had maxWidth: 1200, margin: '0 auto'

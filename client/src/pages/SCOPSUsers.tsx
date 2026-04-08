@@ -148,7 +148,7 @@ export default function SCOPSUsers() {
     >
       <SCOPSNav adminUser={{ name: adminUser?.name ?? "", adminRole: (adminUser as any)?.adminRole }} currentPage="users" />
 
-      <div className="flex h-[calc(100vh-56px)]">
+      <div style={{ maxWidth: 1200, margin: "0 auto" }} className="flex h-[calc(100vh-56px)]">
         {/* ── Left: User List ── */}
         <div className="w-80 flex-shrink-0 p-5 flex flex-col gap-4 overflow-y-auto border-r" style={{ borderColor: "rgba(255,255,255,0.50)" }}>
           {/* Header */}

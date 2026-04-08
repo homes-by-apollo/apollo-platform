@@ -788,6 +788,7 @@ export default function SCOPSPipeline() {
         const maxRate = Math.max(...conversions.map(c => c.rate), 1);
         return (
           <div style={{ background: "#ffffff", borderBottom: "1px solid #e2e6ed" }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             {/* Row 1: KPI numbers */}
             <div style={{ padding: "8px 16px", display: "flex", flexWrap: "wrap", gap: "8px 20px", alignItems: "center", borderBottom: "1px solid #e2e6ed" }}>
               {[
@@ -830,12 +831,14 @@ export default function SCOPSPipeline() {
                 );
               })}
             </div>
+            </div>
           </div>
         );
       })()}
 
       {/* Filter Bar */}
-      <div style={{ padding: "10px 12px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+      <div style={{ background: "#ffffff", borderBottom: "1px solid #e2e6ed" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 12px", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
         <button style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: "#ffffff", border: "1px solid #e2e6ed", color: "rgba(15,32,68,0.75)", cursor: "pointer" }}>≡ Stage</button>
         <div style={{ position: "relative" }}>
           <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={{ appearance: "none", padding: "6px 28px 6px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", background: filterStage ? "#eff6ff" : "#ffffff", border: filterStage ? "1px solid #bfdbfe" : "1px solid #e2e6ed", color: filterStage ? "#1d4ed8" : "#374151", outline: "none" }}>
@@ -859,6 +862,7 @@ export default function SCOPSPipeline() {
         <div style={{ minWidth: 120, maxWidth: 300, flex: 1 }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search leads…" style={{ width: "100%", padding: "7px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
         </div>
+      </div>
       </div>
 
       {/* Kanban + Detail Panel Body */}

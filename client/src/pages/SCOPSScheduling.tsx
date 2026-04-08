@@ -196,7 +196,7 @@ export default function SCOPSScheduling() {
       {/* Nav */}
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="scheduling" />
 
-      <div className="px-6 py-6 max-w-screen-xl mx-auto space-y-6">
+      <div className="px-6 py-6 space-y-6" style={{ maxWidth: 1200, margin: "0 auto" }}>
 
         {/* Page header */}
         <div className="flex items-center justify-between">

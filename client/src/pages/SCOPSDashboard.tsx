@@ -662,7 +662,7 @@ export default function SCOPSDashboard() {
     <div className="scops-bg bg-gray-50 min-h-screen">
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="dashboard" />
 
-      <div className="px-4 py-4 max-w-screen-2xl mx-auto space-y-4">
+      <div className="px-4 py-4 max-w-[1200px] mx-auto space-y-4">
 
         {/* ── Row 1: KPI Cards ──────────────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">

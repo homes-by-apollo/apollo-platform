@@ -647,7 +647,8 @@ export default function SCOPSBlog() {
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="utm-builder" />
 
       {/* ── KPI Row ── */}
-      <div style={{ padding: "14px 20px", background: "#f8f9fb", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 12, alignItems: "stretch", flexWrap: "wrap" }}>
+      <div style={{ background: "#f8f9fb", borderBottom: "1px solid #e2e6ed" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 20px", display: "flex", gap: 12, alignItems: "stretch", flexWrap: "wrap" }}>
         {[
           { icon: "✈️", label: "Total Posts", value: `${totalPosts} posts` },
           { icon: "⭐", label: "Featured", value: `${featuredCount}` },
@@ -664,9 +665,10 @@ export default function SCOPSBlog() {
         ))}
         <button onClick={() => setShowModal(true)} style={{ marginLeft: "auto", padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 700, background: "#f8f9fb", border: "1px solid rgba(0,0,0,0.12)", color: "#111827", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>+ New Post</button>
       </div>
+      </div>
 
       {/* ── Main Body ── */}
-      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16, padding: 16, overflow: "auto" }} className="md:grid-cols-[1fr_300px]">
+      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16, padding: 16, overflow: "auto", maxWidth: 1200, margin: "0 auto", width: "100%" }} className="md:grid-cols-[1fr_300px]">
 
         {/* LEFT: Blog Posts Table + Landing Pages */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

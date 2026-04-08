@@ -7,7 +7,7 @@ import { trpc } from "@/lib/trpc";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
-// ─── Stage constants (must match DB enum exactly) ─────────────────────────────
+// --- Stage constants (must match DB enum exactly) ---
 
 const STAGE_ORDER = [
   "NEW_INQUIRY",
@@ -59,10 +59,10 @@ const LOSS_REASONS = [
   { value: "OTHER",             label: "Other" },
 ];
 
-// ─── Formatters ───────────────────────────────────────────────────────────────
+// --- Formatters ---
 
 function formatDate(d: Date | string | null | undefined) {
-  if (!d) return "—";
+  if (!d) return "--";
   return new Date(d).toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",
     hour: "numeric", minute: "2-digit",
@@ -70,7 +70,7 @@ function formatDate(d: Date | string | null | undefined) {
 }
 
 function formatDateShort(d: Date | string | null | undefined) {
-  if (!d) return "—";
+  if (!d) return "--";
   return new Date(d).toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",
   });
@@ -78,10 +78,10 @@ function formatDateShort(d: Date | string | null | undefined) {
 
 function formatTimeline(t: string | null | undefined) {
   const map: Record<string, string> = {
-    ASAP: "ASAP", "1_3_MONTHS": "1–3 months", "3_6_MONTHS": "3–6 months",
-    "6_12_MONTHS": "6–12 months", JUST_BROWSING: "Just browsing",
+    ASAP: "ASAP", "1_3_MONTHS": "1-3 months", "3_6_MONTHS": "3-6 months",
+    "6_12_MONTHS": "6-12 months", JUST_BROWSING: "Just browsing",
   };
-  return t ? (map[t] ?? t) : "—";
+  return t ? (map[t] ?? t) : "--";
 }
 
 function formatFinancing(f: string | null | undefined) {
@@ -89,13 +89,13 @@ function formatFinancing(f: string | null | undefined) {
     PRE_APPROVED: "Pre-approved", IN_PROCESS: "In process",
     NOT_STARTED: "Not started", CASH_BUYER: "Cash buyer",
   };
-  return f ? (map[f] ?? f) : "—";
+  return f ? (map[f] ?? f) : "--";
 }
 
 function formatPrice(min: number | null | undefined, max: number | null | undefined) {
-  if (!min && !max) return "—";
+  if (!min && !max) return "--";
   const fmt = (n: number) => `$${(n / 1000).toFixed(0)}K`;
-  if (min && max) return `${fmt(min)} – ${fmt(max)}`;
+  if (min && max) return `${fmt(min)} - ${fmt(max)}`;
   if (min) return `${fmt(min)}+`;
   return `Up to ${fmt(max!)}`;
 }
@@ -107,7 +107,7 @@ function formatBytes(bytes: number | null | undefined) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-// ─── Section header ───────────────────────────────────────────────────────────
+// --- Section header ---
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -117,14 +117,14 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// --- Props ---
 
 interface Props {
   id: number;
   onBack: () => void;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ---
 
 export default function LeadDetail({ id, onBack }: Props) {
   const utils = trpc.useUtils();
@@ -174,7 +174,7 @@ export default function LeadDetail({ id, onBack }: Props) {
   const [contractNotes, setContractNotes] = useState("");
   const [editingContractId, setEditingContractId] = useState<number|null>(null);
 
-  // ── Contract mutations ────────────────────────────────────────────────────────────────────────────
+  // ---
   const createContract = trpc.crm.createContract.useMutation({
     onSuccess: () => {
       utils.crm.listContracts.invalidate({ contactId: id });
@@ -237,13 +237,13 @@ export default function LeadDetail({ id, onBack }: Props) {
     setShowContractForm(true);
   }
 
-  // ── Queries ────────────────────────────────────────────────────────────────────────────
+  // ---
   const followUpsQ = trpc.crm.listFollowUps.useQuery({ contactId: id });
   const appointmentsQ = trpc.crm.listAppointments.useQuery({ contactId: id });
   const attachmentsQ = trpc.crm.listAttachments.useQuery({ contactId: id });
   const contractsQ = trpc.crm.listContracts.useQuery({ contactId: id });
 
-  // ── Mutations ────────────────────────────────────────────────────────────────────────────
+  // ---
   const updateStage = trpc.leads.updateStage.useMutation({
     onSuccess: () => {
       utils.leads.getById.invalidate({ id });
@@ -341,7 +341,7 @@ export default function LeadDetail({ id, onBack }: Props) {
     onError: (err) => toast.error(err.message),
   });
 
-  // ── File upload handler ───────────────────────────────────────────────────────
+  // ---
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -366,7 +366,7 @@ export default function LeadDetail({ id, onBack }: Props) {
     e.target.value = "";
   }
 
-  // ── Loading / error states ────────────────────────────────────────────────────
+  // ---
 
   if (isLoading) {
     return (
@@ -387,12 +387,12 @@ export default function LeadDetail({ id, onBack }: Props) {
   const { contact, activity, emails } = data;
   const currentStage = contact.pipelineStage as PipelineStage;
 
-  // ── Render ────────────────────────────────────────────────────────────────────
+  // ---
 
   return (
     <div className="min-h-screen bg-slate-50">
 
-      {/* ── Top bar ── */}
+      {/* -- Top bar -- */}
       <div className="bg-white border-b border-[#e2e6ed] px-4 sm:px-6 py-3 flex flex-wrap items-center gap-2 sm:gap-3 sticky top-0 z-20">
         <button
           onClick={onBack}
@@ -413,7 +413,7 @@ export default function LeadDetail({ id, onBack }: Props) {
           {STAGE_LABELS[currentStage]}
         </span>
 
-        {/* Created / modified — hidden on small screens */}
+        {/* Created / modified -- hidden on small screens */}
         <div className="ml-auto hidden md:flex items-center gap-4 text-xs text-slate-400">
           <span>Created {formatDateShort(contact.createdAt)}</span>
           <span>Modified {formatDateShort(contact.updatedAt)}</span>
@@ -467,7 +467,7 @@ export default function LeadDetail({ id, onBack }: Props) {
           <button
             onClick={() => {
               // Open Calendly popup pre-filled with lead's name and email.
-              // Calendly sends its own confirmation email — no duplicate from SCOPS.
+              // Calendly sends its own confirmation email -- no duplicate from SCOPS.
               const CALENDLY_URL = "https://calendly.com/d/cyjg-rx9-q39/meeting";
               const name = `${contact.firstName ?? ""} ${contact.lastName ?? ""}`.trim();
               const params = new URLSearchParams();
@@ -507,10 +507,10 @@ export default function LeadDetail({ id, onBack }: Props) {
 
       <div className="px-4 sm:px-6 py-6 max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* ── Left column ── */}
+        {/* -- Left column -- */}
         <div className="lg:col-span-1 space-y-4">
 
-          {/* ── Pipeline Stage (TOP) ── */}
+          {/* -- Pipeline Stage (TOP) -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardHeader className="pb-2 pt-4 px-4">
               <SectionTitle>Pipeline Stage</SectionTitle>
@@ -579,7 +579,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* ── Contact Info ── */}
+          {/* -- Contact Info -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardHeader className="pb-2 pt-4 px-4">
               <SectionTitle>Contact Info</SectionTitle>
@@ -641,7 +641,7 @@ export default function LeadDetail({ id, onBack }: Props) {
                   <div>
                     <div className="text-xs text-muted-foreground mb-0.5">Phone</div>
                     <a href={`tel:${contact.phone}`} className="text-[#0f2044] font-medium hover:underline">
-                      {contact.phone || "—"}
+                      {contact.phone || "--"}
                     </a>
                   </div>
                   <div>
@@ -663,7 +663,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* ── Qualification ── */}
+          {/* -- Qualification -- */}
           {contact.contactType === "BUYER" && (
             <Card className="border border-[#e2e6ed] shadow-none">
               <CardHeader className="pb-2 pt-4 px-4">
@@ -692,7 +692,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </Card>
           )}
 
-          {/* ── Agent Details ── */}
+          {/* -- Agent Details -- */}
           {contact.contactType === "AGENT" && (
             <Card className="border border-[#e2e6ed] shadow-none">
               <CardHeader className="pb-2 pt-4 px-4">
@@ -715,7 +715,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </Card>
           )}
 
-          {/* ── UTM Attribution ── */}
+          {/* -- UTM Attribution -- */}
           {(contact.utmSource || contact.utmMedium || contact.utmCampaign || contact.landingPage) && (
             <Card className="border border-[#e2e6ed] shadow-none">
               <CardHeader className="pb-2 pt-4 px-4">
@@ -750,7 +750,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </Card>
           )}
 
-          {/* ── Quick actions ── */}
+          {/* -- Quick actions -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardContent className="px-4 py-3">
               <button
@@ -764,10 +764,10 @@ export default function LeadDetail({ id, onBack }: Props) {
           </Card>
         </div>
 
-        {/* ── Right column ── */}
+        {/* -- Right column -- */}
         <div className="lg:col-span-2 space-y-4">
 
-          {/* ── Follow-Ups ── */}
+          {/* -- Follow-Ups -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardHeader className="pb-0 pt-4 px-4">
               <div className="flex items-center justify-between">
@@ -880,7 +880,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* ── Appointments ── */}
+          {/* -- Appointments -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardHeader className="pb-0 pt-4 px-4">
               <div className="flex items-center justify-between">
@@ -901,7 +901,7 @@ export default function LeadDetail({ id, onBack }: Props) {
                     <Input
                       value={apptTitle}
                       onChange={e => setApptTitle(e.target.value)}
-                      placeholder="e.g. Home Tour — Lot 12"
+                      placeholder="e.g. Home Tour -- Lot 12"
                       className="h-8 text-xs"
                     />
                   </div>
@@ -1023,7 +1023,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* ── Attachments ── */}
+          {/* -- Attachments -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardHeader className="pb-0 pt-4 px-4">
               <div className="flex items-center justify-between">
@@ -1095,7 +1095,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* ── Contracts ── */}
+          {/* -- Contracts -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardHeader className="pb-0 pt-4 px-4">
               <div className="flex items-center justify-between">
@@ -1169,7 +1169,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* ── Add Note ── */}
+          {/* -- Add Note -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardHeader className="pb-2 pt-4 px-4">
               <SectionTitle>Add Note</SectionTitle>
@@ -1193,7 +1193,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* ── Activity Log ── */}
+          {/* -- Activity Log -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardHeader className="pb-2 pt-4 px-4">
               <SectionTitle>Activity Log ({activity.length})</SectionTitle>
@@ -1220,7 +1220,7 @@ export default function LeadDetail({ id, onBack }: Props) {
             </CardContent>
           </Card>
 
-          {/* ── Email History ── */}
+          {/* -- Email History -- */}
           <Card className="border border-[#e2e6ed] shadow-none">
             <CardHeader className="pb-2 pt-4 px-4">
               <SectionTitle>Email History ({emails.length})</SectionTitle>

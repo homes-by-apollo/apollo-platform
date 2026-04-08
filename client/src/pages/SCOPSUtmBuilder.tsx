@@ -388,7 +388,8 @@ export default function SCOPSUtmBuilder() {
     <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="utm-builder" />
       {/* ── Page Header ── */}
-      <div style={{ padding: "16px 20px 8px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(15,32,68,0.06)" }}>
+      <div style={{ borderBottom: "1px solid rgba(15,32,68,0.06)" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "16px 20px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 800, color: "#0f2044", letterSpacing: -0.3 }}>Campaigns</div>
           <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)", marginTop: 2 }}>Blog posts, landing pages, UTM tracking &amp; channel performance</div>
@@ -400,8 +401,9 @@ export default function SCOPSUtmBuilder() {
           <span style={{ fontSize: 15, lineHeight: 1 }}>+</span> New Post
         </button>
       </div>
+      </div>
       {/* ── Content Section (Blog Posts + Landing Pages) — FIRST / TOP ── */}
-      <div style={{ padding: "12px 16px 0" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 16px 0" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }} className="lg:grid-cols-2">
           <BlogPostCard />
           <LandingPagesCard />
@@ -409,7 +411,8 @@ export default function SCOPSUtmBuilder() {
       </div>
 
       {/* Filter Bar */}
-      <div style={{ padding: "10px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ background: "#ffffff", borderBottom: "1px solid #e2e6ed" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 20px", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         {["All Inventory ▾", "Performance ▾", "Map View ▾", "Marketing Readiness ▾"].map((label, i) => (
           <button key={label} style={{ padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.65)", border: i === 0 ? "1px solid rgba(99,102,241,0.40)" : "1px solid #e2e6ed", color: i === 0 ? "#6366f1" : "rgba(15,32,68,0.55)", cursor: "pointer" }}>{label}</button>
         ))}
@@ -417,8 +420,9 @@ export default function SCOPSUtmBuilder() {
           <input placeholder="Search address, city or zip…" style={{ width: "100%", padding: "6px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
         </div>
       </div>
+      </div>
       {/* 3-Column Body */}
-      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 16, padding: 16, overflow: "auto" }} className="lg:grid-cols-[300px_1fr_300px]">
+      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 16, padding: 16, overflow: "auto", maxWidth: 1200, margin: "0 auto", width: "100%" }} className="lg:grid-cols-[300px_1fr_300px]">
         {/* LEFT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <GlassCard>

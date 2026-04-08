@@ -600,7 +600,8 @@ export default function SCOPSProperties() {
       <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="properties" />
 
       {/* ── KPI Stats Bar ── */}
-      <div style={{ padding: "10px 20px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ background: "#ffffff", borderBottom: "1px solid #e2e6ed" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 20px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         {[
           { label: "Available", value: availableCount, color: "#22c55e" },
           { label: "Under Contract", value: underContractCount, color: "#f59e0b" },
@@ -619,9 +620,11 @@ export default function SCOPSProperties() {
           <button onClick={() => setEditingId("new")} style={{ padding: "7px 16px", borderRadius: 20, background: "#0f2044", border: "none", color: "#ffffff", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Add</button>
         </div>
       </div>
+      </div>
 
       {/* ── Filter Bar ── */}
-      <div style={{ padding: "8px 12px", background: "#ffffff", borderBottom: "1px solid #e2e6ed", display: "flex", gap: 6, alignItems: "center", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+      <div style={{ background: "#ffffff", borderBottom: "1px solid #e2e6ed" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "8px 12px", display: "flex", gap: 6, alignItems: "center", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         {["ALL", "HOME", "LOT"].map(t => (
           <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: typeFilter === t ? "#eef2ff" : "#ffffff", border: typeFilter === t ? "1px solid #c7d2fe" : "1px solid #e2e6ed", color: typeFilter === t ? "#6366f1" : "#374151" }}>
             {t === "ALL" ? "All Types" : t === "HOME" ? "Homes" : "Lots"}
@@ -636,6 +639,7 @@ export default function SCOPSProperties() {
             </button>
           );
         })}
+      </div>
       </div>
 
       {/* ── 3-Panel Body ── */}
