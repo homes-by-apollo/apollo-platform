@@ -552,3 +552,129 @@ export const contracts = mysqlTable("contracts", {
 });
 export type Contract = typeof contracts.$inferSelect;
 export type InsertContract = typeof contracts.$inferInsert;
+
+// ─── Email Marketing: Lists ───────────────────────────────────────────────────
+
+/**
+ * Named subscriber lists (e.g. "All Leads", "Hot Leads", "Newsletter").
+ * Members are tracked in email_list_members.
+ */
+export const emailLists = mysqlTable("emailLists", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 128 }).notNull(),
+  description: text("description"),
+  isDefault: int("isDefault").notNull().default(0), // 1 = auto-add all new leads
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmailList = typeof emailLists.$inferSelect;
+export type InsertEmailList = typeof emailLists.$inferInsert;
+
+// ─── Email Marketing: List Members ───────────────────────────────────────────
+
+/**
+ * Junction table linking contacts (or raw emails) to a list.
+ * contactId is nullable so external/newsletter subscribers can also be members.
+ */
+export const emailListMembers = mysqlTable("emailListMembers", {
+  id: int("id").autoincrement().primaryKey(),
+  listId: int("listId").notNull(),          // FK → emailLists.id
+  contactId: int("contactId"),              // FK → contacts.id (nullable)
+  email: varchar("email", { length: 320 }).notNull(),
+  name: varchar("name", { length: 256 }),
+  source: varchar("source", { length: 64 }).default("manual"), // "crm_lead", "newsletter", "manual"
+  subscribedAt: timestamp("subscribedAt").defaultNow().notNull(),
+});
+
+export type EmailListMember = typeof emailListMembers.$inferSelect;
+export type InsertEmailListMember = typeof emailListMembers.$inferInsert;
+
+// ─── Email Marketing: Campaigns ───────────────────────────────────────────────
+
+/**
+ * A campaign is a single broadcast email sent to a list.
+ * Status flow: draft → scheduled → sending → sent
+ */
+export const emailCampaigns = mysqlTable("emailCampaigns", {
+  id: int("id").autoincrement().primaryKey(),
+  listId: int("listId").notNull(),          // FK → emailLists.id
+  subject: varchar("subject", { length: 256 }).notNull(),
+  previewText: varchar("previewText", { length: 256 }),
+  fromName: varchar("fromName", { length: 128 }).default("Apollo Home Builders"),
+  fromEmail: varchar("fromEmail", { length: 320 }).default("hello@apollohomebuilders.com"),
+  htmlBody: text("htmlBody").notNull(),     // React Email rendered HTML
+  templateType: mysqlEnum("templateType", [
+    "campaign_blast",
+    "new_lead_welcome",
+    "tour_reminder",
+    "custom",
+  ]).notNull().default("campaign_blast"),
+  status: mysqlEnum("campaignStatus", [
+    "draft",
+    "scheduled",
+    "sending",
+    "sent",
+    "cancelled",
+  ]).notNull().default("draft"),
+  scheduledAt: timestamp("scheduledAt"),
+  sentAt: timestamp("sentAt"),
+  totalRecipients: int("totalRecipients").default(0),
+  createdBy: int("createdBy"),              // FK → adminCredentials.id
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmailCampaign = typeof emailCampaigns.$inferSelect;
+export type InsertEmailCampaign = typeof emailCampaigns.$inferInsert;
+
+// ─── Email Marketing: Sends (per-recipient tracking) ─────────────────────────
+
+/**
+ * One row per recipient per campaign.
+ * Tracks delivery, open, and click events (updated via Resend webhooks or polling).
+ */
+export const emailSends = mysqlTable("emailSends", {
+  id: int("id").autoincrement().primaryKey(),
+  campaignId: int("campaignId").notNull(),  // FK → emailCampaigns.id
+  email: varchar("email", { length: 320 }).notNull(),
+  name: varchar("name", { length: 256 }),
+  resendMessageId: varchar("resendMessageId", { length: 128 }), // Resend message ID
+  status: mysqlEnum("sendStatus", [
+    "queued",
+    "sent",
+    "delivered",
+    "opened",
+    "clicked",
+    "bounced",
+    "failed",
+    "unsubscribed",
+  ]).notNull().default("queued"),
+  sentAt: timestamp("sentAt"),
+  openedAt: timestamp("openedAt"),
+  clickedAt: timestamp("clickedAt"),
+  bouncedAt: timestamp("bouncedAt"),
+  failureReason: varchar("failureReason", { length: 256 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EmailSend = typeof emailSends.$inferSelect;
+export type InsertEmailSend = typeof emailSends.$inferInsert;
+
+// ─── Email Marketing: Unsubscribes ───────────────────────────────────────────
+
+/**
+ * Global unsubscribe list — any email here is excluded from all future sends.
+ * Populated by the one-click unsubscribe link in every campaign email.
+ */
+export const emailUnsubscribes = mysqlTable("emailUnsubscribes", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  listId: int("listId"),                    // FK → emailLists.id (nullable = global unsub)
+  campaignId: int("campaignId"),            // FK → emailCampaigns.id (which email triggered it)
+  reason: varchar("reason", { length: 256 }),
+  unsubscribedAt: timestamp("unsubscribedAt").defaultNow().notNull(),
+});
+
+export type EmailUnsubscribe = typeof emailUnsubscribes.$inferSelect;
+export type InsertEmailUnsubscribe = typeof emailUnsubscribes.$inferInsert;

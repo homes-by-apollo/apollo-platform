@@ -9,6 +9,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerCalendlyWebhook } from "../routers/calendlyWebhook";
+import { registerUnsubscribeEndpoint } from "../routers/unsubscribeEndpoint";
 import { sendWeeklyTourDigest } from "../weeklyTourDigest";
 import { getDb } from "../db";
 import { blogPosts, contacts, adminCredentials } from "../../drizzle/schema";
@@ -47,6 +48,8 @@ async function startServer() {
   registerOAuthRoutes(app);
   // Calendly webhook under /api/webhooks/calendly
   registerCalendlyWebhook(app);
+  // Unsubscribe endpoint under /api/unsubscribe
+  registerUnsubscribeEndpoint(app);
   // tRPC API
   app.use(
     "/api/trpc",

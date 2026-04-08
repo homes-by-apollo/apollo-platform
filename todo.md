@@ -941,3 +941,25 @@
   - SCOPSBlog: added 1200px wrapper to KPI row and main body
   - SCOPSSettings: intentionally left at narrow (672px)
   - SCOPSEngine: already had maxWidth: 1200, margin: '0 auto'
+
+## Email Marketing Module — Resend + React Email (SCOPS)
+- [x] Install @react-email/components and @react-email/render
+- [x] Add email_lists table (id, name, description, createdAt)
+- [x] Add email_list_members table (id, listId, contactId, email, name, subscribedAt, source)
+- [x] Add email_campaigns table (id, listId, subject, previewText, htmlBody, status: draft/scheduled/sent, scheduledAt, sentAt, createdAt)
+- [x] Add email_sends table (id, campaignId, email, status: queued/sent/failed/bounced/opened/clicked, sentAt, openedAt, clickedAt, resendMessageId)
+- [x] Add email_unsubscribes table (id, email, listId, unsubscribedAt, reason)
+- [x] Run db:push (tables created directly via SQL due to migration state)
+- [x] Add DB helpers: createList, getLists, getListById, addMember, removeMember, getMembers, createCampaign, getCampaigns, getCampaignById, updateCampaign, sendCampaign, getEmailStats, recordUnsubscribe, isUnsubscribed
+- [x] Build server/routers/email.ts tRPC router: lists CRUD, members CRUD, campaigns CRUD, sendCampaign mutation, unsubscribe mutation, analytics query
+- [x] Register emailRouter in appRouter
+- [x] Build React Email templates: WelcomeLead, TourReminder, CampaignBlast, UnsubscribeConfirmation
+- [x] Add public GET/POST /api/unsubscribe?token=... endpoint (RFC 8058 one-click + browser link)
+- [x] Auto-add new leads to "All Leads" list on leads.submit (addContactToDefaultLists helper)
+- [x] Build SCOPSEmail.tsx page with 3 tabs: Lists, Campaigns, Analytics
+- [x] Lists tab: create/delete lists, view member count, add/remove members
+- [x] Campaigns tab: create campaign (subject, preview, body), pick list, send or schedule, status badges
+- [x] Analytics tab: sent/opened/clicked/bounced KPIs, per-campaign breakdown table, unsubscribe rate
+- [x] Register /scops/email route in App.tsx
+- [x] Add Email nav link to SCOPSNav
+- [x] Write vitest for email module (9 tests, all 53 tests passing)

@@ -19,6 +19,7 @@ import SCOPSScheduling from "./pages/SCOPSScheduling";
 import SCOPSPipeline from "./pages/SCOPSPipeline";
 import SCOPSSettings from "./pages/SCOPSSettings";
 import SCOPSEngine from "./pages/SCOPSEngine";
+import SCOPSEmail from "./pages/SCOPSEmail";
 import FAQsPage from "./pages/FAQsPage";
 import AdminLogin from "./pages/AdminLogin";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -52,6 +53,7 @@ function Router() {
       <Route path="/scops/scheduling/tours" component={SCOPSScheduling} />
       <Route path="/scops/settings" component={SCOPSSettings} />
       <Route path="/scops/engine" component={SCOPSEngine} />
+      <Route path="/scops/email" component={SCOPSEmail} />
 
       {/* Backward-compatibility redirects: /crm/* → /scops/* */}
       <Route path="/crm">{() => <Redirect to="/scops" />}</Route>
