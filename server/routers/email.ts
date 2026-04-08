@@ -6,7 +6,10 @@
 import { TRPCError } from "@trpc/server";
 import { Resend } from "resend";
 import { z } from "zod";
+import { eq, desc } from "drizzle-orm";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
+import { getDb } from "../db";
+import { emailSequences } from "../../drizzle/schema";
 import {
   addContactToDefaultLists,
   addListMember,
@@ -320,6 +323,57 @@ export const emailRouter = router({
       }
       await recordUnsubscribe({ email, campaignId, reason: input.reason });
       return { success: true, email };
+    }),
+
+  // ── Sequences ──────────────────────────────────────────────────────────────
+
+  listSequences: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    return db.select().from(emailSequences).orderBy(desc(emailSequences.createdAt));
+  }),
+
+  createSequence: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(256),
+        trigger: z.string().min(1).max(256),
+        emailCount: z.number().int().min(1).max(52).default(1),
+        window: z.string().min(1).max(64).default("7 days"),
+        goal: z.string().max(256).optional(),
+        status: z.enum(["active", "draft", "paused"]).default("draft"),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+      const [result] = await db.insert(emailSequences).values({
+        name: input.name,
+        trigger: input.trigger,
+        emailCount: input.emailCount,
+        window: input.window,
+        goal: input.goal,
+        status: input.status,
+      });
+      return { id: (result as { insertId: number }).insertId, ...input };
+    }),
+
+  updateSequenceStatus: protectedProcedure
+    .input(z.object({ id: z.number(), status: z.enum(["active", "draft", "paused"]) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+      await db.update(emailSequences).set({ status: input.status }).where(eq(emailSequences.id, input.id));
+      return { success: true };
+    }),
+
+  deleteSequence: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+      await db.delete(emailSequences).where(eq(emailSequences.id, input.id));
+      return { success: true };
     }),
 
   // ── Analytics ──────────────────────────────────────────────────────────────

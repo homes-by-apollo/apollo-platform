@@ -50,6 +50,10 @@ async function startServer() {
   registerCalendlyWebhook(app);
   // Unsubscribe endpoint under /api/unsubscribe
   registerUnsubscribeEndpoint(app);
+  // Permanent 301 redirects for moved pages
+  app.get("/scops/utm-builder", (_req, res) => res.redirect(301, "/scops/campaigns?tab=utm"));
+  app.get("/scops/email", (_req, res) => res.redirect(301, "/scops/campaigns?tab=email"));
+  app.get("/crm/utm-builder", (_req, res) => res.redirect(301, "/scops/campaigns?tab=utm"));
   // tRPC API
   app.use(
     "/api/trpc",

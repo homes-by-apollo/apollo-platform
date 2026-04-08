@@ -48,7 +48,7 @@ function Router() {
       <Route path="/scops/properties" component={SCOPSProperties} />
       <Route path="/scops/blog" component={SCOPSBlog} />
       <Route path="/scops/users" component={SCOPSUsers} />
-      <Route path="/scops/utm-builder" component={SCOPSUtmBuilder} />
+      <Route path="/scops/utm-builder">{() => <Redirect to="/scops/campaigns?tab=utm" />}</Route>
       <Route path="/scops/scheduling" component={SCOPSPipeline} />
       <Route path="/scops/scheduling/tours" component={SCOPSScheduling} />
       <Route path="/scops/settings" component={SCOPSSettings} />
@@ -61,7 +61,7 @@ function Router() {
       <Route path="/crm/properties">{() => <Redirect to="/scops/properties" />}</Route>
       <Route path="/crm/blog">{() => <Redirect to="/scops/blog" />}</Route>
       <Route path="/crm/users">{() => <Redirect to="/scops/users" />}</Route>
-      <Route path="/crm/utm-builder">{() => <Redirect to="/scops/utm-builder" />}</Route>
+      <Route path="/crm/utm-builder">{() => <Redirect to="/scops/campaigns?tab=utm" />}</Route>
       <Route path="/crm/:rest*">{() => <Redirect to="/scops" />}</Route>
 
       {/* Fallback */}

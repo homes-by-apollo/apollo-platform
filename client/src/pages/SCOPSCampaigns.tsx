@@ -15,6 +15,7 @@
 import { useState } from "react";
 import { useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import SCOPSNav from "@/components/SCOPSNav";
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
@@ -443,10 +444,57 @@ function ContentTab({ posts, onNew, onPreview, onEdit, onTogglePublish }: {
 // ─── EMAIL TAB ────────────────────────────────────────────────────────────────
 
 type EmailSubTab = "lists" | "sequences" | "analytics";
+type SeqStatus = "active" | "draft" | "paused";
+
+const TRIGGER_OPTIONS = [
+  "Contact form submission",
+  "Newsletter sign-up",
+  "Calendly booking",
+  "No contract after consult",
+  "Property published",
+  "Appointment scheduled",
+  "Pipeline stage change",
+  "Manual",
+];
 
 function EmailTab() {
   const [sub, setSub] = useState<EmailSubTab>("lists");
   const [selectedList, setSelectedList] = useState<string | null>(null);
+
+  // ── Sequence modal state ──────────────────────────────────────────────────
+  const [showSeqModal, setShowSeqModal] = useState(false);
+  const [seqForm, setSeqForm] = useState({
+    name: "", trigger: TRIGGER_OPTIONS[0], emailCount: 3,
+    window: "7 days", goal: "", status: "draft" as SeqStatus,
+  });
+  const utils = trpc.useUtils();
+  const seqQuery = trpc.email.listSequences.useQuery();
+  const createSeq = trpc.email.createSequence.useMutation({
+    onSuccess: () => {
+      utils.email.listSequences.invalidate();
+      setShowSeqModal(false);
+      setSeqForm({ name: "", trigger: TRIGGER_OPTIONS[0], emailCount: 3, window: "7 days", goal: "", status: "draft" });
+      toast.success("Sequence created");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  const updateSeqStatus = trpc.email.updateSequenceStatus.useMutation({
+    onSuccess: () => utils.email.listSequences.invalidate(),
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteSeq = trpc.email.deleteSequence.useMutation({
+    onSuccess: () => { utils.email.listSequences.invalidate(); toast.success("Sequence deleted"); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  // Merge static seed rows with DB rows (DB rows take precedence by name)
+  const dbSeqs = seqQuery.data ?? [];
+  const seedNames = new Set(dbSeqs.map((s) => s.name));
+  const staticRows = EMAIL_SEQUENCES.filter((s) => !seedNames.has(s.name));
+  const allSeqs = [
+    ...dbSeqs.map((s) => ({ id: s.id, name: s.name, trigger: s.trigger, emails: s.emailCount, window: s.window, goal: s.goal ?? "", status: s.status as SeqStatus, fromDb: true as const })),
+    ...staticRows.map((s) => ({ id: null as null, name: s.name, trigger: s.trigger, emails: s.emails, window: s.window, goal: s.goal, status: s.status as SeqStatus, fromDb: false as const })),
+  ];
 
   return (
     <div className="space-y-4">
@@ -513,18 +561,19 @@ function EmailTab() {
       {sub === "sequences" && (
         <Card>
           <SectionHeader title="Email Sequences" sub="Powered by Resend" action={
-            <button className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-semibold hover:bg-slate-700 transition-colors">+ New Sequence</button>
+            <button onClick={() => setShowSeqModal(true)}
+              className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-semibold hover:bg-slate-700 transition-colors">+ New Sequence</button>
           } />
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100">
-                {["Sequence", "Trigger", "Emails", "Window", "Goal", "Status"].map((h) => (
+                {["Sequence", "Trigger", "Emails", "Window", "Goal", "Status", ""].map((h) => (
                   <th key={h} className="pb-2 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {EMAIL_SEQUENCES.map((seq) => (
+              {allSeqs.map((seq) => (
                 <tr key={seq.name} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
                   <td className="py-3 text-[12px] font-semibold text-slate-800">{seq.name}</td>
                   <td className="py-3 text-[12px] text-slate-500">{seq.trigger}</td>
@@ -532,9 +581,32 @@ function EmailTab() {
                   <td className="py-3 text-[11px] text-slate-500">{seq.window}</td>
                   <td className="py-3 text-[11px] text-slate-500 max-w-[160px] truncate">{seq.goal}</td>
                   <td className="py-3">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border ${seq.status === "active" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-100 text-slate-500 border-slate-200"}`}>
-                      {seq.status === "active" ? "Active" : "Draft"}
-                    </span>
+                    {seq.fromDb ? (
+                      <select
+                        value={seq.status}
+                        onChange={(e) => updateSeqStatus.mutate({ id: seq.id!, status: e.target.value as SeqStatus })}
+                        className={`text-[10px] font-semibold border rounded-full px-2 py-0.5 cursor-pointer ${
+                          seq.status === "active" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                          seq.status === "paused" ? "bg-amber-50 text-amber-700 border-amber-200" :
+                          "bg-slate-100 text-slate-500 border-slate-200"
+                        }`}>
+                        <option value="active">Active</option>
+                        <option value="draft">Draft</option>
+                        <option value="paused">Paused</option>
+                      </select>
+                    ) : (
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                        seq.status === "active" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-100 text-slate-500 border-slate-200"
+                      }`}>
+                        {seq.status === "active" ? "Active" : "Draft"}
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-3 text-right">
+                    {seq.fromDb && (
+                      <button onClick={() => { if (confirm(`Delete "${seq.name}"?`)) deleteSeq.mutate({ id: seq.id! }); }}
+                        className="text-[10px] text-red-400 hover:text-red-600 transition-colors px-2">✕</button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -559,6 +631,75 @@ function EmailTab() {
             <SectionHeader title="Email Performance Over Time" />
             <EmptyState icon="📈" title="Analytics available once emails are sending" sub="Open rates, click rates, and unsubscribes will appear here once your sequences are active and Resend data is flowing" />
           </Card>
+        </div>
+      )}
+
+      {/* New Sequence Modal */}
+      {showSeqModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowSeqModal(false)}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-[15px] font-semibold text-slate-800">New Email Sequence</h2>
+              <button onClick={() => setShowSeqModal(false)} className="text-slate-400 hover:text-slate-600 text-lg leading-none">✕</button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.07em] mb-1.5">Sequence Name *</label>
+                <input value={seqForm.name} onChange={(e) => setSeqForm({ ...seqForm, name: e.target.value })}
+                  placeholder="e.g. Post-Tour Follow-Up"
+                  className="w-full text-[12px] px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.07em] mb-1.5">Trigger *</label>
+                <select value={seqForm.trigger} onChange={(e) => setSeqForm({ ...seqForm, trigger: e.target.value })}
+                  className="w-full text-[12px] px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 bg-white transition-all">
+                  {TRIGGER_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.07em] mb-1.5">Number of Emails</label>
+                  <input type="number" min={1} max={52} value={seqForm.emailCount}
+                    onChange={(e) => setSeqForm({ ...seqForm, emailCount: parseInt(e.target.value) || 1 })}
+                    className="w-full text-[12px] px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.07em] mb-1.5">Window</label>
+                  <input value={seqForm.window} onChange={(e) => setSeqForm({ ...seqForm, window: e.target.value })}
+                    placeholder="e.g. 14 days"
+                    className="w-full text-[12px] px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.07em] mb-1.5">Goal</label>
+                <input value={seqForm.goal} onChange={(e) => setSeqForm({ ...seqForm, goal: e.target.value })}
+                  placeholder="e.g. Book a consultation"
+                  className="w-full text-[12px] px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.07em] mb-1.5">Status</label>
+                <select value={seqForm.status} onChange={(e) => setSeqForm({ ...seqForm, status: e.target.value as SeqStatus })}
+                  className="w-full text-[12px] px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 bg-white transition-all">
+                  <option value="draft">Draft</option>
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setShowSeqModal(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-[12px] font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Cancel</button>
+              <button
+                onClick={() => {
+                  if (!seqForm.name.trim()) { toast.error("Sequence name is required"); return; }
+                  createSeq.mutate(seqForm);
+                }}
+                disabled={createSeq.isPending}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-[12px] font-semibold hover:bg-slate-700 disabled:opacity-50 transition-colors">
+                {createSeq.isPending ? "Creating…" : "Create Sequence"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

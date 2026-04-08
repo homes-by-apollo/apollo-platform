@@ -963,3 +963,8 @@
 - [x] Register /scops/email route in App.tsx
 - [x] Add Email nav link to SCOPSNav
 - [x] Write vitest for email module (9 tests, all 53 tests passing)
+
+## Three Improvements (April 2026)
+- [ ] Task 3: Add /scops/utm-builder → /scops/campaigns?tab=utm redirect in App.tsx and Express server (301)
+- [ ] Task 2: Wire KPI card click targets in SCOPSDashboard to deep-link routes
+- [ ] Task 1: Add email_sequences table, tRPC createEmailSequence + listEmailSequences, New Sequence modal in SCOPSCampaigns

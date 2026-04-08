@@ -197,6 +197,7 @@ function KpiCard({
   deltaLabel,
   goalPct,
   goalLabel,
+  onClick,
 }: {
   label: string;
   value: string | number;
@@ -205,10 +206,14 @@ function KpiCard({
   deltaLabel?: string;
   goalPct?: number;
   goalLabel?: string;
+  onClick?: () => void;
 }) {
   const pos = (delta ?? 0) >= 0;
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3">
+    <div
+      className={`bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3 transition-shadow${onClick ? " cursor-pointer hover:shadow-md hover:border-slate-200" : ""}`}
+      onClick={onClick}
+    >
       <p className="text-[10px] font-bold tracking-[0.08em] text-slate-400 uppercase">
         {label}
       </p>
@@ -1169,6 +1174,7 @@ export default function SCOPSDashboard() {
             sub="units"
             delta={2}
             deltaLabel="this week"
+            onClick={() => navigate("/scops/properties")}
           />
           <KpiCard
             label="Under Contract"
@@ -1176,6 +1182,7 @@ export default function SCOPSDashboard() {
             sub="units"
             delta={1}
             deltaLabel="vs last wk"
+            onClick={() => navigate("/scops/scheduling?stage=UNDER_CONTRACT")}
           />
           <KpiCard
             label="Sold (30D)"
@@ -1184,11 +1191,13 @@ export default function SCOPSDashboard() {
             delta={(inv?.soldLast30 ?? 0) - 1}
             deltaLabel="vs last mo"
             goalPct={pct(inv?.soldLast30 ?? 0, M1.contracts)}
+            onClick={() => navigate("/scops/properties")}
           />
           <KpiCard
             label="Revenue MTD"
             value={fmt$(inv?.revenueMtd ?? 0)}
             sub={!inv?.revenueMtd ? "no closings yet" : undefined}
+            onClick={() => navigate("/scops/campaigns?tab=overview")}
           />
           <KpiCard
             label="Tours This Week"
@@ -1201,11 +1210,13 @@ export default function SCOPSDashboard() {
               M1.consultations
             )}
             goalLabel="Monthly pace"
+            onClick={() => navigate("/scops/scheduling?stage=TOUR_SCHEDULED")}
           />
           <KpiCard
             label="Absorption Rate"
             value={`${data?.absorptionRate ?? 0}%`}
             sub="sold / available"
+            onClick={() => navigate("/scops/properties")}
           />
         </div>
 

@@ -678,3 +678,22 @@ export const emailUnsubscribes = mysqlTable("emailUnsubscribes", {
 
 export type EmailUnsubscribe = typeof emailUnsubscribes.$inferSelect;
 export type InsertEmailUnsubscribe = typeof emailUnsubscribes.$inferInsert;
+
+// ─── Email Marketing: Sequences ───────────────────────────────────────────────
+/**
+ * Email sequences / drip campaigns — multi-step automated email series
+ * triggered by a specific event (form submit, Calendly booking, stage change, etc.)
+ */
+export const emailSequences = mysqlTable("emailSequences", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  trigger: varchar("trigger", { length: 256 }).notNull(),
+  emailCount: int("emailCount").notNull().default(1),
+  window: varchar("window", { length: 64 }).notNull().default("7 days"),
+  goal: varchar("goal", { length: 256 }),
+  status: mysqlEnum("seqStatus", ["active", "draft", "paused"]).notNull().default("draft"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type EmailSequence = typeof emailSequences.$inferSelect;
+export type InsertEmailSequence = typeof emailSequences.$inferInsert;
