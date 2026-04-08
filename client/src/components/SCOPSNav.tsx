@@ -24,6 +24,7 @@ const NAV_SECTIONS: NavSection[] = [
 const PAGE_TO_SECTION: Record<string, string> = {
   dashboard:     "dashboard",
   scheduling:    "Pipeline",
+  pipeline:      "scheduling",
   properties:    "Inventory",
   "utm-builder": "Campaigns",
   campaigns:     "Campaigns",
@@ -34,7 +35,7 @@ const PAGE_TO_SECTION: Record<string, string> = {
 
 interface SCOPSNavProps {
   adminUser: { name: string; adminRole?: string | null };
-  currentPage?: "dashboard" | "properties" | "users" | "utm-builder" | "campaigns" | "scheduling" | "settings" | "engine" | "email";
+  currentPage?: "dashboard" | "properties" | "users" | "utm-builder" | "campaigns" | "scheduling" | "settings" | "engine" | "email" | "pipeline";
 }
 
 function LiveClock() {

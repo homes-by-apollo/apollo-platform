@@ -968,3 +968,10 @@
 - [ ] Task 3: Add /scops/utm-builder → /scops/campaigns?tab=utm redirect in App.tsx and Express server (301)
 - [ ] Task 2: Wire KPI card click targets in SCOPSDashboard to deep-link routes
 - [ ] Task 1: Add email_sequences table, tRPC createEmailSequence + listEmailSequences, New Sequence modal in SCOPSCampaigns
+
+## SCOPSPipeline Overhaul (April 2026)
+- [x] Replace SCOPSPipeline.tsx with uploaded overhauled version (KPI bar, search/filter, overhauled cards, slide-out panel, Quick Add sheet)
+- [x] Fix import paths (SCOPSNav flat path, toast import)
+- [x] Fix trpc query mismatches (addActivity contactId/activityType, updateStage id, adminUser query)
+- [x] Add "pipeline" to SCOPSNav currentPage type and PAGE_TO_SECTION
+- [x] 0 TS errors, 53/53 tests passing
