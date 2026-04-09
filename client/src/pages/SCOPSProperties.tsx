@@ -321,27 +321,39 @@ function PropertyMap({
   onSelect: (p: Property) => void;
 }) {
   const mapObjRef  = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const markersRef = useRef<any[]>([]);
 
   const renderMarkers = useCallback(() => {
     const mapObj = mapObjRef.current;
     if (!mapObj || !window.google) return;
-    markersRef.current.forEach((m) => m.setMap(null));
+    // Clear existing markers
+    markersRef.current.forEach((m) => { m.map = null; });
     markersRef.current = [];
     properties.forEach((p) => {
       if (!p.latitude || !p.longitude) return;
-      const marker = new window.google.maps.Marker({
-        position: { lat: p.latitude, lng: p.longitude },
+      const color = MAP_STATUS_COLORS[p.status] ?? "#10b981";
+      const isSelected = selectedId === p.id;
+      // Create a styled pin element
+      const pin = document.createElement("div");
+      pin.style.cssText = [
+        `width:${isSelected ? 20 : 14}px`,
+        `height:${isSelected ? 20 : 14}px`,
+        `background:${color}`,
+        "border-radius:50%",
+        `border:${isSelected ? 3 : 2}px solid #fff`,
+        "box-shadow:0 2px 6px rgba(0,0,0,0.35)",
+        "cursor:pointer",
+        "transition:all 0.15s",
+      ].join(";");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const AdvancedMarkerElement = (window.google.maps as any).marker?.AdvancedMarkerElement;
+      if (!AdvancedMarkerElement) return;
+      const marker = new AdvancedMarkerElement({
         map: mapObj,
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: selectedId === p.id ? 10 : 7,
-          fillColor: MAP_STATUS_COLORS[p.status] ?? "#10b981",
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: selectedId === p.id ? 3 : 2,
-        },
+        position: { lat: p.latitude, lng: p.longitude },
         title: p.address,
+        content: pin,
       });
       marker.addListener("click", () => onSelect(p));
       markersRef.current.push(marker);

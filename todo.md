@@ -1044,3 +1044,10 @@
 - [x] Build /free-lot-analysis page (intake form + Calendly embed)
 - [x] Add Floor Plans nav link to main site nav (desktop + mobile)
 - [x] Add all 4 lead magnet pages to site nav/footer (Free Guides column in footer)
+
+## 4-Item Fix Batch (April 9, 2026 Session 10)
+- [x] Floor Plans page: update logo to Homes by Apollo, replace "Schedule a free consultation" with "Get in Touch", add real floor plan images from pahrumpbuilder.com
+- [x] Inventory map: fix pins not rendering for geocoded listings in MapView (switched to AdvancedMarkerElement)
+- [x] Dashboard tab: remove Deals at Risk section
+- [x] Pipeline tab: add Deals at Risk section at the top (fetches from pipeline.dealsAtRisk tRPC procedure)
+- [x] Campaigns tab: replace Landing Pages with Lead Magnets board (5 lead magnets, Plausible visitors/leads/conv rate per page)

@@ -114,6 +114,86 @@ function KpiChip({ label, value, accent = false, onClick }: {
   );
 }
 
+// ─── DEALS AT RISK PANEL ────────────────────────────────────────────────────
+
+const STAGE_LABELS: Record<string, string> = {
+  NEW_INQUIRY: "New Inquiry",
+  QUALIFIED: "Qualified",
+  TOUR_SCHEDULED: "Tour Sched.",
+  TOURED: "Toured",
+  OFFER_SUBMITTED: "Offer Sub.",
+  UNDER_CONTRACT: "Under Contract",
+  CLOSED: "Closed",
+  LOST: "Lost",
+};
+
+function scoreStyles(score: string): string {
+  if (score === "HOT") return "bg-red-50 text-red-600 border-red-200";
+  if (score === "WARM") return "bg-amber-50 text-amber-600 border-amber-200";
+  return "bg-slate-100 text-slate-500 border-slate-200";
+}
+
+function DealsAtRiskPanel({ onFollowUp }: { onFollowUp: (id: string) => void }) {
+  const { data: deals = [] } = trpc.pipeline.dealsAtRisk.useQuery(undefined, { refetchInterval: 60_000 });
+  if (!deals.length) return null;
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-[14px] font-semibold text-slate-800 tracking-tight">Deals at Risk</h2>
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+            {deals.length} need action
+          </span>
+        </div>
+        <span className="text-[11px] text-slate-400">Leads not contacted in 48+ hours · sorted by urgency</span>
+      </div>
+      <div className="space-y-2">
+        {(deals as any[]).map((deal) => {
+          const name = deal.name ?? "Unknown";
+          return (
+            <div key={deal.id} className="flex items-center justify-between p-3.5 rounded-xl bg-red-50 border border-red-100 hover:border-red-200 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col items-center justify-center w-[52px] shrink-0">
+                  <div className="text-[9px] font-bold text-red-500 tracking-widest uppercase mb-1">CRITICAL</div>
+                  <div className="w-9 h-9 rounded-full bg-red-500 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">{initials(name)}</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-[13px] font-semibold text-slate-800">{name}</span>
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${scoreStyles(deal.leadScore ?? "COLD")}`}>
+                      {deal.leadScore ?? "COLD"}
+                    </span>
+                    <span className="text-[10px] text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">
+                      {STAGE_LABELS[deal.stage] ?? deal.stage}
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-red-500 font-medium">{deal.issue}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-5">
+                <div className="text-right">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">Last contact</p>
+                  <p className="text-[12px] font-semibold text-slate-700">
+                    {deal.lastContactedAt ? relTime(deal.lastContactedAt) : "never"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onFollowUp(String(deal.id))}
+                  className="px-4 py-2 rounded-xl bg-slate-900 text-white text-[12px] font-semibold hover:bg-slate-700 active:scale-95 transition-all"
+                >
+                  Follow Up →
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── LEAD CARD ────────────────────────────────────────────────────────────────
 
 function LeadCard({
@@ -608,6 +688,9 @@ export default function SCOPSPipeline() {
           <KpiChip label="Tours This Week" value={kpis?.toursThisWeek  ?? 0} />
           <KpiChip label="New This Week"   value={kpis?.newThisWeek    ?? 0} />
         </div>
+
+        {/* ── DEALS AT RISK ── */}
+        <DealsAtRiskPanel onFollowUp={(id) => { setSelectedLead(leads.find((l) => l.id === id) ?? null); }} />
 
         {/* ── SEARCH + FILTERS ── */}
         <div className="flex items-center gap-3">

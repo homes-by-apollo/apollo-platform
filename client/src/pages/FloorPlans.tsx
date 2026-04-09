@@ -272,9 +272,9 @@ export default function FloorPlans() {
         height: 68, boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
       }}>
         <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_e0b7e6c2.png" alt="Homes by Apollo" style={{ height: 36 }} />
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_e0b7e6c2.png" alt="Apollo Home Builders" style={{ height: 40 }} />
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.18em", textTransform: "uppercase" }}>Homes by</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.18em", textTransform: "uppercase" }}>Home Builders</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1 }}>Apollo</div>
           </div>
         </a>
@@ -384,10 +384,10 @@ export default function FloorPlans() {
           Not sure which plan is right for you?
         </h2>
         <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 17, maxWidth: 480, margin: "0 auto 28px", lineHeight: 1.6 }}>
-          Schedule a free 15-minute call with our team. We'll match you to the right floor plan and lot.
+          Talk to our team about which floor plan fits your lifestyle and budget.
         </p>
         <a href="/get-in-touch" style={{ background: "#e07b39", color: "#fff", textDecoration: "none", fontSize: 15, fontWeight: 700, padding: "14px 32px", borderRadius: 8, display: "inline-block" }}>
-          Schedule a Free Consultation →
+          Get in Touch →
         </a>
       </div>
 

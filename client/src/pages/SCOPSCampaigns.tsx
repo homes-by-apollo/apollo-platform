@@ -316,6 +316,105 @@ function GoalPanel({ totalLeads, toursThisWeek, contracts }: { totalLeads: numbe
   );
 }
 
+// ─── LEAD MAGNETS BOARD ─────────────────────────────────────────────────────
+
+function LeadMagnetsBoard() {
+  const [period, setPeriod] = useState<"7d" | "30d" | "month">("30d");
+  const { data: visitorData } = trpc.analytics.getLeadMagnetStats.useQuery({ period }, { refetchInterval: 120_000 });
+  const { data: leadCounts } = trpc.analytics.getLeadMagnetLeadCounts.useQuery(undefined, { refetchInterval: 120_000 });
+
+  // Map lead counts to each page
+  const leadMap: Record<string, number> = {
+    "/buyers-guide":         leadCounts?.buyersGuide   ?? 0,
+    "/listing-alerts":       leadCounts?.listingAlerts ?? 0,
+    "/pahrump-vs-las-vegas": 0,
+    "/free-lot-analysis":    leadCounts?.lotAnalysis   ?? 0,
+    "/floor-plans":          leadCounts?.floorPlans    ?? 0,
+  };
+
+  const pages = visitorData?.pages ?? [
+    { path: "/buyers-guide",           label: "Home Buyer's Guide",   icon: "📖", visitors: null },
+    { path: "/listing-alerts",         label: "Listing Alerts",       icon: "🔔", visitors: null },
+    { path: "/pahrump-vs-las-vegas",   label: "Pahrump vs Las Vegas", icon: "⚖️", visitors: null },
+    { path: "/free-lot-analysis",      label: "Free Lot Analysis",    icon: "📐", visitors: null },
+    { path: "/floor-plans",            label: "Floor Plans",          icon: "🏠", visitors: null },
+  ];
+
+  return (
+    <Card className="sm:col-span-2">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <h2 className="text-[14px] font-semibold text-slate-800 tracking-tight">Lead Magnets</h2>
+          {!visitorData?.configured && (
+            <span className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">Plausible not connected</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1 bg-slate-50 rounded-lg border border-slate-100 p-0.5">
+          {(["7d", "30d", "month"] as const).map((p) => (
+            <button key={p} onClick={() => setPeriod(p)}
+              className={`text-[10px] font-semibold px-2.5 py-1 rounded-md transition-colors ${
+                period === p ? "bg-white text-slate-800 shadow-sm" : "text-slate-400 hover:text-slate-600"
+              }`}>
+              {p === "7d" ? "7d" : p === "30d" ? "30d" : "Month"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-slate-100">
+            {["Lead Magnet", "Visitors", "Leads Captured", "Conv. Rate"].map((h) => (
+              <th key={h} className="pb-2 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {pages.map((r) => {
+            const visitors = r.visitors ?? 0;
+            const leads    = leadMap[r.path] ?? 0;
+            const conv     = visitors > 0 ? ((leads / visitors) * 100).toFixed(1) : "—";
+            const isLoading = r.visitors === null;
+            return (
+              <tr key={r.path} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                <td className="py-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px]">{r.icon}</span>
+                    <span className="text-[12px] text-slate-700">{r.label}</span>
+                  </div>
+                </td>
+                <td className="py-2.5 text-[12px] font-semibold text-slate-800">
+                  {isLoading ? <span className="text-slate-300">—</span> : visitors.toLocaleString()}
+                </td>
+                <td className="py-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[12px] text-slate-700 font-medium">{leads}</span>
+                    {leads > 0 && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    )}
+                  </div>
+                </td>
+                <td className="py-2.5">
+                  {!isLoading && visitors > 0 ? (
+                    <span className={`text-[11px] font-semibold ${
+                      parseFloat(conv) >= 5 ? "text-emerald-600" :
+                      parseFloat(conv) >= 2 ? "text-amber-600" : "text-slate-400"
+                    }`}>{conv}%</span>
+                  ) : (
+                    <span className="text-[11px] text-slate-300">—</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p className="text-[10px] text-slate-400 mt-3">
+        Visitors from Plausible · Leads from CRM database
+      </p>
+    </Card>
+  );
+}
+
 function OverviewTab({ sourcePerf, stageCounts, toursThisWeek, period, onPeriodChange }: {
   sourcePerf: any[]; stageCounts: Record<string, number>; toursThisWeek: number; period: string; onPeriodChange: (p: string) => void;
 }) {
@@ -328,37 +427,7 @@ function OverviewTab({ sourcePerf, stageCounts, toursThisWeek, period, onPeriodC
         <LeadFunnel stageCounts={stageCounts} />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Landing pages quick view */}
-        <Card className="sm:col-span-2">
-          <SectionHeader title="Landing Pages" sub="Past 60 Days" />
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-100">
-                {["Page", "Visitors", "Leads", "Conv. Rate"].map((h) => (
-                  <th key={h} className="pb-2 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { title: "Zillow Organic",       icon: "🏠", visitors: 0, leads: 0 },
-                { title: "Facebook Retargeting", icon: "📘", visitors: 0, leads: 0 },
-                { title: "Google Search",        icon: "🔍", visitors: 0, leads: 0 },
-                { title: "Email Newsletter",     icon: "📧", visitors: 0, leads: 0 },
-              ].map((r) => {
-                const conv = r.visitors > 0 ? ((r.leads / r.visitors) * 100).toFixed(1) : "0.0";
-                return (
-                  <tr key={r.title} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                    <td className="py-2.5 flex items-center gap-2"><span className="text-[13px]">{r.icon}</span><span className="text-[12px] text-slate-700">{r.title}</span></td>
-                    <td className="py-2.5 text-[12px] font-semibold text-slate-800">{r.visitors.toLocaleString()}</td>
-                    <td className="py-2.5 text-[12px] text-slate-600">{r.leads}</td>
-                    <td className="py-2.5 text-[11px] text-slate-400">{conv}%</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </Card>
+        <LeadMagnetsBoard />
         <GoalPanel totalLeads={totalLeads} toursThisWeek={toursThisWeek} contracts={totalContracts} />
       </div>
     </div>

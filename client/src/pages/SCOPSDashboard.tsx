@@ -1289,15 +1289,7 @@ export default function SCOPSDashboard() {
 
         </div>
 
-        {/* ── 3. DEALS AT RISK ── */}
-        {(data?.dealsAtRisk?.length ?? 0) > 0 && (
-          <DealsAtRisk
-            deals={data?.dealsAtRisk ?? []}
-            onFollowUp={(id) => navigate(`/scops/pipeline?lead=${id}`)}
-          />
-        )}
-
-        {/* ── 4. PIPELINE | CAMPAIGN | INVENTORY ── */}
+        {/* ── 3. PIPELINE | CAMPAIGN | INVENTORY ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <PipelineFunnel
             stageCounts={stageCounts}

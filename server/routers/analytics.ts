@@ -12,6 +12,9 @@
 
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
+import { getDb } from "../db";
+import { floorPlanRequests, listingAlertSubscribers, lotAnalysisRequests, newsletterSubscribers } from "../../drizzle/schema";
+import { sql } from "drizzle-orm";
 
 const PLAUSIBLE_BASE = "https://plausible.io/api/v1";
 const SITE_ID = "apollohomebuilders.com";
@@ -45,7 +48,77 @@ interface TimeseriesResult {
   results: { date: string; visitors: number; pageviews: number }[];
 }
 
+// Lead magnet page paths to track
+const LEAD_MAGNET_PAGES = [
+  { path: "/buyers-guide",           label: "Home Buyer's Guide",       icon: "📖" },
+  { path: "/listing-alerts",         label: "Listing Alerts",           icon: "🔔" },
+  { path: "/pahrump-vs-las-vegas",   label: "Pahrump vs Las Vegas",     icon: "⚖️" },
+  { path: "/free-lot-analysis",      label: "Free Lot Analysis",        icon: "📐" },
+  { path: "/floor-plans",            label: "Floor Plans",              icon: "🏠" },
+];
+
 export const analyticsRouter = router({
+  /**
+   * Protected: fetch lead counts from DB for each lead magnet page.
+   * Returns counts from floorPlanRequests, listingAlertSubscribers, lotAnalysisRequests, newsletterSubscribers.
+   */
+  getLeadMagnetLeadCounts: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { floorPlans: 0, listingAlerts: 0, lotAnalysis: 0, buyersGuide: 0 };
+    try {
+      const [fp, la, lot, ns] = await Promise.all([
+        db.select({ count: sql<number>`count(*)` }).from(floorPlanRequests),
+        db.select({ count: sql<number>`count(*)` }).from(listingAlertSubscribers),
+        db.select({ count: sql<number>`count(*)` }).from(lotAnalysisRequests),
+        db.select({ count: sql<number>`count(*)` }).from(newsletterSubscribers),
+      ]);
+      return {
+        floorPlans:    Number(fp[0]?.count ?? 0),
+        listingAlerts: Number(la[0]?.count ?? 0),
+        lotAnalysis:   Number(lot[0]?.count ?? 0),
+        buyersGuide:   Number(ns[0]?.count ?? 0),
+      };
+    } catch (err) {
+      console.error("[analyticsRouter] getLeadMagnetLeadCounts failed:", err);
+      return { floorPlans: 0, listingAlerts: 0, lotAnalysis: 0, buyersGuide: 0 };
+    }
+  }),
+
+  /**
+   * Protected: fetch per-page visitor stats for each lead magnet from Plausible.
+   * Returns visitors per page for the given period.
+   */
+  getLeadMagnetStats: protectedProcedure
+    .input(z.object({ period: z.enum(["7d", "30d", "month", "6mo", "12mo"]).default("30d") }))
+    .query(async ({ input }) => {
+      const apiKey = process.env.PLAUSIBLE_API_KEY;
+      if (!apiKey) {
+        return { configured: false, pages: LEAD_MAGNET_PAGES.map(p => ({ ...p, visitors: null })) };
+      }
+      try {
+        const { period } = input;
+        // Fetch breakdown by page for the site
+        const breakdown = await plausibleFetch<BreakdownResult>(
+          `/stats/breakdown?site_id=${SITE_ID}&period=${period}&property=event:page&metrics=visitors&limit=100`,
+          apiKey
+        );
+        const pageMap: Record<string, number> = {};
+        for (const r of breakdown.results) {
+          if (r.page) pageMap[r.page] = r.visitors;
+        }
+        return {
+          configured: true,
+          pages: LEAD_MAGNET_PAGES.map(p => ({
+            ...p,
+            visitors: pageMap[p.path] ?? 0,
+          })),
+        };
+      } catch (err) {
+        console.error("[analyticsRouter] getLeadMagnetStats failed:", err);
+        return { configured: true, pages: LEAD_MAGNET_PAGES.map(p => ({ ...p, visitors: null })) };
+      }
+    }),
+
   /**
    * Protected: fetch website traffic stats from Plausible.
    * Supports period: "7d" | "30d" | "month" | "6mo" | "12mo"

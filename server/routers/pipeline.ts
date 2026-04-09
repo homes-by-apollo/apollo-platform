@@ -11,6 +11,7 @@ import {
   logActivity,
   updateContact,
   getDb,
+  getDealsAtRisk,
 } from "../db";
 import { protectedProcedure, router } from "../_core/trpc";
 import { contacts, leadPropertyInterest, properties, scheduledTours, adminCredentials } from "../../drizzle/schema";
@@ -443,6 +444,14 @@ export const pipelineRouter = router({
         });
         moved++;
       }
-      return { moved };
+        return { moved };
     }),
+
+  /**
+   * Deals at Risk: leads not contacted in 48+ hours.
+   * Moved here from Dashboard so Pipeline tab can display them at the top.
+   */
+  dealsAtRisk: protectedProcedure.query(async () => {
+    return getDealsAtRisk();
+  }),
 });
