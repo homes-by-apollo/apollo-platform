@@ -49,6 +49,40 @@ interface Property {
   createdAt?: string;
 }
 
+// ─── TAG → STATUS MAPPER ─────────────────────────────────────────────────────
+// DB stores tag as "Available" | "Coming Soon" | "Sold" | "Under Contract"
+// SCOPSProperties uses status as "AVAILABLE" | "COMING_SOON" | "SOLD" | "UNDER_CONTRACT"
+const TAG_TO_STATUS: Record<string, PropertyStatus> = {
+  "Available":       "AVAILABLE",
+  "Coming Soon":     "COMING_SOON",
+  "Sold":            "SOLD",
+  "Under Contract":  "UNDER_CONTRACT",
+};
+
+function normalizeProperty(raw: any): Property {
+  return {
+    id:          String(raw.id),
+    address:     raw.address ?? "",
+    city:        raw.city ?? "Pahrump",
+    state:       raw.state ?? "NV",
+    zip:         raw.zip ?? "",
+    type:        (raw.propertyType as PropertyType) ?? "HOME",
+    status:      TAG_TO_STATUS[raw.tag] ?? "AVAILABLE",
+    price:       raw.priceValue ?? 0,
+    beds:        raw.beds ?? null,
+    baths:       raw.baths ?? null,
+    sqft:        raw.sqft != null ? Number(raw.sqft) : null,
+    lotSize:     raw.lotSize != null ? Number(raw.lotSize) : null,
+    imageUrl:    raw.imageUrl ?? null,
+    latitude:    raw.lat ?? null,
+    longitude:   raw.lng ?? null,
+    tag:         raw.tag ?? null,
+    featured:    raw.featured === 1 || raw.featured === true,
+    description: raw.description ?? null,
+    createdAt:   raw.createdAt ? String(raw.createdAt) : undefined,
+  };
+}
+
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<PropertyStatus, { label: string; dot: string; badge: string }> = {
@@ -376,7 +410,8 @@ export default function SCOPSProperties() {
   const { data: rawData, refetch } = trpc.properties.getAll.useQuery(undefined, { refetchInterval: 60_000 });
   const deleteMutation = trpc.properties.delete?.useMutation?.({ onSuccess: () => refetch() });
 
-  const allProperties: Property[] = (rawData as any)?.properties ?? (Array.isArray(rawData) ? rawData : []);
+  const rawList: any[] = (rawData as any)?.properties ?? (Array.isArray(rawData) ? rawData : []);
+  const allProperties: Property[] = rawList.map(normalizeProperty);
 
   // Stats
   const stats = {

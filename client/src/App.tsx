@@ -53,6 +53,7 @@ function Router() {
       <Route path="/scops/users" component={SCOPSUsers} />
       <Route path="/scops/utm-builder">{() => <Redirect to="/scops/campaigns?tab=utm" />}</Route>
       <Route path="/scops/scheduling" component={SCOPSPipeline} />
+      <Route path="/scops/pipeline" component={SCOPSPipeline} />
       <Route path="/scops/scheduling/tours" component={SCOPSScheduling} />
       <Route path="/scops/settings" component={SCOPSSettings} />
       <Route path="/scops/engine" component={SCOPSEngine} />

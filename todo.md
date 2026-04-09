@@ -1005,3 +1005,7 @@
 - [x] Fix stageEnteredAt overdue banner: added stageEnteredAt to getPipelineKanban select query in db.ts (was missing, causing fallback to updatedAt)
 - [x] Fix SCOPSScheduling Calendly widget mobile overflow: changed fixed 700px height to clamp(500px, 80vh, 700px)
 - [x] 0 TS errors, 53/53 tests passing
+
+## Bug Fixes: Pipeline 404 + Inventory Crash (April 9, 2026 Session 4)
+- [x] Fix Pipeline 404: add /scops/pipeline route to App.tsx (SCOPSNav links to /scops/pipeline but only /scops/scheduling exists)
+- [x] Fix Inventory crash: SCOPSProperties uses status field (AVAILABLE/SOLD/etc) but DB returns tag field (Available/Sold/etc) — add tagToStatus mapper
