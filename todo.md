@@ -1009,3 +1009,8 @@
 ## Bug Fixes: Pipeline 404 + Inventory Crash (April 9, 2026 Session 4)
 - [x] Fix Pipeline 404: add /scops/pipeline route to App.tsx (SCOPSNav links to /scops/pipeline but only /scops/scheduling exists)
 - [x] Fix Inventory crash: SCOPSProperties uses status field (AVAILABLE/SOLD/etc) but DB returns tag field (Available/Sold/etc) — add tagToStatus mapper
+
+## Inventory Enhancements (April 9, 2026 Session 5)
+- [x] Wire Edit button end-to-end: verify SCOPSProperties handleEdit → /scops/properties/:id/edit → form pre-fills from DB
+- [x] Add zip column to properties schema, push migration, update router/edit form/normalizeProperty
+- [x] Geocode existing listings: server-side tRPC procedure calls Maps Geocoding API, persists lat/lng; add Geocode All button to SCOPSProperties

@@ -19,6 +19,7 @@ const propertyInput = z.object({
   address: z.string().min(1),
   city: z.string().default("Pahrump"),
   state: z.string().default("NV"),
+  zip: z.string().optional(),
   price: z.string().min(1),
   priceValue: z.number().optional(),
   beds: z.number().optional(),
@@ -96,4 +97,29 @@ export const propertiesRouter = router({
       await updateProperty(input.id, { lat: input.lat, lng: input.lng });
       return { success: true };
     }),
+
+  // Geocode all properties that don't have lat/lng yet
+  geocodeAll: adminOnly.mutation(async () => {
+    const { makeRequest } = await import("../_core/map");
+    const all = await getAllProperties();
+    const ungeocoded = all.filter((p) => p.lat == null || p.lng == null);
+    let succeeded = 0;
+    let failed = 0;
+    for (const prop of ungeocoded) {
+      try {
+        const addressStr = [prop.address, prop.city, prop.state].filter(Boolean).join(", ");
+        const result = await makeRequest<any>("/maps/api/geocode/json", { address: addressStr });
+        if (result.status === "OK" && result.results?.length > 0) {
+          const loc = result.results[0].geometry.location;
+          await updateProperty(prop.id, { lat: loc.lat, lng: loc.lng });
+          succeeded++;
+        } else {
+          failed++;
+        }
+      } catch {
+        failed++;
+      }
+    }
+    return { total: ungeocoded.length, succeeded, failed };
+  }),
 });

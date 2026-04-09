@@ -198,6 +198,7 @@ export const properties = mysqlTable("properties", {
   address: varchar("address", { length: 256 }).notNull(),
   city: varchar("city", { length: 128 }).notNull().default("Pahrump"),
   state: varchar("state", { length: 32 }).notNull().default("NV"),
+  zip: varchar("zip", { length: 16 }).default(""),
 
   // Pricing
   price: varchar("price", { length: 64 }).notNull(),   // display string e.g. "$489,000"

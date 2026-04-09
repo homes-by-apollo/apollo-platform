@@ -14,6 +14,7 @@ interface FormState {
   address: string;
   city: string;
   state: string;
+  zip: string;
   price: string;
   priceValue: string;
   beds: string;
@@ -34,6 +35,7 @@ const EMPTY_FORM: FormState = {
   address: "",
   city: "Pahrump",
   state: "NV",
+  zip: "",
   price: "",
   priceValue: "",
   beds: "",
@@ -156,6 +158,7 @@ export default function SCOPSPropertyEdit() {
         address: property.address ?? "",
         city: property.city ?? "Pahrump",
         state: property.state ?? "NV",
+        zip: (property as any).zip ?? "",
         price: property.price ?? "",
         priceValue: property.priceValue != null ? String(property.priceValue) : "",
         beds: property.beds != null ? String(property.beds) : "",
@@ -213,6 +216,7 @@ export default function SCOPSPropertyEdit() {
       address: form.address.trim(),
       city: form.city.trim() || "Pahrump",
       state: form.state.trim() || "NV",
+      zip: form.zip.trim() || undefined,
       price: form.price.trim(),
       priceValue: form.priceValue ? parseInt(form.priceValue, 10) : undefined,
       beds: form.beds ? parseInt(form.beds, 10) : undefined,
@@ -330,6 +334,10 @@ export default function SCOPSPropertyEdit() {
                 <div>
                   <Label>State</Label>
                   <Input value={form.state} onChange={(v) => setField("state", v)} placeholder="NV" />
+                </div>
+                <div>
+                  <Label>Zip Code</Label>
+                  <Input value={form.zip} onChange={(v) => setField("zip", v)} placeholder="89048" />
                 </div>
                 <div>
                   <Label required>Price (display)</Label>

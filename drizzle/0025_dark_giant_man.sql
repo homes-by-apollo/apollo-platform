@@ -1,0 +1,1 @@
+ALTER TABLE `properties` ADD `zip` varchar(16) DEFAULT '';

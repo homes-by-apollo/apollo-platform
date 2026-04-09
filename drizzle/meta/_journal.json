@@ -176,6 +176,13 @@
       "when": 1775739925633,
       "tag": "0024_moaning_the_watchers",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1775746929916,
+      "tag": "0025_dark_giant_man",
+      "breakpoints": true
     }
   ]
 }

@@ -19,6 +19,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import SCOPSNav from "@/components/SCOPSNav";
+import { toast } from "sonner";
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -65,7 +66,7 @@ function normalizeProperty(raw: any): Property {
     address:     raw.address ?? "",
     city:        raw.city ?? "Pahrump",
     state:       raw.state ?? "NV",
-    zip:         raw.zip ?? "",
+    zip:         raw.zip ?? "",  // now populated from DB
     type:        (raw.propertyType as PropertyType) ?? "HOME",
     status:      TAG_TO_STATUS[raw.tag] ?? "AVAILABLE",
     price:       raw.priceValue ?? 0,
@@ -409,6 +410,13 @@ export default function SCOPSProperties() {
   // Data
   const { data: rawData, refetch } = trpc.properties.getAll.useQuery(undefined, { refetchInterval: 60_000 });
   const deleteMutation = trpc.properties.delete?.useMutation?.({ onSuccess: () => refetch() });
+  const geocodeAllMutation = trpc.properties.geocodeAll.useMutation({
+    onSuccess: (res) => {
+      toast.success(`Geocoded ${res.succeeded} of ${res.total} listings${res.failed > 0 ? ` (${res.failed} failed)` : ""}`);
+      refetch();
+    },
+    onError: (err) => toast.error(`Geocoding failed: ${err.message}`),
+  });
 
   const rawList: any[] = (rawData as any)?.properties ?? (Array.isArray(rawData) ? rawData : []);
   const allProperties: Property[] = rawList.map(normalizeProperty);
@@ -456,12 +464,22 @@ export default function SCOPSProperties() {
               {totalValue > 0 && <span className="ml-1.5">{fmt$(totalValue)} total value</span>}
             </p>
           </div>
-          <button
-            onClick={handleAdd}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-[12px] font-semibold hover:bg-slate-700 transition-colors"
-          >
-            + Add Listing
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => geocodeAllMutation.mutate()}
+              disabled={geocodeAllMutation.isPending}
+              title="Geocode all listings missing coordinates"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-[12px] font-semibold hover:bg-slate-50 disabled:opacity-60 transition-colors"
+            >
+              {geocodeAllMutation.isPending ? "Geocoding…" : "📍 Geocode All"}
+            </button>
+            <button
+              onClick={handleAdd}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-[12px] font-semibold hover:bg-slate-700 transition-colors"
+            >
+              + Add Listing
+            </button>
+          </div>
         </div>
 
         {/* ── STATS ROW ── */}
