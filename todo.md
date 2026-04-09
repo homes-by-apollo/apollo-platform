@@ -1014,3 +1014,8 @@
 - [x] Wire Edit button end-to-end: verify SCOPSProperties handleEdit → /scops/properties/:id/edit → form pre-fills from DB
 - [x] Add zip column to properties schema, push migration, update router/edit form/normalizeProperty
 - [x] Geocode existing listings: server-side tRPC procedure calls Maps Geocoding API, persists lat/lng; add Geocode All button to SCOPSProperties
+
+## Geocode + Zip + Image Uploader (April 9, 2026 Session 6)
+- [x] Trigger geocodeAll and verify lat/lng populated in DB for existing listings
+- [x] Bulk-patch zip code 89048 for all Pahrump listings via SQL
+- [x] Add S3 drag-and-drop image uploader to SCOPSPropertyEdit (tRPC upload endpoint + frontend dropzone)

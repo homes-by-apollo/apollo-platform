@@ -9,6 +9,7 @@ import {
 } from "../db";
 import { protectedProcedure, publicProcedure, router, superAdminProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
+import { storagePut } from "../storage";
 
 const propertyTypeEnum = z.enum(["HOME", "LOT"]);
 const tagEnum = z.enum(["Available", "Coming Soon", "Sold", "Under Contract"]);
@@ -96,6 +97,24 @@ export const propertiesRouter = router({
     .mutation(async ({ input }) => {
       await updateProperty(input.id, { lat: input.lat, lng: input.lng });
       return { success: true };
+    }),
+
+  // Admin: upload a property image to S3 and return the CDN URL
+  uploadImage: adminOnly
+    .input(
+      z.object({
+        fileName: z.string(),
+        mimeType: z.string(),
+        dataBase64: z.string(), // base64-encoded file bytes
+      })
+    )
+    .mutation(async ({ input }) => {
+      const bytes = Buffer.from(input.dataBase64, "base64");
+      const ext = input.fileName.split(".").pop() ?? "jpg";
+      const randomSuffix = Math.random().toString(36).slice(2, 8);
+      const key = `properties/images/${Date.now()}-${randomSuffix}.${ext}`;
+      const { url } = await storagePut(key, bytes, input.mimeType);
+      return { url };
     }),
 
   // Geocode all properties that don't have lat/lng yet

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import SCOPSNav from "@/components/SCOPSNav";
@@ -128,6 +128,151 @@ function Textarea({
       rows={rows}
       className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition"
     />
+  );
+}
+
+// ─── Image Upload Card ───────────────────────────────────────────────────────
+function ImageUploadCard({
+  imageUrl,
+  imageUrls,
+  onImageUrlChange,
+  onImageUrlsChange,
+}: {
+  imageUrl: string;
+  imageUrls: string;
+  onImageUrlChange: (v: string) => void;
+  onImageUrlsChange: (v: string) => void;
+}) {
+  const uploadMutation = trpc.properties.uploadImage.useMutation({
+    onSuccess: ({ url }) => {
+      onImageUrlChange(url);
+      toast.success("Image uploaded successfully");
+    },
+    onError: (err) => toast.error(`Upload failed: ${err.message}`),
+  });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleFile = useCallback(
+    (file: File) => {
+      const MAX_MB = 8;
+      if (file.size > MAX_MB * 1024 * 1024) {
+        toast.error(`File too large — max ${MAX_MB} MB`);
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file (JPG, PNG, WebP)");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        const base64 = dataUrl.split(",")[1];
+        uploadMutation.mutate({
+          fileName: file.name,
+          mimeType: file.type,
+          dataBase64: base64,
+        });
+      };
+      reader.readAsDataURL(file);
+    },
+    [uploadMutation]
+  );
+
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    },
+    [handleFile]
+  );
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+      <h2 className="text-sm font-bold text-gray-800 mb-5 uppercase tracking-wide">Images</h2>
+      <div className="space-y-4">
+        {/* Dropzone */}
+        <div>
+          <Label>Primary Image</Label>
+          <div
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={onDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`relative flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+              isDragging
+                ? "border-blue-400 bg-blue-50"
+                : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100"
+            } ${uploadMutation.isPending ? "opacity-60 pointer-events-none" : ""}`}
+            style={{ minHeight: 120 }}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="sr-only"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+            />
+            {uploadMutation.isPending ? (
+              <>
+                <svg className="animate-spin w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                <span className="text-xs text-gray-500">Uploading…</span>
+              </>
+            ) : (
+              <>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span className="text-xs text-gray-500 text-center">
+                  <span className="font-semibold text-blue-600">Click to upload</span> or drag &amp; drop
+                  <br />
+                  <span className="text-gray-400">JPG, PNG, WebP · max 8 MB</span>
+                </span>
+              </>
+            )}
+          </div>
+          {/* Preview */}
+          {imageUrl && (
+            <div className="mt-3 relative rounded-lg overflow-hidden border border-gray-100 group" style={{ maxHeight: 200 }}>
+              <img src={imageUrl} alt="Preview" className="w-full object-cover" style={{ maxHeight: 200 }} />
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onImageUrlChange(""); }}
+                className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Remove image"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+          {/* URL fallback */}
+          <div className="mt-2">
+            <p className="text-xs text-gray-400 mb-1">Or paste an image URL directly:</p>
+            <Input value={imageUrl} onChange={onImageUrlChange} placeholder="https://cdn.example.com/photo.jpg" />
+          </div>
+        </div>
+
+        {/* Gallery */}
+        <div>
+          <Label>Gallery URLs (JSON array)</Label>
+          <Textarea
+            value={imageUrls}
+            onChange={onImageUrlsChange}
+            placeholder={'["https://cdn.example.com/photo2.jpg", "https://cdn.example.com/photo3.jpg"]'}
+            rows={3}
+          />
+          <p className="text-xs text-gray-400 mt-1">Paste a JSON array of image URLs for the gallery carousel.</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -389,30 +534,12 @@ export default function SCOPSPropertyEdit() {
             </div>
 
             {/* Images card */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h2 className="text-sm font-bold text-gray-800 mb-5 uppercase tracking-wide">Images</h2>
-              <div className="space-y-4">
-                <div>
-                  <Label>Primary Image URL</Label>
-                  <Input value={form.imageUrl} onChange={(v) => setField("imageUrl", v)} placeholder="https://cdn.example.com/photo.jpg" />
-                  {form.imageUrl && (
-                    <div className="mt-2 rounded-lg overflow-hidden border border-gray-100" style={{ maxHeight: 200 }}>
-                      <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover" style={{ maxHeight: 200 }} />
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <Label>Gallery URLs (JSON array)</Label>
-                  <Textarea
-                    value={form.imageUrls}
-                    onChange={(v) => setField("imageUrls", v)}
-                    placeholder={'["https://cdn.example.com/photo2.jpg", "https://cdn.example.com/photo3.jpg"]'}
-                    rows={3}
-                  />
-                  <p className="text-xs text-gray-400 mt-1">Paste a JSON array of image URLs for the gallery carousel.</p>
-                </div>
-              </div>
-            </div>
+            <ImageUploadCard
+              imageUrl={form.imageUrl}
+              imageUrls={form.imageUrls}
+              onImageUrlChange={(v) => setField("imageUrl", v)}
+              onImageUrlsChange={(v) => setField("imageUrls", v)}
+            />
           </div>
 
           {/* ── Right column (status + settings) ── */}
