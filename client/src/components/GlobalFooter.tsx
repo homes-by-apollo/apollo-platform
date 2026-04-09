@@ -40,6 +40,7 @@ export function GlobalFooter() {
           .gf-subscribe input { border-radius: 8px !important; border-right: 1px solid rgba(255,255,255,0.18) !important; height: 48px !important; }
           .gf-subscribe button { border-radius: 8px !important; height: 48px !important; width: 100% !important; }
           .gf-footer-grid { grid-template-columns: 1fr 1fr !important; }
+          .gf-footer-grid-4 { grid-template-columns: 1fr 1fr !important; }
           .gf-top-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
         }
       `}</style>
@@ -121,11 +122,12 @@ export function GlobalFooter() {
       {/* ── Middle band: Nav columns ─────────────────────────────── */}
       <div style={{ padding:"52px var(--pad,48px) 40px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
         <div style={{ maxWidth:1650, margin:"0 auto" }}>
-          <div className="gf-footer-grid">
+          <div className="gf-footer-grid" style={{ gridTemplateColumns: "repeat(4,1fr)" }}>
             {([
               ["Company",  [["Home","/"],["About Us","/"],["Contact","/get-in-touch"]]],
-              ["Properties",[["Homes","/find-your-home"],["Lots","/find-your-home"]]],
+              ["Properties",[["Homes","/find-your-home"],["Floor Plans","/floor-plans"],["Lots","/find-your-home"]]],
               ["Resources", [["Blog","/blog"],["FAQ","/faqs"],["Instagram","https://www.instagram.com/homesby.apollo/"]]],
+              ["Free Guides", [["Home Buyer's Guide","/#buyers-guide"],["Listing Alerts","/listing-alerts"],["Pahrump vs. Las Vegas","/pahrump-vs-las-vegas"],["Free Lot Analysis","/free-lot-analysis"]]],
             ] as [string, [string, string][]][]).map(([heading, links])=>(
               <div key={heading}>
                 <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>

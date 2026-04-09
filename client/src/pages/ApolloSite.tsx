@@ -671,7 +671,20 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
         </div>
 
         {/* Desktop center nav */}
-        <div className="desktop-nav-center" style={{ display:"flex", gap:28, alignItems:"center" }} />
+        <div className="desktop-nav-center" style={{ display:"flex", gap:28, alignItems:"center" }}>
+          {([
+            ["Floor Plans", "/floor-plans"],
+            ["Blog", "/blog"],
+            ["FAQ", "/faqs"],
+          ] as [string, string][]).map(([label, href]) => (
+            <a key={label} href={href}
+              style={{ fontSize:15, fontWeight:600, color:TXT, textDecoration:"none", opacity:0.65, transition:"opacity 0.15s", letterSpacing:"0.02em" }}
+              onMouseEnter={e=>{ e.currentTarget.style.opacity="1"; }}
+              onMouseLeave={e=>{ e.currentTarget.style.opacity="0.65"; }}>
+              {label}
+            </a>
+          ))}
+        </div>
 
         {/* Desktop CTAs */}
         <div className="desktop-nav-ctas" style={{ display:"flex", gap:10, alignItems:"center" }}>
@@ -707,10 +720,15 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
           background:"white", borderBottom:`1px solid ${BOR}`,
           boxShadow:"0 8px 32px rgba(0,0,0,0.12)", padding:"16px 20px 20px",
         }}>
-          <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-
+           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             <Btn full onClick={()=>{ track("Schedule Consultation", { location:"hero" }); nav("contact"); }}>Schedule a Consultation</Btn>
             <Btn full outline onClick={()=>{ track("View Homes & Lots", { location:"hero" }); nav("homes"); }}>View Homes &amp; Lots</Btn>
+          </div>
+          <div style={{ display:"flex", gap:20, paddingTop:8, borderTop:`1px solid ${BOR}`, marginTop:4 }}>
+            {([["Floor Plans","/floor-plans"],["Blog","/blog"],["FAQ","/faqs"]] as [string,string][]).map(([label,href])=>(
+              <a key={label} href={href} onClick={()=>setMenuOpen(false)}
+                style={{ fontSize:14, fontWeight:600, color:MUT, textDecoration:"none" }}>{label}</a>
+            ))}
           </div>
         </div>
       )}

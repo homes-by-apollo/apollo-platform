@@ -699,3 +699,99 @@ export const emailSequences = mysqlTable("emailSequences", {
 });
 export type EmailSequence = typeof emailSequences.$inferSelect;
 export type InsertEmailSequence = typeof emailSequences.$inferInsert;
+
+// ─── Floor Plans ─────────────────────────────────────────────────────────────
+
+/**
+ * Apollo Home Builder floor plan catalog.
+ * Each plan has a unique slug used in the public /floor-plans/:slug URL.
+ * The pdfUrl is gated behind an email opt-in (lead magnet: Floor Plan Lookbook).
+ */
+export const floorPlans = mysqlTable("floorPlans", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // Identity
+  name: varchar("name", { length: 128 }).notNull(),
+  slug: varchar("slug", { length: 128 }).notNull().unique(),
+
+  // Specs
+  sqft: int("sqft").notNull(),
+  beds: int("beds").notNull(),
+  baths: varchar("baths", { length: 16 }).notNull(),   // "2", "2.5", "3/unit"
+  garage: int("garage").notNull().default(2),
+
+  // Pricing
+  startingPrice: int("startingPrice"),   // USD numeric, null = "Contact for pricing"
+
+  // Content
+  description: text("description"),
+  imageUrl: text("imageUrl"),            // site plan / floor plan diagram image
+  pdfUrl: text("pdfUrl"),               // gated PDF download URL (S3)
+
+  // Flags
+  featured: int("featured").notNull().default(0),
+  sortOrder: int("sortOrder").notNull().default(0),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FloorPlan = typeof floorPlans.$inferSelect;
+export type InsertFloorPlan = typeof floorPlans.$inferInsert;
+
+// ─── Floor Plan PDF Requests ──────────────────────────────────────────────────
+
+/**
+ * Lead capture: tracks who requested a floor plan PDF.
+ * Used to gate the PDF download behind an email opt-in.
+ */
+export const floorPlanRequests = mysqlTable("floorPlanRequests", {
+  id: int("id").autoincrement().primaryKey(),
+  floorPlanId: int("floorPlanId").notNull(),  // FK → floorPlans.id
+  email: varchar("email", { length: 320 }).notNull(),
+  name: varchar("name", { length: 256 }),
+  phone: varchar("phone", { length: 32 }),
+  requestedAt: timestamp("requestedAt").defaultNow().notNull(),
+});
+
+export type FloorPlanRequest = typeof floorPlanRequests.$inferSelect;
+export type InsertFloorPlanRequest = typeof floorPlanRequests.$inferInsert;
+
+// ─── Listing Alerts ───────────────────────────────────────────────────────────
+
+/**
+ * Subscribers who opted in for new listing alerts.
+ * When a new property is added in SCOPS, a broadcast is triggered to this list.
+ */
+export const listingAlertSubscribers = mysqlTable("listingAlertSubscribers", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  name: varchar("name", { length: 256 }),
+  priceMin: int("priceMin"),
+  priceMax: int("priceMax"),
+  propertyType: mysqlEnum("alertPropertyType", ["HOME", "LOT", "BOTH"]).default("BOTH"),
+  subscribedAt: timestamp("subscribedAt").defaultNow().notNull(),
+  unsubscribedAt: timestamp("unsubscribedAt"),
+});
+
+export type ListingAlertSubscriber = typeof listingAlertSubscribers.$inferSelect;
+export type InsertListingAlertSubscriber = typeof listingAlertSubscribers.$inferInsert;
+
+// ─── Lot Analysis Requests ────────────────────────────────────────────────────
+/**
+ * Free lot analysis intake form submissions.
+ * Captured before the Calendly booking step.
+ */
+export const lotAnalysisRequests = mysqlTable("lotAnalysisRequests", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 32 }),
+  lotAddress: varchar("lotAddress", { length: 512 }),
+  apn: varchar("apn", { length: 64 }),
+  goals: text("goals"),
+  timeline: varchar("timeline", { length: 64 }),
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+});
+export type LotAnalysisRequest = typeof lotAnalysisRequests.$inferSelect;
+export type InsertLotAnalysisRequest = typeof lotAnalysisRequests.$inferInsert;

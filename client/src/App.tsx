@@ -22,6 +22,11 @@ import SCOPSEngine from "./pages/SCOPSEngine";
 import SCOPSCampaigns from "./pages/SCOPSCampaigns";
 import SCOPSPropertyEdit from "./pages/SCOPSPropertyEdit";
 import FAQsPage from "./pages/FAQsPage";
+import FloorPlans from "./pages/FloorPlans";
+import FloorPlanDetail from "./pages/FloorPlanDetail";
+import ListingAlerts from "./pages/ListingAlerts";
+import PahrumpVsLasVegas from "./pages/PahrumpVsLasVegas";
+import FreeLotAnalysis from "./pages/FreeLotAnalysis";
 import AdminLogin from "./pages/AdminLogin";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -38,6 +43,11 @@ function Router() {
       <Route path="/blog/:slug" component={PublicBlogPost} />
       <Route path="/buyers-guide-thank-you" component={BuyersGuideThankYou} />
       <Route path="/faqs" component={FAQsPage} />
+      <Route path="/floor-plans" component={FloorPlans} />
+      <Route path="/floor-plans/:slug" component={FloorPlanDetail} />
+      <Route path="/listing-alerts" component={ListingAlerts} />
+      <Route path="/pahrump-vs-las-vegas" component={PahrumpVsLasVegas} />
+      <Route path="/free-lot-analysis" component={FreeLotAnalysis} />
 
       {/* Auth routes */}
       <Route path="/admin-login" component={AdminLogin} />

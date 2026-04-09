@@ -1030,3 +1030,17 @@
 - [x] Fix Inventory map: replace direct googleapis.com load with Manus proxy MapView
 - [x] Wire Resend Audiences API: tRPC procedure for live subscriber count + engagement metrics
 - [x] Display live Resend data in Engine tab (subscriber count, open rate, click rate)
+
+## Floor Plans + Lead Magnets (April 9, 2026 Session 9)
+- [x] Add floor_plans table to drizzle schema (name, slug, sqft, beds, baths, garage, startingPrice, description, imageUrl, pdfUrl, featured, sortOrder)
+- [x] Seed 9 floor plans from pahrumpbuilder.com data
+- [x] Add tRPC floor plans router (public: getAll, getBySlug, requestPdf; admin: create, update, delete)
+- [ ] Add SCOPS Floor Plans admin tab (SCOPSFloorPlans.tsx) [deferred]
+- [x] Build public /floor-plans page (filterable card grid by beds/sqft/price)
+- [x] Build public /floor-plans/:slug detail page with site plan image + "Request Floor Plan PDF" email gate
+- [x] Build /listing-alerts page (email opt-in → Resend audience)
+- [ ] Trigger Resend broadcast when new property added in SCOPS Inventory [deferred]
+- [x] Build /pahrump-vs-las-vegas page (visual comparison table + email gate on full PDF)
+- [x] Build /free-lot-analysis page (intake form + Calendly embed)
+- [x] Add Floor Plans nav link to main site nav (desktop + mobile)
+- [x] Add all 4 lead magnet pages to site nav/footer (Free Guides column in footer)

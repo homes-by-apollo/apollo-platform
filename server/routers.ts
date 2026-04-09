@@ -15,6 +15,7 @@ import { pipelineRouter } from "./routers/pipeline";
 import { settingsRouter } from "./routers/settings";
 import { crmExtrasRouter } from "./routers/crmExtras";
 import { emailRouter } from "./routers/email";
+import { floorPlansRouter } from "./routers/floorPlans";
 
 export const appRouter = router({
   system: systemRouter,
@@ -39,6 +40,7 @@ export const appRouter = router({
   settings: settingsRouter,
   crm: crmExtrasRouter,
   email: emailRouter,
+  floorPlans: floorPlansRouter,
 });
 
 export type AppRouter = typeof appRouter;
