@@ -983,3 +983,16 @@
 - [x] Replace SCOPSProperties.tsx with uploaded overhauled version
 - [x] Fix import paths and type errors in new SCOPSProperties (SCOPSNav path, declare global conflict, currentPage type, adminUser query)
 - [x] 0 TS errors, 53/53 tests passing
+
+## SCOPS Mobile + Dashboard Fixes (April 9, 2026 Session 2)
+- [x] Replace SCOPSDashboard with uploaded v2 (Plausible goal strip wired to analytics.trafficStats, Absorption Rate removed)
+- [x] Fix Plausible procedure name: trpc.analytics.trafficStats (confirmed from router)
+- [x] Fix Inventory tab (SCOPSProperties): removed duplicate declare global, fixed currentPage type, added adminUser query
+- [x] Fix Engine tab (SCOPSEngine): moved useState calls above conditional return (React Rules of Hooks violation)
+- [x] Optimize all SCOPS pages for mobile:
+  - SCOPSDashboard: grid-cols-6/4/3 → responsive sm: breakpoints; Campaign Goal Strip header stacks on mobile
+  - SCOPSPipeline: KPI bar grid-cols-4 → grid-cols-2 sm:grid-cols-4
+  - SCOPSCampaigns: grid-cols-3 → grid-cols-1 sm:grid-cols-3
+  - SCOPSEngine: inline style 1fr/1fr and 280px/1fr grids → responsive Tailwind classes
+  - SCOPSProperties: filter bar stacks on mobile, status filters overflow-x-auto, map 400px on mobile, list table min-w-[700px]
+- [x] 0 TS errors, 53/53 tests passing

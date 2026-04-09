@@ -323,13 +323,13 @@ function OverviewTab({ sourcePerf, stageCounts, toursThisWeek, period, onPeriodC
   const totalContracts = sourcePerf.reduce((s, r) => s + (r.contracts ?? 0), 0);
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <ChannelPerformance rows={sourcePerf} period={period} onPeriodChange={onPeriodChange} />
         <LeadFunnel stageCounts={stageCounts} />
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Landing pages quick view */}
-        <Card className="col-span-2">
+        <Card className="sm:col-span-2">
           <SectionHeader title="Landing Pages" sub="Past 60 Days" />
           <table className="w-full">
             <thead>
@@ -510,7 +510,7 @@ function EmailTab() {
 
       {/* Lists */}
       {sub === "lists" && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[12px] font-bold text-slate-700 uppercase tracking-[0.07em]">Lists</h3>
@@ -540,7 +540,7 @@ function EmailTab() {
                     View in Resend ↗
                   </a>
                 </div>
-                <div className="grid grid-cols-3 gap-3 mb-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                   {[["Subscribers", "—"], ["Avg Open Rate", "—"], ["Avg Click Rate", "—"]].map(([label, val]) => (
                     <div key={label} className="p-3 rounded-xl bg-slate-50 border border-slate-100">
                       <p className="text-[10px] text-slate-400 uppercase tracking-wide font-medium">{label}</p>
@@ -618,7 +618,7 @@ function EmailTab() {
       {/* Analytics */}
       {sub === "analytics" && (
         <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[["Total Subscribers", "—", "Across all lists"], ["Avg Open Rate", "—", "Industry avg: 21%"], ["Avg Click Rate", "—", "Industry avg: 2.5%"]].map(([label, val, sub]) => (
               <Card key={label}>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.08em] mb-2">{label}</p>
@@ -722,8 +722,8 @@ function UtmTab() {
   return (
     <Card>
       <SectionHeader title="UTM Builder" sub="Paid · Social · Email" />
-      <div className="grid grid-cols-3 gap-8">
-        <div className="col-span-2 space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+        <div className="sm:col-span-2 space-y-4">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.07em] mb-1.5">Landing Page</label>
             <select value={landingPage} onChange={(e) => setLandingPage(e.target.value)}

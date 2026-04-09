@@ -430,7 +430,7 @@ export default function SCOPSProperties() {
         </div>
 
         {/* ── STATS ROW ── */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap overflow-x-auto pb-1">
           <StatChip label="Available"      count={stats.available}     dot="bg-emerald-500" active={statusFilter === "AVAILABLE"}      onClick={() => setStatusFilter(statusFilter === "AVAILABLE"      ? "ALL" : "AVAILABLE")}      />
           <StatChip label="Under Contract" count={stats.underContract} dot="bg-amber-500"   active={statusFilter === "UNDER_CONTRACT"} onClick={() => setStatusFilter(statusFilter === "UNDER_CONTRACT" ? "ALL" : "UNDER_CONTRACT")} />
           <StatChip label="Sold"           count={stats.sold}          dot="bg-red-500"     active={statusFilter === "SOLD"}           onClick={() => setStatusFilter(statusFilter === "SOLD"           ? "ALL" : "SOLD")}           />
@@ -443,7 +443,7 @@ export default function SCOPSProperties() {
         </div>
 
         {/* ── FILTER + SEARCH BAR ── */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           {/* Type filters */}
           <div className="flex items-center gap-1 bg-white rounded-xl border border-slate-100 p-1">
             {([["ALL", "All Types"], ["HOME", "Homes"], ["LOT", "Lots"]] as [FilterType, string][]).map(([k, l]) => (
@@ -455,7 +455,7 @@ export default function SCOPSProperties() {
           </div>
 
           {/* Status filters */}
-          <div className="flex items-center gap-1 bg-white rounded-xl border border-slate-100 p-1">
+          <div className="flex items-center gap-1 bg-white rounded-xl border border-slate-100 p-1 overflow-x-auto max-w-full">
             {([["ALL", "All Status"], ["AVAILABLE", "Available"], ["UNDER_CONTRACT", "Under Contract"], ["SOLD", "Sold"], ["COMING_SOON", "Coming Soon"]] as [FilterStatus, string][]).map(([k, l]) => (
               <button key={k} onClick={() => setStatusFilter(k)}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${statusFilter === k ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}>
@@ -465,13 +465,13 @@ export default function SCOPSProperties() {
           </div>
 
           {/* Search */}
-          <div className="relative ml-auto">
+          <div className="relative w-full sm:w-auto sm:ml-auto">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[12px]">🔍</span>
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search address or city..."
-              className="text-[12px] pl-8 pr-3 py-2 rounded-xl border border-slate-200 bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 w-52 transition-all"
+              className="text-[12px] pl-8 pr-3 py-2 rounded-xl border border-slate-200 bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 w-full sm:w-52 transition-all"
             />
           </div>
 
@@ -488,9 +488,9 @@ export default function SCOPSProperties() {
 
         {/* ── MAIN CONTENT: MAP VIEW ── */}
         {view === "map" && (
-          <div className="flex gap-4 items-start">
+          <div className="flex flex-col sm:flex-row gap-4 items-start">
             {/* Sidebar list */}
-            <div className="w-[220px] shrink-0 space-y-2 max-h-[620px] overflow-y-auto pr-1">
+            <div className="w-full sm:w-[220px] shrink-0 space-y-2 sm:max-h-[620px] overflow-y-auto pr-1">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide px-1">
                 {filtered.length} listing{filtered.length !== 1 ? "s" : ""}
               </p>
@@ -511,7 +511,7 @@ export default function SCOPSProperties() {
             </div>
 
             {/* Map */}
-            <div className="flex-1 h-[620px] rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+            <div className="flex-1 h-[400px] sm:h-[620px] rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
               <PropertyMap
                 properties={filtered}
                 selectedId={selected?.id ?? null}
@@ -532,8 +532,8 @@ export default function SCOPSProperties() {
 
         {/* ── MAIN CONTENT: LIST VIEW ── */}
         {view === "list" && (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <table className="w-full">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden overflow-x-auto">
+            <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="border-b border-slate-100">
                   {["Property", "Type", "Status", "Price", "Beds", "Baths", "Sqft", "Featured", ""].map((h) => (

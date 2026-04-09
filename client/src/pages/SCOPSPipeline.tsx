@@ -602,7 +602,7 @@ export default function SCOPSPipeline() {
         </div>
 
         {/* ── KPI BAR ── */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <KpiChip label="Total Active"    value={kpis?.totalActive    ?? leads.length} />
           <KpiChip label="At Risk (48h+)"  value={kpis?.atRisk         ?? 0} accent={kpis?.atRisk > 0} />
           <KpiChip label="Tours This Week" value={kpis?.toursThisWeek  ?? 0} />

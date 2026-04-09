@@ -120,7 +120,7 @@ function TemplateEditor({ template, onClose, onSave }: { template: Template | nu
       </div>
 
       {/* Metadata */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label style={{ fontSize: 11, fontWeight: 600, color: "#6b7280", display: "block", marginBottom: 4 }}>Template Name</label>
           <input
@@ -236,14 +236,7 @@ function TemplateEditor({ template, onClose, onSave }: { template: Template | nu
 export default function SCOPSEngine() {
   const adminMeQuery = trpc.adminAuth.me.useQuery();
   const adminUser = adminMeQuery.data;
-  if (!adminUser) {
-    return (
-      <div style={{ minHeight: "100vh", background: "#f9fafb", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ fontSize: 14, color: "#9ca3af" }}>Loading…</div>
-      </div>
-    );
-  }
-
+  // All hooks must be declared before any conditional returns (React Rules of Hooks)
   const [view, setView] = useState<ViewMode>("automations");
   const [automations, setAutomations] = useState<Automation[]>(INITIAL_AUTOMATIONS);
   const [templates, setTemplates] = useState<Template[]>(INITIAL_TEMPLATES);
@@ -253,6 +246,14 @@ export default function SCOPSEngine() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null | undefined>(undefined); // undefined = closed, null = new
   const [templateSearch, setTemplateSearch] = useState("");
   const [templateTypeFilter, setTemplateTypeFilter] = useState<string>("All");
+
+  if (!adminUser) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#f9fafb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontSize: 14, color: "#9ca3af" }}>Loading…</div>
+      </div>
+    );
+  }
 
   // Stats
   const activeCount = automations.filter(a => a.status === "Active").length;
@@ -434,7 +435,7 @@ export default function SCOPSEngine() {
 
         {/* ── TEMPLATES VIEW ── */}
         {view === "templates" && (
-          <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, alignItems: "start" }}>
+          <div className="grid grid-cols-1 sm:grid-cols-[280px_1fr] gap-5 items-start">
             {/* Left panel */}
             <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 14, overflow: "hidden" }}>
               <div style={{ padding: "14px 16px", borderBottom: "1px solid #f3f4f6" }}>

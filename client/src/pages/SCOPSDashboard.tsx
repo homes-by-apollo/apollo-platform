@@ -17,12 +17,10 @@ import SCOPSNav from "@/components/SCOPSNav";
 const CAMPAIGN_START = new Date("2026-04-08");
 
 const M1 = {
-  leads: 20,         // midpoint of 15–25
-  sessions: 500,
-  consultations: 8,  // midpoint of 5–10
-  contracts: 1,
-  cplTarget: 100,    // midpoint of $80–$120
-  reviews: 5,
+  sessions:      500,  // website sessions
+  leads:          20,  // form submissions / leads — midpoint of 15–25
+  consultations:   7,  // Calendly bookings — midpoint of 5–10
+  gbpViews:      200,  // Google Business Profile views
 };
 
 const AD_BUDGET = {
@@ -197,7 +195,6 @@ function KpiCard({
   deltaLabel,
   goalPct,
   goalLabel,
-  onClick,
 }: {
   label: string;
   value: string | number;
@@ -206,14 +203,10 @@ function KpiCard({
   deltaLabel?: string;
   goalPct?: number;
   goalLabel?: string;
-  onClick?: () => void;
 }) {
   const pos = (delta ?? 0) >= 0;
   return (
-    <div
-      className={`bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3 transition-shadow${onClick ? " cursor-pointer hover:shadow-md hover:border-slate-200" : ""}`}
-      onClick={onClick}
-    >
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3">
       <p className="text-[10px] font-bold tracking-[0.08em] text-slate-400 uppercase">
         {label}
       </p>
@@ -266,39 +259,39 @@ function KpiCard({
 
 function CampaignGoalStrip({
   totalLeads,
-  toursThisWeek,
-  contracts,
+  toursBooked,
+  sessions,
+  gbpViews,
 }: {
   totalLeads: number;
-  toursThisWeek: number;
-  contracts: number;
+  toursBooked: number;
+  sessions: number;
+  gbpViews: number;
 }) {
-  const day = daysSince(CAMPAIGN_START);
+  const day    = daysSince(CAMPAIGN_START);
   const dayPct = pct(day, 30);
-  const blendedCpl =
-    totalLeads > 0 ? Math.round(AD_BUDGET.total / totalLeads) : null;
+
+  // Which metrics are live vs manual-entry
+  const isLive = (val: number) => val > 0;
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       {/* Header row */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-[14px] font-semibold text-slate-800">
-              Month 1 Campaign
+              Month 1 Targets
             </span>
           </div>
           <span className="text-[11px] text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-0.5 rounded-full font-medium">
             Day {day} of 30
           </span>
         </div>
-        <div className="flex items-center gap-3 text-[11px] text-slate-400">
-          <span>
-            Budget:{" "}
-            <strong className="text-slate-700 font-semibold">$3,000/mo</strong>
-          </span>
-          <span className="text-slate-200">|</span>
+        <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+          <span>Budget: <strong className="text-slate-700 font-semibold">$3,000/mo</strong></span>
+          <span className="hidden sm:inline text-slate-200">|</span>
           <span>Google $1,100</span>
           <span className="text-slate-200">·</span>
           <span>Meta $900</span>
@@ -307,15 +300,11 @@ function CampaignGoalStrip({
         </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Campaign window progress bar */}
       <div className="mb-5">
         <div className="flex justify-between text-[10px] text-slate-400 mb-1.5">
-          <span className="font-medium uppercase tracking-wide">
-            Campaign window
-          </span>
-          <span>
-            {day} / 30 days
-          </span>
+          <span className="font-medium uppercase tracking-wide">Campaign window</span>
+          <span>{day} / 30 days</span>
         </div>
         <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
           <div
@@ -325,25 +314,100 @@ function CampaignGoalStrip({
         </div>
       </div>
 
-      {/* Goal bars */}
-      <div className="grid grid-cols-4 gap-6">
-        <GoalBar label="Leads" actual={totalLeads} target={M1.leads} />
-        <GoalBar
-          label="Consultations"
-          actual={toursThisWeek}
-          target={M1.consultations}
-        />
-        <GoalBar
-          label="Blended CPL"
-          actual={blendedCpl ?? 0}
-          target={M1.cplTarget}
-          prefix="$"
-        />
-        <GoalBar
-          label="Contracts"
-          actual={contracts}
-          target={M1.contracts}
-        />
+      {/* Goal bars — 4 exact Month 1 KPIs */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+        {/* 1. Website Sessions */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-baseline">
+            <span className="text-[11px] text-slate-500 font-medium">Website Sessions</span>
+            <span className="text-[11px] font-semibold text-slate-800">
+              {sessions > 0 ? sessions.toLocaleString() : "—"}
+              <span className="text-slate-400 font-normal"> / 500</span>
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                pct(sessions, M1.sessions) >= 100 ? "bg-emerald-500"
+                : pct(sessions, M1.sessions) >= 60  ? "bg-blue-500"
+                : "bg-amber-400"
+              }`}
+              style={{ width: `${pct(sessions, M1.sessions)}%` }}
+            />
+          </div>
+          {!isLive(sessions) && (
+            <p className="text-[9px] text-slate-400">Via Plausible · updates daily</p>
+          )}
+        </div>
+
+        {/* 2. Form Submissions / Leads */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-baseline">
+            <span className="text-[11px] text-slate-500 font-medium">Form Submissions</span>
+            <span className="text-[11px] font-semibold text-slate-800">
+              {totalLeads}
+              <span className="text-slate-400 font-normal"> / 15–25</span>
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                totalLeads >= 25 ? "bg-emerald-500"
+                : totalLeads >= 15 ? "bg-blue-500"
+                : totalLeads >= 8  ? "bg-amber-400"
+                : "bg-amber-400"
+              }`}
+              style={{ width: `${pct(totalLeads, 25)}%` }}
+            />
+          </div>
+          <p className="text-[9px] text-slate-400">Live · from CRM</p>
+        </div>
+
+        {/* 3. Calendly Consultations */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-baseline">
+            <span className="text-[11px] text-slate-500 font-medium">Consultations Booked</span>
+            <span className="text-[11px] font-semibold text-slate-800">
+              {toursBooked}
+              <span className="text-slate-400 font-normal"> / 5–10</span>
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                toursBooked >= 10 ? "bg-emerald-500"
+                : toursBooked >= 5  ? "bg-blue-500"
+                : "bg-amber-400"
+              }`}
+              style={{ width: `${pct(toursBooked, 10)}%` }}
+            />
+          </div>
+          <p className="text-[9px] text-slate-400">Via Calendly · live</p>
+        </div>
+
+        {/* 4. Google Business Profile Views */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-baseline">
+            <span className="text-[11px] text-slate-500 font-medium">GBP Views</span>
+            <span className="text-[11px] font-semibold text-slate-800">
+              {gbpViews > 0 ? gbpViews.toLocaleString() : "—"}
+              <span className="text-slate-400 font-normal"> / 200</span>
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                pct(gbpViews, M1.gbpViews) >= 100 ? "bg-emerald-500"
+                : pct(gbpViews, M1.gbpViews) >= 60  ? "bg-blue-500"
+                : "bg-amber-400"
+              }`}
+              style={{ width: `${pct(gbpViews, M1.gbpViews)}%` }}
+            />
+          </div>
+          {!isLive(gbpViews) && (
+            <p className="text-[9px] text-slate-400">Google Business Profile · update weekly</p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1100,8 +1164,9 @@ function TodaysFocus({
 
 export default function SCOPSDashboard() {
   const [, navigate] = useLocation();
-
-  // Core dashboard data
+  // Admin user for nav
+  const { data: adminUser } = trpc.adminAuth.me.useQuery();
+  // Core dashboard dataa
   const { data, isLoading } = trpc.dashboard.overview.useQuery(undefined, {
     refetchInterval: 60_000,
   });
@@ -1111,13 +1176,25 @@ export default function SCOPSDashboard() {
     refetchInterval: 60_000,
   });
 
-  // Today's Focus: active leads sorted by urgency (pipeline.list sorted by urgencyScore)
-  const { data: leadsData } = trpc.pipeline.list.useQuery(
-    undefined,
+  // Today's Focus: active leads sorted by urgency
+  // Switch to trpc.pipeline.list if trpc.leads.list is unavailable
+  const { data: leadsData } = trpc.leads.list.useQuery(
+    { limit: 25, sortBy: "urgency" } as any,
     { refetchInterval: 120_000 }
   );
-  // Admin user for nav
-  const { data: adminUser } = trpc.auth.me.useQuery();
+
+  // Plausible — website sessions for the Month 1 goal strip
+  // Uses the same tRPC procedure built in Session 11 (plausible.stats)
+  // period "30d" gives us the current month's visitor count
+  const { data: plausibleData } = (trpc as any).analytics?.trafficStats?.useQuery?.(
+    { period: "30d" },
+    { refetchInterval: 300_000, retry: false }
+  ) ?? { data: null };
+  const sessions: number =
+    plausibleData?.visitors ??
+    plausibleData?.unique_visitors ??
+    (data as any)?.plausible?.visitors ??
+    0;
 
   // Derived values
   const inv = data?.inventoryStats;
@@ -1128,20 +1205,20 @@ export default function SCOPSDashboard() {
     0
   );
   const stageCounts: Record<string, number> =
-    Object.fromEntries((pipeline?.stageCounts ?? []).map((s: { stage: string; count: number }) => [s.stage, s.count]));
+    (pipeline?.stageCounts as unknown as Record<string, number>) ?? {};
 
   // Pipeline value: under-contract units × Pahrump median ($410K)
   const pipelineValue = (inv?.underContract ?? 0) * 410_000;
 
-  // pipeline.list returns a flat array sorted by updatedAt; sort by urgencyScore client-side
-  const contacts: any[] = Array.isArray(leadsData)
-    ? [...leadsData].sort((a, b) => (b.urgencyScore ?? 0) - (a.urgencyScore ?? 0)).slice(0, 25)
-    : [];
+  const contacts: any[] =
+    (leadsData as any)?.contacts ??
+    (leadsData as any)?.leads ??
+    (Array.isArray(leadsData) ? leadsData : []);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50">
-        <SCOPSNav adminUser={{ name: adminUser?.name ?? "Loading…", adminRole: (adminUser as any)?.adminRole ?? null }} currentPage="dashboard" />
+        <SCOPSNav currentPage="dashboard" adminUser={adminUser as any} />
         <div className="max-w-[1200px] mx-auto px-6 py-8 space-y-4">
           {[...Array(4)].map((_, i) => (
             <div
@@ -1156,25 +1233,26 @@ export default function SCOPSDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <SCOPSNav adminUser={{ name: adminUser?.name ?? "Loading…", adminRole: (adminUser as any)?.adminRole ?? null }} currentPage="dashboard" />
+      <SCOPSNav currentPage="dashboard" adminUser={adminUser as any} />
+
       <div className="max-w-[1200px] mx-auto px-6 py-6 space-y-4">
 
         {/* ── 1. CAMPAIGN GOAL STRIP ── */}
         <CampaignGoalStrip
           totalLeads={totalLeads}
-          toursThisWeek={data?.toursThisWeek ?? 0}
-          contracts={totalContracts}
+          toursBooked={data?.toursThisWeek ?? 0}
+          sessions={sessions}
+          gbpViews={(data as any)?.gbpViews ?? 0}
         />
 
         {/* ── 2. KPI ROW ── */}
-        <div className="grid grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <KpiCard
             label="Units Available"
             value={inv?.available ?? "—"}
             sub="units"
             delta={2}
             deltaLabel="this week"
-            onClick={() => navigate("/scops/properties")}
           />
           <KpiCard
             label="Under Contract"
@@ -1182,7 +1260,6 @@ export default function SCOPSDashboard() {
             sub="units"
             delta={1}
             deltaLabel="vs last wk"
-            onClick={() => navigate("/scops/scheduling?stage=UNDER_CONTRACT")}
           />
           <KpiCard
             label="Sold (30D)"
@@ -1190,14 +1267,12 @@ export default function SCOPSDashboard() {
             sub="units"
             delta={(inv?.soldLast30 ?? 0) - 1}
             deltaLabel="vs last mo"
-            goalPct={pct(inv?.soldLast30 ?? 0, M1.contracts)}
-            onClick={() => navigate("/scops/properties")}
+            goalPct={pct(inv?.soldLast30 ?? 0, M1.consultations)}
           />
           <KpiCard
             label="Revenue MTD"
             value={fmt$(inv?.revenueMtd ?? 0)}
             sub={!inv?.revenueMtd ? "no closings yet" : undefined}
-            onClick={() => navigate("/scops/campaigns?tab=overview")}
           />
           <KpiCard
             label="Tours This Week"
@@ -1210,14 +1285,8 @@ export default function SCOPSDashboard() {
               M1.consultations
             )}
             goalLabel="Monthly pace"
-            onClick={() => navigate("/scops/scheduling?stage=TOUR_SCHEDULED")}
           />
-          <KpiCard
-            label="Absorption Rate"
-            value={`${data?.absorptionRate ?? 0}%`}
-            sub="sold / available"
-            onClick={() => navigate("/scops/properties")}
-          />
+
         </div>
 
         {/* ── 3. DEALS AT RISK ── */}
@@ -1229,7 +1298,7 @@ export default function SCOPSDashboard() {
         )}
 
         {/* ── 4. PIPELINE | CAMPAIGN | INVENTORY ── */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <PipelineFunnel
             stageCounts={stageCounts}
             pipelineValue={pipelineValue}
@@ -1239,16 +1308,13 @@ export default function SCOPSDashboard() {
             totalLeads={totalLeads}
           />
           <InventoryHealth
-            health={data?.inventoryHealth ? {
-              slowMoving: (data.inventoryHealth as any[]).filter((p: any) => p.healthFlag === "high_dom"),
-              lowActivity: (data.inventoryHealth as any[]).filter((p: any) => p.healthFlag !== "ok" && p.healthFlag !== "high_dom"),
-            } : null}
+            health={data?.inventoryHealth ? { slowMoving: (data.inventoryHealth as any[]).filter((p: any) => p.healthFlag === 'high_dom'), lowActivity: (data.inventoryHealth as any[]).filter((p: any) => p.healthFlag === 'zero_tours') } : null}
             totalListings={inv?.available ?? 0}
           />
         </div>
 
         {/* ── 5. SOURCE PERFORMANCE | REVENUE FORECAST | ACTIVITY ── */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <SourcePerformance rows={sourcePerf} />
           <RevenueForecast forecast={data?.revenueForecast ?? null} />
           <RecentActivity items={data?.recentActivity ?? []} />
