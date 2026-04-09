@@ -1,727 +1,628 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+/**
+ * SCOPSProperties.tsx — Overhauled April 2026
+ *
+ * Fixes vs previous version:
+ * - Contained in max-w-[1200px] mx-auto px-6 (was full-bleed)
+ * - Proper page header with title, subtitle, + Add button
+ * - Stats row as white cards (Available, Under Contract, Sold, Featured, Total)
+ * - Filter bar inside the container, consistent with other tabs
+ * - Map fills a fixed-height frame; right panel shows property detail on pin/card click
+ * - Right detail panel replaces the dead "Click a pin" placeholder
+ * - List sidebar cards are denser and more informative
+ * - bg-slate-50 page background matching Dashboard/Pipeline/Campaigns
+ *
+ * DROP-IN REPLACEMENT for client/src/pages/scops/SCOPSProperties.tsx
+ * (routed at /scops/inventory)
+ */
+
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { getLoginUrl } from "@/const";
-import { toast } from "sonner";
 import SCOPSNav from "@/components/SCOPSNav";
-import { MapView } from "@/components/Map";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type PropertyType = "HOME" | "LOT";
-type TagType = "Available" | "Coming Soon" | "Sold" | "Under Contract";
-interface PropertyForm {
-  propertyType: PropertyType;
-  tag: TagType;
+// ─── TYPES ────────────────────────────────────────────────────────────────────
+
+type PropertyType   = "HOME" | "LOT";
+type PropertyStatus = "AVAILABLE" | "UNDER_CONTRACT" | "SOLD" | "COMING_SOON";
+type FilterType     = "ALL" | PropertyType;
+type FilterStatus   = "ALL" | PropertyStatus;
+
+interface Property {
+  id: string;
   address: string;
   city: string;
   state: string;
-  price: string;
-  priceValue: string;
-  beds: string;
-  baths: string;
-  sqft: string;
-  lotSize: string;
-  utilities: string;
-  imageUrl: string;
-  featured: boolean;
-  sortOrder: string;
-  description: string;
+  zip: string;
+  type: PropertyType;
+  status: PropertyStatus;
+  price: number;
+  beds?: number | null;
+  baths?: number | null;
+  sqft?: number | null;
+  lotSize?: number | null;
+  imageUrl?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  tag?: string | null;
+  featured?: boolean;
+  description?: string | null;
+  createdAt?: string;
 }
-const EMPTY_FORM: PropertyForm = {
-  propertyType: "HOME",
-  tag: "Available",
-  address: "",
-  city: "Pahrump",
-  state: "NV",
-  price: "",
-  priceValue: "",
-  beds: "",
-  baths: "",
-  sqft: "",
-  lotSize: "",
-  utilities: "",
-  imageUrl: "",
-  featured: false,
-  sortOrder: "0",
-  description: "",
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<PropertyStatus, { label: string; dot: string; badge: string }> = {
+  AVAILABLE:      { label: "Available",       dot: "bg-emerald-500", badge: "bg-emerald-500 text-white" },
+  UNDER_CONTRACT: { label: "Under Contract",  dot: "bg-amber-500",   badge: "bg-amber-500 text-white"   },
+  SOLD:           { label: "Sold",            dot: "bg-red-500",     badge: "bg-red-500 text-white"     },
+  COMING_SOON:    { label: "Coming Soon",     dot: "bg-blue-500",    badge: "bg-blue-500 text-white"    },
 };
 
-const TAG_PIN_COLORS: Record<string, string> = {
-  "Available":       "#22c55e",
-  "Under Contract":  "#f59e0b",
-  "Sold":            "#ef4444",
-  "Coming Soon":     "#6366f1",
-};
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
 
-const PAHRUMP_CENTER = { lat: 36.2083, lng: -115.9839 };
+function fmt$(n: number) {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000)     return `$${(n / 1_000).toFixed(0)}K`;
+  return `$${n.toLocaleString()}`;
+}
 
-// ─── Property Form Modal ──────────────────────────────────────────────────────
-function PropertyModal({
-  initial,
-  onClose,
-  onSave,
-  saving,
+function shortAddr(address: string) {
+  // Truncate at ~32 chars for card display
+  return address.length > 34 ? address.slice(0, 32) + "…" : address;
+}
+
+// ─── STAT CHIP ────────────────────────────────────────────────────────────────
+
+function StatChip({
+  label, count, dot, active, onClick,
 }: {
-  initial: PropertyForm;
-  onClose: () => void;
-  onSave: (form: PropertyForm) => void;
-  saving: boolean;
-}) {
-  const [form, setForm] = useState<PropertyForm>(initial);
-  const set = (k: keyof PropertyForm, v: string | boolean) => setForm(f => ({ ...f, [k]: v }));
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b flex items-center justify-between">
-          <h2 className="text-lg font-bold text-[#0f2044]">{initial.address ? "Edit Listing" : "Add Listing"}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
-        </div>
-        <div className="px-6 py-4 space-y-4">
-          {/* Type + Tag */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Type</label>
-              <Select value={form.propertyType} onValueChange={v => set("propertyType", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="HOME">Home</SelectItem>
-                  <SelectItem value="LOT">Lot</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Status</label>
-              <Select value={form.tag} onValueChange={v => set("tag", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Available">Available</SelectItem>
-                  <SelectItem value="Coming Soon">Coming Soon</SelectItem>
-                  <SelectItem value="Under Contract">Under Contract</SelectItem>
-                  <SelectItem value="Sold">Sold</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          {/* Address */}
-          <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Street Address</label>
-            <Input value={form.address} onChange={e => set("address", e.target.value)} placeholder="420 E Bellville Rd" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">City</label>
-              <Input value={form.city} onChange={e => set("city", e.target.value)} placeholder="Pahrump" />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">State</label>
-              <Input value={form.state} onChange={e => set("state", e.target.value)} placeholder="NV" />
-            </div>
-          </div>
-          {/* Price */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Display Price</label>
-              <Input value={form.price} onChange={e => set("price", e.target.value)} placeholder="$525,000" />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Price Value</label>
-              <Input type="number" value={form.priceValue} onChange={e => set("priceValue", e.target.value)} placeholder="525000" />
-            </div>
-          </div>
-          {/* Home-specific */}
-          {form.propertyType === "HOME" && (
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Beds</label>
-                <Input type="number" value={form.beds} onChange={e => set("beds", e.target.value)} placeholder="3" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Baths</label>
-                <Input type="number" value={form.baths} onChange={e => set("baths", e.target.value)} placeholder="2" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Sq Ft</label>
-                <Input value={form.sqft} onChange={e => set("sqft", e.target.value)} placeholder="1,800" />
-              </div>
-            </div>
-          )}
-          {/* Lot-specific */}
-          {form.propertyType === "LOT" && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Lot Size</label>
-                <Input value={form.lotSize} onChange={e => set("lotSize", e.target.value)} placeholder="0.25 Acres" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Utilities</label>
-                <Input value={form.utilities} onChange={e => set("utilities", e.target.value)} placeholder="Water · Electric · Sewer" />
-              </div>
-            </div>
-          )}
-          {/* Image URL */}
-          <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Primary Image URL</label>
-            <Input value={form.imageUrl} onChange={e => set("imageUrl", e.target.value)} placeholder="https://cdn.example.com/photo.jpg" />
-            {form.imageUrl && (
-              <img src={form.imageUrl} alt="preview" className="mt-2 h-24 w-full object-cover rounded-lg border" />
-            )}
-          </div>
-          {/* Description */}
-          <div>
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Description</label>
-            <textarea
-              value={form.description}
-              onChange={e => set("description", e.target.value)}
-              rows={3}
-              placeholder="Brief description of the property…"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-            />
-          </div>
-          {/* Sort Order + Featured */}
-          <div className="grid grid-cols-2 gap-4 items-end">
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Sort Order</label>
-              <Input type="number" value={form.sortOrder} onChange={e => set("sortOrder", e.target.value)} placeholder="0" />
-            </div>
-            <div className="flex items-center gap-3 pb-1">
-              <button
-                type="button"
-                onClick={() => set("featured", !form.featured)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${form.featured ? "bg-[#0f2044]" : "bg-gray-200"}`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${form.featured ? "translate-x-6" : "translate-x-1"}`} />
-              </button>
-              <span className="text-sm font-semibold text-[#0f2044]">Featured on Homepage</span>
-            </div>
-          </div>
-        </div>
-        <div className="px-6 py-4 border-t flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose} disabled={saving}>Cancel</Button>
-          <Button
-            onClick={() => onSave(form)}
-            disabled={saving || !form.address || !form.price}
-            className="bg-[#0f2044] hover:bg-[#1a3366]"
-          >
-            {saving ? "Saving…" : "Save Listing"}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Delete Confirm Modal ─────────────────────────────────────────────────────
-function DeleteModal({ address, onCancel, onConfirm, deleting }: {
-  address: string;
-  onCancel: () => void;
-  onConfirm: () => void;
-  deleting: boolean;
+  label: string; count: number; dot: string; active?: boolean; onClick?: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-        <h2 className="text-lg font-bold text-[#0f2044] mb-2">Delete Listing?</h2>
-        <p className="text-sm text-gray-600 mb-6">
-          This will permanently remove <span className="font-semibold">{address}</span> from the database.
-        </p>
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={onCancel} disabled={deleting}>Cancel</Button>
-          <Button variant="destructive" onClick={onConfirm} disabled={deleting}>
-            {deleting ? "Deleting…" : "Delete"}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Property Card ────────────────────────────────────────────────────────────
-type Property = {
-  id: number;
-  address: string;
-  city: string;
-  state: string;
-  tag: string;
-  price: string;
-  priceValue: number | null;
-  beds: number | null;
-  baths: number | null;
-  sqft: string | null;
-  lotSize: string | null;
-  imageUrl: string | null;
-  propertyType: string;
-  featured: number;
-  description: string | null;
-  utilities: string | null;
-  sortOrder: number | null;
-};
-
-function PropertyCard({ property, selected, onClick }: { property: Property; selected: boolean; onClick: () => void }) {
-  const tagColor = TAG_PIN_COLORS[property.tag] ?? "#6366f1";
-  return (
-    <div
+    <button
       onClick={onClick}
-      style={{
-        background: selected ? "#eff6ff" : "#ffffff",
-        border: selected ? "1.5px solid #bfdbfe" : "1px solid #e2e6ed",
-        borderRadius: 14, cursor: "pointer", overflow: "hidden",
-        boxShadow: selected ? "0 4px 20px rgba(37,99,235,0.12)" : "0 1px 4px rgba(15,23,42,0.06)",
-        transition: "all 0.15s ease", marginBottom: 8,
-      }}
+      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all text-left ${
+        active
+          ? "bg-slate-900 border-slate-900 text-white"
+          : "bg-white border-slate-100 hover:border-slate-300 text-slate-700"
+      }`}
     >
-      {property.imageUrl && (
-        <div style={{ position: "relative", height: 80 }}>
-          <img src={property.imageUrl} alt={property.address} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-          <div style={{ position: "absolute", top: 6, left: 6, background: tagColor, color: "#ffffff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>{property.tag}</div>
-          {property.featured === 1 && (
-            <div style={{ position: "absolute", top: 6, right: 6, background: "#f59e0b", color: "#ffffff", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 20 }}>★</div>
-          )}
-        </div>
-      )}
-      <div style={{ padding: "10px 12px" }}>
-        <div style={{ fontWeight: 700, fontSize: 13, color: "#111827", marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{property.address}</div>
-        <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 6 }}>{property.city}, {property.state}</div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 13, fontWeight: 800, color: "#111827" }}>{property.price}</span>
-          <span style={{ fontSize: 10, color: "#6b7280" }}>
-            {property.propertyType === "HOME"
-              ? `${property.beds ?? "—"} bd · ${property.baths ?? "—"} ba · ${property.sqft ?? "—"} sqft`
-              : property.lotSize ?? "Lot"}
+      <div className={`w-2 h-2 rounded-full shrink-0 ${active ? "bg-white" : dot}`} />
+      <span className={`text-[12px] font-semibold ${active ? "text-white" : ""}`}>{count}</span>
+      <span className={`text-[11px] font-medium ${active ? "text-white/80" : "text-slate-500"}`}>{label}</span>
+    </button>
+  );
+}
+
+// ─── PROPERTY CARD (sidebar) ─────────────────────────────────────────────────
+
+function PropertyCard({
+  property,
+  isSelected,
+  onClick,
+}: {
+  property: Property;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  const s = STATUS_CONFIG[property.status];
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left rounded-xl border overflow-hidden transition-all hover:shadow-md ${
+        isSelected
+          ? "border-blue-400 ring-2 ring-blue-100 shadow-md"
+          : "border-slate-100 hover:border-slate-200 bg-white"
+      }`}
+    >
+      {/* Image */}
+      <div className="relative h-32 bg-slate-100">
+        {property.imageUrl ? (
+          <img
+            src={property.imageUrl}
+            alt={property.address}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-3xl opacity-20">{property.type === "LOT" ? "🏞" : "🏠"}</span>
+          </div>
+        )}
+        <span className={`absolute top-2 left-2 text-[9px] font-bold px-2 py-0.5 rounded-full ${s.badge}`}>
+          {s.label}
+        </span>
+        {property.featured && (
+          <span className="absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">
+            ★ Featured
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-3 bg-white">
+        <p className="text-[12px] font-semibold text-slate-900 leading-tight mb-0.5">
+          {shortAddr(property.address)}
+        </p>
+        <p className="text-[10px] text-slate-400 mb-2">
+          {property.city}, {property.state}
+        </p>
+        <div className="flex items-center justify-between">
+          <span className="text-[14px] font-bold text-slate-900">{fmt$(property.price)}</span>
+          <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+            {property.type === "LOT" ? "Lot" : "Home"}
           </span>
         </div>
+        {(property.beds || property.baths || property.sqft) && (
+          <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-500">
+            {property.beds  && <span>{property.beds} bd</span>}
+            {property.baths && <><span className="text-slate-300">·</span><span>{property.baths} ba</span></>}
+            {property.sqft  && <><span className="text-slate-300">·</span><span>{property.sqft.toLocaleString()} sqft</span></>}
+          </div>
+        )}
       </div>
-    </div>
+    </button>
   );
 }
 
-// ─── Property Detail Panel ────────────────────────────────────────────────────
-function PropertyDetailPanel({ property, onClose, onEdit, onDelete }: {
+// ─── DETAIL PANEL ─────────────────────────────────────────────────────────────
+
+function DetailPanel({
+  property,
+  onClose,
+  onEdit,
+}: {
   property: Property;
   onClose: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit: (id: string) => void;
 }) {
-  const tagColor = TAG_PIN_COLORS[property.tag] ?? "#6366f1";
-  const priceNum = property.priceValue ?? parseInt(property.price.replace(/[^0-9]/g, "")) ?? 0;
+  const s = STATUS_CONFIG[property.status];
 
   return (
-    <div style={{ width: 300, flexShrink: 0, background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-      <div style={{ position: "relative", height: 180, flexShrink: 0 }}>
-        <img src={property.imageUrl ?? "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80"} alt={property.address} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", top: 10, left: 10, background: tagColor, color: "#ffffff", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>{property.tag}</div>
-        <button onClick={onClose} style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.4)", border: "none", color: "#ffffff", width: 28, height: 28, borderRadius: "50%", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+    <div className="w-[280px] shrink-0 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+      {/* Image */}
+      <div className="relative h-44 bg-slate-100">
+        {property.imageUrl ? (
+          <img src={property.imageUrl} alt={property.address} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-5xl opacity-20">{property.type === "LOT" ? "🏞" : "🏠"}</span>
+          </div>
+        )}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors"
+        >
+          <span className="text-white text-[13px]">✕</span>
+        </button>
+        <span className={`absolute bottom-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${s.badge}`}>
+          {s.label}
+        </span>
       </div>
-      <div style={{ padding: "16px 16px 0" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#111827", lineHeight: 1.2 }}>{property.address}</div>
-            <div style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>{property.city}, {property.state}</div>
-          </div>
-          {property.featured === 1 && (
-            <div style={{ background: "#f59e0b", color: "#ffffff", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 8, flexShrink: 0, marginLeft: 8 }}>★ Featured</div>
-          )}
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Address + price */}
+        <div>
+          <p className="text-[15px] font-bold text-slate-900 leading-tight">{property.address}</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">{property.city}, {property.state} {property.zip}</p>
+          <p className="text-[22px] font-bold text-slate-900 mt-2 tracking-tight">{fmt$(property.price)}</p>
         </div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: "#111827", marginBottom: 12 }}>${priceNum.toLocaleString()}</div>
-        <div style={{ display: "flex", gap: 10, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid #e2e6ed" }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 11, color: "#9ca3af" }}>Type</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.propertyType === "HOME" ? "Home" : "Lot"}</div>
+
+        {/* Specs */}
+        {(property.beds || property.baths || property.sqft || property.lotSize) && (
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              ["Beds",     property.beds,    "bd"],
+              ["Baths",    property.baths,   "ba"],
+              ["Sqft",     property.sqft?.toLocaleString(), "sqft"],
+              ["Lot",      property.lotSize?.toLocaleString(), "sqft"],
+            ].filter(([, v]) => v).map(([label, val, unit]) => (
+              <div key={String(label)} className="bg-slate-50 rounded-lg p-2.5 border border-slate-100">
+                <p className="text-[9px] text-slate-400 uppercase tracking-wide font-medium">{label}</p>
+                <p className="text-[14px] font-bold text-slate-800 mt-0.5">{val} <span className="text-[10px] font-normal text-slate-400">{unit}</span></p>
+              </div>
+            ))}
           </div>
-          {property.propertyType === "HOME" && property.beds && (
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "#9ca3af" }}>Beds</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.beds}</div>
+        )}
+
+        {/* Property details */}
+        <div className="space-y-2">
+          {[
+            ["Type",     property.type === "LOT" ? "Available Lot" : "Home"],
+            ["Tag",      property.tag],
+            ["Featured", property.featured ? "Yes" : null],
+          ].filter(([, v]) => v).map(([label, val]) => (
+            <div key={String(label)} className="flex justify-between items-baseline">
+              <span className="text-[10px] text-slate-400">{label}</span>
+              <span className="text-[11px] font-medium text-slate-700">{val}</span>
             </div>
-          )}
-          {property.propertyType === "HOME" && property.baths && (
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "#9ca3af" }}>Baths</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.baths}</div>
-            </div>
-          )}
-          {property.propertyType === "HOME" && property.sqft && (
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "#9ca3af" }}>Sq Ft</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.sqft}</div>
-            </div>
-          )}
-          {property.propertyType === "LOT" && property.lotSize && (
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "#9ca3af" }}>Lot Size</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>{property.lotSize}</div>
-            </div>
-          )}
+          ))}
         </div>
+
+        {/* Description */}
         {property.description && (
-          <div style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5, marginBottom: 14 }}>{property.description}</div>
-        )}
-        {property.utilities && (
-          <div style={{ background: "#f8f9fb", borderRadius: 8, padding: "8px 10px", marginBottom: 14 }}>
-            <div style={{ fontSize: 10, color: "#9ca3af", marginBottom: 2 }}>Utilities</div>
-            <div style={{ fontSize: 11, color: "#374151" }}>{property.utilities}</div>
-          </div>
+          <p className="text-[11px] text-slate-500 leading-relaxed">{property.description}</p>
         )}
       </div>
-      <div style={{ padding: "0 16px 16px", display: "flex", gap: 8 }}>
-        <button onClick={onEdit} style={{ flex: 1, padding: "10px", borderRadius: 10, background: "#eef2ff", border: "1px solid #c7d2fe", color: "#4f46e5", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Edit</button>
-        <button onClick={onDelete} style={{ flex: 1, padding: "10px", borderRadius: 10, background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Delete</button>
+
+      {/* Actions */}
+      <div className="p-4 border-t border-slate-100 space-y-2">
+        <button
+          onClick={() => onEdit(property.id)}
+          className="w-full py-2 rounded-xl bg-slate-900 text-white text-[12px] font-semibold hover:bg-slate-700 transition-colors"
+        >
+          Edit Listing
+        </button>
+        <a
+          href={`/homes/${property.id}`}
+          target="_blank"
+          rel="noreferrer"
+          className="block w-full py-2 rounded-xl text-center text-[12px] font-semibold text-blue-600 border border-blue-200 hover:bg-blue-50 transition-colors"
+        >
+          View Public Page ↗
+        </a>
       </div>
     </div>
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-export default function SCOPSProperties() {
-  const adminMeQuery = trpc.adminAuth.me.useQuery();
-  const adminUser = adminMeQuery.data;
-  const loading = adminMeQuery.isLoading;
+// ─── MAP COMPONENT ────────────────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-namespace
+declare global {
+  interface Window { initGoogleMap?: () => void; }
+}
 
-  const [typeFilter, setTypeFilter] = useState<string>("ALL");
-  const [tagFilter, setTagFilter] = useState<string>("ALL");
-  const [search, setSearch] = useState("");
-  const [editingId, setEditingId] = useState<number | "new" | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+function PropertyMap({
+  properties,
+  selectedId,
+  onSelect,
+}: {
+  properties: Property[];
+  selectedId: string | null;
+  onSelect: (p: Property) => void;
+}) {
+  const mapRef    = useRef<HTMLDivElement>(null);
+  const mapObj    = useRef<any>(null);
+  const markers   = useRef<any[]>([]);
 
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
-  const [mapReady, setMapReady] = useState(false);
+  const STATUS_COLORS: Record<PropertyStatus, string> = {
+    AVAILABLE:      "#10b981",
+    UNDER_CONTRACT: "#f59e0b",
+    SOLD:           "#ef4444",
+    COMING_SOON:    "#3b82f6",
+  };
 
-  const utils = trpc.useUtils();
-  const saveCoordinatesMutation = trpc.properties.saveCoordinates.useMutation();
-  const propertiesQuery = trpc.properties.getAll.useQuery(
-    typeFilter !== "ALL" ? { propertyType: typeFilter as PropertyType } : undefined
-  );
-  const createMutation = trpc.properties.create.useMutation({
-    onSuccess: () => { utils.properties.getAll.invalidate(); toast.success("Listing created"); setEditingId(null); },
-    onError: (e) => toast.error(e.message),
-  });
-  const updateMutation = trpc.properties.update.useMutation({
-    onSuccess: () => { utils.properties.getAll.invalidate(); toast.success("Listing updated"); setEditingId(null); },
-    onError: (e) => toast.error(e.message),
-  });
-  const deleteMutation = trpc.properties.delete.useMutation({
-    onSuccess: () => { utils.properties.getAll.invalidate(); toast.success("Listing deleted"); setDeletingId(null); setSelectedProperty(null); },
-    onError: (e) => toast.error(e.message),
-  });
-  const toggleFeatured = trpc.properties.update.useMutation({
-    onMutate: async ({ id, data }) => {
-      await utils.properties.getAll.cancel();
-      const prev = utils.properties.getAll.getData();
-      utils.properties.getAll.setData(undefined, old =>
-        old?.map(p => p.id === id ? { ...p, featured: data.featured ?? p.featured } : p)
-      );
-      return { prev };
-    },
-    onError: (_e, _v, ctx) => { utils.properties.getAll.setData(undefined, ctx?.prev); toast.error("Failed to update"); },
-    onSettled: () => utils.properties.getAll.invalidate(),
-  });
-
-  // Store map reference and signal readiness — decoupled from data
-  const handleMapReady = useCallback((map: google.maps.Map) => {
-    mapRef.current = map;
-    setMapReady(true);
+  const initMap = useCallback(() => {
+    if (!mapRef.current || !window.google) return;
+    mapObj.current = new window.google.maps.Map(mapRef.current, {
+      center: { lat: 36.2078, lng: -115.9845 },
+      zoom: 11,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true,
+      zoomControl: true,
+      styles: [
+        { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+        { featureType: "transit", stylers: [{ visibility: "off" }] },
+      ],
+    });
+    renderMarkers();
   }, []);
 
-  // Re-run geocoding whenever BOTH the map is ready AND data has loaded
+  function renderMarkers() {
+    if (!mapObj.current || !window.google) return;
+    markers.current.forEach((m) => m.setMap(null));
+    markers.current = [];
+
+    properties.forEach((p) => {
+      if (!p.latitude || !p.longitude) return;
+      const marker = new window.google.maps.Marker({
+        position: { lat: p.latitude, lng: p.longitude },
+        map: mapObj.current,
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          scale: selectedId === p.id ? 10 : 7,
+          fillColor: STATUS_COLORS[p.status] ?? "#10b981",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: selectedId === p.id ? 3 : 2,
+        },
+        title: p.address,
+      });
+      marker.addListener("click", () => onSelect(p));
+      markers.current.push(marker);
+    });
+  }
+
   useEffect(() => {
-    const map = mapRef.current;
-    if (!mapReady || !map) return;
-    if (!window.google?.maps) return;
-
-    // Clear any existing markers
-    markersRef.current.forEach(m => { m.map = null; });
-    markersRef.current = [];
-
-    const properties = propertiesQuery.data ?? [];
-
-    // Debug fallback: always place a Pahrump center marker so we can tell if the map itself works
-    const debugPin = document.createElement("div");
-    debugPin.style.cssText = `width:16px;height:16px;border-radius:50%;background:#94a3b8;border:2px solid white;cursor:default;box-shadow:0 2px 6px rgba(0,0,0,0.25);z-index:999;`;
-    const debugMarker = new google.maps.marker.AdvancedMarkerElement({
-      map,
-      position: PAHRUMP_CENTER,
-      content: debugPin,
-      title: "Pahrump, NV (debug)",
-      zIndex: 999,
-    });
-    markersRef.current.push(debugMarker);
-
-    if (properties.length === 0) {
-      // No listings yet — center on Pahrump
-      map.setCenter(PAHRUMP_CENTER);
-      map.setZoom(11);
-      return;
+    if (window.google) { initMap(); return; }
+    const existing = document.getElementById("google-maps-script");
+    if (!existing) {
+      const script = document.createElement("script");
+      script.id = "google-maps-script";
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&callback=initGoogleMap`;
+      script.async = true;
+      script.defer = true;
+      window.initGoogleMap = initMap;
+      document.head.appendChild(script);
+    } else {
+      window.initGoogleMap = initMap;
     }
+  }, []);
 
-    const bounds = new google.maps.LatLngBounds();
-    let resolved = 0;
+  useEffect(() => {
+    if (mapObj.current) renderMarkers();
+  }, [properties, selectedId]);
 
-    // Helper: place a pin and extend bounds
-    function placePin(prop: (typeof properties)[0], lat: number, lng: number) {
-      const loc = { lat, lng };
-      bounds.extend(loc);
-      const pinColor = TAG_PIN_COLORS[prop.tag] ?? "#6366f1";
-      const pinEl = document.createElement("div");
-      pinEl.style.cssText = `width:24px;height:24px;border-radius:50% 50% 50% 0;background:${pinColor};border:2px solid white;transform:rotate(-45deg);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:1000;`;
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        map,
-        position: loc,
-        content: pinEl,
-        title: prop.address,
-        zIndex: 1000,
-      });
-      marker.addListener("click", () => setSelectedProperty(prop as Property));
-      markersRef.current.push(marker);
-    }
+  return <div ref={mapRef} className="w-full h-full rounded-xl overflow-hidden" />;
+}
 
-    // Helper: after all properties resolved, fit bounds
-    const mapNonNull = map!;
-    function checkDone() {
-      resolved++;
-      if (resolved === properties.length) {
-        if (!bounds.isEmpty()) {
-          mapNonNull.fitBounds(bounds, { top: 60, right: 60, bottom: 80, left: 60 });
-          const listener = google.maps.event.addListenerOnce(mapNonNull, "idle", () => {
-            if ((mapNonNull.getZoom() ?? 0) > 15) mapNonNull.setZoom(15);
-          });
-          void listener;
-        } else {
-          mapNonNull.setCenter(PAHRUMP_CENTER);
-          mapNonNull.setZoom(11);
-        }
-      }
-    }
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
-    const geocoder = new google.maps.Geocoder();
+export default function SCOPSProperties() {
+  const [, navigate] = useLocation();
 
-    properties.forEach(prop => {
-      // Cache hit: use stored coordinates instantly, no API call needed
-      if (prop.lat != null && prop.lng != null) {
-        placePin(prop, prop.lat, prop.lng);
-        checkDone();
-        return;
-      }
+  const [typeFilter,   setTypeFilter]   = useState<FilterType>("ALL");
+  const [statusFilter, setStatusFilter] = useState<FilterStatus>("ALL");
+  const [search,       setSearch]       = useState("");
+  const [selected,     setSelected]     = useState<Property | null>(null);
+  const [view,         setView]         = useState<"map" | "list">("map");
 
-      // Cache miss: geocode the address, then save to DB for next time
-      const fullAddress = prop.address.includes(prop.city)
-        ? prop.address
-        : `${prop.address}, ${prop.city}, ${prop.state}`;
+  // Admin user for nav
+  const { data: adminUser } = trpc.adminAuth.me.useQuery();
 
-      geocoder.geocode({ address: fullAddress }, (results, status) => {
-        if (status === "OK" && results?.[0]) {
-          const loc = results[0].geometry.location;
-          const lat = loc.lat();
-          const lng = loc.lng();
-          placePin(prop, lat, lng);
-          // Persist so next load is instant
-          saveCoordinatesMutation.mutate({ id: prop.id, lat, lng });
-        }
-        checkDone();
-      });
-    });
-  }, [mapReady, propertiesQuery.data]);
+  // Data
+  const { data: rawData, refetch } = trpc.properties.getAll.useQuery(undefined, { refetchInterval: 60_000 });
+  const deleteMutation = trpc.properties.delete?.useMutation?.({ onSuccess: () => refetch() });
 
-  if (loading) return null;
-  if (!adminUser) { window.location.href = getLoginUrl(); return null; }
+  const allProperties: Property[] = (rawData as any)?.properties ?? (Array.isArray(rawData) ? rawData : []);
 
-  const properties = (propertiesQuery.data ?? []) as Property[];
-  const filtered = properties.filter(p => {
-    if (typeFilter !== "ALL" && p.propertyType !== typeFilter) return false;
-    if (tagFilter !== "ALL" && p.tag !== tagFilter) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      return p.address.toLowerCase().includes(q) || p.city.toLowerCase().includes(q);
-    }
-    return true;
+  // Stats
+  const stats = {
+    available:     allProperties.filter((p) => p.status === "AVAILABLE").length,
+    underContract: allProperties.filter((p) => p.status === "UNDER_CONTRACT").length,
+    sold:          allProperties.filter((p) => p.status === "SOLD").length,
+    featured:      allProperties.filter((p) => p.featured).length,
+    total:         allProperties.length,
+  };
+
+  // Filtered list
+  const filtered = allProperties.filter((p) => {
+    const matchType   = typeFilter   === "ALL" || p.type   === typeFilter;
+    const matchStatus = statusFilter === "ALL" || p.status === statusFilter;
+    const matchSearch = !search || p.address.toLowerCase().includes(search.toLowerCase()) || p.city.toLowerCase().includes(search.toLowerCase());
+    return matchType && matchStatus && matchSearch;
   });
 
-  const availableCount = properties.filter(p => p.tag === "Available").length;
-  const underContractCount = properties.filter(p => p.tag === "Under Contract").length;
-  const soldCount = properties.filter(p => p.tag === "Sold").length;
-  const featuredCount = properties.filter(p => p.featured === 1).length;
+  function handleEdit(id: string) {
+    navigate(`/scops/properties/${id}/edit`);
+  }
 
-  const getEditForm = (id: number): PropertyForm => {
-    const p = properties.find(x => x.id === id);
-    if (!p) return EMPTY_FORM;
-    return {
-      propertyType: p.propertyType as PropertyType,
-      tag: p.tag as TagType,
-      address: p.address,
-      city: p.city,
-      state: p.state,
-      price: p.price,
-      priceValue: p.priceValue?.toString() ?? "",
-      beds: p.beds?.toString() ?? "",
-      baths: p.baths?.toString() ?? "",
-      sqft: p.sqft ?? "",
-      lotSize: p.lotSize ?? "",
-      utilities: p.utilities ?? "",
-      imageUrl: p.imageUrl ?? "",
-      featured: p.featured === 1,
-      sortOrder: p.sortOrder?.toString() ?? "0",
-      description: p.description ?? "",
-    };
-  };
+  function handleAdd() {
+    navigate("/scops/properties/new");
+  }
 
-  const handleSave = (form: PropertyForm) => {
-    const payload = {
-      propertyType: form.propertyType,
-      tag: form.tag,
-      address: form.address,
-      city: form.city,
-      state: form.state,
-      price: form.price,
-      priceValue: form.priceValue ? parseInt(form.priceValue) : undefined,
-      beds: form.beds ? parseInt(form.beds) : undefined,
-      baths: form.baths ? parseInt(form.baths) : undefined,
-      sqft: form.sqft || undefined,
-      lotSize: form.lotSize || undefined,
-      utilities: form.utilities || undefined,
-      imageUrl: form.imageUrl || undefined,
-      featured: form.featured ? 1 : 0,
-      sortOrder: parseInt(form.sortOrder) || 0,
-      description: form.description || undefined,
-    };
-    if (editingId === "new") {
-      createMutation.mutate(payload);
-    } else if (typeof editingId === "number") {
-      updateMutation.mutate({ id: editingId, data: payload });
-    }
-  };
-
-  const isSaving = createMutation.isPending || updateMutation.isPending;
+  const totalValue = filtered.reduce((s, p) => s + (p.price ?? 0), 0);
 
   return (
-    <div className="scops-bg" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
-      <SCOPSNav adminUser={{ name: adminUser.name, adminRole: (adminUser as any).adminRole }} currentPage="properties" />
+    <div className="min-h-screen bg-slate-50">
+      <SCOPSNav currentPage="properties" adminUser={adminUser as any} />
 
-      {/* ── KPI Stats Bar ── */}
-      <div style={{ background: "#ffffff", borderBottom: "1px solid #e2e6ed" }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 20px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-        {[
-          { label: "Available", value: availableCount, color: "#22c55e" },
-          { label: "Under Contract", value: underContractCount, color: "#f59e0b" },
-          { label: "Sold", value: soldCount, color: "#ef4444" },
-          { label: "Featured", value: featuredCount, color: "#6366f1" },
-          { label: "Total", value: properties.length, color: "#374151" },
-        ].map(stat => (
-          <div key={stat.label} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", background: "#ffffff", borderRadius: 20, border: "1px solid #e2e6ed" }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: stat.color }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: stat.color }}>{stat.value}</span>
-            <span style={{ fontSize: 11, color: "rgba(15,32,68,0.50)" }}>{stat.label}</span>
+      <div className="max-w-[1200px] mx-auto px-6 py-6 space-y-4">
+
+        {/* ── PAGE HEADER ── */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Inventory</h1>
+            <p className="text-[13px] text-slate-400 mt-0.5">
+              {filtered.length} listing{filtered.length !== 1 ? "s" : ""}
+              {totalValue > 0 && <span className="ml-1.5 text-slate-300">·</span>}
+              {totalValue > 0 && <span className="ml-1.5">{fmt$(totalValue)} total value</span>}
+            </p>
           </div>
-        ))}
-        <div style={{ flex: 1, minWidth: 120, maxWidth: 300, marginLeft: "auto", display: "flex", gap: 8 }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search address or city…" style={{ flex: 1, padding: "7px 14px", background: "#ffffff", border: "1px solid #e2e6ed", borderRadius: 20, color: "rgba(15,32,68,0.85)", fontSize: 12, outline: "none" }} />
-          <button onClick={() => setEditingId("new")} style={{ padding: "7px 16px", borderRadius: 20, background: "#0f2044", border: "none", color: "#ffffff", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Add</button>
-        </div>
-      </div>
-      </div>
-
-      {/* ── Filter Bar ── */}
-      <div style={{ background: "#ffffff", borderBottom: "1px solid #e2e6ed" }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "8px 12px", display: "flex", gap: 6, alignItems: "center", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-        {["ALL", "HOME", "LOT"].map(t => (
-          <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: typeFilter === t ? "#eef2ff" : "#ffffff", border: typeFilter === t ? "1px solid #c7d2fe" : "1px solid #e2e6ed", color: typeFilter === t ? "#6366f1" : "#374151" }}>
-            {t === "ALL" ? "All Types" : t === "HOME" ? "Homes" : "Lots"}
+          <button
+            onClick={handleAdd}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-[12px] font-semibold hover:bg-slate-700 transition-colors"
+          >
+            + Add Listing
           </button>
-        ))}
-        <div style={{ width: 1, height: 16, background: "rgba(15,32,68,0.12)", margin: "0 4px" }} />
-        {["ALL", "Available", "Under Contract", "Sold", "Coming Soon"].map(tag => {
-          const color = tag === "ALL" ? "rgba(15,32,68,0.60)" : TAG_PIN_COLORS[tag] ?? "rgba(15,32,68,0.60)";
-          return (
-            <button key={tag} onClick={() => setTagFilter(tag)} style={{ padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", background: tagFilter === tag ? `${color}18` : "#ffffff", border: tagFilter === tag ? `1px solid ${color}50` : "1px solid #e2e6ed", color: tagFilter === tag ? color : "#374151" }}>
-              {tag === "ALL" ? "All Status" : tag}
-            </button>
-          );
-        })}
-      </div>
-      </div>
+        </div>
 
-      {/* ── 3-Panel Body ── */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
-        {/* LEFT: Property list */}
-        <div style={{ width: 300, flexShrink: 0, background: "#ffffff", borderRight: "1px solid #e2e6ed", overflowY: "auto", padding: "12px" }}>
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(15,32,68,0.90)", marginBottom: 2 }}>
-              {filtered.length} Listing{filtered.length !== 1 ? "s" : ""}
-            </div>
-            <div style={{ fontSize: 11, color: "rgba(15,32,68,0.45)" }}>
-              {typeFilter === "ALL" ? "All types" : typeFilter === "HOME" ? "Homes only" : "Lots only"}
-              {tagFilter !== "ALL" ? ` · ${tagFilter}` : ""}
-            </div>
+        {/* ── STATS ROW ── */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <StatChip label="Available"      count={stats.available}     dot="bg-emerald-500" active={statusFilter === "AVAILABLE"}      onClick={() => setStatusFilter(statusFilter === "AVAILABLE"      ? "ALL" : "AVAILABLE")}      />
+          <StatChip label="Under Contract" count={stats.underContract} dot="bg-amber-500"   active={statusFilter === "UNDER_CONTRACT"} onClick={() => setStatusFilter(statusFilter === "UNDER_CONTRACT" ? "ALL" : "UNDER_CONTRACT")} />
+          <StatChip label="Sold"           count={stats.sold}          dot="bg-red-500"     active={statusFilter === "SOLD"}           onClick={() => setStatusFilter(statusFilter === "SOLD"           ? "ALL" : "SOLD")}           />
+          <StatChip label="Featured"       count={stats.featured}      dot="bg-amber-400"   />
+          <div className="ml-auto flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-slate-100">
+            <span className="w-2 h-2 rounded-full bg-slate-400" />
+            <span className="text-[12px] font-bold text-slate-800">{stats.total}</span>
+            <span className="text-[11px] text-slate-400 font-medium">Total</span>
           </div>
-          {propertiesQuery.isLoading ? (
-            <div style={{ color: "rgba(15,32,68,0.35)", textAlign: "center", padding: 40, fontSize: 13 }}>Loading…</div>
-          ) : filtered.length === 0 ? (
-            <div style={{ color: "rgba(15,32,68,0.30)", textAlign: "center", padding: 40, fontSize: 13 }}>No listings found</div>
-          ) : (
-            filtered.map(prop => (
-              <PropertyCard
-                key={prop.id}
-                property={prop}
-                selected={selectedProperty?.id === prop.id}
-                onClick={() => setSelectedProperty(selectedProperty?.id === prop.id ? null : prop)}
-              />
-            ))
-          )}
         </div>
 
-        {/* CENTER: Map */}
-        <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-          <MapView initialCenter={PAHRUMP_CENTER} initialZoom={12} onMapReady={handleMapReady} className="w-full h-full" />
-          {/* Legend */}
-          <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)",          background: "#ffffff", borderRadius: 20, padding: "8px 16px", display: "flex", gap: 16, alignItems: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.15)", fontSize: 12, fontWeight: 600 }}>
-            {[{ color: "#22c55e", label: "Available" }, { color: "#f59e0b", label: "Under Contract" }, { color: "#ef4444", label: "Sold" }, { color: "#6366f1", label: "Coming Soon" }].map(({ color, label }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 10, height: 10, borderRadius: "50%", background: color }} />
-                <span style={{ color: "#374151" }}>{label}</span>
-              </div>
-            ))}   </div>
-        </div>
+        {/* ── FILTER + SEARCH BAR ── */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Type filters */}
+          <div className="flex items-center gap-1 bg-white rounded-xl border border-slate-100 p-1">
+            {([["ALL", "All Types"], ["HOME", "Homes"], ["LOT", "Lots"]] as [FilterType, string][]).map(([k, l]) => (
+              <button key={k} onClick={() => setTypeFilter(k)}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${typeFilter === k ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}>
+                {l}
+              </button>
+            ))}
+          </div>
 
-        {/* RIGHT: Detail panel */}
-        {selectedProperty ? (
-          <div style={{ padding: "12px", background: "#ffffff", borderLeft: "1px solid #e2e6ed", overflowY: "auto" }}>
-            <PropertyDetailPanel
-              property={selectedProperty}
-              onClose={() => setSelectedProperty(null)}
-              onEdit={() => { setEditingId(selectedProperty.id); }}
-              onDelete={() => setDeletingId(selectedProperty.id)}
+          {/* Status filters */}
+          <div className="flex items-center gap-1 bg-white rounded-xl border border-slate-100 p-1">
+            {([["ALL", "All Status"], ["AVAILABLE", "Available"], ["UNDER_CONTRACT", "Under Contract"], ["SOLD", "Sold"], ["COMING_SOON", "Coming Soon"]] as [FilterStatus, string][]).map(([k, l]) => (
+              <button key={k} onClick={() => setStatusFilter(k)}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${statusFilter === k ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}>
+                {l}
+              </button>
+            ))}
+          </div>
+
+          {/* Search */}
+          <div className="relative ml-auto">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[12px]">🔍</span>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search address or city..."
+              className="text-[12px] pl-8 pr-3 py-2 rounded-xl border border-slate-200 bg-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 w-52 transition-all"
             />
           </div>
-        ) : (
-          <div style={{ width: 300, flexShrink: 0, background: "#ffffff", borderLeft: "1px solid #e2e6ed", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>📍</div>
-              <div>Click a pin or listing<br />to see details</div>
+
+          {/* Map / List toggle */}
+          <div className="flex items-center gap-1 bg-white rounded-xl border border-slate-100 p-1">
+            {(["map", "list"] as const).map((v) => (
+              <button key={v} onClick={() => setView(v)}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold capitalize transition-colors ${view === v ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}>
+                {v === "map" ? "🗺 Map" : "☰ List"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── MAIN CONTENT: MAP VIEW ── */}
+        {view === "map" && (
+          <div className="flex gap-4 items-start">
+            {/* Sidebar list */}
+            <div className="w-[220px] shrink-0 space-y-2 max-h-[620px] overflow-y-auto pr-1">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide px-1">
+                {filtered.length} listing{filtered.length !== 1 ? "s" : ""}
+              </p>
+              {filtered.map((p) => (
+                <PropertyCard
+                  key={p.id}
+                  property={p}
+                  isSelected={selected?.id === p.id}
+                  onClick={() => setSelected(selected?.id === p.id ? null : p)}
+                />
+              ))}
+              {filtered.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <span className="text-2xl mb-2 opacity-30">🏠</span>
+                  <p className="text-[12px] text-slate-400">No listings match filters</p>
+                </div>
+              )}
+            </div>
+
+            {/* Map */}
+            <div className="flex-1 h-[620px] rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+              <PropertyMap
+                properties={filtered}
+                selectedId={selected?.id ?? null}
+                onSelect={(p) => setSelected(selected?.id === p.id ? null : p)}
+              />
+            </div>
+
+            {/* Detail panel */}
+            {selected && (
+              <DetailPanel
+                property={selected}
+                onClose={() => setSelected(null)}
+                onEdit={handleEdit}
+              />
+            )}
+          </div>
+        )}
+
+        {/* ── MAIN CONTENT: LIST VIEW ── */}
+        {view === "list" && (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  {["Property", "Type", "Status", "Price", "Beds", "Baths", "Sqft", "Featured", ""].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((p) => {
+                  const s = STATUS_CONFIG[p.status];
+                  return (
+                    <tr
+                      key={p.id}
+                      onClick={() => setSelected(selected?.id === p.id ? null : p)}
+                      className={`border-b border-slate-50 hover:bg-slate-50 cursor-pointer transition-colors group ${selected?.id === p.id ? "bg-blue-50" : ""}`}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          {p.imageUrl ? (
+                            <img src={p.imageUrl} alt="" className="w-10 h-7 rounded-md object-cover border border-slate-100 shrink-0" />
+                          ) : (
+                            <div className="w-10 h-7 rounded-md bg-slate-100 flex items-center justify-center shrink-0">
+                              <span className="text-[13px] opacity-40">{p.type === "LOT" ? "🏞" : "🏠"}</span>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-[12px] font-semibold text-slate-900 truncate max-w-[200px]">{p.address}</p>
+                            <p className="text-[10px] text-slate-400">{p.city}, {p.state}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-[11px] text-slate-500">{p.type === "LOT" ? "Lot" : "Home"}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${s.badge}`}>
+                          {s.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-[13px] font-bold text-slate-900">{fmt$(p.price)}</td>
+                      <td className="px-4 py-3 text-[12px] text-slate-600">{p.beds ?? "—"}</td>
+                      <td className="px-4 py-3 text-[12px] text-slate-600">{p.baths ?? "—"}</td>
+                      <td className="px-4 py-3 text-[12px] text-slate-600">{p.sqft?.toLocaleString() ?? "—"}</td>
+                      <td className="px-4 py-3 text-[12px]">
+                        {p.featured ? <span className="text-amber-500 font-bold">★</span> : <span className="text-slate-200">—</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleEdit(p.id); }}
+                          className="opacity-0 group-hover:opacity-100 px-3 py-1 rounded-lg text-[10px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all"
+                        >
+                          Edit
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="py-12 text-center text-[12px] text-slate-400">
+                      No listings match your current filters
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            {/* Map legend */}
+            <div className="flex items-center gap-4 px-4 py-3 border-t border-slate-100 bg-slate-50/50">
+              {Object.entries(STATUS_CONFIG).map(([k, v]) => (
+                <div key={k} className="flex items-center gap-1.5">
+                  <div className={`w-2 h-2 rounded-full ${v.dot}`} />
+                  <span className="text-[10px] text-slate-500">{v.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         )}
-      </div>
 
-      {/* Add/Edit Modal */}
-      {editingId !== null && (
-        <PropertyModal
-          initial={editingId === "new" ? EMPTY_FORM : getEditForm(editingId as number)}
-          onClose={() => setEditingId(null)}
-          onSave={handleSave}
-          saving={isSaving}
-        />
-      )}
-      {/* Delete Confirm Modal */}
-      {deletingId !== null && (
-        <DeleteModal
-          address={properties.find(p => p.id === deletingId)?.address ?? "this listing"}
-          onCancel={() => setDeletingId(null)}
-          onConfirm={() => deleteMutation.mutate({ id: deletingId! })}
-          deleting={deleteMutation.isPending}
-        />
-      )}
+        {/* Detail panel in list view */}
+        {view === "list" && selected && (
+          <div className="flex justify-end">
+            <DetailPanel
+              property={selected}
+              onClose={() => setSelected(null)}
+              onEdit={handleEdit}
+            />
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }

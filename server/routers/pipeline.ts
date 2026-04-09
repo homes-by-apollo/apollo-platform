@@ -219,6 +219,7 @@ export const pipelineRouter = router({
       if (!existing) throw new TRPCError({ code: "NOT_FOUND" });
       await updateContact(input.id, {
         pipelineStage: input.stage,
+        stageEnteredAt: new Date(),
         ...(input.lossReason ? { lossReason: input.lossReason } : {}),
       });
       await logActivity({

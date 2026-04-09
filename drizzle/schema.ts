@@ -97,6 +97,7 @@ export const contacts = mysqlTable("contacts", {
   // Primary property of interest
   primaryPropertyId: int("primaryPropertyId"),
   lastContactedAt: timestamp("lastContactedAt"),
+  stageEnteredAt: timestamp("stageEnteredAt"),   // when the lead entered the current stage
   nextAction: varchar("nextAction", { length: 256 }),
   nextActionDueAt: timestamp("nextActionDueAt"),  // when next action is due
 

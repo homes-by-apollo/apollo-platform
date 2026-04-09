@@ -169,6 +169,13 @@
       "when": 1775681658951,
       "tag": "0023_slim_mister_sinister",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1775739925633,
+      "tag": "0024_moaning_the_watchers",
+      "breakpoints": true
     }
   ]
 }

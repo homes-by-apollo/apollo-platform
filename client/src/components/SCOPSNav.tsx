@@ -15,7 +15,7 @@ type NavSection = {
 // Main nav tabs — Settings removed, lives in profile dropdown now
 const NAV_SECTIONS: NavSection[] = [
   { label: "Dashboard",  key: "dashboard",   path: "/scops" },
-  { label: "Pipeline",   key: "scheduling",  path: "/scops/scheduling" },
+  { label: "Pipeline",   key: "pipeline",    path: "/scops/pipeline" },
   { label: "Inventory",  key: "properties",  path: "/scops/properties" },
   { label: "Campaigns",  key: "campaigns",   path: "/scops/campaigns" },
   { label: "Engine",     key: "engine",      path: "/scops/engine" },

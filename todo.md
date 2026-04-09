@@ -965,13 +965,21 @@
 - [x] Write vitest for email module (9 tests, all 53 tests passing)
 
 ## Three Improvements (April 2026)
-- [ ] Task 3: Add /scops/utm-builder → /scops/campaigns?tab=utm redirect in App.tsx and Express server (301)
-- [ ] Task 2: Wire KPI card click targets in SCOPSDashboard to deep-link routes
-- [ ] Task 1: Add email_sequences table, tRPC createEmailSequence + listEmailSequences, New Sequence modal in SCOPSCampaigns
+- [x] Task 3: Add /scops/utm-builder → /scops/campaigns?tab=utm redirect in App.tsx and Express server (301)
+- [x] Task 2: Wire KPI card click targets in SCOPSDashboard to deep-link routes
+- [x] Task 1: Add email_sequences table, tRPC createEmailSequence + listEmailSequences, New Sequence modal in SCOPSCampaigns
 
 ## SCOPSPipeline Overhaul (April 2026)
 - [x] Replace SCOPSPipeline.tsx with uploaded overhauled version (KPI bar, search/filter, overhauled cards, slide-out panel, Quick Add sheet)
 - [x] Fix import paths (SCOPSNav flat path, toast import)
 - [x] Fix trpc query mismatches (addActivity contactId/activityType, updateStage id, adminUser query)
 - [x] Add "pipeline" to SCOPSNav currentPage type and PAGE_TO_SECTION
+- [x] 0 TS errors, 53/53 tests passing
+
+## Quick Fixes + SCOPSProperties Overhaul (April 9, 2026)
+- [x] Fix Pipeline nav tab path in SCOPSNav from /scops/scheduling to /scops/pipeline
+- [x] Add stageEnteredAt: new Date() to updateContact call in pipeline.updateStage mutation (+ added stageEnteredAt column to contacts table via SQL)
+- [x] Call button in SCOPSPipeline slide-out panel was already wired to tel: + lead phone (confirmed at line 423)
+- [x] Replace SCOPSProperties.tsx with uploaded overhauled version
+- [x] Fix import paths and type errors in new SCOPSProperties (SCOPSNav path, declare global conflict, currentPage type, adminUser query)
 - [x] 0 TS errors, 53/53 tests passing
