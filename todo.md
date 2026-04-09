@@ -996,3 +996,12 @@
   - SCOPSEngine: inline style 1fr/1fr and 280px/1fr grids → responsive Tailwind classes
   - SCOPSProperties: filter bar stacks on mobile, status filters overflow-x-auto, map 400px on mobile, list table min-w-[700px]
 - [x] 0 TS errors, 53/53 tests passing
+
+## SCOPS Crash Fix + 5 Tasks (April 9, 2026 Session 3)
+- [x] Fix SCOPSNav crash: adminUser prop made optional with null guards (no more white-screen crash on SCOPS pages)
+- [x] Update /buyers-guide-thank-you: "Homes by Apollo" branding text at top of hero, "Get in Touch" + "Find a Home" nav buttons, rename "Schedule a Consultation" CTA to "Get in Touch"
+- [x] Build /scops/properties/:id/edit route: SCOPSPropertyEdit.tsx with pre-filled form (all property fields), update mutation, back navigation; also added /scops/properties/new route
+- [x] Register SCOPSPropertyEdit in App.tsx (import + two routes: /new and /:id/edit)
+- [x] Fix stageEnteredAt overdue banner: added stageEnteredAt to getPipelineKanban select query in db.ts (was missing, causing fallback to updatedAt)
+- [x] Fix SCOPSScheduling Calendly widget mobile overflow: changed fixed 700px height to clamp(500px, 80vh, 700px)
+- [x] 0 TS errors, 53/53 tests passing

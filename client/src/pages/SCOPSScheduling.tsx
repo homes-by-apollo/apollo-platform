@@ -74,9 +74,9 @@ function CalendlyWidget({ url }: { url: string }) {
 
   return (
     <div
-      className="calendly-inline-widget"
+      className="calendly-inline-widget overflow-y-auto"
       data-url={url}
-      style={{ minWidth: '320px', height: '700px' }}
+      style={{ minWidth: '320px', height: 'clamp(500px, 80vh, 700px)' }}
     />
   );
 }

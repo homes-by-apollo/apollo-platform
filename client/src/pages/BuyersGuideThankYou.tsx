@@ -114,12 +114,20 @@ export default function BuyersGuideThankYou() {
             style={{ height: 52, width: "auto", objectFit: "contain", display: "block" }}
           />
         </button>
-        <button
-          onClick={() => setLocation("/find-your-home")}
-          style={{ background: NAVY, color: "white", border: "none", borderRadius: 8, padding: "10px 22px", fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}
-        >
-          FIND YOUR HOME
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button
+            onClick={() => setLocation("/get-in-touch")}
+            style={{ background: "transparent", color: NAVY, border: `1.5px solid rgba(15,32,68,0.25)`, borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}
+          >
+            GET IN TOUCH
+          </button>
+          <button
+            onClick={() => setLocation("/find-your-home")}
+            style={{ background: NAVY, color: "white", border: "none", borderRadius: 8, padding: "10px 22px", fontSize: 13, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}
+          >
+            FIND A HOME
+          </button>
+        </div>
       </nav>
 
       {/* ── HERO CONFIRMATION ── */}
@@ -131,6 +139,7 @@ export default function BuyersGuideThankYou() {
           </svg>
         </div>
         <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: GOLD, marginBottom: 16 }}>You're in</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em", marginBottom: 10 }}>Homes by Apollo</div>
         <h1 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 900, color: "white", marginBottom: 18, lineHeight: 1.15 }}>
           Your 2026 Pahrump Home<br />Buyer's Guide Is on Its Way
         </h1>
@@ -267,7 +276,7 @@ export default function BuyersGuideThankYou() {
                 onClick={() => setLocation("/get-in-touch")}
                 style={{ background: "transparent", color: NAVY, border: `1.5px solid rgba(15,32,68,0.25)`, borderRadius: 10, padding: "14px 32px", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}
               >
-                SCHEDULE A CONSULTATION
+                GET IN TOUCH
               </button>
             </div>
           </div>

@@ -34,7 +34,7 @@ const PAGE_TO_SECTION: Record<string, string> = {
 };
 
 interface SCOPSNavProps {
-  adminUser: { name: string; adminRole?: string | null };
+  adminUser?: { name: string; adminRole?: string | null } | null;
   currentPage?: "dashboard" | "properties" | "users" | "utm-builder" | "campaigns" | "scheduling" | "settings" | "engine" | "email" | "pipeline";
 }
 
@@ -127,8 +127,8 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
   }, []);
 
   const activeSection = currentPage ? PAGE_TO_SECTION[currentPage] : "";
-  const firstName = adminUser.name?.split(" ")[0] ?? adminUser.name ?? "User";
-  const role = adminUser.adminRole ?? "admin";
+  const firstName = adminUser?.name?.split(" ")[0] ?? adminUser?.name ?? "User";
+  const role = adminUser?.adminRole ?? "admin";
 
   const visibleSections = NAV_SECTIONS.filter(s => {
     if (role === "sales" && (s.key === "utm-builder" || s.key === "campaigns")) return false;
@@ -244,7 +244,7 @@ export default function SCOPSNav({ adminUser, currentPage }: SCOPSNavProps) {
               >
                 {/* User info header */}
                 <div className="px-4 py-2.5 border-b border-gray-100">
-                  <div className="text-sm font-semibold text-gray-900 truncate">{adminUser.name}</div>
+                  <div className="text-sm font-semibold text-gray-900 truncate">{adminUser?.name ?? "Admin"}</div>
                   <div className="text-xs text-gray-400 mt-0.5">SCOPS Admin</div>
                 </div>
 

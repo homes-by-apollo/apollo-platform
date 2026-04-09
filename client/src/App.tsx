@@ -20,6 +20,7 @@ import SCOPSPipeline from "./pages/SCOPSPipeline";
 import SCOPSSettings from "./pages/SCOPSSettings";
 import SCOPSEngine from "./pages/SCOPSEngine";
 import SCOPSCampaigns from "./pages/SCOPSCampaigns";
+import SCOPSPropertyEdit from "./pages/SCOPSPropertyEdit";
 import FAQsPage from "./pages/FAQsPage";
 import AdminLogin from "./pages/AdminLogin";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -46,6 +47,8 @@ function Router() {
       {/* SCOPS routes (new) */}
       <Route path="/scops" component={SCOPSDashboard} />
       <Route path="/scops/properties" component={SCOPSProperties} />
+      <Route path="/scops/properties/new" component={SCOPSPropertyEdit} />
+      <Route path="/scops/properties/:id/edit" component={SCOPSPropertyEdit} />
       <Route path="/scops/blog" component={SCOPSBlog} />
       <Route path="/scops/users" component={SCOPSUsers} />
       <Route path="/scops/utm-builder">{() => <Redirect to="/scops/campaigns?tab=utm" />}</Route>

@@ -813,6 +813,7 @@ export async function getPipelineKanban() {
       updatedAt: contacts.updatedAt,
       assignedTo: contacts.assignedTo,
       primaryPropertyId: contacts.primaryPropertyId,
+      stageEnteredAt: contacts.stageEnteredAt,
       propertyAddress: properties.address,
       propertyPrice: properties.price,
       assignedUserName: users.name,
