@@ -20,6 +20,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import SCOPSNav from "@/components/SCOPSNav";
 import { toast } from "sonner";
+import { MapView } from "@/components/Map";
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -303,10 +304,12 @@ function DetailPanel({
 }
 
 // ─── MAP COMPONENT ────────────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-namespace
-declare global {
-  interface Window { initGoogleMap?: () => void; }
-}
+const MAP_STATUS_COLORS: Record<PropertyStatus, string> = {
+  AVAILABLE:      "#10b981",
+  UNDER_CONTRACT: "#f59e0b",
+  SOLD:           "#ef4444",
+  COMING_SOON:    "#3b82f6",
+};
 
 function PropertyMap({
   properties,
@@ -317,48 +320,23 @@ function PropertyMap({
   selectedId: string | null;
   onSelect: (p: Property) => void;
 }) {
-  const mapRef    = useRef<HTMLDivElement>(null);
-  const mapObj    = useRef<any>(null);
-  const markers   = useRef<any[]>([]);
+  const mapObjRef  = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
 
-  const STATUS_COLORS: Record<PropertyStatus, string> = {
-    AVAILABLE:      "#10b981",
-    UNDER_CONTRACT: "#f59e0b",
-    SOLD:           "#ef4444",
-    COMING_SOON:    "#3b82f6",
-  };
-
-  const initMap = useCallback(() => {
-    if (!mapRef.current || !window.google) return;
-    mapObj.current = new window.google.maps.Map(mapRef.current, {
-      center: { lat: 36.2078, lng: -115.9845 },
-      zoom: 11,
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: true,
-      zoomControl: true,
-      styles: [
-        { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-        { featureType: "transit", stylers: [{ visibility: "off" }] },
-      ],
-    });
-    renderMarkers();
-  }, []);
-
-  function renderMarkers() {
-    if (!mapObj.current || !window.google) return;
-    markers.current.forEach((m) => m.setMap(null));
-    markers.current = [];
-
+  const renderMarkers = useCallback(() => {
+    const mapObj = mapObjRef.current;
+    if (!mapObj || !window.google) return;
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
     properties.forEach((p) => {
       if (!p.latitude || !p.longitude) return;
       const marker = new window.google.maps.Marker({
         position: { lat: p.latitude, lng: p.longitude },
-        map: mapObj.current,
+        map: mapObj,
         icon: {
           path: window.google.maps.SymbolPath.CIRCLE,
           scale: selectedId === p.id ? 10 : 7,
-          fillColor: STATUS_COLORS[p.status] ?? "#10b981",
+          fillColor: MAP_STATUS_COLORS[p.status] ?? "#10b981",
           fillOpacity: 1,
           strokeColor: "#ffffff",
           strokeWeight: selectedId === p.id ? 3 : 2,
@@ -366,31 +344,27 @@ function PropertyMap({
         title: p.address,
       });
       marker.addListener("click", () => onSelect(p));
-      markers.current.push(marker);
+      markersRef.current.push(marker);
     });
-  }
+  }, [properties, selectedId, onSelect]);
 
   useEffect(() => {
-    if (window.google) { initMap(); return; }
-    const existing = document.getElementById("google-maps-script");
-    if (!existing) {
-      const script = document.createElement("script");
-      script.id = "google-maps-script";
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&callback=initGoogleMap`;
-      script.async = true;
-      script.defer = true;
-      window.initGoogleMap = initMap;
-      document.head.appendChild(script);
-    } else {
-      window.initGoogleMap = initMap;
-    }
-  }, []);
+    renderMarkers();
+  }, [renderMarkers]);
 
-  useEffect(() => {
-    if (mapObj.current) renderMarkers();
-  }, [properties, selectedId]);
+  const handleMapReady = useCallback((map: google.maps.Map) => {
+    mapObjRef.current = map;
+    renderMarkers();
+  }, [renderMarkers]);
 
-  return <div ref={mapRef} className="w-full h-full rounded-xl overflow-hidden" />;
+  return (
+    <MapView
+      className="w-full h-full rounded-xl overflow-hidden"
+      initialCenter={{ lat: 36.2078, lng: -115.9845 }}
+      initialZoom={11}
+      onMapReady={handleMapReady}
+    />
+  );
 }
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────

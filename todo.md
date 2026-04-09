@@ -1019,3 +1019,14 @@
 - [x] Trigger geocodeAll and verify lat/lng populated in DB for existing listings
 - [x] Bulk-patch zip code 89048 for all Pahrump listings via SQL
 - [x] Add S3 drag-and-drop image uploader to SCOPSPropertyEdit (tRPC upload endpoint + frontend dropzone)
+
+## SCOPS Gallery + Map Verifier + Zip on Cards (April 9, 2026 Session 7)
+- [ ] Multi-image gallery uploader: extend dropzone to Gallery section in SCOPSPropertyEdit
+- [ ] Verify on Map: inline MapView in SCOPSPropertyEdit centered on geocoded lat/lng
+- [ ] Surface zip on public /homes listing cards
+- [ ] Fix Google Maps error on Inventory tab Map View (proxy auth issue)
+
+## Map Fix + Resend API (April 9, 2026 Session 8)
+- [x] Fix Inventory map: replace direct googleapis.com load with Manus proxy MapView
+- [x] Wire Resend Audiences API: tRPC procedure for live subscriber count + engagement metrics
+- [x] Display live Resend data in Engine tab (subscriber count, open rate, click rate)

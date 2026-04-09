@@ -387,6 +387,25 @@ export const emailRouter = router({
     .query(async ({ input }) => {
       return getCampaignStats(input.campaignId);
     }),
+
+  // ── Resend Audience Stats ──────────────────────────────────────────────────
+
+  getResendAudienceStats: protectedProcedure.query(async () => {
+    try {
+      const resend = getResend();
+      const result = await resend.contacts.list();
+      if (result.error) {
+        return { total: 0, active: 0, unsubscribed: 0, error: result.error.message };
+      }
+      const contacts = result.data?.data ?? [];
+      const total = contacts.length;
+      const unsubscribed = contacts.filter((c) => c.unsubscribed).length;
+      const active = total - unsubscribed;
+      return { total, active, unsubscribed, error: null };
+    } catch (err: any) {
+      return { total: 0, active: 0, unsubscribed: 0, error: err?.message ?? "Unknown error" };
+    }
+  }),
 });
 
 export type EmailRouter = typeof emailRouter;

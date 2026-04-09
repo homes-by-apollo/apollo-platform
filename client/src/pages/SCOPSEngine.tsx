@@ -238,6 +238,8 @@ export default function SCOPSEngine() {
   const adminUser = adminMeQuery.data;
   // All hooks must be declared before any conditional returns (React Rules of Hooks)
   const [view, setView] = useState<ViewMode>("automations");
+  const { data: audienceStats, isLoading: audienceLoading } = trpc.email.getResendAudienceStats.useQuery();
+  const { data: emailStats } = trpc.email.getOverallStats.useQuery();
   const [automations, setAutomations] = useState<Automation[]>(INITIAL_AUTOMATIONS);
   const [templates, setTemplates] = useState<Template[]>(INITIAL_TEMPLATES);
   const [search, setSearch] = useState("");
@@ -321,6 +323,53 @@ export default function SCOPSEngine() {
           <OverviewCard value={templates.length} label="Templates" sub="Email, task, and SMS" />
           <OverviewCard value={runsToday} label="Runs Today" sub="Last run 18 min ago" />
           <OverviewCard value={issueCount} label="Issues" sub={issueCount > 0 ? `${issueCount} automation needs attention` : "All automations healthy"} accent={issueCount > 0 ? "#b45309" : undefined} />
+        </div>
+
+        {/* ── Resend Audience Stats ── */}
+        <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 14, padding: "20px 24px", marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>Resend Audience</div>
+              <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>Live subscriber data from Resend Contacts API</div>
+            </div>
+            {audienceStats?.error && (
+              <span style={{ fontSize: 11, padding: "4px 10px", borderRadius: 20, background: "#fef3c7", color: "#b45309", fontWeight: 600 }}>
+                ⚠ API error — check RESEND_API_KEY
+              </span>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 140, background: "#f0fdf4", borderRadius: 10, padding: "16px 18px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#15803d", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Total Subscribers</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#111827", lineHeight: 1 }}>
+                {audienceLoading ? "—" : (audienceStats?.total ?? 0).toLocaleString()}
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 140, background: "#eff6ff", borderRadius: 10, padding: "16px 18px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#1d4ed8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Active</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#111827", lineHeight: 1 }}>
+                {audienceLoading ? "—" : (audienceStats?.active ?? 0).toLocaleString()}
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 140, background: "#fef3c7", borderRadius: 10, padding: "16px 18px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#b45309", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Unsubscribed</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#111827", lineHeight: 1 }}>
+                {audienceLoading ? "—" : (audienceStats?.unsubscribed ?? 0).toLocaleString()}
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 140, background: "#f9fafb", borderRadius: 10, padding: "16px 18px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Open Rate</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#111827", lineHeight: 1 }}>
+                {emailStats ? `${emailStats.openRate}%` : "—"}
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 140, background: "#f9fafb", borderRadius: 10, padding: "16px 18px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Click Rate</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#111827", lineHeight: 1 }}>
+                {emailStats ? `${emailStats.clickRate}%` : "—"}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ── View toggle ── */}
