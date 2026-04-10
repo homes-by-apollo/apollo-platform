@@ -1080,3 +1080,9 @@
 
 ## Redirect + Naming Session (April 9, 2026)
 - [x] Add /buyers-guide redirect to /pahrump-home-buyers-guide in App.tsx
+
+## Ads Launch Package (April 10, 2026)
+- [x] Write Google Ads launch package (3 campaigns, full ad copy, keyword lists, negative keywords, extensions, conversion tracking)
+- [x] Install Meta Pixel code in index.html (placeholder — replace YOUR_PIXEL_ID_HERE with actual Pixel ID after Business Manager setup)
+- [x] Write Meta ad copy brief (3 campaigns: Awareness $400, Lead Form $300, Retargeting $200) with full copy and audience specs
+- [x] Write Google Business Profile optimization checklist (setup, photos, posts, reviews, week-by-week timeline)
