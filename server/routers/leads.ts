@@ -125,7 +125,7 @@ async function sendLeadWelcomeEmail(contact: {
         <p style="color: #4a5568; font-size: 14px; line-height: 1.6; margin: 0 0 8px;">
           <strong>Brandon Stavros</strong><br>
           Homes by Apollo<br>
-          (775) 363-1616
+          (775) 910-7771
         </p>
         ${contact.contactType === "BUYER" ? `
         <p style="color: #6b7280; font-size: 13px; font-style: italic; margin: 20px 0 0; padding: 16px; background: #f9fafb; border-radius: 6px; border-left: 3px solid #e8ecf0;">
@@ -555,7 +555,7 @@ export const leadsRouter = router({
   <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/apollo-logo.png" alt="Homes by Apollo" style="height:40px;margin-bottom:24px" />
   <div style="color:#111827;line-height:1.7;font-size:15px;white-space:pre-wrap">${input.body.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
   <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0" />
-  <p style="color:#9ca3af;font-size:12px">Apollo Home Builders · Pahrump, NV · (775) 363-1616</p>
+  <p style="color:#9ca3af;font-size:12px">Apollo Home Builders · Pahrump, NV · (775) 910-7771</p>
   <p style="color:#9ca3af;font-size:11px">You are receiving this because you expressed interest in our homes. <a href="#" style="color:#6b7280">Unsubscribe</a></p>
 </div>`;
 

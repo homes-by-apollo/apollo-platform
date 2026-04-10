@@ -54,7 +54,7 @@ export function GlobalFooter() {
             <div>
               <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
                 <img
-                  src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_48c145a3.png"
+                  src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_white_a5a8cfc6.png"
                   alt="Homes by Apollo"
                   style={{ height:52, width:52, objectFit:"contain", flexShrink:0 }}
                 />
@@ -109,7 +109,7 @@ export function GlobalFooter() {
             {/* RIGHT: Call Us Free + phone + address */}
             <div style={{ paddingTop:4 }}>
               <div style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:10, letterSpacing:"0.02em" }}>Call Us Free</div>
-              <a href="tel:7753631616" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>(775) 363-1616</a>
+              <a href="tel:7759107771" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>(775) 910-7771</a>
               <div style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.7 }}>
                 4081 Jessica St<br/>
                 Pahrump, NV 89048
@@ -127,7 +127,7 @@ export function GlobalFooter() {
               ["Company",  [["Home","/"],["About Us","/"],["Contact","/get-in-touch"]]],
               ["Properties",[["Homes","/find-your-home"],["Floor Plans","/floor-plans"],["Lots","/find-your-home"]]],
               ["Resources", [["Blog","/blog"],["FAQ","/faqs"],["Instagram","https://www.instagram.com/homesby.apollo/"]]],
-              ["Free Guides", [["Home Buyer's Guide","/#buyers-guide"],["Listing Alerts","/listing-alerts"],["Pahrump vs. Las Vegas","/pahrump-vs-las-vegas"],["Free Lot Analysis","/free-lot-analysis"]]],
+              ["Free Guides", [["Home Buyer's Guide","/buyers-guide"],["Listing Alerts","/listing-alerts"],["Pahrump vs. Las Vegas","/pahrump-vs-las-vegas"],["Free Lot Analysis","/free-lot-analysis"]]],
             ] as [string, [string, string][]][]).map(([heading, links])=>(
               <div key={heading}>
                 <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>

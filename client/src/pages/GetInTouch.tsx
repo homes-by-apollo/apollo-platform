@@ -163,9 +163,9 @@ export default function GetInTouch() {
             <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: "0.06em", color: NAVY }}>APOLLO</span>
           </div>
         </a>
-        <a href="tel:7753631616" style={{ fontSize: 14, fontWeight: 600, color: NAVY, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
+        <a href="tel:7759107771" style={{ fontSize: 14, fontWeight: 600, color: NAVY, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-          (775) 363-1616
+          (775) 910-7771
         </a>
       </nav>
 
@@ -202,7 +202,7 @@ export default function GetInTouch() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
-                { label: "Phone", val: "(775) 363-1616", href: "tel:7753631616" },
+                { label: "Phone", val: "(775) 910-7771", href: "tel:7759107771" },
                 { label: "Email", val: "brandon@apollohomebuilders.com", href: "mailto:brandon@apollohomebuilders.com" },
                 { label: "Office", val: "5158 Arville St, Las Vegas, NV 89118", href: undefined },
                 { label: "License", val: "NV No. 0077907", href: undefined },
@@ -327,7 +327,7 @@ export default function GetInTouch() {
                       </div>
                       {submitMutation.isError && (
                         <div style={{ background: "#fff0f0", border: "1px solid #fca5a5", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "#dc2626" }}>
-                          Something went wrong. Please try again or call us at (775) 363-1616.
+                          Something went wrong. Please try again or call us at (775) 910-7771.
                         </div>
                       )}
                       <button onClick={handleFinalSubmit} disabled={submitMutation.isPending}

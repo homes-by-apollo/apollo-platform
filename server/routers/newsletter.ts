@@ -71,7 +71,7 @@ async function sendNewsletterConfirmation(email: string): Promise<void> {
               </p>
               <table cellpadding="0" cellspacing="0" style="margin-bottom:12px;"><tr>
                 <td style="background:#c9a84c;border-radius:8px;">
-                  <a href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-Pahrump-Home-Buyers-Guide_0f00d242.pdf" style="display:inline-block;padding:14px 28px;font-size:14px;font-weight:700;color:#0f2044;text-decoration:none;letter-spacing:0.02em;">&#8595; Download Your Free Guide (PDF)</a>
+                  <a href="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-Pahrump-Home-Buyers-Guide_ad685e4b.pdf" style="display:inline-block;padding:14px 28px;font-size:14px;font-weight:700;color:#0f2044;text-decoration:none;letter-spacing:0.02em;">&#8595; Download Your Free Guide (PDF)</a>
                 </td>
               </tr></table>
               <table cellpadding="0" cellspacing="0"><tr>

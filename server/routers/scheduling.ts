@@ -113,7 +113,7 @@ async function sendTourConfirmationEmail(params: {
   const icsContent = buildIcs({
     uid: `tour-${params.tourId}@apollohomebuilders.com`,
     summary: `Home Tour — ${address}`,
-    description: `Your home tour with Homes by Apollo has been scheduled.\n\nProperty: ${address}\nDate: ${dateStr}\nTime: ${timeStr}\n\nQuestions? Call us at (775) 363-1616 or visit apollohomebuilders.com`,
+    description: `Your home tour with Homes by Apollo has been scheduled.\n\nProperty: ${address}\nDate: ${dateStr}\nTime: ${timeStr}\n\nQuestions? Call us at (775) 910-7771 or visit apollohomebuilders.com`,
     location: address,
     startTime: params.startTime,
     endTime: params.endTime,
@@ -146,7 +146,7 @@ async function sendTourConfirmationEmail(params: {
                 </td></tr>
               </table>
               <p style="margin:0 0 8px;font-size:14px;color:#666;line-height:1.6;">A calendar invite is attached to this email. Add it to your calendar to get a reminder.</p>
-              <p style="margin:0;font-size:14px;color:#666;line-height:1.6;">Questions? Call us at <strong>(775) 363-1616</strong> or visit <a href="https://apollohomebuilders.com" style="color:#c9a84c;">apollohomebuilders.com</a>.</p>
+              <p style="margin:0;font-size:14px;color:#666;line-height:1.6;">Questions? Call us at <strong>(775) 910-7771</strong> or visit <a href="https://apollohomebuilders.com" style="color:#c9a84c;">apollohomebuilders.com</a>.</p>
             </td></tr>
             <tr><td style="border-top:1px solid #eee;padding:24px 48px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#aaa;line-height:1.6;">Homes by Apollo &middot; Pahrump, Nevada</p>

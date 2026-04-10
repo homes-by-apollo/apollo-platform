@@ -198,7 +198,7 @@ export default function FAQsPage() {
           </h1>
           <p style={{ fontSize: 17, color: "rgba(255,255,255,0.72)", lineHeight: 1.65, margin: "0 0 28px" }}>
             Have a question not covered here? Call us at{" "}
-            <a href="tel:+17753631616" style={{ color: GOLD, textDecoration: "none", fontWeight: 600 }}>(775) 363-1616</a>{" "}
+            <a href="tel:+17759107771" style={{ color: GOLD, textDecoration: "none", fontWeight: 600 }}>(775) 910-7771</a>{" "}
             or get in touch with our team.
           </p>
           <a
@@ -278,10 +278,10 @@ export default function FAQsPage() {
               Check Availability →
             </a>
             <a
-              href="tel:+17753631616"
+              href="tel:+17759107771"
               style={{ display: "inline-block", background: "rgba(255,255,255,0.1)", color: "white", fontWeight: 600, fontSize: 15, padding: "14px 28px", borderRadius: 10, textDecoration: "none", border: "1.5px solid rgba(255,255,255,0.2)" }}
             >
-              Call (775) 363-1616
+              Call (775) 910-7771
             </a>
           </div>
         </div>

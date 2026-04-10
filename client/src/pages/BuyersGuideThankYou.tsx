@@ -5,7 +5,7 @@ import { GlobalFooter } from "@/components/GlobalFooter";
 import { Helmet } from "react-helmet-async";
 
 const COVER_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-home-buyers-guide-cover_56befa3f.png";
-const PDF_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-Pahrump-Home-Buyers-Guide_0f00d242.pdf";
+const PDF_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/2026-Pahrump-Home-Buyers-Guide_ad685e4b.pdf";
 const GUIDE_SHARE_URL = "https://apollohomebuilders.com/buyers-guide";
 // Black owl + wordmark — same as homepage
 const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_clean-Edited_22d5e06c.png";

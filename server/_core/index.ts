@@ -248,7 +248,7 @@ function scheduleLeadReengagement() {
   </p>
   <a href="https://apollohomebuilders.com/scops/pipeline" style="display:inline-block;background:#0f2044;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;margin-top:8px">Open Pipeline</a>
   <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0" />
-  <p style="color:#9ca3af;font-size:12px">Apollo Home Builders &middot; Pahrump, NV &middot; (775) 363-1616</p>
+  <p style="color:#9ca3af;font-size:12px">Apollo Home Builders &middot; Pahrump, NV &middot; (775) 910-7771</p>
 </div>`;
           try {
             await resend.emails.send({

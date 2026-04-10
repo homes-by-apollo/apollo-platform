@@ -1066,3 +1066,9 @@
 
 ## Logo Fix — All Sub-Pages (April 9, 2026 Session 13)
 - [x] Replace broken white owl logo with correct homepage logo markup on all lead magnet and sub-pages (FloorPlans, FloorPlanDetail, ListingAlerts, PahrumpVsLasVegas, FreeLotAnalysis)
+
+## Phone Number + Logo Link Fix (April 9, 2026 Session 14)
+- [x] Replace (775) 363-1616 with (775) 910-7771 across all source files (14 occurrences across 9 files)
+- [x] Regenerate Buyer's Guide PDF with updated phone number — new CDN URL uploaded
+- [x] Fix Find Your Home logo link to push / URL (nav("home") now calls setLocation("/"))
+- [x] Fix footer Home Buyer's Guide link (/#buyers-guide → /buyers-guide)
