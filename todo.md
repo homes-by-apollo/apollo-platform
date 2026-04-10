@@ -1051,3 +1051,7 @@
 - [x] Dashboard tab: remove Deals at Risk section
 - [x] Pipeline tab: add Deals at Risk section at the top (fetches from pipeline.dealsAtRisk tRPC procedure)
 - [x] Campaigns tab: replace Landing Pages with Lead Magnets board (5 lead magnets, Plausible visitors/leads/conv rate per page)
+
+## Nav Fixes (April 9, 2026 Session 11)
+- [x] Fix logo + add Get in Touch / Find Your Home buttons on all lead magnet pages (listing-alerts, pahrump-vs-las-vegas, free-lot-analysis, floor-plans, floor-plan detail)
+- [x] Remove Floor Plans, Blog, FAQ links from home page top nav (desktop + mobile)
