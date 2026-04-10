@@ -18,7 +18,7 @@ function EmailGateModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
     ev.preventDefault();
     if (!email) { setError("Email is required"); return; }
     setError("");
-    subscribe.mutate({ email, name: name || undefined, propertyType: "BOTH" });
+    subscribe.mutate({ email, name: name || undefined, propertyType: "BOTH", source: "pahrump-vs-las-vegas" });
   };
 
   return (

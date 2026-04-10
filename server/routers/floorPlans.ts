@@ -5,6 +5,16 @@ import { floorPlans, floorPlanRequests, listingAlertSubscribers, lotAnalysisRequ
 import { eq, asc } from "drizzle-orm";
 import { Resend } from "resend";
 import { TRPCError } from "@trpc/server";
+import { addListMember } from "../emailDb";
+
+// ─── Lead Magnet List IDs (seeded in DB) ─────────────────────────────────────
+const LIST_IDS = {
+  BUYERS_GUIDE: 1,
+  LISTING_ALERTS: 2,
+  PAHRUMP_VS_LV: 3,
+  FREE_LOT_ANALYSIS: 4,
+  FLOOR_PLANS: 5,
+} as const;
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -87,6 +97,14 @@ export const floorPlansRouter = router({
         name: input.name,
         phone: input.phone,
       });
+
+      // Add to Floor Plans email list (non-blocking)
+      addListMember({
+        listId: LIST_IDS.FLOOR_PLANS,
+        email: input.email,
+        name: input.name,
+        source: "floor-plans",
+      }).catch(err => console.error("[FloorPlan] List member add failed:", err));
 
       // Send email with PDF link (or link to floor plan page)
       const pdfLink = plan.pdfUrl ?? `https://apollohomebuilders.com/floor-plans/${plan.slug}`;
@@ -205,6 +223,7 @@ export const floorPlansRouter = router({
       priceMin: z.number().optional(),
       priceMax: z.number().optional(),
       propertyType: z.enum(["HOME", "LOT", "BOTH"]).default("BOTH"),
+      source: z.string().optional(), // e.g. "listing-alerts", "pahrump-vs-las-vegas"
     }))
     .mutation(async ({ input }) => {
       // Upsert — if email exists, update preferences
@@ -230,6 +249,17 @@ export const floorPlansRouter = router({
           propertyType: input.propertyType,
         });
       }
+
+      // Add to the correct email list based on source (non-blocking)
+      const listId = input.source === "pahrump-vs-las-vegas"
+        ? LIST_IDS.PAHRUMP_VS_LV
+        : LIST_IDS.LISTING_ALERTS;
+      addListMember({
+        listId,
+        email: input.email,
+        name: input.name,
+        source: input.source ?? "listing-alerts",
+      }).catch(err => console.error("[ListingAlerts] List member add failed:", err));
 
       // Send confirmation email
       try {
@@ -279,6 +309,15 @@ export const floorPlansRouter = router({
         goals: input.goals,
         timeline: input.timeline,
       });
+
+      // Add to Free Lot Analysis email list (non-blocking)
+      addListMember({
+        listId: LIST_IDS.FREE_LOT_ANALYSIS,
+        email: input.email,
+        name: input.name,
+        source: "free-lot-analysis",
+      }).catch(err => console.error("[LotAnalysis] List member add failed:", err));
+
       try {
         const resend = getResend();
         await resend.emails.send({

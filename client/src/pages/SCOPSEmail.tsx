@@ -29,7 +29,62 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Mail, Users, BarChart2, Plus, Trash2, Send, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, Users, BarChart2, Plus, Trash2, Send, Eye, ChevronDown, ChevronUp, ExternalLink, BookOpen, Bell, MapPin, Search, Home } from "lucide-react";
+
+// ─── Lead Magnet List Metadata ────────────────────────────────────────────────
+
+const LEAD_MAGNET_LISTS = [
+  {
+    id: 1,
+    name: "Buyer's Guide",
+    icon: BookOpen,
+    color: "#c8a96e",
+    bg: "rgba(200,169,110,0.12)",
+    border: "rgba(200,169,110,0.25)",
+    url: "/pahrump-home-buyers-guide",
+    description: "Downloaded the 2026 Pahrump Home Buyer's Guide",
+  },
+  {
+    id: 2,
+    name: "Listing Alerts",
+    icon: Bell,
+    color: "#60a5fa",
+    bg: "rgba(96,165,250,0.12)",
+    border: "rgba(96,165,250,0.25)",
+    url: "/listing-alerts",
+    description: "Signed up for new listing alerts",
+  },
+  {
+    id: 3,
+    name: "Pahrump vs Las Vegas",
+    icon: MapPin,
+    color: "#34d399",
+    bg: "rgba(52,211,153,0.12)",
+    border: "rgba(52,211,153,0.25)",
+    url: "/pahrump-vs-las-vegas",
+    description: "Requested the Pahrump vs Las Vegas comparison report",
+  },
+  {
+    id: 4,
+    name: "Free Lot Analysis",
+    icon: Search,
+    color: "#f472b6",
+    bg: "rgba(244,114,182,0.12)",
+    border: "rgba(244,114,182,0.25)",
+    url: "/free-lot-analysis",
+    description: "Submitted a lot for free analysis",
+  },
+  {
+    id: 5,
+    name: "Floor Plans",
+    icon: Home,
+    color: "#a78bfa",
+    bg: "rgba(167,139,250,0.12)",
+    border: "rgba(167,139,250,0.25)",
+    url: "/floor-plans",
+    description: "Requested a floor plan PDF",
+  },
+];
 
 type Tab = "lists" | "campaigns" | "analytics";
 
@@ -137,8 +192,61 @@ function ListsTab() {
     },
   });
 
+  // Get member counts for lead magnet lists
+  const leadMagnetListsWithCounts = LEAD_MAGNET_LISTS.map((lm) => ({
+    ...lm,
+    memberCount: lists.find((l) => l.id === lm.id)?.memberCount ?? 0,
+  }));
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="space-y-8">
+      {/* Lead Magnet Lists Overview */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-base font-semibold text-white">Lead Magnet Lists</h2>
+            <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>Each list auto-populates when a visitor opts in on the corresponding page</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+          {leadMagnetListsWithCounts.map((lm) => {
+            const Icon = lm.icon;
+            return (
+              <button
+                key={lm.id}
+                onClick={() => setSelectedList(selectedList === lm.id ? null : lm.id)}
+                className="text-left rounded-xl p-4 transition-all hover:scale-[1.02]"
+                style={{
+                  background: selectedList === lm.id ? lm.bg : "rgba(255,255,255,0.04)",
+                  border: selectedList === lm.id ? `1px solid ${lm.border}` : "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: lm.bg, border: `1px solid ${lm.border}` }}>
+                    <Icon size={15} style={{ color: lm.color }} />
+                  </div>
+                  <a
+                    href={lm.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="transition-opacity hover:opacity-100 opacity-40"
+                    style={{ color: "#94a3b8" }}
+                  >
+                    <ExternalLink size={13} />
+                  </a>
+                </div>
+                <div className="text-2xl font-bold text-white mb-0.5">{lm.memberCount}</div>
+                <div className="text-xs font-semibold" style={{ color: lm.color }}>{lm.name}</div>
+                <div className="text-xs mt-1 leading-relaxed" style={{ color: "#64748b" }}>{lm.description}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* All Lists — sidebar + members panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* List sidebar */}
       <div className="lg:col-span-1">
         <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -256,6 +364,7 @@ function ListsTab() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,11 @@ import { newsletterSubscribers } from "../../drizzle/schema";
 import { publicProcedure, router } from "../_core/trpc";
 import { ENV } from "../_core/env";
 import { eq } from "drizzle-orm";
+import { addListMember } from "../emailDb";
+
+// Lead Magnet List IDs
+const BUYERS_GUIDE_LIST_ID = 1;
+const PAHRUMP_VS_LV_LIST_ID = 3;
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 const RESEND_AUDIENCES_URL = "https://api.resend.com/audiences";
@@ -145,6 +150,16 @@ export const newsletterRouter = router({
       addToResendAudience(input.email).catch(err =>
         console.error("[Newsletter] Audience add failed:", err)
       );
+
+      // Add to Buyer's Guide email list (non-blocking)
+      const listId = input.source === "pahrump-vs-las-vegas"
+        ? PAHRUMP_VS_LV_LIST_ID
+        : BUYERS_GUIDE_LIST_ID;
+      addListMember({
+        listId,
+        email: input.email,
+        source: input.source ?? "buyers-guide",
+      }).catch(err => console.error("[Newsletter] List member add failed:", err));
 
       // Send confirmation email (non-blocking)
       sendNewsletterConfirmation(input.email).catch(err =>

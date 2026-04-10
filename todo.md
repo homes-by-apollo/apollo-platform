@@ -1086,3 +1086,9 @@
 - [x] Install Meta Pixel code in index.html (placeholder — replace YOUR_PIXEL_ID_HERE with actual Pixel ID after Business Manager setup)
 - [x] Write Meta ad copy brief (3 campaigns: Awareness $400, Lead Form $300, Retargeting $200) with full copy and audience specs
 - [x] Write Google Business Profile optimization checklist (setup, photos, posts, reviews, week-by-week timeline)
+
+## Lead Magnet Email Lists in SCOPS (April 10, 2026)
+- [x] Add emailLists and emailListSubscribers tables to schema
+- [x] Seed 5 lead magnet lists (Buyer's Guide, Listing Alerts, Pahrump vs LV, Free Lot Analysis, Floor Plans)
+- [x] Wire each lead magnet opt-in form to tag subscribers to the correct list
+- [x] Build Email Lists view in SCOPS Email tab showing subscriber counts and export per list
