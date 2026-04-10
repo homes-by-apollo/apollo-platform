@@ -120,6 +120,30 @@ export const analyticsRouter = router({
     }),
 
   /**
+   * Protected: fetch per-day timeseries for a single lead magnet page from Plausible.
+   */
+  getLeadMagnetTimeseries: protectedProcedure
+    .input(z.object({
+      path:   z.string(),
+      period: z.enum(["7d", "30d", "month", "6mo", "12mo"]).default("30d"),
+    }))
+    .query(async ({ input }) => {
+      const apiKey = process.env.PLAUSIBLE_API_KEY;
+      if (!apiKey) return { configured: false, timeseries: [] };
+      try {
+        const encoded = encodeURIComponent(input.path);
+        const ts = await plausibleFetch<TimeseriesResult>(
+          `/stats/timeseries?site_id=${SITE_ID}&period=${input.period}&metrics=visitors&filters=event:page==${encoded}`,
+          apiKey
+        );
+        return { configured: true, timeseries: ts.results };
+      } catch (err) {
+        console.error("[analyticsRouter] getLeadMagnetTimeseries failed:", err);
+        return { configured: true, timeseries: [] };
+      }
+    }),
+
+  /**
    * Protected: fetch website traffic stats from Plausible.
    * Supports period: "7d" | "30d" | "month" | "6mo" | "12mo"
    */

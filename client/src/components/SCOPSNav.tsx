@@ -14,11 +14,12 @@ type NavSection = {
 
 // Main nav tabs — Settings removed, lives in profile dropdown now
 const NAV_SECTIONS: NavSection[] = [
-  { label: "Dashboard",  key: "dashboard",   path: "/scops" },
-  { label: "Pipeline",   key: "pipeline",    path: "/scops/pipeline" },
-  { label: "Inventory",  key: "properties",  path: "/scops/properties" },
-  { label: "Campaigns",  key: "campaigns",   path: "/scops/campaigns" },
-  { label: "Engine",     key: "engine",      path: "/scops/engine" },
+  { label: "Dashboard",    key: "dashboard",    path: "/scops" },
+  { label: "Pipeline",     key: "pipeline",     path: "/scops/pipeline" },
+  { label: "Inventory",    key: "properties",   path: "/scops/properties" },
+  { label: "Floor Plans",  key: "floor-plans",  path: "/scops/floor-plans" },
+  { label: "Campaigns",    key: "campaigns",    path: "/scops/campaigns" },
+  { label: "Engine",       key: "engine",       path: "/scops/engine" },
 ];
 
 const PAGE_TO_SECTION: Record<string, string> = {
@@ -35,7 +36,7 @@ const PAGE_TO_SECTION: Record<string, string> = {
 
 interface SCOPSNavProps {
   adminUser?: { name: string; adminRole?: string | null } | null;
-  currentPage?: "dashboard" | "properties" | "users" | "utm-builder" | "campaigns" | "scheduling" | "settings" | "engine" | "email" | "pipeline";
+  currentPage?: "dashboard" | "properties" | "users" | "utm-builder" | "campaigns" | "scheduling" | "settings" | "engine" | "email" | "pipeline" | "floor-plans";
 }
 
 function LiveClock() {

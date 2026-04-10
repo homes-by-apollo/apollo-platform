@@ -303,6 +303,23 @@ export const floorPlansRouter = router({
       return { success: true };
     }),
 
+  // Admin: upload a floor plan asset (image or PDF) to S3
+  uploadAsset: protectedProcedure
+    .input(z.object({
+      filename: z.string(),
+      mimeType: z.string(),
+      base64:   z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+      const { storagePut } = await import("../storage");
+      const buf = Buffer.from(input.base64, "base64");
+      const ext = input.filename.split(".").pop() ?? "bin";
+      const key = `floor-plans/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { url } = await storagePut(key, buf, input.mimeType);
+      return { url };
+    }),
+
   // Admin: get listing alert subscribers
   getListingAlertSubscribers: protectedProcedure
     .query(async ({ ctx }) => {

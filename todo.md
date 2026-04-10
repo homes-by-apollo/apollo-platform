@@ -1055,3 +1055,11 @@
 ## Nav Fixes (April 9, 2026 Session 11)
 - [x] Fix logo + add Get in Touch / Find Your Home buttons on all lead magnet pages (listing-alerts, pahrump-vs-las-vegas, free-lot-analysis, floor-plans, floor-plan detail)
 - [x] Remove Floor Plans, Blog, FAQ links from home page top nav (desktop + mobile)
+
+## Session 12 (April 9, 2026)
+- [x] Lead Magnet drill-down side panel with Plausible timeseries chart in Campaigns tab
+- [x] SCOPS Floor Plans admin tab (manage images, pricing, PDF links) — new page at /scops/floor-plans
+- [x] Inventory map marker clustering (MarkerClusterer from CDN, navy badge style)
+- [x] Draft ApolloHomeBuilders.com site summary with page links
+- [x] Draft SCOPS summary with tab links
+- [x] Revise Brandon & Jonathan onboarding email

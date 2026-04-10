@@ -320,21 +320,34 @@ function PropertyMap({
   selectedId: string | null;
   onSelect: (p: Property) => void;
 }) {
-  const mapObjRef  = useRef<google.maps.Map | null>(null);
+  const mapObjRef     = useRef<google.maps.Map | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const markersRef = useRef<any[]>([]);
+  const markersRef    = useRef<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const clustererRef  = useRef<any>(null);
 
-  const renderMarkers = useCallback(() => {
+  const renderMarkers = useCallback(async () => {
     const mapObj = mapObjRef.current;
     if (!mapObj || !window.google) return;
-    // Clear existing markers
+
+    // Tear down previous clusterer
+    if (clustererRef.current) {
+      clustererRef.current.clearMarkers();
+      clustererRef.current = null;
+    }
+    // Clear stray markers
     markersRef.current.forEach((m) => { m.map = null; });
     markersRef.current = [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const AdvancedMarkerElement = (window.google.maps as any).marker?.AdvancedMarkerElement;
+    if (!AdvancedMarkerElement) return;
+
+    const newMarkers: any[] = [];
     properties.forEach((p) => {
       if (!p.latitude || !p.longitude) return;
       const color = MAP_STATUS_COLORS[p.status] ?? "#10b981";
       const isSelected = selectedId === p.id;
-      // Create a styled pin element
       const pin = document.createElement("div");
       pin.style.cssText = [
         `width:${isSelected ? 20 : 14}px`,
@@ -346,17 +359,67 @@ function PropertyMap({
         "cursor:pointer",
         "transition:all 0.15s",
       ].join(";");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const AdvancedMarkerElement = (window.google.maps as any).marker?.AdvancedMarkerElement;
-      if (!AdvancedMarkerElement) return;
       const marker = new AdvancedMarkerElement({
-        map: mapObj,
+        map: null,          // don't add to map directly — clusterer manages this
         position: { lat: p.latitude, lng: p.longitude },
         title: p.address,
         content: pin,
       });
       marker.addListener("click", () => onSelect(p));
-      markersRef.current.push(marker);
+      newMarkers.push(marker);
+    });
+    markersRef.current = newMarkers;
+
+    // Lazy-load @googlemaps/markerclusterer from CDN if not already loaded
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let MarkerClusterer = (window as any).__MarkerClusterer;
+    if (!MarkerClusterer) {
+      try {
+        const CDN_URL = "https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer@2.5.3/dist/index.esm.js";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mod = await (Function("url", "return import(url)")(CDN_URL)) as any;
+        MarkerClusterer = mod.MarkerClusterer;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).__MarkerClusterer = MarkerClusterer;
+      } catch {
+        // Fallback: add markers directly without clustering
+        newMarkers.forEach(m => { m.map = mapObj; });
+        return;
+      }
+    }
+
+    // Cluster renderer — shows count badge
+    const renderer = {
+      render: ({ count, position }: { count: number; position: google.maps.LatLng }) => {
+        const el = document.createElement("div");
+        el.style.cssText = [
+          "display:flex",
+          "align-items:center",
+          "justify-content:center",
+          "width:36px",
+          "height:36px",
+          "background:#0f2044",
+          "border:2px solid #fff",
+          "border-radius:50%",
+          "color:#fff",
+          "font-size:11px",
+          "font-weight:700",
+          "box-shadow:0 2px 8px rgba(0,0,0,0.4)",
+          "cursor:pointer",
+        ].join(";");
+        el.textContent = String(count);
+        return new AdvancedMarkerElement({
+          position,
+          content: el,
+          zIndex: 9999,
+        });
+      },
+    };
+
+    clustererRef.current = new MarkerClusterer({
+      map: mapObj,
+      markers: newMarkers,
+      renderer,
     });
   }, [properties, selectedId, onSelect]);
 

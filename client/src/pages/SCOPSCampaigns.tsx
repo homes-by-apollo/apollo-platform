@@ -318,8 +318,118 @@ function GoalPanel({ totalLeads, toursThisWeek, contracts }: { totalLeads: numbe
 
 // ─── LEAD MAGNETS BOARD ─────────────────────────────────────────────────────
 
+// ─── Lead Magnet Drill-Down Panel ─────────────────────────────────────────────
+function LeadMagnetDrillDown({ page, period, leadCount, onClose }: {
+  page: { path: string; label: string; icon: string; visitors: number | null };
+  period: "7d" | "30d" | "month";
+  leadCount: number;
+  onClose: () => void;
+}) {
+  const { data, isLoading } = trpc.analytics.getLeadMagnetTimeseries.useQuery(
+    { path: page.path, period },
+    { refetchInterval: 120_000 }
+  );
+
+  const timeseries = data?.timeseries ?? [];
+  const maxVisitors = Math.max(...timeseries.map(d => d.visitors ?? 0), 1);
+  const visitors = page.visitors ?? 0;
+  const conv = visitors > 0 ? ((leadCount / visitors) * 100).toFixed(1) : "—";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex justify-end"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md h-full bg-white shadow-2xl border-l border-slate-200 flex flex-col overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">{page.icon}</span>
+            <div>
+              <div className="text-[13px] font-semibold text-slate-800">{page.label}</div>
+              <div className="text-[10px] text-slate-400 font-mono">{page.path}</div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-xl leading-none p-1">✕</button>
+        </div>
+
+        {/* KPI strip */}
+        <div className="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-100">
+          {[
+            { label: "Visitors", value: visitors.toLocaleString() },
+            { label: "Leads",    value: leadCount.toString() },
+            { label: "Conv.",    value: conv !== "—" ? `${conv}%` : "—" },
+          ].map(kpi => (
+            <div key={kpi.label} className="flex flex-col items-center py-4 gap-0.5">
+              <span className="text-[18px] font-bold text-slate-800">{kpi.value}</span>
+              <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">{kpi.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Timeseries chart */}
+        <div className="px-6 py-5 flex-1">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Visitors over time</span>
+            {!data?.configured && (
+              <span className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">Plausible not connected</span>
+            )}
+          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-40 text-slate-300 text-[12px]">Loading chart…</div>
+          ) : timeseries.length === 0 ? (
+            <div className="flex items-center justify-center h-40 text-slate-300 text-[12px]">No data for this period</div>
+          ) : (
+            <div className="flex items-end gap-[2px] h-40 w-full">
+              {timeseries.map((d, i) => {
+                const h = maxVisitors > 0 ? Math.max(2, Math.round((d.visitors / maxVisitors) * 100)) : 2;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-0.5 group relative">
+                    <div
+                      className="w-full rounded-t bg-indigo-400 group-hover:bg-indigo-600 transition-colors"
+                      style={{ height: `${h}%` }}
+                    />
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-10">
+                      <div className="bg-slate-800 text-white text-[9px] px-2 py-1 rounded whitespace-nowrap">
+                        {d.date}: {d.visitors} visitors
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {timeseries.length > 0 && (
+            <div className="flex justify-between mt-1">
+              <span className="text-[9px] text-slate-300">{timeseries[0]?.date}</span>
+              <span className="text-[9px] text-slate-300">{timeseries[timeseries.length - 1]?.date}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Footer link */}
+        <div className="px-6 py-4 border-t border-slate-100">
+          <a
+            href={`https://apollohomebuilders.com${page.path}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[12px] font-semibold text-indigo-600 hover:underline"
+          >
+            View live page ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LeadMagnetsBoard() {
   const [period, setPeriod] = useState<"7d" | "30d" | "month">("30d");
+  const [selected, setSelected] = useState<{ path: string; label: string; icon: string; visitors: number | null } | null>(null);
   const { data: visitorData } = trpc.analytics.getLeadMagnetStats.useQuery({ period }, { refetchInterval: 120_000 });
   const { data: leadCounts } = trpc.analytics.getLeadMagnetLeadCounts.useQuery(undefined, { refetchInterval: 120_000 });
 
@@ -341,77 +451,93 @@ function LeadMagnetsBoard() {
   ];
 
   return (
-    <Card className="sm:col-span-2">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <h2 className="text-[14px] font-semibold text-slate-800 tracking-tight">Lead Magnets</h2>
-          {!visitorData?.configured && (
-            <span className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">Plausible not connected</span>
-          )}
-        </div>
-        <div className="flex items-center gap-1 bg-slate-50 rounded-lg border border-slate-100 p-0.5">
-          {(["7d", "30d", "month"] as const).map((p) => (
-            <button key={p} onClick={() => setPeriod(p)}
-              className={`text-[10px] font-semibold px-2.5 py-1 rounded-md transition-colors ${
-                period === p ? "bg-white text-slate-800 shadow-sm" : "text-slate-400 hover:text-slate-600"
-              }`}>
-              {p === "7d" ? "7d" : p === "30d" ? "30d" : "Month"}
-            </button>
-          ))}
-        </div>
-      </div>
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-slate-100">
-            {["Lead Magnet", "Visitors", "Leads Captured", "Conv. Rate"].map((h) => (
-              <th key={h} className="pb-2 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]">{h}</th>
+    <>
+      {selected && (
+        <LeadMagnetDrillDown
+          page={selected}
+          period={period}
+          leadCount={leadMap[selected.path] ?? 0}
+          onClose={() => setSelected(null)}
+        />
+      )}
+      <Card className="sm:col-span-2">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-[14px] font-semibold text-slate-800 tracking-tight">Lead Magnets</h2>
+            {!visitorData?.configured && (
+              <span className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">Plausible not connected</span>
+            )}
+          </div>
+          <div className="flex items-center gap-1 bg-slate-50 rounded-lg border border-slate-100 p-0.5">
+            {(["7d", "30d", "month"] as const).map((p) => (
+              <button key={p} onClick={() => setPeriod(p)}
+                className={`text-[10px] font-semibold px-2.5 py-1 rounded-md transition-colors ${
+                  period === p ? "bg-white text-slate-800 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                }`}>
+                {p === "7d" ? "7d" : p === "30d" ? "30d" : "Month"}
+              </button>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {pages.map((r) => {
-            const visitors = r.visitors ?? 0;
-            const leads    = leadMap[r.path] ?? 0;
-            const conv     = visitors > 0 ? ((leads / visitors) * 100).toFixed(1) : "—";
-            const isLoading = r.visitors === null;
-            return (
-              <tr key={r.path} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="py-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px]">{r.icon}</span>
-                    <span className="text-[12px] text-slate-700">{r.label}</span>
-                  </div>
-                </td>
-                <td className="py-2.5 text-[12px] font-semibold text-slate-800">
-                  {isLoading ? <span className="text-slate-300">—</span> : visitors.toLocaleString()}
-                </td>
-                <td className="py-2.5">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[12px] text-slate-700 font-medium">{leads}</span>
-                    {leads > 0 && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          </div>
+        </div>
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-slate-100">
+              {["Lead Magnet", "Visitors", "Leads Captured", "Conv. Rate"].map((h) => (
+                <th key={h} className="pb-2 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {pages.map((r) => {
+              const visitors = r.visitors ?? 0;
+              const leads    = leadMap[r.path] ?? 0;
+              const conv     = visitors > 0 ? ((leads / visitors) * 100).toFixed(1) : "—";
+              const isLoading = r.visitors === null;
+              return (
+                <tr
+                  key={r.path}
+                  className="border-b border-slate-50 hover:bg-indigo-50 cursor-pointer transition-colors"
+                  onClick={() => setSelected(r)}
+                  title="Click to view traffic chart"
+                >
+                  <td className="py-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px]">{r.icon}</span>
+                      <span className="text-[12px] text-slate-700">{r.label}</span>
+                      <span className="text-[9px] text-indigo-400 opacity-0 group-hover:opacity-100">↗</span>
+                    </div>
+                  </td>
+                  <td className="py-2.5 text-[12px] font-semibold text-slate-800">
+                    {isLoading ? <span className="text-slate-300">—</span> : visitors.toLocaleString()}
+                  </td>
+                  <td className="py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[12px] text-slate-700 font-medium">{leads}</span>
+                      {leads > 0 && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-2.5">
+                    {!isLoading && visitors > 0 ? (
+                      <span className={`text-[11px] font-semibold ${
+                        parseFloat(conv) >= 5 ? "text-emerald-600" :
+                        parseFloat(conv) >= 2 ? "text-amber-600" : "text-slate-400"
+                      }`}>{conv}%</span>
+                    ) : (
+                      <span className="text-[11px] text-slate-300">—</span>
                     )}
-                  </div>
-                </td>
-                <td className="py-2.5">
-                  {!isLoading && visitors > 0 ? (
-                    <span className={`text-[11px] font-semibold ${
-                      parseFloat(conv) >= 5 ? "text-emerald-600" :
-                      parseFloat(conv) >= 2 ? "text-amber-600" : "text-slate-400"
-                    }`}>{conv}%</span>
-                  ) : (
-                    <span className="text-[11px] text-slate-300">—</span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <p className="text-[10px] text-slate-400 mt-3">
-        Visitors from Plausible · Leads from CRM database
-      </p>
-    </Card>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <p className="text-[10px] text-slate-400 mt-3">
+          Visitors from Plausible · Leads from CRM · Click any row to see traffic chart
+        </p>
+      </Card>
+    </>
   );
 }
 

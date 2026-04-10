@@ -20,6 +20,7 @@ import SCOPSPipeline from "./pages/SCOPSPipeline";
 import SCOPSSettings from "./pages/SCOPSSettings";
 import SCOPSEngine from "./pages/SCOPSEngine";
 import SCOPSCampaigns from "./pages/SCOPSCampaigns";
+import SCOPSFloorPlans from "./pages/SCOPSFloorPlans";
 import SCOPSPropertyEdit from "./pages/SCOPSPropertyEdit";
 import FAQsPage from "./pages/FAQsPage";
 import FloorPlans from "./pages/FloorPlans";
@@ -69,6 +70,7 @@ function Router() {
       <Route path="/scops/engine" component={SCOPSEngine} />
       <Route path="/scops/email">{() => <Redirect to="/scops/campaigns?tab=email" />}</Route>
       <Route path="/scops/campaigns" component={SCOPSCampaigns} />
+      <Route path="/scops/floor-plans" component={SCOPSFloorPlans} />
 
       {/* Backward-compatibility redirects: /crm/* → /scops/* */}
       <Route path="/crm">{() => <Redirect to="/scops" />}</Route>
