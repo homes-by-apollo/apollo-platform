@@ -38,9 +38,9 @@ export default function ListingAlerts() {
         height: 68, boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
       }}>
         <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/apollo-logo-white_e0b7e6c2.png" alt="Homes by Apollo" style={{ height: 44, width: 44, objectFit: "contain" }} />
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663032182609/mwVy9Am3ywXkRkqF68TJjK/homes_by_apollo_white_a5a8cfc6.png" alt="Homes by Apollo" style={{ height: 52, width: 52, objectFit: "contain" }} />
           <div style={{ lineHeight: 1, display: "flex", flexDirection: "column", gap: 1 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.65)", letterSpacing: "0.28em", textTransform: "uppercase" }}>HOMES BY</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", letterSpacing: "0.28em", textTransform: "uppercase" }}>HOMES BY</span>
             <span style={{ fontSize: 20, fontWeight: 900, color: "#fff", letterSpacing: "0.07em", lineHeight: 1 }}>APOLLO</span>
           </div>
         </a>

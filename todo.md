@@ -1063,3 +1063,6 @@
 - [x] Draft ApolloHomeBuilders.com site summary with page links
 - [x] Draft SCOPS summary with tab links
 - [x] Revise Brandon & Jonathan onboarding email
+
+## Logo Fix — All Sub-Pages (April 9, 2026 Session 13)
+- [x] Replace broken white owl logo with correct homepage logo markup on all lead magnet and sub-pages (FloorPlans, FloorPlanDetail, ListingAlerts, PahrumpVsLasVegas, FreeLotAnalysis)
