@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import SCOPSNav from "@/components/SCOPSNav";
 import { Button } from "@/components/ui/button";
@@ -528,6 +528,13 @@ function CampaignsTab() {
   const utils = trpc.useUtils();
   const { data: campaigns = [], isLoading } = trpc.email.getCampaigns.useQuery();
   const { data: lists = [] } = trpc.email.getLists.useQuery();
+  // Fetch stats for all sent/sending campaigns in one call
+  const { data: campaignStatsList = [] } = trpc.email.getCampaignStats.useQuery({});
+  const statsById = useMemo(() => {
+    const m = new Map<number, typeof campaignStatsList[0]>();
+    for (const s of campaignStatsList) m.set(s.campaignId, s);
+    return m;
+  }, [campaignStatsList]);
   const [showCreate, setShowCreate] = useState(false);
   const [previewId, setPreviewId] = useState<number | null>(null);
 
@@ -593,6 +600,8 @@ function CampaignsTab() {
                 <TableHead style={{ color: "#64748b" }}>List</TableHead>
                 <TableHead style={{ color: "#64748b" }}>Status</TableHead>
                 <TableHead style={{ color: "#64748b" }}>Recipients</TableHead>
+                <TableHead style={{ color: "#64748b" }}>Open Rate</TableHead>
+                <TableHead style={{ color: "#64748b" }}>Click Rate</TableHead>
                 <TableHead style={{ color: "#64748b" }}>Created</TableHead>
                 <TableHead></TableHead>
               </TableRow>
@@ -611,6 +620,30 @@ function CampaignsTab() {
                   </TableCell>
                   <TableCell className="text-sm" style={{ color: "#94a3b8" }}>
                     {c.totalRecipients ?? 0}
+                  </TableCell>
+                  <TableCell>
+                    {c.status === "sent" || c.status === "sending" ? (
+                      (() => {
+                        const s = statsById.get(c.id);
+                        return s ? (
+                          <span className="text-sm font-semibold" style={{ color: s.openRate >= 20 ? "#34d399" : s.openRate >= 10 ? "#c8a96e" : "#94a3b8" }}>
+                            {s.openRate}%
+                          </span>
+                        ) : <span className="text-xs" style={{ color: "#475569" }}>—</span>;
+                      })()
+                    ) : <span className="text-xs" style={{ color: "#475569" }}>—</span>}
+                  </TableCell>
+                  <TableCell>
+                    {c.status === "sent" || c.status === "sending" ? (
+                      (() => {
+                        const s = statsById.get(c.id);
+                        return s ? (
+                          <span className="text-sm font-semibold" style={{ color: s.clickRate >= 5 ? "#34d399" : s.clickRate >= 2 ? "#c8a96e" : "#94a3b8" }}>
+                            {s.clickRate}%
+                          </span>
+                        ) : <span className="text-xs" style={{ color: "#475569" }}>—</span>;
+                      })()
+                    ) : <span className="text-xs" style={{ color: "#475569" }}>—</span>}
                   </TableCell>
                   <TableCell className="text-xs" style={{ color: "#64748b" }}>
                     {new Date(c.createdAt).toLocaleDateString()}

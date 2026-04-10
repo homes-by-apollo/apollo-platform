@@ -9,4 +9,6 @@ export const ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   calendlyApiKey: process.env.CALENDLY_API_KEY ?? "",
+  quoApiKey: process.env.QUO_API_KEY ?? "",
+  quoPhoneNumberId: process.env.QUO_PHONE_NUMBER_ID ?? "",
 };

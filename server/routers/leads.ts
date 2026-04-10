@@ -11,12 +11,13 @@ import {
   getSourceCounts,
   getStageCounts,
   getUtmSourceCounts,
+  calculateLeadScore,
   logActivity,
   logEmail,
   updateContact,
 } from "../db";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
-
+import { sendQuoSms } from "../_core/quo";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ─── IP-based rate limiter ────────────────────────────────────────────────────
@@ -316,6 +317,38 @@ export const leadsRouter = router({
             <a href="https://apollodash-mwvy9am3.manus.space/crm" style="display:inline-block;margin-top:16px;background:#0f2044;color:white;padding:10px 20px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none">View in SCOPS →</a>
           </div>`,
       }).catch((err: unknown) => console.error("[SCOPS Alert] Resend failed:", err));
+
+      // ── Quo HOT lead SMS alert ─────────────────────────────────────────────
+      // If the lead is HOT and provided a phone number, fire an immediate
+      // SMS to the Apollo business number so the team can respond within seconds.
+      const computedScore = calculateLeadScore(
+        input.timeline as any ?? null,
+        input.financing as any ?? null,
+        priceRangeMin,
+        priceRangeMax
+      );
+      if (computedScore === "HOT" && phone) {
+        const priceLabels: Record<string, string> = {
+          "300_400": "$300–400K", "400_500": "$400–500K",
+          "500_600": "$500–600K", "600_plus": "$600K+",
+        };
+        const tlLabels: Record<string, string> = {
+          "ASAP": "ASAP", "1_3_MONTHS": "1–3 mo", "3_6_MONTHS": "3–6 mo",
+          "6_12_MONTHS": "6–12 mo", "JUST_BROWSING": "Just browsing",
+        };
+        const smsBody = [
+          `🔥 HOT LEAD — ${firstName} ${lastName}`,
+          input.timeline ? `Timeline: ${tlLabels[input.timeline] ?? input.timeline}` : null,
+          input.price_range ? `Budget: ${priceLabels[input.price_range] ?? input.price_range}` : null,
+          input.financing ? `Financing: ${input.financing.replace(/_/g, " ")}` : null,
+          phone ? `Phone: ${phone}` : null,
+          input.email ? `Email: ${input.email}` : null,
+          `View: https://apollodash-mwvy9am3.manus.space/crm/${contactId}`,
+        ].filter(Boolean).join("\n");
+        sendQuoSms(phone, smsBody).catch((err: unknown) =>
+          console.error("[Quo] HOT lead SMS failed:", err)
+        );
+      }
 
       return { success: true, contactId };
     }),

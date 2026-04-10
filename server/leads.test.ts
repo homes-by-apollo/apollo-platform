@@ -25,6 +25,7 @@ vi.mock("./db", () => ({
   logActivity: vi.fn().mockResolvedValue(undefined),
   logEmail: vi.fn().mockResolvedValue(undefined),
   updateContact: vi.fn().mockResolvedValue(undefined),
+  calculateLeadScore: vi.fn().mockReturnValue("WARM"),
 }));
 
 vi.mock("resend", () => ({

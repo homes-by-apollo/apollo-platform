@@ -1096,3 +1096,13 @@
 ## SCOPS Email Enhancements (April 10, 2026)
 - [x] Pre-populate campaign List dropdown with lead magnet list names
 - [x] Surface unsubscribed count badge on each lead magnet card
+
+## Quo SMS + Campaign Analytics (April 10, 2026)
+- [x] Research Quo API (SMS send endpoint, auth, phone number format)
+- [x] Add QUO_API_KEY secret to project
+- [x] Build server/_core/quo.ts helper (sendSms function)
+- [x] Wire leads.submit to trigger Quo SMS when lead score is HOT
+- [x] Add SCOPS Settings tab entry for Quo phone number config
+- [x] Surface open rate and click rate inline in Campaigns table
+- [x] Add getCampaignStats DB helper (count opens/clicks from emailSends)
+- [x] Add email.getCampaignStats tRPC procedure
