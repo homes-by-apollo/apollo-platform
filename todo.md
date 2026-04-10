@@ -1072,3 +1072,8 @@
 - [x] Regenerate Buyer's Guide PDF with updated phone number — new CDN URL uploaded
 - [x] Fix Find Your Home logo link to push / URL (nav("home") now calls setLocation("/"))
 - [x] Fix footer Home Buyer's Guide link (/#buyers-guide → /buyers-guide)
+
+## Buyer's Guide Landing Page (April 9, 2026 Session 15)
+- [x] Build /pahrump-home-buyers-guide landing page with hero, PDF preview, email opt-in form, what's-inside strip, and social proof
+- [x] Wire route in App.tsx
+- [x] Update GlobalFooter Home Buyer's Guide link to /pahrump-home-buyers-guide

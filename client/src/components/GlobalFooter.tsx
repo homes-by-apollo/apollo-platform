@@ -127,7 +127,7 @@ export function GlobalFooter() {
               ["Company",  [["Home","/"],["About Us","/"],["Contact","/get-in-touch"]]],
               ["Properties",[["Homes","/find-your-home"],["Floor Plans","/floor-plans"],["Lots","/find-your-home"]]],
               ["Resources", [["Blog","/blog"],["FAQ","/faqs"],["Instagram","https://www.instagram.com/homesby.apollo/"]]],
-              ["Free Guides", [["Home Buyer's Guide","/buyers-guide"],["Listing Alerts","/listing-alerts"],["Pahrump vs. Las Vegas","/pahrump-vs-las-vegas"],["Free Lot Analysis","/free-lot-analysis"]]],
+              ["Free Guides", [["Home Buyer's Guide","/pahrump-home-buyers-guide"],["Listing Alerts","/listing-alerts"],["Pahrump vs. Las Vegas","/pahrump-vs-las-vegas"],["Free Lot Analysis","/free-lot-analysis"]]],
             ] as [string, [string, string][]][]).map(([heading, links])=>(
               <div key={heading}>
                 <p style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.28)", textTransform:"uppercase", letterSpacing:"0.14em", marginBottom:18 }}>{heading}</p>
