@@ -34,7 +34,7 @@ export async function createEmailList(data: InsertEmailList): Promise<EmailList>
   return row;
 }
 
-export async function getEmailLists(): Promise<(EmailList & { memberCount: number })[]> {
+export async function getEmailLists(): Promise<(EmailList & { memberCount: number; unsubscribedCount: number })[]> {
   const db = await getDb();
   if (!db) return [];
   const lists = await db.select().from(emailLists).orderBy(desc(emailLists.createdAt));
@@ -42,10 +42,22 @@ export async function getEmailLists(): Promise<(EmailList & { memberCount: numbe
     .select({ listId: emailListMembers.listId, count: sql<number>`COUNT(*)` })
     .from(emailListMembers)
     .groupBy(emailListMembers.listId);
+  const unsubCounts = await db
+    .select({ listId: emailListMembers.listId, count: sql<number>`COUNT(*)` })
+    .from(emailListMembers)
+    .where(sql`unsubscribedAt IS NOT NULL`)
+    .groupBy(emailListMembers.listId);
   const countMap = Object.fromEntries(
     counts.map((c: { listId: number; count: number }) => [c.listId, Number(c.count)])
   );
-  return lists.map((l: EmailList) => ({ ...l, memberCount: countMap[l.id] ?? 0 }));
+  const unsubMap = Object.fromEntries(
+    unsubCounts.map((c: { listId: number; count: number }) => [c.listId, Number(c.count)])
+  );
+  return lists.map((l: EmailList) => ({
+    ...l,
+    memberCount: countMap[l.id] ?? 0,
+    unsubscribedCount: unsubMap[l.id] ?? 0,
+  }));
 }
 
 export async function getEmailListById(id: number): Promise<EmailList | undefined> {

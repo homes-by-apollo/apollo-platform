@@ -1092,3 +1092,7 @@
 - [x] Seed 5 lead magnet lists (Buyer's Guide, Listing Alerts, Pahrump vs LV, Free Lot Analysis, Floor Plans)
 - [x] Wire each lead magnet opt-in form to tag subscribers to the correct list
 - [x] Build Email Lists view in SCOPS Email tab showing subscriber counts and export per list
+
+## SCOPS Email Enhancements (April 10, 2026)
+- [x] Pre-populate campaign List dropdown with lead magnet list names
+- [x] Surface unsubscribed count badge on each lead magnet card

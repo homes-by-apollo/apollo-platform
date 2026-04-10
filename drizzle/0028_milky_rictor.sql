@@ -1,0 +1,1 @@
+ALTER TABLE `emailListMembers` ADD `unsubscribedAt` timestamp;

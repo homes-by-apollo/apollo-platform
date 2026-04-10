@@ -197,6 +197,13 @@
       "when": 1775766951100,
       "tag": "0027_bright_the_renegades",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1775847949737,
+      "tag": "0028_milky_rictor",
+      "breakpoints": true
     }
   ]
 }

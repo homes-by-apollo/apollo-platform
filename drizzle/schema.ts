@@ -587,6 +587,7 @@ export const emailListMembers = mysqlTable("emailListMembers", {
   name: varchar("name", { length: 256 }),
   source: varchar("source", { length: 64 }).default("manual"), // "crm_lead", "newsletter", "manual"
   subscribedAt: timestamp("subscribedAt").defaultNow().notNull(),
+  unsubscribedAt: timestamp("unsubscribedAt"),
 });
 
 export type EmailListMember = typeof emailListMembers.$inferSelect;

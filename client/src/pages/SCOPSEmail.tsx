@@ -196,6 +196,7 @@ function ListsTab() {
   const leadMagnetListsWithCounts = LEAD_MAGNET_LISTS.map((lm) => ({
     ...lm,
     memberCount: lists.find((l) => l.id === lm.id)?.memberCount ?? 0,
+    unsubscribedCount: (lists.find((l) => l.id === lm.id) as any)?.unsubscribedCount ?? 0,
   }));
 
   return (
@@ -236,7 +237,18 @@ function ListsTab() {
                     <ExternalLink size={13} />
                   </a>
                 </div>
-                <div className="text-2xl font-bold text-white mb-0.5">{lm.memberCount}</div>
+                <div className="flex items-end justify-between mb-0.5">
+                  <div className="text-2xl font-bold text-white">{lm.memberCount}</div>
+                  {lm.unsubscribedCount > 0 && (
+                    <div
+                      className="text-xs px-1.5 py-0.5 rounded-full mb-1"
+                      style={{ background: "rgba(239,68,68,0.12)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}
+                      title="Unsubscribed"
+                    >
+                      −{lm.unsubscribedCount}
+                    </div>
+                  )}
+                </div>
                 <div className="text-xs font-semibold" style={{ color: lm.color }}>{lm.name}</div>
                 <div className="text-xs mt-1 leading-relaxed" style={{ color: "#64748b" }}>{lm.description}</div>
               </button>
@@ -665,11 +677,30 @@ function CampaignsTab() {
                     <SelectValue placeholder="Select a list" />
                   </SelectTrigger>
                   <SelectContent style={{ background: "#1a2d3d", border: "1px solid rgba(255,255,255,0.12)" }}>
-                    {lists.map((l) => (
-                      <SelectItem key={l.id} value={String(l.id)} style={{ color: "white" }}>
-                        {l.name} ({l.memberCount} members)
-                      </SelectItem>
-                    ))}
+                    {/* Lead Magnet Lists first */}
+                    {LEAD_MAGNET_LISTS.map((lm) => {
+                      const match = lists.find((l) => l.id === lm.id);
+                      if (!match) return null;
+                      return (
+                        <SelectItem key={lm.id} value={String(lm.id)} style={{ color: "white" }}>
+                          <span style={{ color: lm.color, marginRight: 6 }}>●</span>
+                          {lm.name} — {match.memberCount} subscribers
+                        </SelectItem>
+                      );
+                    })}
+                    {/* Divider + other lists */}
+                    {lists.filter((l) => !LEAD_MAGNET_LISTS.some((lm) => lm.id === l.id)).length > 0 && (
+                      <>
+                        <div className="px-2 py-1 text-xs" style={{ color: "#64748b", borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: 4, paddingTop: 8 }}>Other Lists</div>
+                        {lists
+                          .filter((l) => !LEAD_MAGNET_LISTS.some((lm) => lm.id === l.id))
+                          .map((l) => (
+                            <SelectItem key={l.id} value={String(l.id)} style={{ color: "white" }}>
+                              {l.name} ({l.memberCount} members)
+                            </SelectItem>
+                          ))}
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
