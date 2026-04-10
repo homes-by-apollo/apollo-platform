@@ -51,6 +51,7 @@ function Router() {
       <Route path="/pahrump-vs-las-vegas" component={PahrumpVsLasVegas} />
       <Route path="/free-lot-analysis" component={FreeLotAnalysis} />
       <Route path="/pahrump-home-buyers-guide" component={PahrumpHomeBuyersGuide} />
+      <Route path="/buyers-guide">{() => <Redirect to="/pahrump-home-buyers-guide" />}</Route>
 
       {/* Auth routes */}
       <Route path="/admin-login" component={AdminLogin} />

@@ -1077,3 +1077,6 @@
 - [x] Build /pahrump-home-buyers-guide landing page with hero, PDF preview, email opt-in form, what's-inside strip, and social proof
 - [x] Wire route in App.tsx
 - [x] Update GlobalFooter Home Buyer's Guide link to /pahrump-home-buyers-guide
+
+## Redirect + Naming Session (April 9, 2026)
+- [x] Add /buyers-guide redirect to /pahrump-home-buyers-guide in App.tsx
