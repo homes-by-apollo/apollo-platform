@@ -111,7 +111,7 @@ export function GlobalFooter() {
               <div style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:10, letterSpacing:"0.02em" }}>Call Us Free</div>
               <a href="tel:7759107771" style={{ display:"block", fontSize:"clamp(28px,3.5vw,42px)", fontWeight:800, color:"rgba(255,255,255,0.85)", textDecoration:"none", letterSpacing:"-0.02em", lineHeight:1.1, marginBottom:24 }}>(775) 910-7771</a>
               <div style={{ fontSize:15, color:"rgba(255,255,255,0.45)", lineHeight:1.7 }}>
-                4081 Jessica St<br/>
+                420 Belville Rd<br/>
                 Pahrump, NV 89048
               </div>
             </div>

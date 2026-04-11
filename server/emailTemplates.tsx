@@ -102,7 +102,7 @@ function EmailBase({
         {/* Footer */}
         <Container style={{ maxWidth: "600px", margin: "24px auto 0", textAlign: "center" }}>
           <Text style={{ color: MUTED_COLOR, fontSize: "12px", lineHeight: "1.6" }}>
-            Apollo Home Builders · Pahrump, NV 89048
+            Apollo Home Builders · 420 Belville Rd, Pahrump, NV 89048
             <br />
             <Link
               href="https://apollohomebuilders.com"

@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Mail, Users, BarChart2, Plus, Trash2, Send, Eye, ChevronDown, ChevronUp, ExternalLink, BookOpen, Bell, MapPin, Search, Home } from "lucide-react";
+import { Mail, Users, BarChart2, Plus, Trash2, Send, Eye, ChevronDown, ChevronUp, ExternalLink, BookOpen, Bell, MapPin, Search, Home, Download } from "lucide-react";
 
 // ─── Lead Magnet List Metadata ────────────────────────────────────────────────
 
@@ -387,6 +387,24 @@ function MembersPanel({ listId, listName, onDelete }: { listId: number; listName
   const [showAdd, setShowAdd] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [newName, setNewName] = useState("");
+  const { data: csvData, refetch: fetchCsv, isFetching: csvFetching } = trpc.email.exportMembersCsv.useQuery(
+    { listId },
+    { enabled: false }
+  );
+
+  function handleDownloadCsv() {
+    fetchCsv().then(({ data }) => {
+      if (!data?.csv) return;
+      const blob = new Blob([data.csv], { type: "text/csv;charset=utf-8;" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `${listName.replace(/[^a-z0-9]/gi, "_").toLowerCase()}_subscribers.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`Downloaded ${data.count} subscribers`);
+    });
+  }
 
   const addMember = trpc.email.addMember.useMutation({
     onSuccess: () => {
@@ -415,6 +433,16 @@ function MembersPanel({ listId, listName, onDelete }: { listId: number; listName
           <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>{members.length} members</p>
         </div>
         <div className="flex gap-2">
+          <Button
+            size="sm"
+            onClick={handleDownloadCsv}
+            disabled={csvFetching}
+            title="Download CSV"
+            style={{ background: "rgba(100,116,139,0.12)", color: "#94a3b8", border: "1px solid rgba(100,116,139,0.2)" }}
+          >
+            <Download size={14} className="mr-1" />
+            {csvFetching ? "Exporting…" : "CSV"}
+          </Button>
           <Button
             size="sm"
             onClick={() => setShowAdd(true)}

@@ -453,6 +453,10 @@ export default function SCOPSProperties() {
   const [selected,     setSelected]     = useState<Property | null>(null);
   const [view,         setView]         = useState<"map" | "list">("map");
 
+  // Bulk selection state
+  const [selectedIds, setSelectedIds]   = useState<Set<string>>(new Set());
+  const [bulkAction,  setBulkAction]    = useState<string>("");
+
   // Admin user for nav
   const { data: adminUser } = trpc.adminAuth.me.useQuery();
 
@@ -465,6 +469,26 @@ export default function SCOPSProperties() {
       refetch();
     },
     onError: (err) => toast.error(`Geocoding failed: ${err.message}`),
+  });
+
+  const bulkUpdateMutation = trpc.properties.bulkUpdate.useMutation({
+    onSuccess: (res) => {
+      toast.success(`Updated ${res.updated} listing${res.updated !== 1 ? "s" : ""}`);
+      setSelectedIds(new Set());
+      setBulkAction("");
+      refetch();
+    },
+    onError: (err) => toast.error(`Bulk update failed: ${err.message}`),
+  });
+
+  const bulkDeleteMutation = trpc.properties.bulkDelete?.useMutation?.({
+    onSuccess: (res) => {
+      toast.success(`Deleted ${res.deleted} listing${res.deleted !== 1 ? "s" : ""}`);
+      setSelectedIds(new Set());
+      setBulkAction("");
+      refetch();
+    },
+    onError: (err) => toast.error(`Bulk delete failed: ${err.message}`),
   });
 
   const rawList: any[] = (rawData as any)?.properties ?? (Array.isArray(rawData) ? rawData : []);
@@ -496,6 +520,47 @@ export default function SCOPSProperties() {
   }
 
   const totalValue = filtered.reduce((s, p) => s + (p.price ?? 0), 0);
+
+  // Bulk selection helpers (defined after filtered)
+  const allFilteredIds = filtered.map((p) => p.id);
+  const allSelected = allFilteredIds.length > 0 && allFilteredIds.every((id) => selectedIds.has(id));
+  const someSelected = selectedIds.size > 0;
+
+  function toggleSelectAll() {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(allFilteredIds));
+    }
+  }
+
+  function toggleSelectOne(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function applyBulkAction() {
+    const ids = Array.from(selectedIds).map(Number);
+    if (bulkAction === "delete") {
+      if (!confirm(`Delete ${ids.length} listing${ids.length !== 1 ? "s" : ""}? This cannot be undone.`)) return;
+      bulkDeleteMutation?.mutate({ ids });
+    } else if (bulkAction === "available") {
+      bulkUpdateMutation.mutate({ ids, data: { tag: "Available" } });
+    } else if (bulkAction === "under_contract") {
+      bulkUpdateMutation.mutate({ ids, data: { tag: "Under Contract" } });
+    } else if (bulkAction === "sold") {
+      bulkUpdateMutation.mutate({ ids, data: { tag: "Sold" } });
+    } else if (bulkAction === "coming_soon") {
+      bulkUpdateMutation.mutate({ ids, data: { tag: "Coming Soon" } });
+    } else if (bulkAction === "feature") {
+      bulkUpdateMutation.mutate({ ids, data: { featured: 1 } });
+    } else if (bulkAction === "unfeature") {
+      bulkUpdateMutation.mutate({ ids, data: { featured: 0 } });
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -634,81 +699,148 @@ export default function SCOPSProperties() {
 
         {/* ── MAIN CONTENT: LIST VIEW ── */}
         {view === "list" && (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden overflow-x-auto">
-            <table className="w-full min-w-[700px]">
-              <thead>
-                <tr className="border-b border-slate-100">
-                  {["Property", "Type", "Status", "Price", "Beds", "Baths", "Sqft", "Featured", ""].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((p) => {
-                  const s = STATUS_CONFIG[p.status];
-                  return (
-                    <tr
-                      key={p.id}
-                      onClick={() => setSelected(selected?.id === p.id ? null : p)}
-                      className={`border-b border-slate-50 hover:bg-slate-50 cursor-pointer transition-colors group ${selected?.id === p.id ? "bg-blue-50" : ""}`}
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          {p.imageUrl ? (
-                            <img src={p.imageUrl} alt="" className="w-10 h-7 rounded-md object-cover border border-slate-100 shrink-0" />
-                          ) : (
-                            <div className="w-10 h-7 rounded-md bg-slate-100 flex items-center justify-center shrink-0">
-                              <span className="text-[13px] opacity-40">{p.type === "LOT" ? "🏞" : "🏠"}</span>
+          <div className="space-y-2">
+
+            {/* Bulk action toolbar — appears when items are selected */}
+            {someSelected && (
+              <div className="flex items-center gap-3 px-4 py-2.5 bg-slate-900 text-white rounded-xl shadow-sm">
+                <span className="text-[12px] font-semibold">{selectedIds.size} selected</span>
+                <button
+                  onClick={() => setSelectedIds(new Set())}
+                  className="text-[11px] text-white/60 hover:text-white transition-colors"
+                >
+                  Clear
+                </button>
+                <div className="h-4 w-px bg-white/20 mx-1" />
+                <select
+                  value={bulkAction}
+                  onChange={(e) => setBulkAction(e.target.value)}
+                  className="text-[11px] bg-white/10 border border-white/20 text-white rounded-lg px-2 py-1 outline-none focus:border-white/40"
+                >
+                  <option value="">Choose action…</option>
+                  <optgroup label="Set Status">
+                    <option value="available">Mark Available</option>
+                    <option value="under_contract">Mark Under Contract</option>
+                    <option value="sold">Mark Sold</option>
+                    <option value="coming_soon">Mark Coming Soon</option>
+                  </optgroup>
+                  <optgroup label="Featured">
+                    <option value="feature">Set as Featured</option>
+                    <option value="unfeature">Remove Featured</option>
+                  </optgroup>
+                  <optgroup label="Danger">
+                    <option value="delete">Delete Selected</option>
+                  </optgroup>
+                </select>
+                <button
+                  onClick={applyBulkAction}
+                  disabled={!bulkAction || bulkUpdateMutation.isPending || bulkDeleteMutation?.isPending}
+                  className="px-3 py-1 rounded-lg bg-white text-slate-900 text-[11px] font-bold hover:bg-slate-100 disabled:opacity-40 transition-colors"
+                >
+                  {bulkUpdateMutation.isPending || bulkDeleteMutation?.isPending ? "Working…" : "Apply"}
+                </button>
+              </div>
+            )}
+
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden overflow-x-auto">
+              <table className="w-full min-w-[740px]">
+                <thead>
+                  <tr className="border-b border-slate-100">
+                    {/* Select-all checkbox */}
+                    <th className="px-3 py-3 w-8">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={toggleSelectAll}
+                        className="w-3.5 h-3.5 rounded accent-slate-900 cursor-pointer"
+                        title="Select all"
+                      />
+                    </th>
+                    {["Property", "Type", "Status", "Price", "Beds", "Baths", "Sqft", "Featured", ""].map((h) => (
+                      <th key={h} className="px-4 py-3 text-left text-[9px] font-bold text-slate-400 uppercase tracking-[0.06em]">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((p) => {
+                    const s = STATUS_CONFIG[p.status];
+                    const isChecked = selectedIds.has(p.id);
+                    return (
+                      <tr
+                        key={p.id}
+                        onClick={() => setSelected(selected?.id === p.id ? null : p)}
+                        className={`border-b border-slate-50 hover:bg-slate-50 cursor-pointer transition-colors group ${
+                          isChecked ? "bg-blue-50/60" : selected?.id === p.id ? "bg-blue-50" : ""
+                        }`}
+                      >
+                        {/* Row checkbox */}
+                        <td className="px-3 py-3" onClick={(e) => { e.stopPropagation(); toggleSelectOne(p.id); }}>
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleSelectOne(p.id)}
+                            className="w-3.5 h-3.5 rounded accent-slate-900 cursor-pointer"
+                          />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            {p.imageUrl ? (
+                              <img src={p.imageUrl} alt="" className="w-10 h-7 rounded-md object-cover border border-slate-100 shrink-0" />
+                            ) : (
+                              <div className="w-10 h-7 rounded-md bg-slate-100 flex items-center justify-center shrink-0">
+                                <span className="text-[13px] opacity-40">{p.type === "LOT" ? "🏞" : "🏠"}</span>
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-[12px] font-semibold text-slate-900 truncate max-w-[200px]">{p.address}</p>
+                              <p className="text-[10px] text-slate-400">{p.city}, {p.state}</p>
                             </div>
-                          )}
-                          <div>
-                            <p className="text-[12px] font-semibold text-slate-900 truncate max-w-[200px]">{p.address}</p>
-                            <p className="text-[10px] text-slate-400">{p.city}, {p.state}</p>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-[11px] text-slate-500">{p.type === "LOT" ? "Lot" : "Home"}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${s.badge}`}>
-                          {s.label}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-[13px] font-bold text-slate-900">{fmt$(p.price)}</td>
-                      <td className="px-4 py-3 text-[12px] text-slate-600">{p.beds ?? "—"}</td>
-                      <td className="px-4 py-3 text-[12px] text-slate-600">{p.baths ?? "—"}</td>
-                      <td className="px-4 py-3 text-[12px] text-slate-600">{p.sqft?.toLocaleString() ?? "—"}</td>
-                      <td className="px-4 py-3 text-[12px]">
-                        {p.featured ? <span className="text-amber-500 font-bold">★</span> : <span className="text-slate-200">—</span>}
-                      </td>
-                      <td className="px-4 py-3">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleEdit(p.id); }}
-                          className="opacity-0 group-hover:opacity-100 px-3 py-1 rounded-lg text-[10px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all"
-                        >
-                          Edit
-                        </button>
+                        </td>
+                        <td className="px-4 py-3 text-[11px] text-slate-500">{p.type === "LOT" ? "Lot" : "Home"}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${s.badge}`}>
+                            {s.label}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] font-bold text-slate-900">{fmt$(p.price)}</td>
+                        <td className="px-4 py-3 text-[12px] text-slate-600">{p.beds ?? "—"}</td>
+                        <td className="px-4 py-3 text-[12px] text-slate-600">{p.baths ?? "—"}</td>
+                        <td className="px-4 py-3 text-[12px] text-slate-600">{p.sqft?.toLocaleString() ?? "—"}</td>
+                        <td className="px-4 py-3 text-[12px]">
+                          {p.featured ? <span className="text-amber-500 font-bold">★</span> : <span className="text-slate-200">—</span>}
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleEdit(p.id); }}
+                            className="opacity-0 group-hover:opacity-100 px-3 py-1 rounded-lg text-[10px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all"
+                          >
+                            Edit
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={10} className="py-12 text-center text-[12px] text-slate-400">
+                        No listings match your current filters
                       </td>
                     </tr>
-                  );
-                })}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={9} className="py-12 text-center text-[12px] text-slate-400">
-                      No listings match your current filters
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
 
-            {/* Map legend */}
-            <div className="flex items-center gap-4 px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-              {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-                <div key={k} className="flex items-center gap-1.5">
-                  <div className={`w-2 h-2 rounded-full ${v.dot}`} />
-                  <span className="text-[10px] text-slate-500">{v.label}</span>
-                </div>
-              ))}
+              {/* Legend */}
+              <div className="flex items-center gap-4 px-4 py-3 border-t border-slate-100 bg-slate-50/50">
+                {Object.entries(STATUS_CONFIG).map(([k, v]) => (
+                  <div key={k} className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full ${v.dot}`} />
+                    <span className="text-[10px] text-slate-500">{v.label}</span>
+                  </div>
+                ))}
+                <span className="ml-auto text-[10px] text-slate-400">Switch to List view to bulk-select listings</span>
+              </div>
             </div>
           </div>
         )}

@@ -104,6 +104,21 @@ export const emailRouter = router({
       return getListMembers(input.listId);
     }),
 
+  // Export all members of a list as a CSV string
+  exportMembersCsv: protectedProcedure
+    .input(z.object({ listId: z.number() }))
+    .query(async ({ input }) => {
+      const members = await getListMembers(input.listId);
+      const header = "Email,Name,Source,Subscribed At,Unsubscribed At";
+      const rows = (members as any[]).map((m) => {
+        const esc = (v: string) => `"${(v ?? "").replace(/"/g, '""')}"`;
+        const subscribedAt   = m.subscribedAt   ? new Date(m.subscribedAt).toISOString()   : "";
+        const unsubscribedAt = m.unsubscribedAt ? new Date(m.unsubscribedAt).toISOString() : "";
+        return [esc(m.email), esc(m.name ?? ""), esc(m.source ?? ""), subscribedAt, unsubscribedAt].join(",");
+      });
+      return { csv: [header, ...rows].join("\n"), count: members.length };
+    }),
+
   addMember: protectedProcedure
     .input(
       z.object({

@@ -329,15 +329,17 @@ export const leadsRouter = router({
       );
       if (computedScore === "HOT" && phone) {
         const priceLabels: Record<string, string> = {
-          "300_400": "$300–400K", "400_500": "$400–500K",
-          "500_600": "$500–600K", "600_plus": "$600K+",
+          "300_400": "$300-400K", "400_500": "$400-500K",
+          "500_600": "$500-600K", "600_plus": "$600K+",
         };
         const tlLabels: Record<string, string> = {
-          "ASAP": "ASAP", "1_3_MONTHS": "1–3 mo", "3_6_MONTHS": "3–6 mo",
-          "6_12_MONTHS": "6–12 mo", "JUST_BROWSING": "Just browsing",
+          "ASAP": "ASAP", "1_3_MONTHS": "1-3 mo", "3_6_MONTHS": "3-6 mo",
+          "6_12_MONTHS": "6-12 mo", "JUST_BROWSING": "Just browsing",
         };
-        const smsBody = [
-          `🔥 HOT LEAD — ${firstName} ${lastName}`,
+
+        // Internal team alert to the Quo business number
+        const teamSms = [
+          `Hot lead just came in: ${firstName} ${lastName}`,
           input.timeline ? `Timeline: ${tlLabels[input.timeline] ?? input.timeline}` : null,
           input.price_range ? `Budget: ${priceLabels[input.price_range] ?? input.price_range}` : null,
           input.financing ? `Financing: ${input.financing.replace(/_/g, " ")}` : null,
@@ -345,8 +347,14 @@ export const leadsRouter = router({
           input.email ? `Email: ${input.email}` : null,
           `View: https://apollodash-mwvy9am3.manus.space/crm/${contactId}`,
         ].filter(Boolean).join("\n");
-        sendQuoSms(phone, smsBody).catch((err: unknown) =>
-          console.error("[Quo] HOT lead SMS failed:", err)
+        sendQuoSms(phone, teamSms).catch((err: unknown) =>
+          console.error("[Quo] HOT lead team SMS failed:", err)
+        );
+
+        // Outbound auto-reply to the lead
+        const leadReply = `Hi ${firstName}, this is Kyle with Homes by Apollo. Just saw your inquiry and wanted to reach out personally. We have a few homes available right now in Pahrump that might be a great fit. When is a good time to connect this week?`;
+        sendQuoSms(phone, leadReply).catch((err: unknown) =>
+          console.error("[Quo] HOT lead auto-reply SMS failed:", err)
         );
       }
 

@@ -351,7 +351,7 @@ function useUtmParams() {
 }
 
 export default function ApolloSite({ initialPage = "home" }: { initialPage?: string }) {
-  const [, setLocation] = useLocation();
+  const [currentLocation, setLocation] = useLocation();
   const [page, setPage] = useState(initialPage);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -407,7 +407,16 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
   const nav = (p: string) => {
     // Push real URL for ad-trackable pages
     if (p === "contact") { setLocation("/get-in-touch"); return; }
-    if (p === "homes" || p === "lots") { setLocation("/find-your-home"); return; }
+    if (p === "homes" || p === "lots") {
+      // If already on /find-your-home, just update page state without remounting
+      if (currentLocation === "/find-your-home") {
+        setPage(p); setMenuOpen(false);
+        setTimeout(()=>topRef.current?.scrollTo({top:0,behavior:"smooth"}),0);
+      } else {
+        setLocation("/find-your-home");
+      }
+      return;
+    }
     if (p === "home") { setLocation("/"); setPage("home"); setMenuOpen(false); setTimeout(()=>topRef.current?.scrollTo({top:0,behavior:"smooth"}),0); return; }
     setPage(p);
     setMenuOpen(false);
@@ -1561,7 +1570,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", flexWrap:"wrap", gap:16, marginBottom:8 }}>
                 <div>
                   <div style={{ fontSize:12, fontWeight:700, color:G, background:GL, display:"inline-block", padding:"4px 12px", borderRadius:6, marginBottom:12, letterSpacing:"0.06em", textTransform:"uppercase" }}>{selectedHome.tag}</div>
-                  <h1 style={{ fontSize:"clamp(28px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.05, color:TXT, marginBottom:6 }}>{selectedHome.addr},<br/>{selectedHome.city}</h1>
+                  <h1 style={{ fontSize:"clamp(28px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.05, color:TXT, marginBottom:6 }}>{selectedHome.addr}</h1>
                   <div style={{ display:"flex", gap:20, fontSize:14, color:MUT, marginTop:12 }}>
                     <span>🛏 {selectedHome.bed} Beds</span>
                     <span>🚿 {selectedHome.bath} Baths</span>
@@ -1709,7 +1718,7 @@ export default function ApolloSite({ initialPage = "home" }: { initialPage?: str
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", flexWrap:"wrap", gap:16, marginBottom:8 }}>
                 <div>
                   <div style={{ fontSize:12, fontWeight:700, color:selectedLot.tag==="Available"?G:"#888", background:selectedLot.tag==="Available"?GL:"#f0f0f0", display:"inline-block", padding:"4px 12px", borderRadius:6, marginBottom:12, letterSpacing:"0.06em", textTransform:"uppercase" }}>{selectedLot.tag}</div>
-                  <h1 style={{ fontSize:"clamp(28px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.05, color:TXT, marginBottom:6 }}>{selectedLot.addr},<br/>{selectedLot.city}</h1>
+                  <h1 style={{ fontSize:"clamp(28px,4vw,52px)", fontWeight:800, letterSpacing:"-0.03em", lineHeight:1.05, color:TXT, marginBottom:6 }}>{selectedLot.addr}</h1>
                   <div style={{ display:"flex", gap:20, fontSize:14, color:MUT, marginTop:12 }}>
                     <span>📍 {selectedLot.size}</span>
                     <span>🔌 {selectedLot.utilities}</span>

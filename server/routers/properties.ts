@@ -117,6 +117,37 @@ export const propertiesRouter = router({
       return { url };
     }),
 
+  // Admin: bulk update multiple properties at once
+  bulkUpdate: adminOnly
+    .input(z.object({
+      ids: z.array(z.number()).min(1),
+      data: z.object({
+        tag: tagEnum.optional(),
+        featured: z.number().min(0).max(1).optional(),
+        propertyType: propertyTypeEnum.optional(),
+      }),
+    }))
+    .mutation(async ({ input }) => {
+      let updated = 0;
+      for (const id of input.ids) {
+        await updateProperty(id, input.data);
+        updated++;
+      }
+      return { updated };
+    }),
+
+  // Admin: bulk delete multiple properties (super_admin only)
+  bulkDelete: superAdminProcedure
+    .input(z.object({ ids: z.array(z.number()).min(1) }))
+    .mutation(async ({ input }) => {
+      let deleted = 0;
+      for (const id of input.ids) {
+        await deleteProperty(id);
+        deleted++;
+      }
+      return { deleted };
+    }),
+
   // Geocode all properties that don't have lat/lng yet
   geocodeAll: adminOnly.mutation(async () => {
     const { makeRequest } = await import("../_core/map");

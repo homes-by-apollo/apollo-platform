@@ -1106,3 +1106,25 @@
 - [x] Surface open rate and click rate inline in Campaigns table
 - [x] Add getCampaignStats DB helper (count opens/clicks from emailSends)
 - [x] Add email.getCampaignStats tRPC procedure
+
+## Quo Setup + CSV Export + SMS Drafts (April 10, 2026)
+- [ ] Request QUO_API_KEY and QUO_PHONE_NUMBER_ID secrets
+- [ ] Draft and wire automated SMS message templates (HOT lead, follow-up)
+- [ ] Add CSV export button to email list member panels in SCOPS
+- [ ] Add email.exportList tRPC procedure returning CSV data
+
+## Bug Fixes + Features (April 10, 2026 — Session B)
+- [ ] Set SCOPS_APOLLO as QUO_API_KEY secret
+- [ ] Fix duplicate "Pahrump, NV" on property detail page title
+- [ ] Fix "Back to Homes" button broken on property detail pages
+- [ ] Update address to 420 Belville Rd, Pahrump, NV in footer and all site pages
+- [ ] Build bulk inventory modification in SCOPS (select multiple, update status/price/tags)
+- [ ] Add CSV export button to email list member panels
+- [ ] Draft and wire automated SMS message templates for HOT leads
+- [ ] Brainstorm and outline Real Estate Agents page
+
+## SMS Copy + Claude Agents Assessment (April 10, 2026)
+- [x] Fix HOT lead internal SMS copy (no em dashes, Homes by Apollo, human tone)
+- [x] Add outbound SMS auto-reply to the lead when HOT
+- [x] Watch Claude Managed Agents video and assess use cases for Homes by Apollo
+- [ ] Brainstorm Real Estate Agents page
